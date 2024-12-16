@@ -17,11 +17,11 @@ const Navigation = () => {
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-gray-800">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 text-2xl font-bold">
-            <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-              <span className="text-background font-extrabold">R2P</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-transparent border-2 border-white rounded-full flex items-center justify-center">
+              <span className="text-white font-extrabold text-sm">R2P</span>
             </div>
-            <span className="text-accent hover:text-highlight transition-colors">Road2Pizza</span>
+            <span className="text-white font-light text-xl tracking-wider hover:text-accent transition-colors">Road2Pizza</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -1,13 +1,23 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Clock, Users, ChefHat } from 'lucide-react';
 
 const articles = {
-  1: {
+  "1": {
     title: "Perfect Neapolitan Dough",
     author: "Maria Romano",
     image: "https://images.unsplash.com/photo-1585238342024-78d387f4a707?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     category: "Technique",
+    prepTime: "20 mins",
+    cookTime: "90 seconds",
+    servings: "4 pizzas",
+    difficulty: "Intermediate",
+    ingredients: [
+      "1000g 00 flour",
+      "600ml cold water",
+      "20g fine sea salt",
+      "3g fresh yeast"
+    ],
     content: `
       The art of making Neapolitan pizza dough is a time-honored tradition that requires patience, precision, and understanding. The perfect dough begins with just four ingredients: flour, water, salt, and yeast. However, it's the technique and timing that transforms these simple ingredients into the characteristic light, airy, and chewy crust that defines Neapolitan pizza.
 
@@ -15,18 +25,41 @@ const articles = {
 
       The key to success lies in maintaining the right temperature throughout the process and handling the dough with respect and care. Remember, great pizza dough is born from both technique and patience.
     `,
+    instructions: [
+      "Mix flour and water until shaggy dough forms",
+      "Rest for 20 minutes (autolyse)",
+      "Add salt and yeast, mix until smooth",
+      "Bulk ferment for 8-12 hours at room temperature",
+      "Divide and ball, then proof for 4-6 hours"
+    ],
     tips: [
       "Use 00 flour for authentic texture",
       "Keep water temperature at 65°F (18°C)",
       "Allow for proper fermentation time",
       "Handle dough gently to preserve air bubbles"
-    ]
+    ],
+    nutritionInfo: {
+      calories: "250 per serving",
+      protein: "8g",
+      carbs: "48g",
+      fat: "2g"
+    }
   },
-  2: {
+  "2": {
     title: "Mastering Wood-Fired Ovens",
     author: "Marco Rossi",
     image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     category: "Equipment",
+    prepTime: "30 mins",
+    cookTime: "90 seconds",
+    servings: "2 pizzas",
+    difficulty: "Advanced",
+    ingredients: [
+      "Wood for firing",
+      "Pizza stone",
+      "High-quality pizza dough",
+      "Toppings of choice"
+    ],
     content: `
       Wood-fired ovens are the heart of traditional pizza making. These ovens can reach temperatures of up to 900°F (482°C), cooking a pizza to perfection in just 60-90 seconds. The combination of intense heat and wood smoke creates the distinctive char and flavor that defines authentic Neapolitan pizza.
 
@@ -34,18 +67,40 @@ const articles = {
 
       Understanding how to read the oven's temperature and manage the fire is crucial for consistent results. Each type of wood brings its own character to the cooking process, with hardwoods like oak and maple being preferred for their long, steady burn and subtle flavor contribution.
     `,
-    tips: [
+    instructions: [
       "Start the fire 2-3 hours before cooking",
       "Use well-seasoned hardwood",
       "Maintain dome temperature around 850-900°F",
       "Rotate pizzas for even cooking"
-    ]
+    ],
+    tips: [
+      "Ensure proper ventilation",
+      "Use a pizza peel for easy transfer",
+      "Experiment with different woods for flavor",
+      "Keep a close eye on cooking times"
+    ],
+    nutritionInfo: {
+      calories: "300 per serving",
+      protein: "10g",
+      carbs: "50g",
+      fat: "5g"
+    }
   },
-  3: {
+  "3": {
     title: "Seasonal Toppings Guide",
     author: "Sophie Chen",
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     category: "Ingredients",
+    prepTime: "15 mins",
+    cookTime: "10 mins",
+    servings: "4 pizzas",
+    difficulty: "Easy",
+    ingredients: [
+      "Fresh seasonal vegetables",
+      "High-quality cheese",
+      "Olive oil",
+      "Herbs and spices"
+    ],
     content: `
       The best pizzas are made with seasonal ingredients that are at their peak of flavor. Each season brings its own unique combinations and possibilities. Spring offers tender vegetables like asparagus and peas, while summer brings an abundance of tomatoes, basil, and zucchini.
 
@@ -53,12 +108,24 @@ const articles = {
 
       Remember that less is more when it comes to toppings. Choose ingredients that complement each other and don't overwhelm the delicate balance of the pizza. Quality always trumps quantity.
     `,
+    instructions: [
+      "Choose ingredients based on the season",
+      "Prep vegetables by washing and cutting",
+      "Layer toppings evenly on the dough",
+      "Bake until cheese is bubbly and crust is golden"
+    ],
     tips: [
-      "Use ingredients at their seasonal peak",
-      "Balance flavors and textures",
-      "Don't overload the pizza",
-      "Consider pre-cooking certain vegetables"
-    ]
+      "Visit local farmers' markets for fresh produce",
+      "Experiment with different flavor combinations",
+      "Use herbs to enhance the taste",
+      "Don't overload the pizza"
+    ],
+    nutritionInfo: {
+      calories: "200 per serving",
+      protein: "7g",
+      carbs: "30g",
+      fat: "8g"
+    }
   }
 };
 
@@ -90,6 +157,38 @@ const ArticleDetail = () => {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-2 mb-4">{article.title}</h1>
           <p className="text-gray-400 mb-6">By {article.author}</p>
           
+          {/* Recipe Details */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 bg-secondary p-4 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-5 h-5 text-accent" />
+              <div>
+                <p className="text-sm text-gray-400">Prep Time</p>
+                <p className="font-medium">{article.prepTime}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className="w-5 h-5 text-accent" />
+              <div>
+                <p className="text-sm text-gray-400">Cook Time</p>
+                <p className="font-medium">{article.cookTime}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Users className="w-5 h-5 text-accent" />
+              <div>
+                <p className="text-sm text-gray-400">Servings</p>
+                <p className="font-medium">{article.servings}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <ChefHat className="w-5 h-5 text-accent" />
+              <div>
+                <p className="text-sm text-gray-400">Difficulty</p>
+                <p className="font-medium">{article.difficulty}</p>
+              </div>
+            </div>
+          </div>
+
           <div className="relative h-[300px] md:h-[400px] lg:h-[500px] mb-8 rounded-lg overflow-hidden">
             <img 
               src={article.image} 
@@ -98,12 +197,39 @@ const ArticleDetail = () => {
             />
           </div>
 
+          {/* Ingredients */}
+          <div className="mb-8 bg-secondary p-6 rounded-lg">
+            <h2 className="text-2xl font-bold mb-4">Ingredients</h2>
+            <ul className="space-y-2">
+              {article.ingredients?.map((ingredient, index) => (
+                <li key={index} className="flex items-center space-x-2">
+                  <span className="text-accent">•</span>
+                  <span>{ingredient}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Instructions */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Instructions</h2>
+            <ol className="space-y-4">
+              {article.instructions?.map((instruction, index) => (
+                <li key={index} className="flex space-x-4">
+                  <span className="text-accent font-bold">{index + 1}.</span>
+                  <span>{instruction}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
           <div className="prose prose-invert max-w-none">
             {article.content.split('\n\n').map((paragraph, index) => (
               <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
             ))}
           </div>
 
+          {/* Pro Tips */}
           <div className="mt-12 bg-secondary rounded-lg p-6">
             <h3 className="text-xl font-bold mb-4">Pro Tips</h3>
             <ul className="space-y-2">
@@ -115,6 +241,31 @@ const ArticleDetail = () => {
               ))}
             </ul>
           </div>
+
+          {/* Nutrition Information */}
+          {article.nutritionInfo && (
+            <div className="mt-8 bg-secondary rounded-lg p-6">
+              <h3 className="text-xl font-bold mb-4">Nutrition Information</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-gray-400">Calories</p>
+                  <p className="font-medium">{article.nutritionInfo.calories}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Protein</p>
+                  <p className="font-medium">{article.nutritionInfo.protein}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Carbs</p>
+                  <p className="font-medium">{article.nutritionInfo.carbs}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400">Fat</p>
+                  <p className="font-medium">{article.nutritionInfo.fat}</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </article>
     </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Navigation = () => {
@@ -17,8 +17,11 @@ const Navigation = () => {
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-gray-800">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-2xl font-bold text-accent hover:text-highlight transition-colors">
-            Road2Pizza
+          <Link to="/" className="flex items-center space-x-2 text-2xl font-bold">
+            <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
+              <span className="text-background font-extrabold">R2P</span>
+            </div>
+            <span className="text-accent hover:text-highlight transition-colors">Road2Pizza</span>
           </Link>
 
           {/* Desktop Navigation */}

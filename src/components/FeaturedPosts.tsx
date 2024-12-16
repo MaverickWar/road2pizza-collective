@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const posts = [
   {
@@ -31,7 +32,8 @@ const FeaturedPosts = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-textLight mb-8 md:mb-12">Featured Stories</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {posts.map((post) => (
-            <article 
+            <Link 
+              to={`/article/${post.id}`}
               key={post.id}
               className="bg-background rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
             >
@@ -47,7 +49,7 @@ const FeaturedPosts = () => {
                 <h3 className="text-lg md:text-xl font-bold text-textLight mt-2 mb-3">{post.title}</h3>
                 <p className="text-gray-400 text-sm md:text-base">By {post.author}</p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>

@@ -2,7 +2,7 @@ import React from 'react';
 
 const Hero = () => {
   return (
-    <div className="relative h-[80vh] w-full overflow-hidden">
+    <div className="relative min-h-[80vh] w-full overflow-hidden">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -11,15 +11,15 @@ const Hero = () => {
       >
         <div className="absolute inset-0 bg-background/70"></div>
       </div>
-      <div className="relative container mx-auto h-full flex items-center">
+      <div className="relative container mx-auto h-full flex items-center px-4">
         <div className="max-w-2xl animate-fade-up">
-          <h1 className="text-5xl md:text-7xl font-bold text-textLight mb-6">
+          <h1 className="text-4xl md:text-7xl font-bold text-textLight mb-6">
             The Art of Pizza Making
           </h1>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-lg md:text-xl text-gray-300 mb-8">
             Join our community of passionate pizza makers and discover the secrets to creating the perfect pie
           </p>
-          <button className="bg-accent hover:bg-highlight text-white px-8 py-3 rounded-full transition-colors text-lg">
+          <button className="bg-accent hover:bg-highlight text-white px-6 py-3 rounded-full transition-colors text-base md:text-lg">
             Join Community
           </button>
         </div>

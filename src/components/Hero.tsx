@@ -2,7 +2,7 @@ import React from 'react';
 
 const Hero = () => {
   return (
-    <div className="relative min-h-[80vh] w-full overflow-hidden pt-16">
+    <div className="relative min-h-[80vh] w-full overflow-hidden mt-16">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{

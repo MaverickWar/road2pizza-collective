@@ -8,7 +8,7 @@ const Navigation = () => {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/recipes", label: "Recipes" },
+    { href: "/pizza", label: "Pizza" },
     { href: "/community", label: "Community" },
     { href: "/techniques", label: "Techniques" },
   ];

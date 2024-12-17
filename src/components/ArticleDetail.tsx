@@ -126,6 +126,136 @@ const articles = {
       carbs: "30g",
       fat: "8g"
     }
+  },
+  "4": {
+    title: "Classic NY Pizza Dough",
+    author: "Tony Romano",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591",
+    category: "New York Style",
+    prepTime: "30 mins",
+    cookTime: "12-15 mins",
+    servings: "2 large pizzas",
+    difficulty: "Intermediate",
+    ingredients: [
+      "1000g bread flour",
+      "600ml cool water",
+      "10g instant yeast",
+      "20g salt",
+      "15g olive oil"
+    ],
+    content: `
+      New York-style pizza dough is all about developing the right gluten structure for that characteristic fold. The dough should be strong enough to be stretched thin while maintaining its integrity.
+
+      The key to authentic New York pizza dough lies in the protein content of the flour and the long, cold fermentation process. This develops both flavor and the right texture for that perfect fold.
+
+      Water content and temperature control are crucial factors. The hydration level should be around 60-65%, creating a dough that's workable yet wet enough to create a chewy texture when baked.
+    `,
+    instructions: [
+      "Mix flour and water until shaggy dough forms",
+      "Add yeast, salt, and oil, mix until smooth",
+      "Knead for 10-15 minutes until elastic",
+      "Cold ferment for 24-72 hours",
+      "Shape into balls and proof for 2 hours"
+    ],
+    tips: [
+      "Use high-protein bread flour",
+      "Cold fermentation is key for flavor",
+      "Don't skip the oil - it helps with texture",
+      "Room temperature ingredients work best"
+    ],
+    nutritionInfo: {
+      calories: "250 per slice",
+      protein: "8g",
+      carbs: "48g",
+      fat: "4g"
+    }
+  },
+  "5": {
+    title: "NY Pizza Sauce",
+    author: "Maria Genovese",
+    image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
+    category: "New York Style",
+    prepTime: "15 mins",
+    cookTime: "45 mins",
+    servings: "4 pizzas",
+    difficulty: "Easy",
+    ingredients: [
+      "800g whole peeled tomatoes",
+      "2 cloves garlic",
+      "1 tbsp olive oil",
+      "1 tsp dried oregano",
+      "Salt and pepper to taste"
+    ],
+    content: `
+      The perfect New York pizza sauce is all about simplicity. Unlike heavily seasoned sauces, NY-style sauce lets the natural sweetness of tomatoes shine through.
+
+      Quality tomatoes are essential - San Marzano or other high-quality whole peeled tomatoes make the best sauce. The key is minimal cooking to preserve the fresh tomato flavor.
+
+      The sauce should be slightly chunky but spreadable, with just enough seasoning to enhance the tomatoes without overwhelming them.
+    `,
+    instructions: [
+      "Hand-crush whole tomatoes",
+      "Sauté garlic in olive oil",
+      "Add tomatoes and seasonings",
+      "Simmer for 30-45 minutes",
+      "Cool before using"
+    ],
+    tips: [
+      "Use high-quality whole tomatoes",
+      "Don't overcook the sauce",
+      "Season conservatively",
+      "Make ahead for best flavor"
+    ],
+    nutritionInfo: {
+      calories: "45 per serving",
+      protein: "1g",
+      carbs: "6g",
+      fat: "3g"
+    }
+  },
+  "6": {
+    title: "Detroit Style Pan Pizza",
+    author: "Mike Wilson",
+    image: "https://images.unsplash.com/photo-1585238342024-78d387f4a707",
+    category: "Detroit Style",
+    prepTime: "45 mins",
+    cookTime: "15 mins",
+    servings: "1 pan",
+    difficulty: "Advanced",
+    ingredients: [
+      "500g bread flour",
+      "350ml water",
+      "10g instant yeast",
+      "12g salt",
+      "Brick cheese",
+      "Pizza sauce"
+    ],
+    content: `
+      Detroit-style pizza is characterized by its rectangular shape, crispy bottom, and caramelized cheese edges. The key is using the right pan and cheese.
+
+      Traditional Detroit pizza uses Wisconsin brick cheese, which creates those signature crispy edges. The sauce goes on top of the cheese, creating a unique layering effect.
+
+      The dough is high-hydration and needs to be handled carefully to achieve the right texture and rise.
+    `,
+    instructions: [
+      "Mix dough ingredients",
+      "Let rise for 2 hours",
+      "Press into oiled pan",
+      "Top with cheese to edges",
+      "Add sauce after baking"
+    ],
+    tips: [
+      "Use a proper steel pan",
+      "Let dough come to room temp",
+      "Cheese should go to edges",
+      "Sauce goes on last"
+    ],
+    nutritionInfo: {
+      calories: "350 per slice",
+      protein: "12g",
+      carbs: "45g",
+      fat: "15g"
+    }
   }
 };
 

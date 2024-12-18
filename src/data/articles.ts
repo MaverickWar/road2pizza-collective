@@ -1,13 +1,4 @@
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import ArticleHeader from './article/ArticleHeader';
-import RecipeDetails from './article/RecipeDetails';
-import Ingredients from './article/Ingredients';
-import Instructions from './article/Instructions';
-import ProTips from './article/ProTips';
-import NutritionInfo from './article/NutritionInfo';
-
-const articles = {
+export const articles = {
   "1": {
     title: "Perfect Neapolitan Dough",
     author: "Maria Romano",
@@ -261,66 +252,142 @@ const articles = {
       carbs: "45g",
       fat: "15g"
     }
+  },
+  "7": {
+    title: "Classic Chicago Deep Dish",
+    author: "Tony Giordano",
+    image: "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3",
+    category: "Chicago Style",
+    prepTime: "45 mins",
+    cookTime: "35-40 mins",
+    servings: "6-8 slices",
+    difficulty: "Advanced",
+    ingredients: [
+      "4 cups all-purpose flour",
+      "1 cup yellow cornmeal",
+      "1.5 cups warm water",
+      "2 packets active dry yeast",
+      "1/2 cup olive oil",
+      "2 lbs mozzarella cheese",
+      "1 lb Italian sausage",
+      "28 oz crushed tomatoes",
+      "2 tbsp Italian seasoning"
+    ],
+    content: `
+      Chicago deep dish pizza is a unique and hearty style that's more like a pie than a traditional pizza. The thick, buttery crust forms a bowl that holds layers of cheese, meat, and chunky tomato sauce.
+
+      The key to authentic Chicago-style pizza lies in the layering: cheese first, then toppings, and finally the sauce on top. This order prevents the cheese from burning during the longer cooking time required for the thick crust.
+
+      The crust itself is special, incorporating cornmeal for texture and olive oil for richness. It needs to be strong enough to hold substantial toppings while maintaining a tender, flaky texture.
+    `,
+    instructions: [
+      "Mix flour, cornmeal, yeast, and warm water",
+      "Knead dough until smooth, let rise for 1 hour",
+      "Press into deep dish pan, let rest 15 minutes",
+      "Layer cheese, toppings, then sauce",
+      "Bake at 425°F for 35-40 minutes"
+    ],
+    tips: [
+      "Use a proper deep dish pan",
+      "Let dough come to room temperature",
+      "Don't skimp on the cheese layer",
+      "Drain excess liquid from tomatoes"
+    ],
+    nutritionInfo: {
+      calories: "450 per slice",
+      protein: "22g",
+      carbs: "48g",
+      fat: "25g"
+    }
+  },
+  "8": {
+    title: "Traditional Sicilian Pizza",
+    author: "Giuseppe Romano",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591",
+    category: "Sicilian Style",
+    prepTime: "2 hours",
+    cookTime: "20-25 mins",
+    servings: "6 squares",
+    difficulty: "Intermediate",
+    ingredients: [
+      "4 cups bread flour",
+      "1.5 cups warm water",
+      "2 tbsp olive oil",
+      "2 tsp salt",
+      "1.5 tsp active dry yeast",
+      "2 cups tomato sauce",
+      "1 lb mozzarella",
+      "Fresh basil"
+    ],
+    content: `
+      Sicilian pizza, known as 'sfincione' in Sicily, is characterized by its thick, spongy crust and rectangular shape. Unlike other pizza styles, authentic Sicilian pizza often features breadcrumbs on top, adding extra texture.
+
+      The dough is similar to focaccia, requiring a long fermentation time to develop its signature texture. The result is a light, airy crust that's crispy on the bottom and edges.
+
+      Traditional toppings are simple but flavorful, often featuring strong anchovies, onions, tomatoes, and hard cheeses like caciocavallo.
+    `,
+    instructions: [
+      "Mix flour, water, yeast, and oil",
+      "Let dough rise for 1-2 hours",
+      "Stretch into rectangular pan",
+      "Top with sauce and cheese",
+      "Bake at 450°F until golden"
+    ],
+    tips: [
+      "Use high-quality olive oil",
+      "Allow for proper fermentation",
+      "Don't overwork the dough",
+      "Use a well-oiled pan"
+    ],
+    nutritionInfo: {
+      calories: "380 per square",
+      protein: "15g",
+      carbs: "52g",
+      fat: "18g"
+    }
+  },
+  "9": {
+    title: "Crispy Thin Crust Pizza",
+    author: "Sarah Johnson",
+    image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002",
+    category: "Thin & Crispy",
+    prepTime: "30 mins",
+    cookTime: "12-15 mins",
+    servings: "4 servings",
+    difficulty: "Intermediate",
+    ingredients: [
+      "2.5 cups 00 flour",
+      "1 cup warm water",
+      "1 tsp active dry yeast",
+      "1 tbsp olive oil",
+      "1 tsp salt",
+      "Cornmeal for dusting"
+    ],
+    content: `
+      Thin and crispy pizza is all about achieving that perfect cracker-like crust while maintaining enough structure to hold toppings. The key lies in the dough preparation and cooking technique.
+
+      Unlike Neapolitan or New York style, this dough uses less water and is rolled very thin. The result is a crust that crisps up completely during baking, providing a satisfying crunch with every bite.
+
+      Temperature control is crucial - a hot oven and preheated pizza stone or steel are essential for achieving the right texture.
+    `,
+    instructions: [
+      "Mix dry ingredients, then add water",
+      "Knead briefly, rest for 30 minutes",
+      "Roll extremely thin",
+      "Transfer to hot stone",
+      "Bake at 500°F until crispy"
+    ],
+    tips: [
+      "Use minimal toppings",
+      "Roll dough as thin as possible",
+      "Preheat stone thoroughly",
+      "Watch closely while baking"
+    ],
+    nutritionInfo: {
+      calories: "220 per slice",
+      protein: "8g",
+      carbs: "42g",
+      fat: "4g"
+    }
   }
 };
-
-const ArticleDetail = () => {
-  const { id } = useParams();
-  const article = articles[id as keyof typeof articles];
-
-  if (!article) {
-    return (
-      <div className="min-h-screen pt-20 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">Article not found</h1>
-          <Link to="/" className="text-accent hover:text-highlight">Return home</Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen pt-20">
-      <article className="container mx-auto px-4 py-8">
-        <ArticleHeader 
-          category={article.category}
-          title={article.title}
-          author={article.author}
-        />
-        
-        <div className="max-w-4xl mx-auto">
-          <RecipeDetails 
-            prepTime={article.prepTime}
-            cookTime={article.cookTime}
-            servings={article.servings}
-            difficulty={article.difficulty}
-          />
-
-          <div className="relative h-[300px] md:h-[400px] lg:h-[500px] mb-8 rounded-lg overflow-hidden">
-            <img 
-              src={article.image} 
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <Ingredients ingredients={article.ingredients} />
-          <Instructions instructions={article.instructions} />
-
-          <div className="prose prose-invert max-w-none">
-            {article.content.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
-            ))}
-          </div>
-
-          <ProTips tips={article.tips} />
-          {article.nutritionInfo && (
-            <NutritionInfo nutritionInfo={article.nutritionInfo} />
-          )}
-        </div>
-      </article>
-    </div>
-  );
-};
-
-export default ArticleDetail;

@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, Pizza } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, Pizza, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from './AuthProvider';
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from './ui/button';
+import { toast } from 'sonner';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -12,6 +18,20 @@ const Navigation = () => {
     { href: "/community", label: "Community" },
     { href: "/techniques", label: "Techniques" },
   ];
+
+  if (isAdmin) {
+    navLinks.push({ href: "/admin", label: "Admin Dashboard" });
+  }
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+      navigate("/");
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-sm z-50 border-b border-gray-800">
@@ -25,7 +45,7 @@ const Navigation = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -35,6 +55,22 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
+            {user ? (
+              <Button
+                variant="ghost"
+                className="text-textLight hover:text-accent"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" className="text-textLight hover:text-accent">
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Navigation */}
@@ -54,6 +90,25 @@ const Navigation = () => {
                     {link.label}
                   </Link>
                 ))}
+                {user ? (
+                  <Button
+                    variant="ghost"
+                    className="text-textLight hover:text-accent justify-start px-4"
+                    onClick={() => {
+                      handleLogout();
+                      setIsOpen(false);
+                    }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                ) : (
+                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="text-textLight hover:text-accent w-full justify-start px-4">
+                      Login
+                    </Button>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>

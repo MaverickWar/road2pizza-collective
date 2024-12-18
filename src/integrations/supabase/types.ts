@@ -41,23 +41,68 @@ export type Database = {
           },
         ]
       }
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          recipe_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          recipe_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          recipe_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           id: string
           is_admin: boolean | null
+          is_staff: boolean | null
           username: string | null
         }
         Insert: {
           created_at?: string
           id: string
           is_admin?: boolean | null
+          is_staff?: boolean | null
           username?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           is_admin?: boolean | null
+          is_staff?: boolean | null
           username?: string | null
         }
         Relationships: []
@@ -134,12 +179,62 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          rating: number | null
+          recipe_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          recipe_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          recipe_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: {
+          user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

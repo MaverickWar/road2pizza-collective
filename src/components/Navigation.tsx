@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Pizza, LogOut } from 'lucide-react';
+import { Menu, Pizza, LogOut, LayoutDashboard } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from './AuthProvider';
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isStaff } = useAuth();
   const navigate = useNavigate();
 
   const navLinks = [
@@ -18,10 +18,6 @@ const Navigation = () => {
     { href: "/community", label: "Community" },
     { href: "/techniques", label: "Techniques" },
   ];
-
-  if (isAdmin) {
-    navLinks.push({ href: "/admin", label: "Admin Dashboard" });
-  }
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -55,6 +51,15 @@ const Navigation = () => {
                 {link.label}
               </Link>
             ))}
+            {user && (
+              <Link
+                to="/dashboard"
+                className="flex items-center space-x-2 text-textLight hover:text-accent transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Dashboard</span>
+              </Link>
+            )}
             {user ? (
               <Button
                 variant="ghost"
@@ -90,6 +95,16 @@ const Navigation = () => {
                     {link.label}
                   </Link>
                 ))}
+                {user && (
+                  <Link
+                    to="/dashboard"
+                    className="flex items-center space-x-2 text-lg text-textLight hover:text-accent transition-colors px-4 py-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                )}
                 {user ? (
                   <Button
                     variant="ghost"

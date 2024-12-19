@@ -1,14 +1,19 @@
 import { useAuth } from "@/components/AuthProvider";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const MemberDashboard = () => {
   const { user } = useAuth();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Member Dashboard</h1>
-      <p>Welcome, {user?.email}</p>
-      {/* Member-specific content will be implemented in the next iteration */}
-    </div>
+    <DashboardLayout>
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">My Reviews</h1>
+        <p>Welcome, {user?.email}</p>
+        <div className="grid grid-cols-1 gap-4">
+          {/* Add user's reviews list here */}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

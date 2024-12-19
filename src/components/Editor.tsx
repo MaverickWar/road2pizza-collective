@@ -30,8 +30,8 @@ const Editor = ({ content, onChange }: EditorProps) => {
   }
 
   return (
-    <div className="border border-input rounded-md">
-      <div className="border-b border-input p-2 flex flex-wrap gap-2">
+    <div className="border border-input rounded-md overflow-hidden">
+      <div className="border-b border-input p-2 flex flex-wrap gap-2 bg-muted/50">
         <Button
           variant="ghost"
           size="sm"
@@ -89,7 +89,10 @@ const Editor = ({ content, onChange }: EditorProps) => {
           <Quote className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent editor={editor} className="prose prose-invert max-w-none p-4" />
+      <EditorContent 
+        editor={editor} 
+        className="prose prose-sm prose-invert max-w-none p-4 min-h-[200px] focus:outline-none"
+      />
     </div>
   );
 };

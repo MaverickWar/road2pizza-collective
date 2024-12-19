@@ -16,11 +16,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Star } from "lucide-react";
 import RecipeForm from "./RecipeForm";
 
 const RecipeManagement = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState(null);
 
   // Fetch recipes with their reviews
   const { data: recipes, isLoading } = useQuery({
@@ -36,7 +37,8 @@ const RecipeManagement = () => {
             content,
             user_id,
             profiles (username)
-          )
+          ),
+          categories (name)
         `);
       
       if (error) {
@@ -48,14 +50,20 @@ const RecipeManagement = () => {
     },
   });
 
-  if (showCreateForm) {
+  if (showCreateForm || editingRecipe) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Create New Recipe</CardTitle>
+          <CardTitle>{editingRecipe ? "Edit Recipe" : "Create New Recipe"}</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecipeForm onCancel={() => setShowCreateForm(false)} />
+          <RecipeForm 
+            onCancel={() => {
+              setShowCreateForm(false);
+              setEditingRecipe(null);
+            }}
+            existingRecipe={editingRecipe}
+          />
         </CardContent>
       </Card>
     );
@@ -65,43 +73,59 @@ const RecipeManagement = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Recipe Management</CardTitle>
-        <Button onClick={() => setShowCreateForm(true)}>
+        <Button onClick={() => setShowCreateForm(true)} className="bg-green-600 hover:bg-green-700">
           <Plus className="w-4 h-4 mr-2" />
           Create Recipe
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Reviews</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recipes?.map((recipe) => (
-              <TableRow key={recipe.id}>
-                <TableCell className="font-medium">{recipe.title}</TableCell>
-                <TableCell>{recipe.author}</TableCell>
-                <TableCell>
-                  {recipe.reviews?.length || 0} reviews
-                  {recipe.reviews?.length > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      Avg: {(recipe.reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / recipe.reviews.length).toFixed(1)} ⭐
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="sm">
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                </TableCell>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Author</TableHead>
+                <TableHead>Reviews</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {recipes?.map((recipe) => (
+                <TableRow key={recipe.id}>
+                  <TableCell className="font-medium">{recipe.title}</TableCell>
+                  <TableCell>{recipe.categories?.name}</TableCell>
+                  <TableCell>{recipe.author}</TableCell>
+                  <TableCell>
+                    {recipe.reviews?.length || 0} reviews
+                    {recipe.reviews?.length > 0 && (
+                      <div className="text-sm text-muted-foreground">
+                        Avg: {(recipe.reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / recipe.reviews.length).toFixed(1)} ⭐
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="space-x-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setEditingRecipe(recipe)}
+                      className="hover:bg-secondary"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {recipes?.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                    No recipes found. Create your first recipe!
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

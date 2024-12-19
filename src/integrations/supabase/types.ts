@@ -89,6 +89,7 @@ export type Database = {
           id: string
           is_admin: boolean | null
           is_staff: boolean | null
+          is_suspended: boolean | null
           username: string | null
         }
         Insert: {
@@ -96,6 +97,7 @@ export type Database = {
           id: string
           is_admin?: boolean | null
           is_staff?: boolean | null
+          is_suspended?: boolean | null
           username?: string | null
         }
         Update: {
@@ -103,6 +105,7 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           is_staff?: boolean | null
+          is_suspended?: boolean | null
           username?: string | null
         }
         Relationships: []
@@ -120,6 +123,7 @@ export type Database = {
           image_url: string | null
           ingredients: Json | null
           instructions: Json | null
+          is_featured: boolean | null
           nutrition_info: Json | null
           prep_time: string | null
           servings: string | null
@@ -138,6 +142,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
+          is_featured?: boolean | null
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null
@@ -156,6 +161,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
+          is_featured?: boolean | null
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null

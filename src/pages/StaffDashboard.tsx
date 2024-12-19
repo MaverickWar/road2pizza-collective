@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -14,40 +13,20 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import Editor from "@/components/Editor";
-import {
-  Ban,
-  BookOpen,
-  Eye,
-  MessageSquare,
-  Pencil,
-  User,
-} from "lucide-react";
+import { Ban, BookOpen, Eye, MessageSquare, User } from "lucide-react";
+import RecipeManagement from "@/components/recipe/RecipeManagement";
 
 const StaffDashboard = () => {
-  const [editingRecipe, setEditingRecipe] = useState(null);
-  const [content, setContent] = useState("");
-
-  // Fetch recipes
-  const { data: recipes, isLoading: loadingRecipes } = useQuery({
-    queryKey: ["recipes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("recipes")
-        .select("*, profiles(is_admin)");
-      if (error) throw error;
-      return data;
-    },
-  });
-
   // Fetch users
   const { data: users, isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
+      console.log("Fetching users...");
       const { data, error } = await supabase
         .from("profiles")
         .select("*");
       if (error) throw error;
+      console.log("Fetched users:", data);
       return data;
     },
   });
@@ -56,28 +35,15 @@ const StaffDashboard = () => {
   const { data: reviews, isLoading: loadingReviews } = useQuery({
     queryKey: ["reviews"],
     queryFn: async () => {
+      console.log("Fetching reviews...");
       const { data, error } = await supabase
         .from("reviews")
         .select("*, profiles(is_admin), recipes(title)");
       if (error) throw error;
+      console.log("Fetched reviews:", data);
       return data;
     },
   });
-
-  const handleToggleFeature = async (recipeId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("recipes")
-        .update({ is_featured: !currentStatus })
-        .eq("id", recipeId);
-      
-      if (error) throw error;
-      toast.success("Recipe feature status updated");
-    } catch (error) {
-      console.error("Error updating recipe:", error);
-      toast.error("Failed to update recipe feature status");
-    }
-  };
 
   const handleToggleSuspend = async (userId: string, currentStatus: boolean) => {
     try {
@@ -120,53 +86,8 @@ const StaffDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recipes" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recipes Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Author</TableHead>
-                      <TableHead>Featured</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recipes?.map((recipe) => (
-                      <TableRow key={recipe.id}>
-                        <TableCell>{recipe.title}</TableCell>
-                        <TableCell>{recipe.author}</TableCell>
-                        <TableCell>
-                          {recipe.is_featured ? "Yes" : "No"}
-                        </TableCell>
-                        <TableCell className="space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleFeature(recipe.id, recipe.is_featured)}
-                            disabled={recipe.profiles?.is_admin}
-                          >
-                            {recipe.is_featured ? "Unfeature" : "Feature"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingRecipe(recipe)}
-                            disabled={recipe.profiles?.is_admin}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          <TabsContent value="recipes">
+            <RecipeManagement />
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
@@ -250,7 +171,7 @@ const StaffDashboard = () => {
                             size="sm"
                             disabled={review.profiles?.is_admin}
                           >
-                            <Pencil className="w-4 h-4" />
+                            View
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -261,23 +182,6 @@ const StaffDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
-
-        {editingRecipe && (
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle>Edit Recipe: {editingRecipe.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Editor content={content} onChange={setContent} />
-              <div className="flex justify-end mt-4 space-x-2">
-                <Button variant="outline" onClick={() => setEditingRecipe(null)}>
-                  Cancel
-                </Button>
-                <Button>Save Changes</Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </DashboardLayout>
   );

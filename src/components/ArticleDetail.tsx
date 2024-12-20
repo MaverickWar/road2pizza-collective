@@ -52,11 +52,11 @@ const ArticleDetail = () => {
       if (!data) {
         console.log('No recipe found in Supabase, using mock data');
         return {
-          id: mockRecipe.id || 'mock-id',
+          id: crypto.randomUUID(), // Generate a valid UUID instead of mock-id
           title: mockRecipe.title,
           author: mockRecipe.author,
-          category_id: mockRecipe.categoryId || null,
-          image_url: mockRecipe.imageUrl || '/placeholder.svg',
+          category_id: null, // We'll set this to null since we don't have a category mapping yet
+          image_url: mockRecipe.image || '/placeholder.svg', // Use the image property from mock data
           content: mockRecipe.content,
           ingredients: mockRecipe.ingredients || [],
           instructions: mockRecipe.instructions || [],

@@ -28,7 +28,7 @@ const RecipeManagement = () => {
     queryKey: ["recipes-with-reviews"],
     queryFn: async () => {
       console.log("Fetching recipes with reviews...");
-      const { data, error } = await supabase
+      const { data: recipesData, error: recipesError } = await supabase
         .from("recipes")
         .select(`
           *,
@@ -41,12 +41,38 @@ const RecipeManagement = () => {
           categories (name)
         `);
       
-      if (error) {
-        console.error("Error fetching recipes:", error);
-        throw error;
+      if (recipesError) {
+        console.error("Error fetching recipes:", recipesError);
+        throw recipesError;
       }
-      console.log("Fetched recipes:", data);
-      return data;
+
+      // Also fetch mock recipes from articles
+      const { articles } = await import('@/data/articles');
+      const mockRecipes = Object.values(articles).map(article => ({
+        id: crypto.randomUUID(),
+        title: article.title,
+        author: article.author,
+        category_id: null,
+        image_url: article.image || '/placeholder.svg',
+        content: article.content,
+        ingredients: article.ingredients || [],
+        instructions: article.instructions || [],
+        tips: article.tips || [],
+        nutrition_info: article.nutritionInfo || null,
+        created_at: new Date().toISOString(),
+        created_by: null,
+        prep_time: article.prepTime,
+        cook_time: article.cookTime,
+        servings: article.servings,
+        difficulty: article.difficulty,
+        reviews: [],
+        categories: null
+      }));
+      
+      // Combine Supabase recipes with mock recipes
+      const allRecipes = [...(recipesData || []), ...mockRecipes];
+      console.log("All recipes:", allRecipes);
+      return allRecipes;
     },
   });
 
@@ -98,7 +124,7 @@ const RecipeManagement = () => {
               {recipes?.map((recipe) => (
                 <TableRow key={recipe.id}>
                   <TableCell className="font-medium">{recipe.title}</TableCell>
-                  <TableCell>{recipe.categories?.name}</TableCell>
+                  <TableCell>{recipe.categories?.name || 'Uncategorized'}</TableCell>
                   <TableCell>{recipe.author}</TableCell>
                   <TableCell>
                     {recipe.reviews?.length || 0} reviews
@@ -120,7 +146,7 @@ const RecipeManagement = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {recipes?.length === 0 && (
+              {(!recipes || recipes.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
                     No recipes found. Create your first recipe!

@@ -16,7 +16,7 @@ const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
         .from('recipes')
         .select('*')
         .eq('id', recipeId)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching recipe:', error);
@@ -25,14 +25,25 @@ const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
       console.log('Fetched recipe:', data);
       return data;
     },
+    enabled: !!recipeId,
   });
 
   if (isLoading) {
-    return <div>Loading recipe details...</div>;
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 bg-secondary p-4 rounded-lg animate-pulse">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-16 bg-muted rounded"></div>
+        ))}
+      </div>
+    );
   }
 
   if (!recipe) {
-    return <div>Recipe not found</div>;
+    return (
+      <div className="mb-8 p-4 bg-destructive/10 text-destructive rounded-lg">
+        Recipe details not found
+      </div>
+    );
   }
 
   return (

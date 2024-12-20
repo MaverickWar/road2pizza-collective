@@ -9,10 +9,17 @@ import Instructions from './article/Instructions';
 import ProTips from './article/ProTips';
 import NutritionInfo from './article/NutritionInfo';
 
+interface NutritionInfoType {
+  calories: string;
+  protein: string;
+  carbs: string;
+  fat: string;
+}
+
 const ArticleDetail = () => {
   const { id } = useParams();
 
-  // First query to get the recipe ID from the mock data
+  // First query to get the recipe from the mock data
   const { data: mockRecipe } = useQuery({
     queryKey: ['mock-article', id],
     queryFn: async () => {
@@ -23,7 +30,7 @@ const ArticleDetail = () => {
     enabled: !!id,
   });
 
-  // Then use that to query Supabase with proper UUID
+  // Then use that to query Supabase with the title
   const { data: recipe, isLoading, error } = useQuery({
     queryKey: ['article', mockRecipe?.title],
     queryFn: async () => {
@@ -41,15 +48,26 @@ const ArticleDetail = () => {
         throw error;
       }
       
-      // If no data in Supabase yet, return mock data
+      // If no data in Supabase yet, transform mock data to match Supabase schema
       if (!data) {
         console.log('No recipe found in Supabase, using mock data');
         return {
-          ...mockRecipe,
-          ingredients: mockRecipe.ingredients as string[],
-          instructions: mockRecipe.instructions as string[],
-          tips: mockRecipe.tips as string[],
-          nutrition_info: mockRecipe.nutritionInfo,
+          id: mockRecipe.id || 'mock-id',
+          title: mockRecipe.title,
+          author: mockRecipe.author,
+          category_id: mockRecipe.categoryId || null,
+          image_url: mockRecipe.imageUrl || '/placeholder.svg',
+          content: mockRecipe.content,
+          ingredients: mockRecipe.ingredients || [],
+          instructions: mockRecipe.instructions || [],
+          tips: mockRecipe.tips || [],
+          nutrition_info: mockRecipe.nutritionInfo || null,
+          created_at: new Date().toISOString(),
+          created_by: null,
+          prep_time: mockRecipe.prepTime,
+          cook_time: mockRecipe.cookTime,
+          servings: mockRecipe.servings,
+          difficulty: mockRecipe.difficulty,
         };
       }
       
@@ -84,10 +102,19 @@ const ArticleDetail = () => {
     );
   }
 
-  // Ensure arrays are properly typed
-  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
-  const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
-  const tips = Array.isArray(recipe.tips) ? recipe.tips : [];
+  // Ensure arrays are properly typed and handle potential null values
+  const ingredients = Array.isArray(recipe.ingredients) 
+    ? recipe.ingredients.map(item => String(item))
+    : [];
+  const instructions = Array.isArray(recipe.instructions)
+    ? recipe.instructions.map(item => String(item))
+    : [];
+  const tips = Array.isArray(recipe.tips)
+    ? recipe.tips.map(item => String(item))
+    : [];
+
+  // Ensure nutrition info is properly typed
+  const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
 
   return (
     <div className="min-h-screen pt-20">
@@ -119,8 +146,8 @@ const ArticleDetail = () => {
           </div>
 
           <ProTips tips={tips} />
-          {recipe.nutrition_info && (
-            <NutritionInfo nutritionInfo={recipe.nutrition_info} />
+          {nutritionInfo && (
+            <NutritionInfo nutritionInfo={nutritionInfo} />
           )}
         </div>
       </article>

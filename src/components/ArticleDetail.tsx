@@ -2,12 +2,16 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
 import ArticleHeader from './article/ArticleHeader';
 import RecipeDetails from './article/RecipeDetails';
 import Ingredients from './article/Ingredients';
 import Instructions from './article/Instructions';
 import ProTips from './article/ProTips';
 import NutritionInfo from './article/NutritionInfo';
+import EditRecipeModal from './article/EditRecipeModal';
 
 interface NutritionInfoType {
   calories: string;
@@ -18,12 +22,13 @@ interface NutritionInfoType {
 
 const ArticleDetail = () => {
   const { id } = useParams();
+  const { user, isAdmin, isStaff } = useAuth();
+  const [showEditModal, setShowEditModal] = React.useState(false);
 
   // First query to get the recipe from the mock data
   const { data: mockRecipe } = useQuery({
     queryKey: ['mock-article', id],
     queryFn: async () => {
-      // Import dynamically to avoid bundling all articles
       const { articles } = await import('@/data/articles');
       return articles[id as keyof typeof articles];
     },
@@ -48,15 +53,14 @@ const ArticleDetail = () => {
         throw error;
       }
       
-      // If no data in Supabase yet, transform mock data to match Supabase schema
       if (!data) {
         console.log('No recipe found in Supabase, using mock data');
         return {
-          id: crypto.randomUUID(), // Generate a valid UUID instead of mock-id
+          id: crypto.randomUUID(),
           title: mockRecipe.title,
           author: mockRecipe.author,
-          category_id: null, // We'll set this to null since we don't have a category mapping yet
-          image_url: mockRecipe.image || '/placeholder.svg', // Use the image property from mock data
+          category_id: null,
+          image_url: mockRecipe.image || '/placeholder.svg',
           content: mockRecipe.content,
           ingredients: mockRecipe.ingredients || [],
           instructions: mockRecipe.instructions || [],
@@ -76,6 +80,12 @@ const ArticleDetail = () => {
     },
     enabled: !!mockRecipe?.title,
   });
+
+  const canEdit = React.useMemo(() => {
+    if (!user) return false;
+    if (isAdmin || isStaff) return true;
+    return recipe?.created_by === user.id;
+  }, [user, isAdmin, isStaff, recipe?.created_by]);
 
   if (isLoading) {
     return (
@@ -102,7 +112,6 @@ const ArticleDetail = () => {
     );
   }
 
-  // Ensure arrays are properly typed and handle potential null values
   const ingredients = Array.isArray(recipe.ingredients) 
     ? recipe.ingredients.map(item => String(item))
     : [];
@@ -112,18 +121,29 @@ const ArticleDetail = () => {
   const tips = Array.isArray(recipe.tips)
     ? recipe.tips.map(item => String(item))
     : [];
-
-  // Ensure nutrition info is properly typed
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
 
   return (
     <div className="min-h-screen pt-20">
       <article className="container mx-auto px-4 py-8">
-        <ArticleHeader 
-          category={recipe.category_id}
-          title={recipe.title}
-          author={recipe.author}
-        />
+        <div className="flex justify-between items-start mb-6">
+          <ArticleHeader 
+            category={recipe.category_id}
+            title={recipe.title}
+            author={recipe.author}
+          />
+          {canEdit && (
+            <Button
+              onClick={() => setShowEditModal(true)}
+              variant="outline"
+              size="sm"
+              className="ml-4"
+            >
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit Recipe
+            </Button>
+          )}
+        </div>
         
         <div className="max-w-4xl mx-auto">
           <RecipeDetails recipeId={recipe.id} />
@@ -151,6 +171,13 @@ const ArticleDetail = () => {
           )}
         </div>
       </article>
+
+      {showEditModal && (
+        <EditRecipeModal
+          recipe={recipe}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
     </div>
   );
 };

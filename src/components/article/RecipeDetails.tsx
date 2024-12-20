@@ -1,42 +1,68 @@
 import React from 'react';
 import { Clock, Users, ChefHat } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RecipeDetailsProps {
-  prepTime: string;
-  cookTime: string;
-  servings: string;
-  difficulty: string;
+  recipeId: string;
 }
 
-const RecipeDetails = ({ prepTime, cookTime, servings, difficulty }: RecipeDetailsProps) => {
+const RecipeDetails = ({ recipeId }: RecipeDetailsProps) => {
+  const { data: recipe, isLoading } = useQuery({
+    queryKey: ['recipe', recipeId],
+    queryFn: async () => {
+      console.log('Fetching recipe details:', recipeId);
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('id', recipeId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching recipe:', error);
+        throw error;
+      }
+      console.log('Fetched recipe:', data);
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading recipe details...</div>;
+  }
+
+  if (!recipe) {
+    return <div>Recipe not found</div>;
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 bg-secondary p-4 rounded-lg">
       <div className="flex items-center space-x-2">
         <Clock className="w-5 h-5 text-accent" />
         <div>
           <p className="text-sm text-gray-400">Prep Time</p>
-          <p className="font-medium">{prepTime}</p>
+          <p className="font-medium">{recipe.prep_time}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
         <Clock className="w-5 h-5 text-accent" />
         <div>
           <p className="text-sm text-gray-400">Cook Time</p>
-          <p className="font-medium">{cookTime}</p>
+          <p className="font-medium">{recipe.cook_time}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
         <Users className="w-5 h-5 text-accent" />
         <div>
           <p className="text-sm text-gray-400">Servings</p>
-          <p className="font-medium">{servings}</p>
+          <p className="font-medium">{recipe.servings}</p>
         </div>
       </div>
       <div className="flex items-center space-x-2">
         <ChefHat className="w-5 h-5 text-accent" />
         <div>
           <p className="text-sm text-gray-400">Difficulty</p>
-          <p className="font-medium">{difficulty}</p>
+          <p className="font-medium">{recipe.difficulty}</p>
         </div>
       </div>
     </div>

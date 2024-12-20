@@ -23,7 +23,7 @@ const RecipeManagement = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
 
-  // Fetch recipes with their reviews
+  // Fetch recipes with their reviews and categories
   const { data: recipes, isLoading } = useQuery({
     queryKey: ["recipes-with-reviews"],
     queryFn: async () => {
@@ -49,6 +49,10 @@ const RecipeManagement = () => {
       return data;
     },
   });
+
+  if (isLoading) {
+    return <div>Loading recipes...</div>;
+  }
 
   if (showCreateForm || editingRecipe) {
     return (

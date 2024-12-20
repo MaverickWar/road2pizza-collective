@@ -10,25 +10,20 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Star, Trash2, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import RecipeForm from "./RecipeForm";
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import RecipeTableRow from "./RecipeTableRow";
+import type { Recipe } from "./types";
 
 const RecipeManagement = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingRecipe, setEditingRecipe] = useState(null);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   const { data: recipes, isLoading } = useQuery({
     queryKey: ["recipes-with-reviews"],
@@ -78,15 +73,9 @@ const RecipeManagement = () => {
       // Combine Supabase recipes with mock recipes
       const allRecipes = [...(recipesData || []), ...mockRecipes];
       console.log("All recipes:", allRecipes);
-      return allRecipes;
+      return allRecipes as Recipe[];
     },
   });
-
-  const calculateAverageRating = (reviews: any[]) => {
-    if (!reviews || reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
-    return (sum / reviews.length).toFixed(1);
-  };
 
   if (showCreateForm || editingRecipe) {
     return (
@@ -138,73 +127,22 @@ const RecipeManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recipes?.map((recipe) => (
-                  <TableRow key={recipe.id}>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">{recipe.title}</div>
-                        <div className="text-sm text-muted-foreground">
-                          by {recipe.author}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {recipe.categories?.name || 'Uncategorized'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="text-sm">
-                          {recipe.reviews?.length || 0} reviews
-                        </div>
-                        {recipe.reviews?.length > 0 && (
-                          <div className="text-sm text-yellow-500">
-                            {calculateAverageRating(recipe.reviews)} ⭐
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <div className="flex space-x-2">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => setEditingRecipe(recipe)}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Edit Recipe</TooltipContent>
-                          </Tooltip>
-
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => window.location.href = `/article/${recipe.id}`}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>View Recipe</TooltipContent>
-                          </Tooltip>
-                        </div>
-                      </TooltipProvider>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {(!recipes || recipes.length === 0) && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
-                      No recipes found. Create your first recipe!
-                    </TableCell>
-                  </TableRow>
-                )}
+                <TooltipProvider>
+                  {recipes?.map((recipe) => (
+                    <RecipeTableRow 
+                      key={recipe.id}
+                      recipe={recipe}
+                      onEdit={setEditingRecipe}
+                    />
+                  ))}
+                  {(!recipes || recipes.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                        No recipes found. Create your first recipe!
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TooltipProvider>
               </TableBody>
             </Table>
           </div>

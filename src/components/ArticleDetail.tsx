@@ -12,27 +12,51 @@ import NutritionInfo from './article/NutritionInfo';
 const ArticleDetail = () => {
   const { id } = useParams();
 
-  const { data: recipe, isLoading, error } = useQuery({
-    queryKey: ['article', id],
+  // First query to get the recipe ID from the mock data
+  const { data: mockRecipe } = useQuery({
+    queryKey: ['mock-article', id],
     queryFn: async () => {
-      console.log('Fetching article:', id);
-      if (!id) throw new Error('Article ID is required');
+      // Import dynamically to avoid bundling all articles
+      const { articles } = await import('@/data/articles');
+      return articles[id as keyof typeof articles];
+    },
+    enabled: !!id,
+  });
+
+  // Then use that to query Supabase with proper UUID
+  const { data: recipe, isLoading, error } = useQuery({
+    queryKey: ['article', mockRecipe?.title],
+    queryFn: async () => {
+      if (!mockRecipe?.title) throw new Error('Recipe title is required');
       
+      console.log('Fetching recipe by title:', mockRecipe.title);
       const { data, error } = await supabase
         .from('recipes')
         .select('*')
-        .eq('id', id)
+        .eq('title', mockRecipe.title)
         .maybeSingle();
       
       if (error) {
-        console.error('Error fetching article:', error);
+        console.error('Error fetching recipe:', error);
         throw error;
       }
       
-      console.log('Fetched article:', data);
+      // If no data in Supabase yet, return mock data
+      if (!data) {
+        console.log('No recipe found in Supabase, using mock data');
+        return {
+          ...mockRecipe,
+          ingredients: mockRecipe.ingredients as string[],
+          instructions: mockRecipe.instructions as string[],
+          tips: mockRecipe.tips as string[],
+          nutrition_info: mockRecipe.nutritionInfo,
+        };
+      }
+      
+      console.log('Fetched recipe:', data);
       return data;
     },
-    enabled: !!id,
+    enabled: !!mockRecipe?.title,
   });
 
   if (isLoading) {
@@ -60,6 +84,11 @@ const ArticleDetail = () => {
     );
   }
 
+  // Ensure arrays are properly typed
+  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : [];
+  const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : [];
+  const tips = Array.isArray(recipe.tips) ? recipe.tips : [];
+
   return (
     <div className="min-h-screen pt-20">
       <article className="container mx-auto px-4 py-8">
@@ -80,8 +109,8 @@ const ArticleDetail = () => {
             />
           </div>
 
-          <Ingredients ingredients={recipe.ingredients || []} />
-          <Instructions instructions={recipe.instructions || []} />
+          <Ingredients ingredients={ingredients} />
+          <Instructions instructions={instructions} />
 
           <div className="prose prose-invert max-w-none">
             {recipe.content?.split('\n\n').map((paragraph, index) => (
@@ -89,7 +118,7 @@ const ArticleDetail = () => {
             ))}
           </div>
 
-          <ProTips tips={recipe.tips || []} />
+          <ProTips tips={tips} />
           {recipe.nutrition_info && (
             <NutritionInfo nutritionInfo={recipe.nutrition_info} />
           )}

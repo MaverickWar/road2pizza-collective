@@ -3,10 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Editor from '@/components/Editor';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 interface EditRecipeModalProps {
   recipe: any;
@@ -22,8 +24,28 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
   const [cookTime, setCookTime] = React.useState(recipe.cook_time || '');
   const [servings, setServings] = React.useState(recipe.servings || '');
   const [difficulty, setDifficulty] = React.useState(recipe.difficulty || '');
+  const [categoryId, setCategoryId] = React.useState(recipe.category_id || '');
   const [isLoading, setIsLoading] = React.useState(false);
   const queryClient = useQueryClient();
+
+  // Fetch categories for the select dropdown
+  const { data: categories } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      console.log('Fetching categories...');
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+      }
+      console.log('Fetched categories:', data);
+      return data;
+    },
+  });
 
   const handleIngredientChange = (index: number, value: string) => {
     const newIngredients = [...ingredients];
@@ -61,6 +83,18 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      console.log('Updating recipe with data:', {
+        content,
+        ingredients,
+        instructions,
+        tips,
+        prep_time: prepTime,
+        cook_time: cookTime,
+        servings,
+        difficulty,
+        category_id: categoryId
+      });
+
       const { error } = await supabase
         .from('recipes')
         .update({
@@ -71,7 +105,8 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
           prep_time: prepTime,
           cook_time: cookTime,
           servings,
-          difficulty
+          difficulty,
+          category_id: categoryId
         })
         .eq('id', recipe.id);
 
@@ -79,6 +114,7 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
 
       toast.success('Recipe updated successfully');
       queryClient.invalidateQueries({ queryKey: ['article'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-recipes'] });
       onClose();
     } catch (error) {
       console.error('Error updating recipe:', error);
@@ -97,6 +133,34 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
         
         <div className="flex-1 overflow-y-auto space-y-6 p-4">
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Category</Label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Difficulty</Label>
+              <Select value={difficulty} onValueChange={setDifficulty}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <Label>Prep Time</Label>
               <Input 
@@ -119,14 +183,6 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
                 value={servings} 
                 onChange={(e) => setServings(e.target.value)}
                 placeholder="e.g., 4-6 servings"
-              />
-            </div>
-            <div>
-              <Label>Difficulty</Label>
-              <Input 
-                value={difficulty} 
-                onChange={(e) => setDifficulty(e.target.value)}
-                placeholder="e.g., Easy, Medium, Hard"
               />
             </div>
           </div>

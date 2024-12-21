@@ -52,7 +52,8 @@ const ArticleDetail = () => {
           *,
           categories (
             id,
-            name
+            name,
+            description
           )
         `)
         .eq('id', id)
@@ -68,7 +69,7 @@ const ArticleDetail = () => {
         throw new Error('Recipe not found');
       }
       
-      console.log('Fetched recipe:', data);
+      console.log('Fetched recipe with category:', data);
       return data;
     },
     enabled: !!id,
@@ -122,17 +123,9 @@ const ArticleDetail = () => {
       <Navigation />
       <div className="min-h-screen pt-20">
         <article className="container mx-auto px-4 py-8">
-          <Link 
-            to="/pizza"
-            className="inline-flex items-center text-accent hover:text-highlight mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Pizza Styles
-          </Link>
-
           <div className="flex justify-between items-start mb-6">
             <ArticleHeader 
-              category={recipe.categories?.name || 'Uncategorized'}
+              category={recipe.categories?.name}
               title={recipe.title}
               author={recipe.author}
             />

@@ -14,7 +14,8 @@ const FeaturedPosts = () => {
           *,
           categories (
             id,
-            name
+            name,
+            description
           )
         `)
         .eq('is_featured', true)

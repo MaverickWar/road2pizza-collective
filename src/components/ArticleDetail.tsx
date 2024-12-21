@@ -28,6 +28,13 @@ const ArticleDetail = () => {
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
 
+  // Move canEdit to top level to avoid hooks ordering issues
+  const canEdit = React.useMemo(() => {
+    if (!user) return false;
+    if (isAdmin || isStaff) return true;
+    return recipe?.created_by === user.id;
+  }, [user, isAdmin, isStaff, recipe?.created_by]);
+
   const { data: mockRecipe } = useQuery({
     queryKey: ['mock-article', id],
     queryFn: async () => {
@@ -82,15 +89,24 @@ const ArticleDetail = () => {
     enabled: !!mockRecipe?.title,
   });
 
-  const canEdit = React.useMemo(() => {
-    if (!user) return false;
-    if (isAdmin || isStaff) return true;
-    return recipe?.created_by === user.id;
-  }, [user, isAdmin, isStaff, recipe?.created_by]);
-
   const handleImageError = () => {
     console.log('Image failed to load, falling back to placeholder');
     setImageError(true);
+  };
+
+  // Helper function to convert category name to URL-friendly format
+  const getCategorySlug = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'Neapolitan': 'neapolitan',
+      'New York Style': 'new-york',
+      'Detroit Style': 'detroit',
+      'Chicago Deep Dish': 'chicago',
+      'Sicilian': 'sicilian',
+      'Thin & Crispy': 'thin-crispy',
+      'American': 'american',
+      'Other Styles': 'other'
+    };
+    return categoryMap[category] || category.toLowerCase().replace(/ /g, '-');
   };
 
   if (isLoading) {
@@ -135,17 +151,19 @@ const ArticleDetail = () => {
     : [];
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
 
+  const categorySlug = getCategorySlug(mockRecipe?.category || '');
+
   return (
     <>
       <Navigation />
       <div className="min-h-screen pt-20">
         <article className="container mx-auto px-4 py-8">
           <Link 
-            to={`/pizza/${mockRecipe?.category || 'neapolitan'}`} 
+            to={`/pizza/${categorySlug}`}
             className="inline-flex items-center text-accent hover:text-highlight mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to {mockRecipe?.category?.charAt(0).toUpperCase() + mockRecipe?.category?.slice(1) || 'Pizza'} Style
+            Back to {mockRecipe?.category || 'Pizza Styles'}
           </Link>
 
           <div className="flex justify-between items-start mb-6">

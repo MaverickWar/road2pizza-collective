@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,10 +12,10 @@ import UserManagementTable from "@/components/admin/UserManagementTable";
 import RecipeManagement from "@/components/recipe/RecipeManagement";
 
 const AdminDashboard = () => {
-  const [editingRecipe, setEditingRecipe] = useState(null);
+  const queryClient = useQueryClient();
 
   // Fetch all necessary data
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       console.log("Fetching admin statistics...");
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
     },
   });
 
-  const { data: users } = useQuery({
+  const { data: users, isLoading: loadingUsers } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
       console.log("Fetching users...");
@@ -62,6 +62,10 @@ const AdminDashboard = () => {
         .eq("id", userId);
       
       if (error) throw error;
+      
+      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
+      
       toast.success(`User ${role} status updated`);
     } catch (error) {
       console.error("Error updating user role:", error);
@@ -77,12 +81,29 @@ const AdminDashboard = () => {
         .eq("id", userId);
       
       if (error) throw error;
+      
+      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("User suspension status updated");
     } catch (error) {
       console.error("Error updating user:", error);
       toast.error("Failed to update user suspension status");
     }
   };
+
+  if (loadingStats || loadingUsers) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6 animate-pulse">
+          <div className="h-20 bg-secondary/50 rounded-lg" />
+          <div className="grid gap-4 md:grid-cols-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-32 bg-secondary/50 rounded-lg" />
+            ))}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

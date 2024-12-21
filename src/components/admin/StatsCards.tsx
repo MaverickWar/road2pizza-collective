@@ -45,7 +45,7 @@ const StatsCards = ({ stats }: StatsCardsProps) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title} className="overflow-hidden">
+        <Card key={card.title} className="relative overflow-hidden transition-all duration-200 hover:shadow-lg">
           <CardContent className="p-6">
             <div className={`bg-gradient-to-br ${card.gradient} absolute inset-0 opacity-50`} />
             <div className="relative space-y-2">

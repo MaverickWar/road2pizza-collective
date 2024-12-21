@@ -12,7 +12,10 @@ const FeaturedPosts = () => {
         .from('recipes')
         .select(`
           *,
-          categories (name)
+          categories (
+            id,
+            name
+          )
         `)
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
@@ -27,13 +30,11 @@ const FeaturedPosts = () => {
     },
   });
 
-  // If there's an error, we'll show a simple message
   if (error) {
     console.error('Featured posts error:', error);
     return null;
   }
 
-  // Don't render the section if there are no featured recipes and we're not loading
   if (!isLoading && (!recipes || recipes.length === 0)) {
     return null;
   }
@@ -44,7 +45,6 @@ const FeaturedPosts = () => {
         <h2 className="text-2xl md:text-3xl font-bold text-textLight mb-8 md:mb-12">Featured Recipes</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
-            // Loading skeleton
             Array.from({ length: 3 }).map((_, index) => (
               <div 
                 key={index}

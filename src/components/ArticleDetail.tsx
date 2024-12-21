@@ -118,8 +118,6 @@ const ArticleDetail = () => {
   const nutritionInfo = isValidNutritionInfo(recipe.nutrition_info) 
     ? recipe.nutrition_info 
     : null;
-    
-  const categoryName = recipe.categories?.name || 'Uncategorized';
 
   return (
     <>
@@ -136,7 +134,7 @@ const ArticleDetail = () => {
 
           <div className="flex justify-between items-start mb-6">
             <ArticleHeader 
-              category={categoryName}
+              category={recipe.categories?.name || 'Uncategorized'}
               title={recipe.title}
               author={recipe.author}
             />

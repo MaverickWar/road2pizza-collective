@@ -56,14 +56,24 @@ const PizzaStyle = () => {
     queryKey: ['recipes', style],
     queryFn: async () => {
       console.log('Fetching recipes for style:', style);
-      const { data: categories } = await supabase
+      
+      // First, get the category ID by name, using ilike for case-insensitive matching
+      const { data: categories, error: categoryError } = await supabase
         .from('categories')
         .select('id')
-        .eq('name', pizzaStyle?.title)
-        .single();
+        .ilike('name', `%${pizzaStyle?.title}%`)
+        .maybeSingle();
 
+      if (categoryError) {
+        console.error('Error fetching category:', categoryError);
+        throw categoryError;
+      }
+
+      console.log('Found category:', categories);
+
+      // If we found a category, fetch its recipes
       if (categories?.id) {
-        const { data: recipes, error } = await supabase
+        const { data: recipes, error: recipesError } = await supabase
           .from('recipes')
           .select(`
             *,
@@ -73,14 +83,17 @@ const PizzaStyle = () => {
           `)
           .eq('category_id', categories.id);
 
-        if (error) {
-          console.error('Error fetching recipes:', error);
-          throw error;
+        if (recipesError) {
+          console.error('Error fetching recipes:', recipesError);
+          throw recipesError;
         }
 
         console.log('Fetched recipes:', recipes);
         return recipes || [];
       }
+      
+      // If no category was found, return an empty array
+      console.log('No category found for style:', pizzaStyle?.title);
       return [];
     },
     enabled: !!style && !!pizzaStyle,

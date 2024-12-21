@@ -87,7 +87,23 @@ const ArticleDetail = () => {
   const tips = Array.isArray(recipe.tips)
     ? recipe.tips.map(item => String(item))
     : [];
-  const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
+    
+  // Add type guard for nutrition info
+  const isValidNutritionInfo = (info: any): info is NutritionInfoType => {
+    return (
+      info &&
+      typeof info === 'object' &&
+      typeof info.calories === 'string' &&
+      typeof info.protein === 'string' &&
+      typeof info.carbs === 'string' &&
+      typeof info.fat === 'string'
+    );
+  };
+
+  const nutritionInfo = isValidNutritionInfo(recipe.nutrition_info) 
+    ? recipe.nutrition_info 
+    : null;
+    
   const categoryName = recipe.categories?.name || 'Uncategorized';
 
   return (

@@ -48,33 +48,8 @@ const RecipeManagement = () => {
         throw recipesError;
       }
 
-      // Also fetch mock recipes from articles
-      const { articles } = await import('@/data/articles');
-      const mockRecipes = Object.values(articles).map(article => ({
-        id: crypto.randomUUID(),
-        title: article.title,
-        author: article.author,
-        category_id: null,
-        image_url: article.image || '/placeholder.svg',
-        content: article.content,
-        ingredients: article.ingredients || [],
-        instructions: article.instructions || [],
-        tips: article.tips || [],
-        nutrition_info: article.nutritionInfo || null,
-        created_at: new Date().toISOString(),
-        created_by: null,
-        prep_time: article.prepTime,
-        cook_time: article.cookTime,
-        servings: article.servings,
-        difficulty: article.difficulty,
-        reviews: [],
-        categories: null
-      }));
-      
-      // Combine Supabase recipes with mock recipes
-      const allRecipes = [...(recipesData || []), ...mockRecipes];
-      console.log("All recipes:", allRecipes);
-      return allRecipes as Recipe[];
+      console.log("Fetched recipes:", recipesData);
+      return recipesData as Recipe[];
     },
   });
 

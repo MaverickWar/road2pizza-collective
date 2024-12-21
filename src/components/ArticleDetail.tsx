@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
@@ -16,7 +16,6 @@ import NutritionInfo from './article/NutritionInfo';
 import EditRecipeModal from './article/EditRecipeModal';
 import ArticleLoading from './article/ArticleLoading';
 import ArticleError from './article/ArticleError';
-import { getCategorySlug } from '@/utils/categoryUtils';
 
 interface NutritionInfoType {
   calories: string;
@@ -28,28 +27,25 @@ interface NutritionInfoType {
 const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isAdmin, isStaff } = useAuth();
+  const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
 
-  const { data: mockRecipe } = useQuery({
-    queryKey: ['mock-article', id],
-    queryFn: async () => {
-      const { articles } = await import('@/data/articles');
-      return articles[id as keyof typeof articles];
-    },
-    enabled: !!id,
-  });
-
   const { data: recipe, isLoading, error } = useQuery({
-    queryKey: ['article', mockRecipe?.title],
+    queryKey: ['recipe', id],
     queryFn: async () => {
-      if (!mockRecipe?.title) throw new Error('Recipe title is required');
-      
-      console.log('Fetching recipe by title:', mockRecipe.title);
+      console.log('Fetching recipe by id:', id);
       const { data, error } = await supabase
         .from('recipes')
-        .select('*')
-        .eq('title', mockRecipe.title)
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            description
+          )
+        `)
+        .eq('id', id)
         .maybeSingle();
       
       if (error) {
@@ -58,34 +54,16 @@ const ArticleDetail = () => {
       }
       
       if (!data) {
-        console.log('No recipe found in Supabase, using mock data');
-        return {
-          id: crypto.randomUUID(),
-          title: mockRecipe.title,
-          author: mockRecipe.author,
-          category_id: null,
-          image_url: mockRecipe.image || '/placeholder.svg',
-          content: mockRecipe.content,
-          ingredients: mockRecipe.ingredients || [],
-          instructions: mockRecipe.instructions || [],
-          tips: mockRecipe.tips || [],
-          nutrition_info: mockRecipe.nutritionInfo || null,
-          created_at: new Date().toISOString(),
-          created_by: null,
-          prep_time: mockRecipe.prepTime,
-          cook_time: mockRecipe.cookTime,
-          servings: mockRecipe.servings,
-          difficulty: mockRecipe.difficulty,
-        };
+        console.error('No recipe found');
+        throw new Error('Recipe not found');
       }
       
       console.log('Fetched recipe:', data);
       return data;
     },
-    enabled: !!mockRecipe?.title,
+    enabled: !!id,
   });
 
-  // Move canEdit calculation after recipe is available
   const canEdit = React.useMemo(() => {
     if (!user || !recipe) return false;
     if (isAdmin || isStaff) return true;
@@ -110,8 +88,7 @@ const ArticleDetail = () => {
     ? recipe.tips.map(item => String(item))
     : [];
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
-
-  const categorySlug = getCategorySlug(mockRecipe?.category || '');
+  const categoryName = recipe.categories?.name || 'Uncategorized';
 
   return (
     <>
@@ -119,16 +96,16 @@ const ArticleDetail = () => {
       <div className="min-h-screen pt-20">
         <article className="container mx-auto px-4 py-8">
           <Link 
-            to={`/pizza/${categorySlug}`}
+            to="/pizza"
             className="inline-flex items-center text-accent hover:text-highlight mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to {mockRecipe?.category || 'Pizza Styles'}
+            Back to Pizza Styles
           </Link>
 
           <div className="flex justify-between items-start mb-6">
             <ArticleHeader 
-              category={recipe.category_id}
+              category={categoryName}
               title={recipe.title}
               author={recipe.author}
             />

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 import ArticleHeader from './article/ArticleHeader';
 import RecipeDetails from './article/RecipeDetails';
 import Ingredients from './article/Ingredients';
@@ -24,8 +25,8 @@ const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isAdmin, isStaff } = useAuth();
   const [showEditModal, setShowEditModal] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
 
-  // First query to get the recipe from the mock data
   const { data: mockRecipe } = useQuery({
     queryKey: ['mock-article', id],
     queryFn: async () => {
@@ -81,11 +82,10 @@ const ArticleDetail = () => {
     enabled: !!mockRecipe?.title,
   });
 
-  const canEdit = React.useMemo(() => {
-    if (!user) return false;
-    if (isAdmin || isStaff) return true;
-    return recipe?.created_by === user.id;
-  }, [user, isAdmin, isStaff, recipe?.created_by]);
+  const handleImageError = () => {
+    console.log('Image failed to load, falling back to placeholder');
+    setImageError(true);
+  };
 
   if (isLoading) {
     return (
@@ -123,6 +123,12 @@ const ArticleDetail = () => {
     : [];
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
 
+  const canEdit = React.useMemo(() => {
+    if (!user) return false;
+    if (isAdmin || isStaff) return true;
+    return recipe?.created_by === user.id;
+  }, [user, isAdmin, isStaff, recipe?.created_by]);
+
   return (
     <div className="min-h-screen pt-20">
       <article className="container mx-auto px-4 py-8">
@@ -148,27 +154,32 @@ const ArticleDetail = () => {
         <div className="max-w-4xl mx-auto">
           <RecipeDetails recipeId={recipe.id} />
 
-          <div className="relative h-[300px] md:h-[400px] lg:h-[500px] mb-8 rounded-lg overflow-hidden">
-            <img 
-              src={recipe.image_url || '/placeholder.svg'} 
-              alt={recipe.title}
-              className="w-full h-full object-cover"
-            />
+          <div className="rounded-lg overflow-hidden shadow-lg mb-8 bg-secondary">
+            <AspectRatio ratio={16 / 9} className="bg-muted">
+              <img 
+                src={!imageError ? recipe.image_url || '/placeholder.svg' : '/placeholder.svg'}
+                alt={recipe.title}
+                onError={handleImageError}
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </AspectRatio>
           </div>
 
-          <Ingredients ingredients={ingredients} />
-          <Instructions instructions={instructions} />
+          <div className="space-y-8 md:space-y-12">
+            <Ingredients ingredients={ingredients} />
+            <Instructions instructions={instructions} />
 
-          <div className="prose prose-invert max-w-none">
-            {recipe.content?.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
-            ))}
+            <div className="prose prose-invert max-w-none">
+              {recipe.content?.split('\n\n').map((paragraph, index) => (
+                <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
+              ))}
+            </div>
+
+            <ProTips tips={tips} />
+            {nutritionInfo && (
+              <NutritionInfo nutritionInfo={nutritionInfo} />
+            )}
           </div>
-
-          <ProTips tips={tips} />
-          {nutritionInfo && (
-            <NutritionInfo nutritionInfo={nutritionInfo} />
-          )}
         </div>
       </article>
 

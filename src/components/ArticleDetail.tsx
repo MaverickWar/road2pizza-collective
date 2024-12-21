@@ -14,6 +14,9 @@ import Instructions from './article/Instructions';
 import ProTips from './article/ProTips';
 import NutritionInfo from './article/NutritionInfo';
 import EditRecipeModal from './article/EditRecipeModal';
+import ArticleLoading from './article/ArticleLoading';
+import ArticleError from './article/ArticleError';
+import { getCategorySlug } from '@/utils/categoryUtils';
 
 interface NutritionInfoType {
   calories: string;
@@ -27,13 +30,6 @@ const ArticleDetail = () => {
   const { user, isAdmin, isStaff } = useAuth();
   const [showEditModal, setShowEditModal] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
-
-  // Move canEdit to top level to avoid hooks ordering issues
-  const canEdit = React.useMemo(() => {
-    if (!user) return false;
-    if (isAdmin || isStaff) return true;
-    return recipe?.created_by === user.id;
-  }, [user, isAdmin, isStaff, recipe?.created_by]);
 
   const { data: mockRecipe } = useQuery({
     queryKey: ['mock-article', id],
@@ -89,56 +85,20 @@ const ArticleDetail = () => {
     enabled: !!mockRecipe?.title,
   });
 
+  // Move canEdit calculation after recipe is available
+  const canEdit = React.useMemo(() => {
+    if (!user || !recipe) return false;
+    if (isAdmin || isStaff) return true;
+    return recipe.created_by === user.id;
+  }, [user, isAdmin, isStaff, recipe]);
+
   const handleImageError = () => {
     console.log('Image failed to load, falling back to placeholder');
     setImageError(true);
   };
 
-  // Helper function to convert category name to URL-friendly format
-  const getCategorySlug = (category: string) => {
-    const categoryMap: { [key: string]: string } = {
-      'Neapolitan': 'neapolitan',
-      'New York Style': 'new-york',
-      'Detroit Style': 'detroit',
-      'Chicago Deep Dish': 'chicago',
-      'Sicilian': 'sicilian',
-      'Thin & Crispy': 'thin-crispy',
-      'American': 'american',
-      'Other Styles': 'other'
-    };
-    return categoryMap[category] || category.toLowerCase().replace(/ /g, '-');
-  };
-
-  if (isLoading) {
-    return (
-      <>
-        <Navigation />
-        <div className="min-h-screen pt-20 px-4">
-          <div className="container mx-auto">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-secondary rounded w-1/3"></div>
-              <div className="h-4 bg-secondary rounded w-1/4"></div>
-              <div className="h-[300px] bg-secondary rounded"></div>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (error || !recipe) {
-    return (
-      <>
-        <Navigation />
-        <div className="min-h-screen pt-20 px-4">
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold">Article not found</h1>
-            <Link to="/pizza" className="text-accent hover:text-highlight">Return to Pizza Styles</Link>
-          </div>
-        </div>
-      </>
-    );
-  }
+  if (isLoading) return <ArticleLoading />;
+  if (error || !recipe) return <ArticleError />;
 
   const ingredients = Array.isArray(recipe.ingredients) 
     ? recipe.ingredients.map(item => String(item))

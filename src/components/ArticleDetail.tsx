@@ -24,6 +24,11 @@ interface NutritionInfoType {
   fat: string;
 }
 
+const isValidUUID = (str: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+};
+
 const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isAdmin, isStaff } = useAuth();
@@ -35,6 +40,12 @@ const ArticleDetail = () => {
     queryKey: ['recipe', id],
     queryFn: async () => {
       console.log('Fetching recipe by id:', id);
+      
+      if (!id || !isValidUUID(id)) {
+        console.error('Invalid recipe ID format:', id);
+        throw new Error('Invalid recipe ID format');
+      }
+
       const { data, error } = await supabase
         .from('recipes')
         .select(`
@@ -74,6 +85,10 @@ const ArticleDetail = () => {
     console.log('Image failed to load, falling back to placeholder');
     setImageError(true);
   };
+
+  if (!id || !isValidUUID(id)) {
+    return <ArticleError message="Invalid recipe ID format" />;
+  }
 
   if (isLoading) return <ArticleLoading />;
   if (error || !recipe) return <ArticleError />;

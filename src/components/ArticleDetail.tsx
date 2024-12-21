@@ -36,7 +36,6 @@ const ArticleDetail = () => {
     enabled: !!id,
   });
 
-  // Then use that to query Supabase with the title
   const { data: recipe, isLoading, error } = useQuery({
     queryKey: ['article', mockRecipe?.title],
     queryFn: async () => {
@@ -82,6 +81,12 @@ const ArticleDetail = () => {
     enabled: !!mockRecipe?.title,
   });
 
+  const canEdit = React.useMemo(() => {
+    if (!user) return false;
+    if (isAdmin || isStaff) return true;
+    return recipe?.created_by === user.id;
+  }, [user, isAdmin, isStaff, recipe?.created_by]);
+
   const handleImageError = () => {
     console.log('Image failed to load, falling back to placeholder');
     setImageError(true);
@@ -122,12 +127,6 @@ const ArticleDetail = () => {
     ? recipe.tips.map(item => String(item))
     : [];
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
-
-  const canEdit = React.useMemo(() => {
-    if (!user) return false;
-    if (isAdmin || isStaff) return true;
-    return recipe?.created_by === user.id;
-  }, [user, isAdmin, isStaff, recipe?.created_by]);
 
   return (
     <div className="min-h-screen pt-20">

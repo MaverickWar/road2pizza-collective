@@ -2,70 +2,89 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navigation from '../components/Navigation';
 import { ArrowLeft } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const pizzaStyles = {
   "neapolitan": {
     title: "Neapolitan Pizza",
     description: "The original pizza from Naples, characterized by its thin base, high crust, and minimal toppings. Cooked at very high temperatures in a wood-fired oven.",
     history: "Dating back to the 18th century in Naples, Italy, this style is considered the original pizza. Traditional Neapolitan pizza has a thin crust with a fluffy, charred cornicione (rim).",
-    recipes: [
-      {
-        id: "ef161237-7d8b-4b13-b518-3787f7cf35e7", // Updated to use real UUID from database
-        title: "Perfect Neapolitan Dough",
-        description: "Master the art of traditional Neapolitan pizza dough with this authentic recipe.",
-        image: "https://images.unsplash.com/photo-1585238342024-78d387f4a707?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        difficulty: "Intermediate",
-        time: "24 hours"
-      }
-    ]
   },
   "new-york": {
     title: "New York Style Pizza",
     description: "Large, foldable slices with a crispy outer crust and chewy interior. Known for its perfect balance of sauce and cheese.",
     history: "Developed by Italian immigrants in New York City in the early 1900s, this style became an iconic symbol of the city's food culture.",
-    recipes: []
   },
   "detroit": {
     title: "Detroit Style Pizza",
     description: "Square pizza with a thick, crispy crust, typically topped with Wisconsin brick cheese and sauce on top.",
     history: "Originally baked in automotive parts trays in the 1940s, Detroit-style pizza is known for its unique rectangular shape and crispy bottom.",
-    recipes: []
   },
   "chicago": {
     title: "Chicago Deep Dish",
     description: "Deep, thick pizza with high edges, layered with cheese, meat, vegetables, and sauce on top.",
     history: "Invented at Pizzeria Uno in 1943, Chicago deep dish was designed to be a more filling and substantial meal.",
-    recipes: []
   },
   "sicilian": {
     title: "Sicilian Pizza",
     description: "Thick-crust, rectangular pizza with robust toppings and a focaccia-like base.",
     history: "Derived from sfincione, a type of focaccia from Sicily, this style was brought to America by Sicilian immigrants.",
-    recipes: []
   },
   "thin-crispy": {
     title: "Thin & Crispy Pizza",
     description: "Ultra-thin, crispy crust with light toppings, often with a cracker-like consistency.",
     history: "Popular in bars and restaurants across America, this style emphasizes crispiness and simplicity.",
-    recipes: []
   },
   "american": {
     title: "American Pizza",
     description: "Classic American-style with various toppings, typically featuring a medium-thick crust.",
     history: "A fusion of various styles that developed across America, incorporating diverse regional influences.",
-    recipes: []
   },
   "other": {
     title: "Other Pizza Styles",
     description: "Discover unique and fusion pizza styles from around the world.",
     history: "Pizza continues to evolve globally, with each region adding its own twist to this beloved dish.",
-    recipes: []
   }
 };
 
 const PizzaStyle = () => {
   const { style } = useParams();
   const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
+
+  const { data: recipes, isLoading } = useQuery({
+    queryKey: ['recipes', style],
+    queryFn: async () => {
+      console.log('Fetching recipes for style:', style);
+      const { data: categories } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('name', pizzaStyle?.title)
+        .single();
+
+      if (categories?.id) {
+        const { data: recipes, error } = await supabase
+          .from('recipes')
+          .select(`
+            *,
+            categories (
+              name
+            )
+          `)
+          .eq('category_id', categories.id);
+
+        if (error) {
+          console.error('Error fetching recipes:', error);
+          throw error;
+        }
+
+        console.log('Fetched recipes:', recipes);
+        return recipes || [];
+      }
+      return [];
+    },
+    enabled: !!style && !!pizzaStyle,
+  });
 
   if (!pizzaStyle) {
     return (
@@ -97,9 +116,19 @@ const PizzaStyle = () => {
         </div>
 
         <h2 className="text-2xl font-bold mb-6">Recipes</h2>
-        {pizzaStyle.recipes.length > 0 ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pizzaStyle.recipes.map((recipe) => (
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-secondary rounded-lg p-4 animate-pulse">
+                <div className="aspect-video bg-muted rounded mb-4" />
+                <div className="h-6 bg-muted rounded w-3/4 mb-2" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : recipes && recipes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
               <Link
                 key={recipe.id}
                 to={`/article/${recipe.id}`}
@@ -107,24 +136,24 @@ const PizzaStyle = () => {
               >
                 <div className="aspect-video relative">
                   <img
-                    src={recipe.image}
+                    src={recipe.image_url || '/placeholder.svg'}
                     alt={recipe.title}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-4">
                   <h3 className="text-xl font-bold mb-2">{recipe.title}</h3>
-                  <p className="text-gray-300 text-sm mb-4">{recipe.description}</p>
+                  <p className="text-gray-300 text-sm mb-4">{recipe.content?.substring(0, 100)}...</p>
                   <div className="flex justify-between text-sm text-gray-400">
                     <span>Difficulty: {recipe.difficulty}</span>
-                    <span>{recipe.time}</span>
+                    <span>Prep: {recipe.prep_time}</span>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <p className="text-gray-300">Recipes coming soon!</p>
+          <p className="text-gray-300">No recipes available for this style yet.</p>
         )}
       </div>
     </div>

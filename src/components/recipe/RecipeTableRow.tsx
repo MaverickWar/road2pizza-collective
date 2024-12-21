@@ -1,28 +1,17 @@
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Pencil, Eye } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Recipe } from "./types";
+import RecipeStats from "./RecipeStats";
+import RecipeActions from "./RecipeActions";
 
 interface RecipeTableRowProps {
   recipe: Recipe;
   onEdit: (recipe: Recipe) => void;
+  onToggleFeature: (recipeId: string, currentStatus: boolean) => void;
 }
 
-const calculateAverageRating = (reviews: Recipe['reviews']) => {
-  if (!reviews || reviews.length === 0) return 0;
-  const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
-  return (sum / reviews.length).toFixed(1);
-};
-
-const RecipeTableRow = ({ recipe, onEdit }: RecipeTableRowProps) => {
+const RecipeTableRow = ({ recipe, onEdit, onToggleFeature }: RecipeTableRowProps) => {
   return (
-    <TableRow key={recipe.id}>
+    <TableRow>
       <TableCell>
         <div className="space-y-1">
           <div className="font-medium">{recipe.title}</div>
@@ -32,50 +21,17 @@ const RecipeTableRow = ({ recipe, onEdit }: RecipeTableRowProps) => {
         </div>
       </TableCell>
       <TableCell>
-        <Badge variant="secondary">
-          {recipe.categories?.name || 'Uncategorized'}
-        </Badge>
+        {recipe.categories?.name || 'Uncategorized'}
       </TableCell>
       <TableCell>
-        <div className="space-y-1">
-          <div className="text-sm">
-            {recipe.reviews?.length || 0} reviews
-          </div>
-          {recipe.reviews?.length > 0 && (
-            <div className="text-sm text-yellow-500">
-              {calculateAverageRating(recipe.reviews)} ⭐
-            </div>
-          )}
-        </div>
+        <RecipeStats reviews={recipe.reviews} />
       </TableCell>
       <TableCell>
-        <div className="flex space-x-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => onEdit(recipe)}
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Edit Recipe</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => window.location.href = `/article/${recipe.id}`}
-              >
-                <Eye className="w-4 h-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>View Recipe</TooltipContent>
-          </Tooltip>
-        </div>
+        <RecipeActions
+          isFeatured={recipe.is_featured}
+          onToggleFeature={() => onToggleFeature(recipe.id, recipe.is_featured)}
+          onEdit={() => onEdit(recipe)}
+        />
       </TableCell>
     </TableRow>
   );

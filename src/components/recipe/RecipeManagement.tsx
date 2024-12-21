@@ -1,29 +1,13 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import RecipeTable from "./RecipeTable";
 import RecipeForm from "./RecipeForm";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import RecipeTableRow from "./RecipeTableRow";
 import type { Recipe } from "./types";
 
 const RecipeManagement = () => {
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
 
   const { data: recipes, isLoading } = useQuery({
@@ -53,19 +37,31 @@ const RecipeManagement = () => {
     },
   });
 
-  if (showCreateForm || editingRecipe) {
+  const handleToggleFeature = async (recipeId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("recipes")
+        .update({ is_featured: !currentStatus })
+        .eq("id", recipeId);
+      
+      if (error) throw error;
+      toast.success("Recipe feature status updated");
+    } catch (error) {
+      console.error("Error updating recipe:", error);
+      toast.error("Failed to update recipe feature status");
+    }
+  };
+
+  if (editingRecipe) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{editingRecipe ? "Edit Recipe" : "Create New Recipe"}</CardTitle>
+          <CardTitle>{editingRecipe ? "Edit Recipe" : "Create Recipe"}</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecipeForm 
-            onCancel={() => {
-              setShowCreateForm(false);
-              setEditingRecipe(null);
-            }}
+          <RecipeForm
             existingRecipe={editingRecipe}
+            onCancel={() => setEditingRecipe(null)}
           />
         </CardContent>
       </Card>
@@ -74,17 +70,8 @@ const RecipeManagement = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Recipe Management</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage and organize your recipes
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateForm(true)} className="bg-green-600 hover:bg-green-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Create Recipe
-        </Button>
+      <CardHeader>
+        <CardTitle>Recipe Management</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -92,36 +79,11 @@ const RecipeManagement = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Recipe</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Stats</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TooltipProvider>
-                  {recipes?.map((recipe) => (
-                    <RecipeTableRow 
-                      key={recipe.id}
-                      recipe={recipe}
-                      onEdit={setEditingRecipe}
-                    />
-                  ))}
-                  {(!recipes || recipes.length === 0) && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
-                        No recipes found. Create your first recipe!
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TooltipProvider>
-              </TableBody>
-            </Table>
-          </div>
+          <RecipeTable
+            recipes={recipes || []}
+            onEdit={setEditingRecipe}
+            onToggleFeature={handleToggleFeature}
+          />
         )}
       </CardContent>
     </Card>

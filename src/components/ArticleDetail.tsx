@@ -4,8 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { Button } from '@/components/ui/button';
-import { Pencil } from 'lucide-react';
+import { Pencil, ArrowLeft } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import Navigation from './Navigation';
 import ArticleHeader from './article/ArticleHeader';
 import RecipeDetails from './article/RecipeDetails';
 import Ingredients from './article/Ingredients';
@@ -94,26 +95,32 @@ const ArticleDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-20 px-4">
-        <div className="container mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-secondary rounded w-1/3"></div>
-            <div className="h-4 bg-secondary rounded w-1/4"></div>
-            <div className="h-[300px] bg-secondary rounded"></div>
+      <>
+        <Navigation />
+        <div className="min-h-screen pt-20 px-4">
+          <div className="container mx-auto">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-secondary rounded w-1/3"></div>
+              <div className="h-4 bg-secondary rounded w-1/4"></div>
+              <div className="h-[300px] bg-secondary rounded"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error || !recipe) {
     return (
-      <div className="min-h-screen pt-20 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">Article not found</h1>
-          <Link to="/" className="text-accent hover:text-highlight">Return home</Link>
+      <>
+        <Navigation />
+        <div className="min-h-screen pt-20 px-4">
+          <div className="container mx-auto">
+            <h1 className="text-2xl font-bold">Article not found</h1>
+            <Link to="/pizza" className="text-accent hover:text-highlight">Return to Pizza Styles</Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -129,66 +136,77 @@ const ArticleDetail = () => {
   const nutritionInfo = recipe.nutrition_info as NutritionInfoType;
 
   return (
-    <div className="min-h-screen pt-20">
-      <article className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-start mb-6">
-          <ArticleHeader 
-            category={recipe.category_id}
-            title={recipe.title}
-            author={recipe.author}
-          />
-          {canEdit && (
-            <Button
-              onClick={() => setShowEditModal(true)}
-              variant="outline"
-              size="sm"
-              className="ml-4"
-            >
-              <Pencil className="w-4 h-4 mr-2" />
-              Edit Recipe
-            </Button>
-          )}
-        </div>
-        
-        <div className="max-w-4xl mx-auto">
-          <RecipeDetails recipeId={recipe.id} />
+    <>
+      <Navigation />
+      <div className="min-h-screen pt-20">
+        <article className="container mx-auto px-4 py-8">
+          <Link 
+            to={`/pizza/${mockRecipe?.category || 'neapolitan'}`} 
+            className="inline-flex items-center text-accent hover:text-highlight mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to {mockRecipe?.category?.charAt(0).toUpperCase() + mockRecipe?.category?.slice(1) || 'Pizza'} Style
+          </Link>
 
-          <div className="rounded-lg overflow-hidden shadow-lg mb-8 bg-secondary">
-            <AspectRatio ratio={16 / 9} className="bg-muted">
-              <img 
-                src={!imageError ? recipe.image_url || '/placeholder.svg' : '/placeholder.svg'}
-                alt={recipe.title}
-                onError={handleImageError}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              />
-            </AspectRatio>
-          </div>
-
-          <div className="space-y-8 md:space-y-12">
-            <Ingredients ingredients={ingredients} />
-            <Instructions instructions={instructions} />
-
-            <div className="prose prose-invert max-w-none">
-              {recipe.content?.split('\n\n').map((paragraph, index) => (
-                <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
-              ))}
-            </div>
-
-            <ProTips tips={tips} />
-            {nutritionInfo && (
-              <NutritionInfo nutritionInfo={nutritionInfo} />
+          <div className="flex justify-between items-start mb-6">
+            <ArticleHeader 
+              category={recipe.category_id}
+              title={recipe.title}
+              author={recipe.author}
+            />
+            {canEdit && (
+              <Button
+                onClick={() => setShowEditModal(true)}
+                variant="outline"
+                size="sm"
+                className="ml-4"
+              >
+                <Pencil className="w-4 h-4 mr-2" />
+                Edit Recipe
+              </Button>
             )}
           </div>
-        </div>
-      </article>
+          
+          <div className="max-w-4xl mx-auto">
+            <RecipeDetails recipeId={recipe.id} />
 
-      {showEditModal && (
-        <EditRecipeModal
-          recipe={recipe}
-          onClose={() => setShowEditModal(false)}
-        />
-      )}
-    </div>
+            <div className="rounded-lg overflow-hidden shadow-lg mb-8 bg-secondary">
+              <AspectRatio ratio={16 / 9} className="bg-muted">
+                <img 
+                  src={!imageError ? recipe.image_url || '/placeholder.svg' : '/placeholder.svg'}
+                  alt={recipe.title}
+                  onError={handleImageError}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                />
+              </AspectRatio>
+            </div>
+
+            <div className="space-y-8 md:space-y-12">
+              <Ingredients ingredients={ingredients} />
+              <Instructions instructions={instructions} />
+
+              <div className="prose prose-invert max-w-none">
+                {recipe.content?.split('\n\n').map((paragraph, index) => (
+                  <p key={index} className="mb-6 text-lg leading-relaxed">{paragraph}</p>
+                ))}
+              </div>
+
+              <ProTips tips={tips} />
+              {nutritionInfo && (
+                <NutritionInfo nutritionInfo={nutritionInfo} />
+              )}
+            </div>
+          </div>
+        </article>
+
+        {showEditModal && (
+          <EditRecipeModal
+            recipe={recipe}
+            onClose={() => setShowEditModal(false)}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

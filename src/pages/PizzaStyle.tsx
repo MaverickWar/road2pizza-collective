@@ -156,8 +156,9 @@ const PizzaStyle = () => {
 
   if (!pizzaStyle) {
     return (
-      <div className="min-h-screen pt-20 px-4">
-        <div className="container mx-auto">
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="container mx-auto px-4 pt-24">
           <h1 className="text-2xl font-bold">Style not found</h1>
           <Link to="/pizza" className="text-accent hover:text-highlight">Return to Pizza Styles</Link>
         </div>
@@ -166,7 +167,7 @@ const PizzaStyle = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Navigation />
       <div className="container mx-auto px-4 pt-24">
         <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-6">

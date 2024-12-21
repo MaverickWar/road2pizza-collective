@@ -42,15 +42,15 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
+      <DialogContent className="max-w-4xl h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
             Edit Recipe: {recipe.title}
           </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 px-1">
-          <div className="space-y-6 py-4">
+        <ScrollArea className="h-[calc(90vh-8rem)] pr-4">
+          <div className="space-y-6">
             <EditRecipeForm
               recipe={recipe}
               onSave={handleSave}

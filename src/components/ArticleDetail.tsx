@@ -52,8 +52,7 @@ const ArticleDetail = () => {
           *,
           categories (
             id,
-            name,
-            description
+            name
           )
         `)
         .eq('id', id)
@@ -103,7 +102,6 @@ const ArticleDetail = () => {
     ? recipe.tips.map(item => String(item))
     : [];
     
-  // Add type guard for nutrition info
   const isValidNutritionInfo = (info: any): info is NutritionInfoType => {
     return (
       info &&

@@ -1,20 +1,19 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Navigation from '../Navigation';
+import { AlertCircle } from 'lucide-react';
 
-const ArticleError = () => {
+interface ArticleErrorProps {
+  message?: string;
+}
+
+const ArticleError = ({ message = "Error loading recipe" }: ArticleErrorProps) => {
   return (
-    <>
-      <Navigation />
-      <div className="min-h-screen pt-20 px-4">
-        <div className="container mx-auto">
-          <h1 className="text-2xl font-bold">Article not found</h1>
-          <Link to="/pizza" className="text-accent hover:text-highlight">
-            Return to Pizza Styles
-          </Link>
-        </div>
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-4">
+      <div className="flex items-center gap-2 text-destructive mb-2">
+        <AlertCircle className="h-5 w-5" />
+        <span className="font-semibold">Error</span>
       </div>
-    </>
+      <p className="text-muted-foreground">{message}</p>
+    </div>
   );
 };
 

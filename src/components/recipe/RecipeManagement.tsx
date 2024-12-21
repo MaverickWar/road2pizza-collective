@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import RecipeTable from "./RecipeTable";
-import RecipeForm from "./RecipeForm";
-import type { Recipe } from "./types";
+import { Recipe } from "./types";
 
 const RecipeManagement = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: recipes, isLoading } = useQuery({
     queryKey: ["recipes-with-reviews"],
     queryFn: async () => {
       console.log("Fetching recipes with reviews...");
-      const { data: recipesData, error: recipesError } = await supabase
+      const { data, error } = await supabase
         .from("recipes")
         .select(`
           *,
@@ -24,16 +24,19 @@ const RecipeManagement = () => {
             user_id,
             profiles (username)
           ),
-          categories (name)
+          categories (
+            id,
+            name
+          )
         `);
       
-      if (recipesError) {
-        console.error("Error fetching recipes:", recipesError);
-        throw recipesError;
+      if (error) {
+        console.error("Error fetching recipes:", error);
+        throw error;
       }
-
-      console.log("Fetched recipes:", recipesData);
-      return recipesData as Recipe[];
+      
+      console.log("Fetched recipes:", data);
+      return data as Recipe[];
     },
   });
 
@@ -45,6 +48,8 @@ const RecipeManagement = () => {
         .eq("id", recipeId);
       
       if (error) throw error;
+      
+      await queryClient.invalidateQueries({ queryKey: ["recipes-with-reviews"] });
       toast.success("Recipe feature status updated");
     } catch (error) {
       console.error("Error updating recipe:", error);
@@ -52,17 +57,18 @@ const RecipeManagement = () => {
     }
   };
 
-  if (editingRecipe) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{editingRecipe ? "Edit Recipe" : "Create Recipe"}</CardTitle>
+          <CardTitle>Recipe Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecipeForm
-            existingRecipe={editingRecipe}
-            onCancel={() => setEditingRecipe(null)}
-          />
+          <div className="space-y-4 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 bg-secondary/50 rounded-lg" />
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
@@ -74,17 +80,11 @@ const RecipeManagement = () => {
         <CardTitle>Recipe Management</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          </div>
-        ) : (
-          <RecipeTable
-            recipes={recipes || []}
-            onEdit={setEditingRecipe}
-            onToggleFeature={handleToggleFeature}
-          />
-        )}
+        <RecipeTable
+          recipes={recipes || []}
+          onEdit={setEditingRecipe}
+          onToggleFeature={handleToggleFeature}
+        />
       </CardContent>
     </Card>
   );

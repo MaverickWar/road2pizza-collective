@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useState } from "react";
 import EditRecipeForm from "./edit/EditRecipeForm";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EditRecipeModalProps {
   recipe: any;
@@ -26,12 +27,8 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
 
       if (error) throw error;
 
-      // Invalidate all relevant queries
-      await queryClient.invalidateQueries({ queryKey: ["article"] });
-      await queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
-      await queryClient.invalidateQueries({ queryKey: ["recipes"] });
-      await queryClient.invalidateQueries({ queryKey: ["featured-recipes"] });
-      await queryClient.invalidateQueries({ queryKey: ["mock-article"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipes-with-reviews"] });
+      await queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
 
       toast.success("Recipe updated successfully");
       onClose();
@@ -45,19 +42,23 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Edit Recipe: {recipe.title}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Recipe: {recipe.title}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="flex-1 overflow-y-auto">
-          <EditRecipeForm
-            recipe={recipe}
-            onSave={handleSave}
-            onCancel={onClose}
-            isLoading={isLoading}
-          />
-        </div>
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-6 py-4">
+            <EditRecipeForm
+              recipe={recipe}
+              onSave={handleSave}
+              onCancel={onClose}
+              isLoading={isLoading}
+            />
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

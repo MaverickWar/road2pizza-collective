@@ -112,9 +112,14 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
 
       if (error) throw error;
 
+      // Invalidate all relevant queries
+      await queryClient.invalidateQueries({ queryKey: ['article'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-recipes'] });
+      await queryClient.invalidateQueries({ queryKey: ['recipes'] });
+      await queryClient.invalidateQueries({ queryKey: ['featured-recipes'] });
+      await queryClient.invalidateQueries({ queryKey: ['mock-article'] });
+
       toast.success('Recipe updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['article'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-recipes'] });
       onClose();
     } catch (error) {
       console.error('Error updating recipe:', error);

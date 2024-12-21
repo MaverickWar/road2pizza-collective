@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import RecipeTable from "./RecipeTable";
 import { Recipe } from "./types";
+import EditRecipeModal from "../article/EditRecipeModal";
 
 const RecipeManagement = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -85,6 +86,12 @@ const RecipeManagement = () => {
           onEdit={setEditingRecipe}
           onToggleFeature={handleToggleFeature}
         />
+        {editingRecipe && (
+          <EditRecipeModal
+            recipe={editingRecipe}
+            onClose={() => setEditingRecipe(null)}
+          />
+        )}
       </CardContent>
     </Card>
   );

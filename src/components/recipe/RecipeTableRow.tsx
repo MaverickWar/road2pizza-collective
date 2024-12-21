@@ -10,6 +10,11 @@ interface RecipeTableRowProps {
 }
 
 const RecipeTableRow = ({ recipe, onEdit, onToggleFeature }: RecipeTableRowProps) => {
+  const handleEdit = () => {
+    console.log("Editing recipe:", recipe);
+    onEdit(recipe);
+  };
+
   return (
     <TableRow>
       <TableCell>
@@ -21,16 +26,16 @@ const RecipeTableRow = ({ recipe, onEdit, onToggleFeature }: RecipeTableRowProps
         </div>
       </TableCell>
       <TableCell>
-        {recipe.categories?.name || 'Uncategorized'}
+        {recipe.categories?.name || "Uncategorized"}
       </TableCell>
       <TableCell>
         <RecipeStats reviews={recipe.reviews} />
       </TableCell>
       <TableCell>
         <RecipeActions
-          isFeatured={recipe.is_featured}
-          onToggleFeature={() => onToggleFeature(recipe.id, recipe.is_featured)}
-          onEdit={() => onEdit(recipe)}
+          isFeatured={recipe.is_featured || false}
+          onToggleFeature={() => onToggleFeature(recipe.id, recipe.is_featured || false)}
+          onEdit={handleEdit}
         />
       </TableCell>
     </TableRow>

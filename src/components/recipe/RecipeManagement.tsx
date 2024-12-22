@@ -43,11 +43,11 @@ const RecipeManagement = () => {
         instructions: Array.isArray(recipe.instructions) ? recipe.instructions.map(String) : [],
         tips: Array.isArray(recipe.tips) ? recipe.tips.map(String) : [],
         reviews: recipe.reviews || [],
-        nutrition_info: recipe.nutrition_info ? {
-          calories: String(recipe.nutrition_info.calories || ''),
-          protein: String(recipe.nutrition_info.protein || ''),
-          carbs: String(recipe.nutrition_info.carbs || ''),
-          fat: String(recipe.nutrition_info.fat || '')
+        nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' ? {
+          calories: String(recipe.nutrition_info?.calories || ''),
+          protein: String(recipe.nutrition_info?.protein || ''),
+          carbs: String(recipe.nutrition_info?.carbs || ''),
+          fat: String(recipe.nutrition_info?.fat || '')
         } : undefined
       }));
       

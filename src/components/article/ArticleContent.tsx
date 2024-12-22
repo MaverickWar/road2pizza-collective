@@ -1,5 +1,5 @@
 import React from 'react';
-import { Recipe } from '@/integrations/supabase/types';
+import { Recipe } from '@/components/recipe/types';
 
 interface ArticleContentProps {
   content: string;

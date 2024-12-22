@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, Tool } from "lucide-react";
+import { Star, Wrench } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -42,7 +42,7 @@ const EquipmentReviewCard = ({ review }: EquipmentReviewProps) => {
           </div>
         ) : (
           <div className="h-48 bg-muted flex items-center justify-center">
-            <Tool className="w-12 h-12 text-muted-foreground" />
+            <Wrench className="w-12 h-12 text-muted-foreground" />
           </div>
         )}
       </CardHeader>

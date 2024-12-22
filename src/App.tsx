@@ -33,6 +33,7 @@ function App() {
             <Route path="/member" element={<MemberDashboard />} />
             <Route path="/community" element={<Community />} />
             <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza/:style" element={<PizzaStyle />} />
             <Route path="/pizza-style" element={<PizzaStyle />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/article/:id" element={<ArticleDetail />} />

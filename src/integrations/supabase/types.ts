@@ -83,6 +83,77 @@ export type Database = {
           },
         ]
       }
+      equipment_reviews: {
+        Row: {
+          author: string
+          brand: string
+          category: string
+          cons: Json | null
+          content: string | null
+          created_at: string
+          created_by: string | null
+          durability_rating: number | null
+          ease_of_use_rating: number | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          model: string | null
+          price_range: string | null
+          pros: Json | null
+          rating: number | null
+          title: string
+          value_rating: number | null
+        }
+        Insert: {
+          author: string
+          brand: string
+          category: string
+          cons?: Json | null
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          durability_rating?: number | null
+          ease_of_use_rating?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          model?: string | null
+          price_range?: string | null
+          pros?: Json | null
+          rating?: number | null
+          title: string
+          value_rating?: number | null
+        }
+        Update: {
+          author?: string
+          brand?: string
+          category?: string
+          cons?: Json | null
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          durability_rating?: number | null
+          ease_of_use_rating?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          model?: string | null
+          price_range?: string | null
+          pros?: Json | null
+          rating?: number | null
+          title?: string
+          value_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_reviews_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           badge_count: number

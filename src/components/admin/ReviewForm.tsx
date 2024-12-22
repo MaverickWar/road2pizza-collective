@@ -36,7 +36,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   const mutation = useMutation({
     mutationFn: async (values: ReviewFormData) => {
       console.log("Saving review data:", values);
-      const reviewData: ReviewData = {
+      const reviewData = {
         ...values,
         author: "Admin", // You might want to get this from the current user
       };

@@ -60,6 +60,8 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
         author: "Admin", // You might want to get this from the current user
       };
 
+      console.log("Saving review data:", reviewData); // Debug log
+
       if (review) {
         const { error } = await supabase
           .from("equipment_reviews")
@@ -69,7 +71,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       } else {
         const { error } = await supabase
           .from("equipment_reviews")
-          .insert([reviewData]);
+          .insert(reviewData); // Remove the array wrapper
         if (error) throw error;
       }
     },

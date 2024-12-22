@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
-import { reviewSchema, type ReviewData } from "@/types/review";
+import { reviewSchema, type ReviewData, type ReviewFormData } from "@/types/review";
 import ReviewBasicFields from "./ReviewBasicFields";
 import ReviewRatingFields from "./ReviewRatingFields";
 
@@ -17,7 +17,7 @@ interface ReviewFormProps {
 const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       title: review?.title || "",
@@ -34,19 +34,23 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (values: ReviewData) => {
+    mutationFn: async (values: ReviewFormData) => {
       console.log("Saving review data:", values);
+      const reviewData: ReviewData = {
+        ...values,
+        author: "Admin", // You might want to get this from the current user
+      };
 
       if (review?.id) {
         const { error } = await supabase
           .from("equipment_reviews")
-          .update(values)
+          .update(reviewData)
           .eq("id", review.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("equipment_reviews")
-          .insert(values);
+          .insert(reviewData);
         if (error) throw error;
       }
     },
@@ -61,16 +65,8 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
     },
   });
 
-  const onSubmit = (values: any) => {
-    const reviewData: ReviewData = {
-      ...values,
-      author: "Admin", // You might want to get this from the current user
-      rating: Number(values.rating),
-      durability_rating: Number(values.durability_rating),
-      value_rating: Number(values.value_rating),
-      ease_of_use_rating: Number(values.ease_of_use_rating),
-    };
-    mutation.mutate(reviewData);
+  const onSubmit = (values: ReviewFormData) => {
+    mutation.mutate(values);
   };
 
   return (

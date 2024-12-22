@@ -41,7 +41,15 @@ const ArticleDetail = () => {
 
       const { data, error } = await supabase
         .from('recipes')
-        .select('*')
+        .select(`
+          *,
+          reviews (
+            rating,
+            content,
+            user_id,
+            profiles (username)
+          )
+        `)
         .eq('id', id)
         .maybeSingle();
       
@@ -55,9 +63,13 @@ const ArticleDetail = () => {
         throw new Error('Recipe not found');
       }
 
-      // Transform the nutrition_info to ensure it matches the expected type
+      // Transform the data to match the Recipe type
       const transformedRecipe: Recipe = {
         ...data,
+        ingredients: Array.isArray(data.ingredients) ? data.ingredients.map(String) : [],
+        instructions: Array.isArray(data.instructions) ? data.instructions.map(String) : [],
+        tips: Array.isArray(data.tips) ? data.tips.map(String) : [],
+        reviews: data.reviews || [],
         nutrition_info: data.nutrition_info ? {
           calories: String(data.nutrition_info.calories || ''),
           protein: String(data.nutrition_info.protein || ''),
@@ -83,16 +95,6 @@ const ArticleDetail = () => {
 
   if (isLoading) return <ArticleLoading />;
   if (error || !recipe) return <ArticleError />;
-
-  const ingredients = Array.isArray(recipe.ingredients) 
-    ? recipe.ingredients.map(item => String(item))
-    : [];
-  const instructions = Array.isArray(recipe.instructions)
-    ? recipe.instructions.map(item => String(item))
-    : [];
-  const tips = Array.isArray(recipe.tips)
-    ? recipe.tips.map(item => String(item))
-    : [];
 
   return (
     <>
@@ -122,13 +124,13 @@ const ArticleDetail = () => {
             <ArticleImage imageUrl={recipe.image_url} title={recipe.title} />
 
             <div className="space-y-8 md:space-y-12">
-              <Ingredients ingredients={ingredients} />
-              <Instructions instructions={instructions} />
+              <Ingredients ingredients={recipe.ingredients} />
+              <Instructions instructions={recipe.instructions} />
               <ArticleContent 
                 content={recipe.content} 
                 nutritionInfo={recipe.nutrition_info} 
               />
-              <ProTips tips={tips} />
+              <ProTips tips={recipe.tips} />
             </div>
           </div>
         </article>

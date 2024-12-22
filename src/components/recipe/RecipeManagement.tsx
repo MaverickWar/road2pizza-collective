@@ -39,6 +39,10 @@ const RecipeManagement = () => {
       // Transform the data to match the Recipe type
       const transformedRecipes: Recipe[] = data.map(recipe => ({
         ...recipe,
+        ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.map(String) : [],
+        instructions: Array.isArray(recipe.instructions) ? recipe.instructions.map(String) : [],
+        tips: Array.isArray(recipe.tips) ? recipe.tips.map(String) : [],
+        reviews: recipe.reviews || [],
         nutrition_info: recipe.nutrition_info ? {
           calories: String(recipe.nutrition_info.calories || ''),
           protein: String(recipe.nutrition_info.protein || ''),

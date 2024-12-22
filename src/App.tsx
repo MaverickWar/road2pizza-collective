@@ -16,6 +16,7 @@ import Pizza from "@/pages/Pizza";
 import PizzaStyle from "@/pages/PizzaStyle";
 import Reviews from "@/pages/Reviews";
 import ArticleDetail from "@/components/ArticleDetail";
+import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ function App() {
             <Route path="/pizza-style" element={<PizzaStyle />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
+            <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
           </Routes>
         </Router>
         <Toaster />

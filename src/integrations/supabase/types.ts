@@ -16,6 +16,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           id: string
+          image_url: string | null
           is_special: boolean | null
           required_points: number | null
           title: string
@@ -26,6 +27,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           is_special?: boolean | null
           required_points?: number | null
           title: string
@@ -36,6 +38,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           is_special?: boolean | null
           required_points?: number | null
           title?: string

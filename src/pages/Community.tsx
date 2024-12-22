@@ -28,26 +28,28 @@ const Community = () => {
   });
 
   useEffect(() => {
+    console.log("Auth state:", user); // Debug auth state
+    fetchLeaderboard();
     if (user) {
-      fetchLeaderboard();
       fetchUserStats();
     }
   }, [user]);
 
   const fetchLeaderboard = async () => {
     try {
+      console.log("Fetching leaderboard..."); // Debug fetch start
       const { data, error } = await supabase
         .from('profiles')
         .select('id, username, points, badge_count, recipes_shared')
         .order('points', { ascending: false })
         .limit(10);
 
+      console.log("Leaderboard data:", data); // Debug received data
+      console.log("Leaderboard error:", error); // Debug any errors
+
       if (error) throw error;
       
-      // Ensure data is not null before setting state
-      if (data) {
-        setLeaderboard(data);
-      }
+      setLeaderboard(data || []);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       toast.error("Failed to load leaderboard");
@@ -58,11 +60,15 @@ const Community = () => {
     if (!user) return;
 
     try {
+      console.log("Fetching user stats for:", user.id); // Debug user stats fetch
       const { data, error } = await supabase
         .from('profiles')
         .select('points, badge_count, recipes_shared')
         .eq('id', user.id)
         .maybeSingle();
+
+      console.log("User stats data:", data); // Debug user stats data
+      console.log("User stats error:", error); // Debug user stats error
 
       if (error) throw error;
 
@@ -85,6 +91,10 @@ const Community = () => {
       toast.error("Failed to load user statistics");
     }
   };
+
+  // Debug render
+  console.log("Current leaderboard state:", leaderboard);
+  console.log("Current user stats:", userStats);
 
   return (
     <div className="min-h-screen bg-background">
@@ -149,41 +159,47 @@ const Community = () => {
           {/* Leaderboard */}
           <div className="bg-secondary rounded-lg p-6">
             <h2 className="text-2xl font-bold text-textLight mb-6">Community Leaderboard</h2>
-            <div className="space-y-4">
-              {leaderboard.map((leader, index) => (
-                <div
-                  key={leader.id}
-                  className="flex items-center justify-between bg-background/50 p-4 rounded-lg"
-                >
-                  <div className="flex items-center space-x-4">
-                    <span className="text-xl font-bold text-textLight min-w-[2rem]">
-                      #{index + 1}
-                    </span>
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${leader.username}`} />
-                      <AvatarFallback>
-                        <UserRound className="h-6 w-6" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-textLight">{leader.username}</p>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {leader.badge_count} badges
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          {leader.recipes_shared} recipes
-                        </Badge>
+            {leaderboard.length > 0 ? (
+              <div className="space-y-4">
+                {leaderboard.map((leader, index) => (
+                  <div
+                    key={leader.id}
+                    className="flex items-center justify-between bg-background/50 p-4 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <span className="text-xl font-bold text-textLight min-w-[2rem]">
+                        #{index + 1}
+                      </span>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${leader.username}`} />
+                        <AvatarFallback>
+                          <UserRound className="h-6 w-6" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium text-textLight">{leader.username || 'Anonymous'}</p>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {leader.badge_count} badges
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            {leader.recipes_shared} recipes
+                          </Badge>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center space-x-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span className="font-bold text-textLight">{leader.points}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    <span className="font-bold text-textLight">{leader.points}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-textLight">
+                No community members found. Be the first to join!
+              </div>
+            )}
           </div>
 
           {!user && (

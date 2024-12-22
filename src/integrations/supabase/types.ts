@@ -9,6 +9,47 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      badges: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_special: boolean | null
+          required_points: number | null
+          title: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_special?: boolean | null
+          required_points?: number | null
+          title: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_special?: boolean | null
+          required_points?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badges_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -154,9 +195,46 @@ export type Database = {
           },
         ]
       }
+      point_rules: {
+        Row: {
+          action_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          points: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          points: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          points?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "point_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          badge_color: string | null
           badge_count: number
+          badge_title: string | null
           created_at: string
           id: string
           is_admin: boolean | null
@@ -167,7 +245,9 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          badge_color?: string | null
           badge_count?: number
+          badge_title?: string | null
           created_at?: string
           id: string
           is_admin?: boolean | null
@@ -178,7 +258,9 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          badge_color?: string | null
           badge_count?: number
+          badge_title?: string | null
           created_at?: string
           id?: string
           is_admin?: boolean | null
@@ -315,6 +397,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_points: {
+        Args: {
+          user_id: string
+          action_type: string
+        }
+        Returns: undefined
+      }
       get_user_role: {
         Args: {
           user_id: string

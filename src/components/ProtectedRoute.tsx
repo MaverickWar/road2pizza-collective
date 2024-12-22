@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRouteProps) => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isStaff } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,13 +26,12 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
       return;
     }
 
-    // Add staff check when implemented
-    if (requireStaff && !isAdmin /* && !isStaff */) {
+    if (requireStaff && !isAdmin && !isStaff) {
       toast.error("Staff access required");
       navigate("/dashboard");
       return;
     }
-  }, [user, isAdmin, requireAdmin, requireStaff, navigate]);
+  }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate]);
 
   if (!user) return null;
 

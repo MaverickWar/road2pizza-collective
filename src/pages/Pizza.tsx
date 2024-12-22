@@ -57,27 +57,29 @@ const Pizza = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-24">
-        <h1 className="text-4xl font-bold text-textLight mb-12">Pizza Styles</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {pizzaCategories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/pizza/${category.id}`}
-              className="group relative overflow-hidden rounded-lg aspect-square hover:transform hover:scale-105 transition-transform duration-300"
-            >
-              <img
-                src={category.image}
-                alt={category.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <h3 className="text-xl font-bold text-textLight mb-2">{category.title}</h3>
-                <p className="text-sm text-gray-300">{category.description}</p>
-              </div>
-            </Link>
-          ))}
+      <div className="pt-24">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-textLight mb-8">Pizza Styles</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {pizzaCategories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/pizza/${category.id}`}
+                className="group relative overflow-hidden rounded-lg aspect-square hover:transform hover:scale-105 transition-transform duration-300"
+              >
+                <img
+                  src={category.image}
+                  alt={category.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-xl font-bold text-textLight mb-2">{category.title}</h3>
+                  <p className="text-sm text-gray-300">{category.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

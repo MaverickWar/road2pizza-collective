@@ -1,72 +1,45 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./components/AuthProvider";
-import Index from "./pages/Index";
-import Pizza from "./pages/Pizza";
-import PizzaStyle from "./pages/PizzaStyle";
-import ArticleDetail from "./components/ArticleDetail";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import StaffDashboard from "./pages/StaffDashboard";
-import MemberDashboard from "./pages/MemberDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { AuthProvider } from "@/components/AuthProvider";
 
+// Page imports
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import StaffDashboard from "@/pages/StaffDashboard";
+import MemberDashboard from "@/pages/MemberDashboard";
+import Community from "@/pages/Community";
+import Pizza from "@/pages/Pizza";
+import PizzaStyle from "@/pages/PizzaStyle";
+import Reviews from "@/pages/Reviews";
+
+// Create a client
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+        <Router>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/pizza" element={<Pizza />} />
-            <Route path="/pizza/:style" element={<PizzaStyle />} />
-            <Route path="/article/:id" element={<ArticleDetail />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/admin"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/staff"
-              element={
-                <ProtectedRoute requireStaff>
-                  <StaffDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/member"
-              element={
-                <ProtectedRoute>
-                  <MemberDashboard />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/staff" element={<StaffDashboard />} />
+            <Route path="/member" element={<MemberDashboard />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza-style" element={<PizzaStyle />} />
+            <Route path="/reviews" element={<Reviews />} />
           </Routes>
-        </BrowserRouter>
+        </Router>
+        <Toaster />
       </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+}
 
 export default App;

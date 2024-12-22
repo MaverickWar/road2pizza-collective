@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 
+// Update the schema to match required fields from Supabase
 const reviewSchema = z.object({
   title: z.string().min(1, "Title is required"),
-  brand: z.string().min(1, "Brand is required"),
+  brand: z.string().min(1, "Brand is required"), // Required in DB
   model: z.string().optional(),
-  category: z.string().min(1, "Category is required"),
+  category: z.string().min(1, "Category is required"), // Required in DB
   price_range: z.string().optional(),
   content: z.string().min(1, "Content is required"),
   rating: z.string().transform((val) => parseInt(val, 10)),
@@ -71,7 +72,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       } else {
         const { error } = await supabase
           .from("equipment_reviews")
-          .insert(reviewData); // Remove the array wrapper
+          .insert(reviewData);
         if (error) throw error;
       }
     },

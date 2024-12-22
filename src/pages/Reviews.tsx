@@ -53,7 +53,7 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 pt-24 pb-12">
+      <main className="container mx-auto px-4 pt-32 pb-12"> {/* Updated pt-24 to pt-32 for more spacing */}
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <h1 className="text-4xl font-bold tracking-tight">Community Reviews</h1>

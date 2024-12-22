@@ -7,6 +7,7 @@ import { Star, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import type { ReviewData } from '@/types/review';
 
 const EquipmentReviewDetail = () => {
   const { id } = useParams();
@@ -31,7 +32,7 @@ const EquipmentReviewDetail = () => {
         throw new Error('Review not found');
       }
 
-      return data;
+      return data as ReviewData;
     },
   });
 
@@ -71,6 +72,10 @@ const EquipmentReviewDetail = () => {
     );
   }
 
+  // Type guard to ensure pros and cons are string arrays
+  const prosArray = Array.isArray(review.pros) ? review.pros as string[] : [];
+  const consArray = Array.isArray(review.cons) ? review.cons as string[] : [];
+
   return (
     <>
       <Navigation />
@@ -99,9 +104,7 @@ const EquipmentReviewDetail = () => {
             <div className="flex justify-between items-start">
               <div>
                 <h1 className="text-3xl font-bold">{review.title}</h1>
-                <p className="text-muted-foreground">
-                  by {review.author}
-                </p>
+                <p className="text-muted-foreground">by {review.author}</p>
               </div>
               <div className="flex items-center space-x-1">
                 <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
@@ -166,13 +169,13 @@ const EquipmentReviewDetail = () => {
               )}
             </div>
 
-            {(review.pros?.length > 0 || review.cons?.length > 0) && (
+            {(prosArray.length > 0 || consArray.length > 0) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {review.pros?.length > 0 && (
+                {prosArray.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Pros</h3>
                     <ul className="list-disc list-inside space-y-1">
-                      {review.pros.map((pro: string, index: number) => (
+                      {prosArray.map((pro: string, index: number) => (
                         <li key={index} className="text-green-500">
                           <span className="text-foreground">{pro}</span>
                         </li>
@@ -181,11 +184,11 @@ const EquipmentReviewDetail = () => {
                   </div>
                 )}
 
-                {review.cons?.length > 0 && (
+                {consArray.length > 0 && (
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Cons</h3>
                     <ul className="list-disc list-inside space-y-1">
-                      {review.cons.map((con: string, index: number) => (
+                      {consArray.map((con: string, index: number) => (
                         <li key={index} className="text-red-500">
                           <span className="text-foreground">{con}</span>
                         </li>

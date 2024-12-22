@@ -43,7 +43,11 @@ const Community = () => {
         .limit(10);
 
       if (error) throw error;
-      setLeaderboard(data || []);
+      
+      // Ensure data is not null before setting state
+      if (data) {
+        setLeaderboard(data);
+      }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       toast.error("Failed to load leaderboard");
@@ -58,14 +62,14 @@ const Community = () => {
         .from('profiles')
         .select('points, badge_count, recipes_shared')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       // Get user's rank
-      const { data: rankData, error: rankError } = await supabase
+      const { count: rankData, error: rankError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('id', { count: 'exact', head: true })
         .gt('points', data?.points || 0);
 
       if (rankError) throw rankError;
@@ -74,7 +78,7 @@ const Community = () => {
         points: data?.points || 0,
         badge_count: data?.badge_count || 0,
         recipes_shared: data?.recipes_shared || 0,
-        rank: (rankData?.length || 0) + 1,
+        rank: (rankData || 0) + 1,
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);

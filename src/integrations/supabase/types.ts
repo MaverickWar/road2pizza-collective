@@ -85,27 +85,36 @@ export type Database = {
       }
       profiles: {
         Row: {
+          badge_count: number
           created_at: string
           id: string
           is_admin: boolean | null
           is_staff: boolean | null
           is_suspended: boolean | null
+          points: number
+          recipes_shared: number
           username: string | null
         }
         Insert: {
+          badge_count?: number
           created_at?: string
           id: string
           is_admin?: boolean | null
           is_staff?: boolean | null
           is_suspended?: boolean | null
+          points?: number
+          recipes_shared?: number
           username?: string | null
         }
         Update: {
+          badge_count?: number
           created_at?: string
           id?: string
           is_admin?: boolean | null
           is_staff?: boolean | null
           is_suspended?: boolean | null
+          points?: number
+          recipes_shared?: number
           username?: string | null
         }
         Relationships: []

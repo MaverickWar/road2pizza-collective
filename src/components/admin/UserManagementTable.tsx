@@ -12,19 +12,12 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
-import { Ban, Eye, Shield, UserCog, Award, Star } from "lucide-react";
+import { Ban, Eye, Shield, UserCog, Award } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import UserStatsDialog from "./UserStatsDialog";
+import UserRoleBadges from "./UserRoleBadges";
+import UserStats from "./UserStats";
 
 interface UserManagementTableProps {
   users: any[];
@@ -34,33 +27,7 @@ interface UserManagementTableProps {
 
 const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserManagementTableProps) => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [points, setPoints] = useState("");
-  const [badgeTitle, setBadgeTitle] = useState("");
-  const [badgeColor, setBadgeColor] = useState("");
-
-  const handleUpdateUserStats = async (userId: string) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          points: parseInt(points) || 0,
-          badge_title: badgeTitle || null,
-          badge_color: badgeColor || null,
-        })
-        .eq('id', userId);
-
-      if (error) throw error;
-      
-      toast.success("User stats updated successfully");
-      setSelectedUser(null);
-      setPoints("");
-      setBadgeTitle("");
-      setBadgeColor("");
-    } catch (error) {
-      console.error("Error updating user stats:", error);
-      toast.error("Failed to update user stats");
-    }
-  };
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
 
   return (
     <div className="relative overflow-x-auto">
@@ -100,39 +67,14 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
                 </HoverCard>
               </TableCell>
               <TableCell>
-                <div className="flex flex-wrap gap-2">
-                  {user.is_admin && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
-                      <Shield className="w-3 h-3 mr-1" />
-                      Admin
-                    </span>
-                  )}
-                  {user.is_staff && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
-                      <UserCog className="w-3 h-3 mr-1" />
-                      Staff
-                    </span>
-                  )}
-                  {!user.is_admin && !user.is_staff && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
-                      Member
-                    </span>
-                  )}
-                </div>
+                <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
               </TableCell>
               <TableCell>
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span>{user.points || 0} points</span>
-                  </div>
-                  {user.badge_title && (
-                    <div className="flex items-center space-x-2">
-                      <Award className="w-4 h-4" style={{ color: user.badge_color || 'currentColor' }} />
-                      <span>{user.badge_title}</span>
-                    </div>
-                  )}
-                </div>
+                <UserStats 
+                  points={user.points} 
+                  badgeTitle={user.badge_title} 
+                  badgeColor={user.badge_color} 
+                />
               </TableCell>
               <TableCell>
                 <span
@@ -147,65 +89,17 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedUser(user)}
-                      >
-                        <Award className="w-4 h-4 mr-2" />
-                        Manage Stats
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Update User Stats</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="points">Points</Label>
-                          <Input
-                            id="points"
-                            type="number"
-                            value={points}
-                            onChange={(e) => setPoints(e.target.value)}
-                            placeholder={user?.points?.toString() || "0"}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="badgeTitle">Badge Title</Label>
-                          <Input
-                            id="badgeTitle"
-                            value={badgeTitle}
-                            onChange={(e) => setBadgeTitle(e.target.value)}
-                            placeholder={user?.badge_title || "Enter badge title"}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="badgeColor">Badge Color</Label>
-                          <div className="flex space-x-2">
-                            <Input
-                              id="badgeColor"
-                              value={badgeColor}
-                              onChange={(e) => setBadgeColor(e.target.value)}
-                              placeholder={user?.badge_color || "#000000"}
-                            />
-                            <div
-                              className="w-10 h-10 rounded border"
-                              style={{ backgroundColor: badgeColor || user?.badge_color || '#000000' }}
-                            />
-                          </div>
-                        </div>
-                        <Button
-                          className="w-full"
-                          onClick={() => handleUpdateUserStats(user.id)}
-                        >
-                          Update Stats
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setStatsDialogOpen(true);
+                    }}
+                  >
+                    <Award className="w-4 h-4 mr-2" />
+                    Manage Stats
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -240,6 +134,15 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
           ))}
         </TableBody>
       </Table>
+
+      <UserStatsDialog
+        user={selectedUser}
+        open={statsDialogOpen}
+        onOpenChange={setStatsDialogOpen}
+        onSuccess={() => {
+          setSelectedUser(null);
+        }}
+      />
     </div>
   );
 };

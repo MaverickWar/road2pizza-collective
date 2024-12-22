@@ -25,4 +25,10 @@ export interface Recipe {
   cook_time?: string;
   servings?: string;
   difficulty?: string;
+  nutrition_info?: {
+    calories: string;
+    protein: string;
+    carbs: string;
+    fat: string;
+  };
 }

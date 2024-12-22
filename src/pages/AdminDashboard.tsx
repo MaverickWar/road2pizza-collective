@@ -5,11 +5,12 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BookOpen, Users } from "lucide-react";
+import { BookOpen, Users, Star } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import RecipeManagement from "@/components/recipe/RecipeManagement";
+import ReviewManagement from "@/components/admin/ReviewManagement";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -113,7 +114,7 @@ const AdminDashboard = () => {
         {stats && <StatsCards stats={stats} />}
 
         <Tabs defaultValue="recipes" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
             <TabsTrigger value="recipes" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
               Recipes & Reviews
@@ -121,6 +122,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="equipment-reviews" className="flex items-center gap-2">
+              <Star className="w-4 h-4" />
+              Equipment Reviews
             </TabsTrigger>
           </TabsList>
 
@@ -139,6 +144,17 @@ const AdminDashboard = () => {
                   onToggleUserRole={handleToggleUserRole}
                   onToggleSuspend={handleToggleSuspend}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="equipment-reviews">
+            <Card>
+              <CardHeader>
+                <CardTitle>Equipment Reviews Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReviewManagement />
               </CardContent>
             </Card>
           </TabsContent>

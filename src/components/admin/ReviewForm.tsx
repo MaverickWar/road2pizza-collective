@@ -36,9 +36,18 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   const mutation = useMutation({
     mutationFn: async (values: ReviewFormData) => {
       console.log("Saving review data:", values);
+      // Ensure all required fields are present
       const reviewData = {
         ...values,
         author: "Admin", // You might want to get this from the current user
+        title: values.title,
+        brand: values.brand,
+        category: values.category,
+        content: values.content,
+        rating: values.rating,
+        durability_rating: values.durability_rating,
+        value_rating: values.value_rating,
+        ease_of_use_rating: values.ease_of_use_rating,
       };
 
       if (review?.id) {

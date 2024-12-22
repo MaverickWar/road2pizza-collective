@@ -16,6 +16,7 @@ import ArticleContent from './article/ArticleContent';
 import EditRecipeModal from './article/EditRecipeModal';
 import ArticleLoading from './article/ArticleLoading';
 import ArticleError from './article/ArticleError';
+import { Recipe } from './recipe/types';
 
 const isValidUUID = (str: string) => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -53,8 +54,19 @@ const ArticleDetail = () => {
         console.error('No recipe found');
         throw new Error('Recipe not found');
       }
+
+      // Transform the nutrition_info to ensure it matches the expected type
+      const transformedRecipe: Recipe = {
+        ...data,
+        nutrition_info: data.nutrition_info ? {
+          calories: String(data.nutrition_info.calories || ''),
+          protein: String(data.nutrition_info.protein || ''),
+          carbs: String(data.nutrition_info.carbs || ''),
+          fat: String(data.nutrition_info.fat || '')
+        } : undefined
+      };
       
-      return data;
+      return transformedRecipe;
     },
     enabled: !!id,
   });

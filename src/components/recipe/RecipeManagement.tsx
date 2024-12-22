@@ -36,8 +36,19 @@ const RecipeManagement = () => {
         throw error;
       }
       
-      console.log("Fetched recipes:", data);
-      return data as Recipe[];
+      // Transform the data to match the Recipe type
+      const transformedRecipes: Recipe[] = data.map(recipe => ({
+        ...recipe,
+        nutrition_info: recipe.nutrition_info ? {
+          calories: String(recipe.nutrition_info.calories || ''),
+          protein: String(recipe.nutrition_info.protein || ''),
+          carbs: String(recipe.nutrition_info.carbs || ''),
+          fat: String(recipe.nutrition_info.fat || '')
+        } : undefined
+      }));
+      
+      console.log("Fetched recipes:", transformedRecipes);
+      return transformedRecipes;
     },
   });
 

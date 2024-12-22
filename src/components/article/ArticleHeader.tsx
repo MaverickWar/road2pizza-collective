@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 interface ArticleHeaderProps {
-  category: string;
   title: string;
   author: string;
 }
 
-const ArticleHeader = ({ category, title, author }: ArticleHeaderProps) => {
+const ArticleHeader = ({ title, author }: ArticleHeaderProps) => {
   return (
     <div className="max-w-4xl mx-auto">
       <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-6">
@@ -17,7 +16,6 @@ const ArticleHeader = ({ category, title, author }: ArticleHeaderProps) => {
       </Link>
       
       <div>
-        <span className="text-accent text-sm font-semibold">{category || 'Uncategorized'}</span>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-2 mb-4">{title}</h1>
         <p className="text-gray-400 mb-6">By {author}</p>
       </div>

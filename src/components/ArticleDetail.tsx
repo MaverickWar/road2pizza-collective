@@ -125,7 +125,6 @@ const ArticleDetail = () => {
         <article className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-start mb-6">
             <ArticleHeader 
-              category={recipe.categories?.name}
               title={recipe.title}
               author={recipe.author}
             />

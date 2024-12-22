@@ -37,7 +37,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
     mutationFn: async (values: ReviewData) => {
       console.log("Saving review data:", values);
 
-      if (review) {
+      if (review?.id) {
         const { error } = await supabase
           .from("equipment_reviews")
           .update(values)
@@ -65,6 +65,10 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
     const reviewData: ReviewData = {
       ...values,
       author: "Admin", // You might want to get this from the current user
+      rating: Number(values.rating),
+      durability_rating: Number(values.durability_rating),
+      value_rating: Number(values.value_rating),
+      ease_of_use_rating: Number(values.ease_of_use_rating),
     };
     mutation.mutate(reviewData);
   };

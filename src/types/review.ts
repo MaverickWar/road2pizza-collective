@@ -8,15 +8,16 @@ export const reviewSchema = z.object({
   category: z.string().min(1, "Category is required"),
   price_range: z.string().optional(),
   content: z.string().min(1, "Content is required"),
-  rating: z.string().transform((val) => parseInt(val, 10)),
-  durability_rating: z.string().transform((val) => parseInt(val, 10)),
-  value_rating: z.string().transform((val) => parseInt(val, 10)),
-  ease_of_use_rating: z.string().transform((val) => parseInt(val, 10)),
+  rating: z.coerce.number().min(1).max(5),
+  durability_rating: z.coerce.number().min(1).max(5),
+  value_rating: z.coerce.number().min(1).max(5),
+  ease_of_use_rating: z.coerce.number().min(1).max(5),
 });
 
 export type ReviewFormData = z.infer<typeof reviewSchema>;
 
 export interface ReviewData extends ReviewFormData {
+  id?: string;
   author: string;
   cons?: Json;
   pros?: Json;

@@ -5,12 +5,14 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BookOpen, Users, Star } from "lucide-react";
+import { BookOpen, Users, Star, Award } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import RecipeManagement from "@/components/recipe/RecipeManagement";
 import ReviewManagement from "@/components/admin/ReviewManagement";
+import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
+import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -114,7 +116,7 @@ const AdminDashboard = () => {
         {stats && <StatsCards stats={stats} />}
 
         <Tabs defaultValue="recipes" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
             <TabsTrigger value="recipes" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
               Recipes & Reviews
@@ -122,6 +124,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="rewards" className="flex items-center gap-2">
+              <Award className="w-4 h-4" />
+              Rewards
             </TabsTrigger>
             <TabsTrigger value="equipment-reviews" className="flex items-center gap-2">
               <Star className="w-4 h-4" />
@@ -146,6 +152,28 @@ const AdminDashboard = () => {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="rewards">
+            <div className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Badge Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <BadgeManagement />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Point Rules Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PointRulesManagement />
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="equipment-reviews">

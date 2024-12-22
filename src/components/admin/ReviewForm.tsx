@@ -26,10 +26,10 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       category: review?.category || "",
       price_range: review?.price_range || "",
       content: review?.content || "",
-      rating: review?.rating?.toString() || "5",
-      durability_rating: review?.durability_rating?.toString() || "5",
-      value_rating: review?.value_rating?.toString() || "5",
-      ease_of_use_rating: review?.ease_of_use_rating?.toString() || "5",
+      rating: review?.rating || 5,
+      durability_rating: review?.durability_rating || 5,
+      value_rating: review?.value_rating || 5,
+      ease_of_use_rating: review?.ease_of_use_rating || 5,
     },
   });
 

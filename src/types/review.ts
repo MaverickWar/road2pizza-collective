@@ -16,9 +16,19 @@ export const reviewSchema = z.object({
 
 export type ReviewFormData = z.infer<typeof reviewSchema>;
 
-export interface ReviewData extends ReviewFormData {
+export interface ReviewData {
   id?: string;
+  title: string;
   author: string;
+  brand: string;
+  model?: string;
+  category: string;
+  price_range?: string;
+  content: string;
+  rating: number;
+  durability_rating: number;
+  value_rating: number;
+  ease_of_use_rating: number;
   cons?: Json;
   pros?: Json;
   created_by?: string;

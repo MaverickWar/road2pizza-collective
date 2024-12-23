@@ -45,7 +45,7 @@ const FeaturedPosts = () => {
   return (
     <section className="py-16 md:py-20 bg-gradient-to-b from-background via-background to-secondary/5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 md:mb-12">
+        <div className="text-center mb-8 md:mb-12 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] text-transparent bg-clip-text inline-block">
             Featured Recipes
           </h2>
@@ -57,7 +57,7 @@ const FeaturedPosts = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="bg-card rounded-xl overflow-hidden shadow-lg">
+              <div key={index} className="animate-pulse bg-card rounded-xl overflow-hidden shadow-lg">
                 <Skeleton className="h-48 w-full" />
                 <div className="p-6 space-y-4">
                   <Skeleton className="h-4 w-3/4" />
@@ -67,11 +67,12 @@ const FeaturedPosts = () => {
               </div>
             ))
           ) : (
-            recipes?.map((recipe) => (
+            recipes?.map((recipe, index) => (
               <Link 
                 to={`/article/${recipe.id}`}
                 key={recipe.id}
-                className="group bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                className="group bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 animate-fade-in"
+                style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="relative h-48 overflow-hidden">
                   <img 

@@ -75,81 +75,94 @@ const TopNav = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-end items-center space-x-4">
           {user ? (
-            <>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
-                      <AvatarFallback>
-                        <UserRound className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.user_metadata?.username}</p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  className="relative h-8 w-8 rounded-full"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent any default navigation
+                    console.log('Profile button clicked');
+                  }}
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
+                    <AvatarFallback>
+                      <UserRound className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg" 
+                align="end" 
+                forceMount
+              >
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user.user_metadata?.username}</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Profile Settings
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Profile</DialogTitle>
+                      <DialogDescription>
+                        Request changes to your profile. Changes will be reviewed by an admin.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="username">New Username</Label>
+                        <Input
+                          id="username"
+                          value={newUsername}
+                          onChange={(e) => setNewUsername(e.target.value)}
+                          placeholder="Enter new username"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="email">New Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newEmail}
+                          onChange={(e) => setNewEmail(e.target.value)}
+                          placeholder="Enter new email"
+                        />
+                      </div>
                     </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem>
-                        Profile Settings
-                      </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Edit Profile</DialogTitle>
-                        <DialogDescription>
-                          Request changes to your profile. Changes will be reviewed by an admin.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="username">New Username</Label>
-                          <Input
-                            id="username"
-                            value={newUsername}
-                            onChange={(e) => setNewUsername(e.target.value)}
-                            placeholder="Enter new username"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="email">New Email</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={newEmail}
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            placeholder="Enter new email"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex justify-end">
-                        <Button onClick={handleProfileUpdate}>
-                          Submit Request
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  <DropdownMenuItem>
-                    <Link to="/dashboard" className="flex w-full">
-                      {isAdmin ? 'Admin' : 'Member'} Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+                    <div className="flex justify-end">
+                      <Button onClick={handleProfileUpdate}>
+                        Submit Request
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <DropdownMenuItem onSelect={(e) => {
+                  e.preventDefault();
+                  navigate('/dashboard');
+                }}>
+                  {isAdmin ? 'Admin' : 'Member'} Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={(e) => {
+                  e.preventDefault();
+                  handleLogout();
+                }}>
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Link to="/login" className="flex items-center space-x-2 text-sm text-textLight hover:text-accent">
               <UserRound className="h-4 w-4" />

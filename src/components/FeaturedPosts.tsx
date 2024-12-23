@@ -42,9 +42,9 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-background to-secondary/5 dark:from-background-dark dark:via-background-dark dark:to-secondary-dark/5">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+    <section className="py-16 md:py-20 bg-gradient-to-b from-background via-background to-secondary/5 dark:from-background-dark dark:via-background-dark dark:to-secondary-dark/5">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] text-transparent bg-clip-text inline-block">
             Featured Recipes
           </h2>
@@ -53,7 +53,7 @@ const FeaturedPosts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div 
@@ -88,13 +88,13 @@ const FeaturedPosts = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                   <div className="flex items-center gap-2 text-sm text-accent dark:text-accent-hover font-semibold mb-2">
                     <ChefHat className="w-4 h-4" />
                     {recipe.categories?.name || 'Classic'}
                   </div>
                   
-                  <h3 className="text-xl font-bold text-textLight dark:text-white mb-3 group-hover:text-accent transition-colors">
+                  <h3 className="text-lg md:text-xl font-bold text-textLight dark:text-white mb-3 group-hover:text-accent transition-colors">
                     {recipe.title}
                   </h3>
                   

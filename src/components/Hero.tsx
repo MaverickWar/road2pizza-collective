@@ -7,7 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-[85vh] w-full overflow-hidden mt-24">
+    <div className="relative min-h-[85vh] w-full overflow-hidden pt-16 md:pt-24">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
@@ -17,8 +17,8 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/95 to-background/90 dark:from-background-dark/98 dark:via-background-dark/95 dark:to-background-dark/90" />
       </div>
       
-      <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-        <div className="max-w-2xl space-y-8 animate-fade-up">
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
+        <div className="max-w-2xl space-y-6 md:space-y-8 animate-fade-up">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
             <span className="text-textLight dark:text-white">Master the Art of</span>
             <span className="bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text"> Pizza Making</span>
@@ -50,7 +50,7 @@ const Hero = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 pt-8 md:pt-12">
             {[
               { icon: ChefHat, label: 'Expert Guidance', value: '50+ Chefs' },
               { icon: Pizza, label: 'Pizza Styles', value: '20+ Styles' },
@@ -59,10 +59,10 @@ const Hero = () => {
             ].map((stat, index) => (
               <div 
                 key={index}
-                className="text-center p-4 rounded-lg bg-card/5 dark:bg-card-dark/5 backdrop-blur-sm border border-white/10 dark:border-white/5"
+                className="text-center p-4 rounded-lg bg-card/5 dark:bg-card-dark/5 backdrop-blur-sm border border-white/10 dark:border-white/5 hover:bg-card/10 dark:hover:bg-card-dark/10 transition-colors"
               >
-                <stat.icon className="w-8 h-8 mx-auto mb-2 text-[#FF6B6B]" />
-                <div className="font-bold text-xl text-textLight dark:text-white">{stat.value}</div>
+                <stat.icon className="w-6 h-6 md:w-8 md:h-8 mx-auto mb-2 text-[#FF6B6B]" />
+                <div className="font-bold text-lg md:text-xl text-textLight dark:text-white">{stat.value}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
               </div>
             ))}

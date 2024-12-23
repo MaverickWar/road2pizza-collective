@@ -12,17 +12,19 @@ import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+interface Profile {
+  username: string;
+}
+
 interface ProfileChangeRequest {
   id: string;
   user_id: string;
-  requested_username?: string;
-  requested_email?: string;
+  requested_username?: string | null;
+  requested_email?: string | null;
   status: 'pending' | 'approved' | 'rejected';
-  admin_notes?: string;
+  admin_notes?: string | null;
   created_at: string;
-  profiles?: {
-    username: string;
-  }
+  profiles?: Profile;
 }
 
 interface ProfileChangeRequestsTableProps {

@@ -31,7 +31,14 @@ const UserManagement = () => {
         .select("*, profiles(username)")
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as ProfileChangeRequest[];
+      
+      // Transform the data to match our expected type
+      const transformedData = data?.map(request => ({
+        ...request,
+        profiles: request.profiles ? { username: request.profiles.username } : null
+      }));
+      
+      return transformedData as ProfileChangeRequest[];
     },
   });
 
@@ -229,3 +236,4 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
+

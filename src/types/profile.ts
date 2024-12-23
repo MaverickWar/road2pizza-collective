@@ -12,5 +12,7 @@ export interface ProfileChangeRequest {
   reviewed_by?: string | null;
   created_at: string;
   updated_at: string;
-  profiles?: Profile;
+  profiles: {
+    username: string;
+  } | null;
 }

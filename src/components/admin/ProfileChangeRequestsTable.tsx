@@ -69,7 +69,7 @@ const ProfileChangeRequestsTable = ({ requests, onStatusUpdate }: ProfileChangeR
         <TableBody>
           {requests.map((request) => (
             <TableRow key={request.id}>
-              <TableCell>{request.profiles?.username}</TableCell>
+              <TableCell>{request.profiles?.username || 'Unknown'}</TableCell>
               <TableCell>
                 <div className="space-y-1">
                   {request.requested_username && (

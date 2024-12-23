@@ -42,13 +42,13 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-secondary/10">
+    <section className="py-20 bg-gradient-to-b from-background via-background to-secondary/5 dark:from-background-dark dark:via-background-dark dark:to-secondary-dark/5">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] text-transparent bg-clip-text inline-block">
             Featured Recipes
           </h2>
-          <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
             Discover our community's most loved and highly rated pizza recipes
           </p>
         </div>
@@ -58,13 +58,13 @@ const FeaturedPosts = () => {
             Array.from({ length: 3 }).map((_, index) => (
               <div 
                 key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg animate-pulse"
+                className="bg-card dark:bg-card-dark rounded-xl overflow-hidden shadow-lg animate-pulse"
               >
-                <div className="h-48 bg-gray-200" />
+                <div className="h-48 bg-secondary dark:bg-secondary-dark" />
                 <div className="p-6 space-y-4">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
-                  <div className="h-8 bg-gray-200 rounded w-1/2" />
-                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-secondary dark:bg-secondary-dark rounded w-3/4" />
+                  <div className="h-8 bg-secondary dark:bg-secondary-dark rounded w-1/2" />
+                  <div className="h-4 bg-secondary dark:bg-secondary-dark rounded w-full" />
                 </div>
               </div>
             ))
@@ -73,7 +73,7 @@ const FeaturedPosts = () => {
               <Link 
                 to={`/article/${recipe.id}`}
                 key={recipe.id}
-                className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                className="group bg-card dark:bg-card-dark rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
                 <div className="relative h-48 overflow-hidden">
                   <img 
@@ -89,12 +89,12 @@ const FeaturedPosts = () => {
                 </div>
                 
                 <div className="p-6">
-                  <div className="flex items-center gap-2 text-sm text-[#FF6B6B] font-semibold mb-2">
+                  <div className="flex items-center gap-2 text-sm text-accent dark:text-accent-hover font-semibold mb-2">
                     <ChefHat className="w-4 h-4" />
                     {recipe.categories?.name || 'Classic'}
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-[#FF6B6B] transition-colors">
+                  <h3 className="text-xl font-bold text-textLight dark:text-white mb-3 group-hover:text-accent transition-colors">
                     {recipe.title}
                   </h3>
                   

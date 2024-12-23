@@ -79,7 +79,7 @@ const ForumCategories = () => {
         <h2 className="text-2xl font-bold text-textLight">Forum Categories</h2>
         {isAdmin && (
           <Button asChild variant="outline">
-            <Link to="/admin/forum">Manage Categories</Link>
+            <Link to="/dashboard/admin/forum">Manage Categories</Link>
           </Button>
         )}
       </div>

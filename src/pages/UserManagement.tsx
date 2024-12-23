@@ -7,6 +7,7 @@ import UserManagementTable from "@/components/admin/UserManagementTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Shield, Ban, Bell } from "lucide-react";
 import ProfileChangeRequestsTable from "@/components/admin/ProfileChangeRequestsTable";
+import type { ProfileChangeRequest } from "@/types/profile";
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -30,7 +31,7 @@ const UserManagement = () => {
         .select("*, profiles(username)")
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data;
+      return data as ProfileChangeRequest[];
     },
   });
 

@@ -11,21 +11,7 @@ import { format } from "date-fns";
 import { Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Profile {
-  username: string;
-}
-
-interface ProfileChangeRequest {
-  id: string;
-  user_id: string;
-  requested_username?: string | null;
-  requested_email?: string | null;
-  status: 'pending' | 'approved' | 'rejected';
-  admin_notes?: string | null;
-  created_at: string;
-  profiles?: Profile;
-}
+import type { ProfileChangeRequest } from "@/types/profile";
 
 interface ProfileChangeRequestsTableProps {
   requests: ProfileChangeRequest[];

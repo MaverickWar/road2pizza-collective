@@ -3,20 +3,24 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Clock, ChefHat, Star } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FeaturedPosts = () => {
-  const { data: recipes, isLoading, error } = useQuery({
+  const { data: recipes, isLoading } = useQuery({
     queryKey: ['featured-recipes'],
     queryFn: async () => {
       console.log('Fetching featured recipes...');
       const { data, error } = await supabase
         .from('recipes')
         .select(`
-          *,
+          id,
+          title,
+          author,
+          image_url,
+          prep_time,
           categories (
             id,
-            name,
-            description
+            name
           )
         `)
         .eq('is_featured', true)
@@ -30,19 +34,16 @@ const FeaturedPosts = () => {
       console.log('Fetched featured recipes:', data);
       return data || [];
     },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
-
-  if (error) {
-    console.error('Featured posts error:', error);
-    return null;
-  }
 
   if (!isLoading && (!recipes || recipes.length === 0)) {
     return null;
   }
 
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-b from-background via-background to-secondary/5 dark:from-background-dark dark:via-background-dark dark:to-secondary-dark/5">
+    <section className="py-16 md:py-20 bg-gradient-to-b from-background via-background to-secondary/5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] text-transparent bg-clip-text inline-block">
@@ -56,15 +57,12 @@ const FeaturedPosts = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
-              <div 
-                key={index}
-                className="bg-card dark:bg-card-dark rounded-xl overflow-hidden shadow-lg animate-pulse"
-              >
-                <div className="h-48 bg-secondary dark:bg-secondary-dark" />
+              <div key={index} className="bg-card rounded-xl overflow-hidden shadow-lg">
+                <Skeleton className="h-48 w-full" />
                 <div className="p-6 space-y-4">
-                  <div className="h-4 bg-secondary dark:bg-secondary-dark rounded w-3/4" />
-                  <div className="h-8 bg-secondary dark:bg-secondary-dark rounded w-1/2" />
-                  <div className="h-4 bg-secondary dark:bg-secondary-dark rounded w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-8 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
                 </div>
               </div>
             ))
@@ -73,13 +71,14 @@ const FeaturedPosts = () => {
               <Link 
                 to={`/article/${recipe.id}`}
                 key={recipe.id}
-                className="group bg-card dark:bg-card-dark rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                className="group bg-card rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
                 <div className="relative h-48 overflow-hidden">
                   <img 
                     src={recipe.image_url || '/placeholder.svg'} 
                     alt={recipe.title}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = '/placeholder.svg';
@@ -89,12 +88,12 @@ const FeaturedPosts = () => {
                 </div>
                 
                 <div className="p-4 md:p-6">
-                  <div className="flex items-center gap-2 text-sm text-accent dark:text-accent-hover font-semibold mb-2">
+                  <div className="flex items-center gap-2 text-sm text-accent font-semibold mb-2">
                     <ChefHat className="w-4 h-4" />
                     {recipe.categories?.name || 'Classic'}
                   </div>
                   
-                  <h3 className="text-lg md:text-xl font-bold text-textLight dark:text-white mb-3 group-hover:text-accent transition-colors">
+                  <h3 className="text-lg md:text-xl font-bold mb-3 group-hover:text-accent transition-colors">
                     {recipe.title}
                   </h3>
                   

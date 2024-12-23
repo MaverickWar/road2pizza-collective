@@ -25,41 +25,42 @@ const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
           #{rank}
         </span>
         
-        <Avatar className="h-12 w-12 shrink-0">
-          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-          <AvatarFallback>
-            <UserRound className="h-6 w-6" />
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
+            <AvatarFallback>
+              <UserRound className="h-6 w-6" />
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex flex-wrap gap-1 justify-center">
+            {user.is_admin && (
+              <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs shrink-0">
+                <Shield className="w-3 h-3 mr-1" />
+                Admin
+              </Badge>
+            )}
+            {!user.is_admin && user.is_staff && (
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs shrink-0">
+                <UserCog className="w-3 h-3 mr-1" />
+                Staff
+              </Badge>
+            )}
+            {user.badge_title && (
+              <Badge 
+                variant="secondary" 
+                className={`bg-${user.badge_color || 'gray'}-100 text-${user.badge_color || 'gray'}-700 text-xs shrink-0`}
+              >
+                {user.badge_title}
+              </Badge>
+            )}
+          </div>
+        </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
-            <p className="font-medium text-textLight truncate max-w-[200px] md:max-w-[180px] lg:max-w-[250px]">
-              {user.username}
-            </p>
-            <div className="flex flex-wrap gap-1">
-              {user.is_admin && (
-                <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs shrink-0">
-                  <Shield className="w-3 h-3 mr-1" />
-                  Admin
-                </Badge>
-              )}
-              {!user.is_admin && user.is_staff && (
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs shrink-0">
-                  <UserCog className="w-3 h-3 mr-1" />
-                  Staff
-                </Badge>
-              )}
-              {user.badge_title && (
-                <Badge 
-                  variant="secondary" 
-                  className={`bg-${user.badge_color || 'gray'}-100 text-${user.badge_color || 'gray'}-700 text-xs shrink-0`}
-                >
-                  {user.badge_title}
-                </Badge>
-              )}
-            </div>
-          </div>
+          <p className="font-medium text-textLight truncate max-w-[200px] md:max-w-[300px] lg:max-w-[400px]">
+            {user.username}
+          </p>
           <div className="flex flex-wrap gap-2 mt-1">
             <Badge variant="secondary" className="text-xs">
               {user.badge_count} badges

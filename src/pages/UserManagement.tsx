@@ -30,7 +30,7 @@ const UserManagement = () => {
         .from("profile_change_requests")
         .select(`
           *,
-          profiles:user_id (
+          profiles!profile_change_requests_user_id_fkey (
             username
           )
         `)
@@ -47,8 +47,6 @@ const UserManagement = () => {
       return transformedData as ProfileChangeRequest[];
     },
   });
-
-  const pendingRequests = changeRequests?.filter(req => req.status === 'pending') || [];
 
   const handleToggleUserRole = async (userId: string, role: 'admin' | 'staff', currentStatus: boolean) => {
     try {
@@ -99,6 +97,7 @@ const UserManagement = () => {
   const activeUsers = users?.filter(user => !user.is_suspended) || [];
   const suspendedUsers = users?.filter(user => user.is_suspended) || [];
   const staffUsers = users?.filter(user => user.is_staff || user.is_admin) || [];
+  const pendingRequests = changeRequests?.filter(req => req.status === 'pending') || [];
 
   return (
     <DashboardLayout>

@@ -19,6 +19,7 @@ import ArticleDetail from "@/components/ArticleDetail";
 import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 import ReviewsDashboard from "@/components/reviews/ReviewsDashboard";
 import ForumManagement from "@/components/forum/ForumManagement";
+import CategoryManagement from "@/components/forum/CategoryManagement";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -53,6 +54,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <ForumManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/categories"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CategoryManagement />
                 </ProtectedRoute>
               }
             />

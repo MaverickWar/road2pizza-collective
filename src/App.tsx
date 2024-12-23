@@ -21,6 +21,7 @@ import ReviewsDashboard from "@/components/reviews/ReviewsDashboard";
 import ForumManagement from "@/components/forum/ForumManagement";
 import CategoryManagement from "@/components/forum/CategoryManagement";
 import ForumSettings from "@/components/forum/ForumSettings";
+import ThreadManagement from "@/components/forum/ThreadManagement";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -71,6 +72,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <ForumSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/threads"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ThreadManagement />
                 </ProtectedRoute>
               }
             />

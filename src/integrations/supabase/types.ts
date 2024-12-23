@@ -265,6 +265,57 @@ export type Database = {
           },
         ]
       }
+      forum_posts: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_edited: boolean | null
+          is_solution: boolean | null
+          likes_count: number | null
+          thread_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_edited?: boolean | null
+          is_solution?: boolean | null
+          likes_count?: number | null
+          thread_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_edited?: boolean | null
+          is_solution?: boolean | null
+          likes_count?: number | null
+          thread_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_posts_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_threads: {
         Row: {
           category_id: string | null

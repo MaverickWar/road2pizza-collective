@@ -88,7 +88,7 @@ const TopNav = () => {
         <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
-              Welcome, {user?.user_metadata?.username || 'User'}!
+              Welcome, {user?.user_metadata?.username || user?.email || 'User'}!
             </div>
             {user ? (
               <DropdownMenu>
@@ -112,7 +112,9 @@ const TopNav = () => {
                 >
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.user_metadata?.username || 'User'}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user.user_metadata?.username || 'User'}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
@@ -125,7 +127,7 @@ const TopNav = () => {
                         Profile Settings
                       </DropdownMenuItem>
                     </DialogTrigger>
-                    <DialogContent className="bg-white dark:bg-gray-800">
+                    <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-800">
                       <DialogHeader>
                         <DialogTitle>Edit Profile</DialogTitle>
                         <DialogDescription>
@@ -137,9 +139,10 @@ const TopNav = () => {
                           <Label htmlFor="username">New Username</Label>
                           <Input
                             id="username"
+                            type="text"
+                            placeholder="Enter new username"
                             value={newUsername}
                             onChange={(e) => setNewUsername(e.target.value)}
-                            placeholder="Enter new username"
                             disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
                           />
                         </div>
@@ -148,9 +151,9 @@ const TopNav = () => {
                           <Input
                             id="email"
                             type="email"
+                            placeholder="Enter new email"
                             value={newEmail}
                             onChange={(e) => setNewEmail(e.target.value)}
-                            placeholder="Enter new email"
                             disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
                           />
                         </div>

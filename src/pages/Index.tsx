@@ -7,7 +7,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
-      <main>
+      <main className="pt-32">
         <Hero />
         <FeaturedPosts />
       </main>

@@ -9,7 +9,9 @@ const Index = () => {
       <Navigation />
       <main className="flex flex-col w-full">
         <Hero />
-        <FeaturedPosts />
+        <div className="mt-8 md:mt-12">
+          <FeaturedPosts />
+        </div>
       </main>
     </div>
   );

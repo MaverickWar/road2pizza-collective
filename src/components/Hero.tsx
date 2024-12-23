@@ -7,7 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-[85vh] w-full overflow-hidden pt-16 md:pt-24">
+    <div className="relative min-h-screen w-full pt-32 md:pt-40">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
@@ -17,8 +17,8 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-background/98 via-background/95 to-background/90 dark:from-background-dark/98 dark:via-background-dark/95 dark:to-background-dark/90" />
       </div>
       
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-        <div className="max-w-2xl space-y-6 md:space-y-8 animate-fade-up">
+      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
+        <div className="max-w-2xl space-y-8 md:space-y-10 animate-fade-up">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
             <span className="text-textLight dark:text-white">Master the Art of</span>
             <span className="bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text"> Pizza Making</span>

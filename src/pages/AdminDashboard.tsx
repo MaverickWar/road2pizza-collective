@@ -3,8 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { BookOpen, Users, Star, Award, LayoutDashboard } from "lucide-react";
+import { BookOpen, Users, Star, Award, LayoutDashboard, FileText, Pizza } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import UserManagementTable from "@/components/admin/UserManagementTable";
@@ -12,6 +11,7 @@ import RecipeManagement from "@/components/recipe/RecipeManagement";
 import ReviewManagement from "@/components/admin/ReviewManagement";
 import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
 import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
+import PageManagement from "@/components/admin/pages/PageManagement";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -120,17 +120,17 @@ const AdminDashboard = () => {
               <LayoutDashboard className="w-4 h-4" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="recipes" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Recipes & Reviews
+            <TabsTrigger value="content" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Content
             </TabsTrigger>
             <TabsTrigger value="rewards" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
               Rewards
             </TabsTrigger>
-            <TabsTrigger value="equipment-reviews" className="flex items-center gap-2">
+            <TabsTrigger value="reviews" className="flex items-center gap-2">
               <Star className="w-4 h-4" />
-              Equipment Reviews
+              Reviews
             </TabsTrigger>
           </TabsList>
 
@@ -149,8 +149,11 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="recipes">
-            <RecipeManagement />
+          <TabsContent value="content">
+            <div className="space-y-6">
+              <PageManagement />
+              <RecipeManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="rewards">
@@ -175,7 +178,7 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="equipment-reviews">
+          <TabsContent value="reviews">
             <Card>
               <CardHeader>
                 <CardTitle>Equipment Reviews Management</CardTitle>

@@ -35,7 +35,7 @@ const PizzaTypeCard = ({
     if (!showControls) return;
     longPressTimeout.current = setTimeout(() => {
       setIsLongPressed(true);
-    }, 500); // 500ms for long press
+    }, 500);
   };
 
   const handleTouchEnd = () => {
@@ -113,10 +113,10 @@ const PizzaTypeCard = ({
             target.src = '/placeholder.svg';
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <h3 className="text-xl font-bold text-textLight mb-2">{name}</h3>
-          <p className="text-sm text-gray-300">{description}</p>
+          <h3 className="text-xl font-bold text-white mb-2">{name}</h3>
+          <p className="text-sm text-gray-200">{description}</p>
         </div>
       </Link>
     </div>

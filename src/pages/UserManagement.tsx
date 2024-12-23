@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Shield, Ban } from "lucide-react";
+import { Users, Shield, Ban, Bell } from "lucide-react";
+import ProfileChangeRequestsTable from "@/components/admin/ProfileChangeRequestsTable";
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -19,6 +20,21 @@ const UserManagement = () => {
       return data;
     },
   });
+
+  const { data: changeRequests, isLoading: loadingRequests } = useQuery({
+    queryKey: ["profile-change-requests"],
+    queryFn: async () => {
+      console.log("Fetching profile change requests...");
+      const { data, error } = await supabase
+        .from("profile_change_requests")
+        .select("*, profiles(username)")
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const pendingRequests = changeRequests?.filter(req => req.status === 'pending') || [];
 
   const handleToggleUserRole = async (userId: string, role: 'admin' | 'staff', currentStatus: boolean) => {
     try {
@@ -80,7 +96,7 @@ const UserManagement = () => {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -108,6 +124,15 @@ const UserManagement = () => {
               <div className="text-2xl font-bold">{suspendedUsers.length}</div>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
+              <Bell className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pendingRequests.length}</div>
+            </CardContent>
+          </Card>
         </div>
 
         <Tabs defaultValue="all" className="space-y-4">
@@ -116,6 +141,14 @@ const UserManagement = () => {
             <TabsTrigger value="active">Active Users</TabsTrigger>
             <TabsTrigger value="staff">Staff Members</TabsTrigger>
             <TabsTrigger value="suspended">Suspended Users</TabsTrigger>
+            <TabsTrigger value="requests" className="relative">
+              Profile Requests
+              {pendingRequests.length > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                  {pendingRequests.length}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all">
@@ -162,6 +195,29 @@ const UserManagement = () => {
                   onToggleUserRole={handleToggleUserRole}
                   onToggleSuspend={handleToggleSuspend}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile Change Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingRequests ? (
+                  <div className="h-32 flex items-center justify-center">
+                    <p className="text-muted-foreground">Loading requests...</p>
+                  </div>
+                ) : (
+                  <ProfileChangeRequestsTable
+                    requests={changeRequests || []}
+                    onStatusUpdate={() => {
+                      queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
+                      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+                    }}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>

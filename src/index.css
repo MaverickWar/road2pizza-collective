@@ -30,7 +30,7 @@
 
   /* Button variants with improved contrast */
   .button-primary {
-    @apply bg-accent text-white hover:bg-accent-hover;
+    @apply bg-accent text-textLight hover:bg-accent-hover hover:text-white dark:text-white;
   }
 
   .button-secondary {

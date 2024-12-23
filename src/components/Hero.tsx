@@ -21,7 +21,7 @@ const Hero = () => {
           backgroundImage: 'url("https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80")',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
       
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
@@ -40,7 +40,7 @@ const Hero = () => {
             <Button 
               size="lg"
               onClick={() => navigate('/pizza')}
-              className="bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] hover:from-[#FF8B8B] hover:to-[#FFCF98] text-white font-semibold transform transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] hover:from-[#FF8B8B] hover:to-[#FFCF98] text-textLight hover:text-white font-semibold transform transition-all duration-300 hover:scale-105"
             >
               <Pizza className="mr-2 h-5 w-5" />
               Explore Recipes

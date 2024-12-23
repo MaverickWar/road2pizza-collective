@@ -82,7 +82,7 @@ const TopNav = () => {
         <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
-              Welcome, {user?.email || 'User'}!
+              Welcome, {user?.user_metadata?.username || 'User'}!
             </div>
             {user ? (
               <DropdownMenu>
@@ -106,7 +106,7 @@ const TopNav = () => {
                 >
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.user_metadata?.username}</p>
+                      <p className="text-sm font-medium leading-none">{user.user_metadata?.username || 'User'}</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>

@@ -53,6 +53,38 @@ export type Database = {
           },
         ]
       }
+      banned_usernames: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          reason: string | null
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          word: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          reason?: string | null
+          word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "banned_usernames_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -479,7 +511,7 @@ export type Database = {
           is_suspended: boolean | null
           points: number
           recipes_shared: number
-          username: string | null
+          username: string
         }
         Insert: {
           badge_color?: string | null
@@ -492,7 +524,7 @@ export type Database = {
           is_suspended?: boolean | null
           points?: number
           recipes_shared?: number
-          username?: string | null
+          username: string
         }
         Update: {
           badge_color?: string | null
@@ -505,7 +537,7 @@ export type Database = {
           is_suspended?: boolean | null
           points?: number
           recipes_shared?: number
-          username?: string | null
+          username?: string
         }
         Relationships: []
       }
@@ -646,6 +678,12 @@ export type Database = {
           user_id: string
         }
         Returns: string
+      }
+      is_username_allowed: {
+        Args: {
+          username: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

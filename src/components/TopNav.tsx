@@ -29,7 +29,7 @@ const TopNav = () => {
             <>
               <Link to="/dashboard" className="flex items-center space-x-2 text-sm text-textLight hover:text-accent">
                 <Avatar className="h-6 w-6">
-                  <AvatarImage src={user.user_metadata?.avatar_url} />
+                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
                   <AvatarFallback>
                     <UserRound className="h-4 w-4" />
                   </AvatarFallback>

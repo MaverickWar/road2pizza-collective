@@ -57,7 +57,7 @@ const Pizza = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="pt-28 md:pt-32"> {/* Adjusted padding to ensure visibility */}
+      <div className="pt-36 md:pt-32"> {/* Increased padding for mobile */}
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-textLight mb-8">Pizza Styles</h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

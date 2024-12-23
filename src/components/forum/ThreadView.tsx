@@ -38,7 +38,7 @@ const ThreadView = () => {
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState('');
 
-  const { data: thread, isLoading } = useQuery({
+  const { data: thread, isLoading, refetch } = useQuery({
     queryKey: ['thread', id],
     queryFn: async () => {
       console.log('Fetching thread:', id);
@@ -85,8 +85,8 @@ const ThreadView = () => {
 
       toast.success('Reply posted successfully');
       setReplyContent('');
-      // Refresh the thread data
-      navigate(0);
+      // Refresh the thread data to show the new reply
+      refetch();
     } catch (error) {
       console.error('Error posting reply:', error);
       toast.error('Failed to post reply');

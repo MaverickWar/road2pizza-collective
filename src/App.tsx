@@ -22,8 +22,8 @@ import ForumManagement from "@/components/forum/ForumManagement";
 import CategoryManagement from "@/components/forum/CategoryManagement";
 import ForumSettings from "@/components/forum/ForumSettings";
 import ThreadManagement from "@/components/forum/ThreadManagement";
+import CategoryView from "@/components/forum/CategoryView";
 
-// Create a client
 const queryClient = new QueryClient();
 
 function App() {
@@ -100,6 +100,7 @@ function App() {
               }
             />
             <Route path="/community" element={<Community />} />
+            <Route path="/community/forum/category/:id" element={<CategoryView />} />
             <Route path="/pizza" element={<Pizza />} />
             <Route path="/pizza/:style" element={<PizzaStyle />} />
             <Route path="/pizza-style" element={<PizzaStyle />} />

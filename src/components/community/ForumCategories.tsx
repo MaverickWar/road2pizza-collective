@@ -93,7 +93,7 @@ const ForumCategories = () => {
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/community/forum/${category.id}`}
+              to={`/community/forum/category/${category.id}`}
               className="block p-4 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
             >
               <div className="flex items-start justify-between">

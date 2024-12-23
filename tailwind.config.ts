@@ -28,10 +28,12 @@ export default {
         background: {
           DEFAULT: "#FEF9F9",
           secondary: "#F8F7FF",
+          dark: "#1A1F2C",
         },
         secondary: {
           DEFAULT: "#FFDEE2",
           hover: "#FFD1D6",
+          dark: "#2A2F3C",
         },
         accent: {
           DEFAULT: "#FF8B8B",
@@ -45,6 +47,8 @@ export default {
         card: {
           DEFAULT: "white",
           hover: "#FFFFFF",
+          dark: "#222632",
+          "dark-hover": "#272B36",
         },
       },
       keyframes: {

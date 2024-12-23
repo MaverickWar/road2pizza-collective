@@ -33,8 +33,8 @@ const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
         </Avatar>
 
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-            <p className="font-medium text-textLight truncate max-w-[150px] sm:max-w-[200px]">
+          <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
+            <p className="font-medium text-textLight truncate max-w-[200px] md:max-w-[180px] lg:max-w-[250px]">
               {user.username}
             </p>
             <div className="flex flex-wrap gap-1">

@@ -50,7 +50,7 @@ const Hero = () => {
               size="lg"
               variant="outline"
               onClick={() => navigate('/community')}
-              className="border-2 border-white text-white hover:bg-white/10 transform transition-all duration-300 hover:scale-105"
+              className="bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] hover:from-[#FF8B8B] hover:to-[#FFCF98] text-textLight hover:text-white font-semibold transform transition-all duration-300 hover:scale-105"
             >
               <Users className="mr-2 h-5 w-5" />
               Join Community

@@ -10,14 +10,14 @@ const MainNav = () => {
   ];
 
   return (
-    <nav className="w-full bg-background/95 backdrop-blur-sm border-b border-gray-800">
+    <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-transparent border-2 border-white rounded-full flex items-center justify-center">
-              <Pizza className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-transparent border-2 border-accent rounded-full flex items-center justify-center">
+              <Pizza className="w-6 h-6 text-accent" />
             </div>
-            <span className="text-white font-light text-xl tracking-wider hover:text-accent transition-colors">
+            <span className="text-accent font-light text-xl tracking-wider hover:text-accent/80 transition-colors">
               Road2Pizza
             </span>
           </Link>

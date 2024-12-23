@@ -5,7 +5,7 @@ import FeaturedPosts from '../components/FeaturedPosts';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FEF9F9] to-[#FFDEE2] dark:from-background dark:to-secondary">
+    <div className="min-h-screen bg-white">
       <Navigation />
       <main>
         <Hero />

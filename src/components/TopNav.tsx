@@ -22,7 +22,7 @@ const TopNav = () => {
   };
 
   return (
-    <div className="w-full bg-background/95 backdrop-blur-sm border-b border-gray-800 py-2">
+    <div className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 py-2">
       <div className="container mx-auto px-4">
         <div className="flex justify-end items-center space-x-4">
           {user ? (

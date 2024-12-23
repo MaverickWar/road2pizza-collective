@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,14 +28,57 @@ const PizzaTypeCard = ({
   showControls,
   onReorder
 }: PizzaTypeCardProps) => {
+  const [isLongPressed, setIsLongPressed] = useState(false);
+  const longPressTimeout = React.useRef<NodeJS.Timeout>();
+
+  const handleTouchStart = () => {
+    if (!showControls) return;
+    longPressTimeout.current = setTimeout(() => {
+      setIsLongPressed(true);
+    }, 500); // 500ms for long press
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+  };
+
+  const handleMouseDown = () => {
+    if (!showControls) return;
+    longPressTimeout.current = setTimeout(() => {
+      setIsLongPressed(true);
+    }, 500);
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+    setIsLongPressed(false);
+  };
+
   return (
-    <div className="relative group">
-      {showControls && (
+    <div 
+      className="relative"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+    >
+      {showControls && isLongPressed && (
         <div className="absolute top-2 right-2 z-10 flex gap-1">
           <Button
             variant="secondary"
             size="icon"
-            className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="w-8 h-8"
             onClick={() => onReorder(id, displayOrder, 'up')}
             disabled={isFirst}
           >
@@ -44,7 +87,7 @@ const PizzaTypeCard = ({
           <Button
             variant="secondary"
             size="icon"
-            className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="w-8 h-8"
             onClick={() => onReorder(id, displayOrder, 'down')}
             disabled={isLast}
           >
@@ -55,6 +98,11 @@ const PizzaTypeCard = ({
       <Link
         to={`/pizza/${slug}`}
         className="block relative overflow-hidden rounded-lg aspect-square hover:transform hover:scale-105 transition-transform duration-300"
+        onClick={(e) => {
+          if (isLongPressed) {
+            e.preventDefault();
+          }
+        }}
       >
         <img
           src={imageUrl}

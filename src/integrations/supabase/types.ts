@@ -198,6 +198,98 @@ export type Database = {
           },
         ]
       }
+      forum_categories: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_categories_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_threads: {
+        Row: {
+          category_id: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_locked: boolean | null
+          is_pinned: boolean | null
+          last_post_at: string
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          last_post_at?: string
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          last_post_at?: string
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_threads_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "forum_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_threads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_permissions: {
         Row: {
           can_delete: boolean | null

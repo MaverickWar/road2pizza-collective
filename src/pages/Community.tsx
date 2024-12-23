@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import UserStats from "@/components/community/UserStats";
 import Leaderboard from "@/components/community/Leaderboard";
+import ForumCategories from "@/components/community/ForumCategories";
 
 const Community = () => {
   const { user } = useAuth();
@@ -90,10 +91,17 @@ const Community = () => {
           
           {user && <UserStats stats={userStats} />}
           
-          <Leaderboard 
-            leaderboard={leaderboard} 
-            isAuthenticated={!!user} 
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            <div className="lg:col-span-2">
+              <ForumCategories />
+            </div>
+            <div>
+              <Leaderboard 
+                leaderboard={leaderboard} 
+                isAuthenticated={!!user} 
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

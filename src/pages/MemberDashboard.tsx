@@ -6,7 +6,7 @@ const MemberDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 pt-36 md:pt-32">
         <h1 className="text-2xl font-bold">My Reviews</h1>
         <p>Welcome, {user?.email}</p>
         <div className="grid grid-cols-1 gap-4">

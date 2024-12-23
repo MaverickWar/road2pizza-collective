@@ -53,12 +53,13 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="container mx-auto px-4 pt-32 pb-12"> {/* Updated pt-24 to pt-32 for more spacing */}
-        <div className="space-y-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <h1 className="text-4xl font-bold tracking-tight">Community Reviews</h1>
-            <ReviewStats reviews={recipeReviews || []} />
-          </div>
+      <main className="pt-36 md:pt-32 pb-12">
+        <div className="container mx-auto px-4">
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h1 className="text-4xl font-bold tracking-tight">Community Reviews</h1>
+              <ReviewStats reviews={recipeReviews || []} />
+            </div>
 
           <Tabs defaultValue="recipes" className="w-full">
             <TabsList className="w-full sm:w-auto">
@@ -124,6 +125,7 @@ const Reviews = () => {
               </div>
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </main>
     </div>

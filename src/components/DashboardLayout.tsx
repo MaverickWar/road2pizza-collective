@@ -1,7 +1,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, MessageSquare, Star } from "lucide-react";
+import { LayoutDashboard, Users, FileText, MessageSquare, Star } from 'lucide-react';
 import Navigation from "./Navigation";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -13,7 +13,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 pt-24">
+      <div className="container mx-auto px-4 pt-36 md:pt-32">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar Navigation */}
           <aside className="w-full md:w-64 space-y-2">

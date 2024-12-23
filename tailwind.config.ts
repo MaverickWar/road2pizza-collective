@@ -40,6 +40,9 @@ export default {
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
       },
+      backgroundImage: {
+        'hero-pattern': "url('https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

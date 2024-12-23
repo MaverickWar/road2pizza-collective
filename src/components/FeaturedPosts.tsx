@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Clock, ChefHat, Star } from 'lucide-react';
 
 const FeaturedPosts = () => {
   const { data: recipes, isLoading, error } = useQuery({
@@ -41,21 +42,29 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-12 md:py-20 bg-secondary">
+    <section className="py-20 bg-gradient-to-b from-[#FFDEE2] to-[#FFF5F6] dark:from-secondary dark:to-background">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-textLight mb-8 md:mb-12">Featured Recipes</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] text-transparent bg-clip-text inline-block">
+            Featured Recipes
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
+            Discover our community's most loved and highly rated pizza recipes
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div 
                 key={index}
-                className="bg-background rounded-lg overflow-hidden animate-pulse"
+                className="bg-white dark:bg-background/50 rounded-xl overflow-hidden shadow-lg animate-pulse"
               >
-                <div className="h-48 md:h-56 bg-muted" />
-                <div className="p-4 md:p-6 space-y-3">
-                  <div className="h-4 bg-muted rounded w-1/4" />
-                  <div className="h-6 bg-muted rounded w-3/4" />
-                  <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-48 bg-gray-200 dark:bg-gray-700" />
+                <div className="p-6 space-y-4">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                  <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
                 </div>
               </div>
             ))
@@ -64,29 +73,41 @@ const FeaturedPosts = () => {
               <Link 
                 to={`/article/${recipe.id}`}
                 key={recipe.id}
-                className="bg-background rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
+                className="group bg-white dark:bg-background/50 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
-                <div className="relative h-48 md:h-56 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img 
                     src={recipe.image_url || '/placeholder.svg'} 
                     alt={recipe.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = '/placeholder.svg';
                     }}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-                <div className="p-4 md:p-6">
-                  <span className="text-accent text-sm font-semibold">
-                    {recipe.categories?.name || 'Uncategorized'}
-                  </span>
-                  <h3 className="text-lg md:text-xl font-bold text-textLight mt-2 mb-3">
+                
+                <div className="p-6">
+                  <div className="flex items-center gap-2 text-sm text-[#FF6B6B] font-semibold mb-2">
+                    <ChefHat className="w-4 h-4" />
+                    {recipe.categories?.name || 'Classic'}
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-[#FF6B6B] transition-colors">
                     {recipe.title}
                   </h3>
-                  <p className="text-gray-400 text-sm md:text-base">
-                    By {recipe.author}
-                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{recipe.prep_time || '30 mins'}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 text-[#FFB168]" />
+                      <span>4.9</span>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))

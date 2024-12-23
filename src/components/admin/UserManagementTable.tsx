@@ -10,6 +10,8 @@ import { useState } from "react";
 import UserStatsDialog from "./UserStatsDialog";
 import UserProfileDialog from "./UserProfileDialog";
 import UserTableRow from "./users/UserTableRow";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserManagementTableProps {
   users: any[];
@@ -21,6 +23,24 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+      
+      toast.success("User deleted successfully");
+      // Refresh the page to update the user list
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete user");
+    }
+  };
 
   return (
     <div className="relative overflow-x-auto">
@@ -49,6 +69,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
                 setSelectedUser(user);
                 setStatsDialogOpen(true);
               }}
+              onDeleteUser={handleDeleteUser}
             />
           ))}
         </TableBody>
@@ -69,6 +90,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
         onOpenChange={setProfileDialogOpen}
         onSuccess={() => {
           setSelectedUser(null);
+          window.location.reload();
         }}
       />
     </div>

@@ -31,6 +31,23 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
         return;
       }
 
+      // First check if username is already taken
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .neq('id', userId)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingUser) {
+        toast.error("Username is already taken");
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -55,7 +72,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit User Profile</DialogTitle>
         </DialogHeader>
@@ -64,10 +81,11 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
             <Label htmlFor="username">Username</Label>
             <Input
               id="username"
+              type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk')}
             />
           </div>
           <div className="space-y-2">
@@ -84,6 +102,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
             <Label htmlFor="avatarUrl">Avatar URL</Label>
             <Input
               id="avatarUrl"
+              type="url"
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="Enter avatar URL"

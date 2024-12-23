@@ -12,7 +12,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { format } from "date-fns";
-import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award } from "lucide-react";
+import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2 } from "lucide-react";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
 
@@ -22,6 +22,7 @@ interface UserTableRowProps {
   onToggleSuspend: (userId: string, currentStatus: boolean) => Promise<void>;
   onEditProfile: (user: any) => void;
   onManageStats: (user: any) => void;
+  onDeleteUser: (userId: string) => Promise<void>;
 }
 
 const UserTableRow = ({ 
@@ -29,8 +30,11 @@ const UserTableRow = ({
   onToggleUserRole, 
   onToggleSuspend,
   onEditProfile,
-  onManageStats 
+  onManageStats,
+  onDeleteUser
 }: UserTableRowProps) => {
+  const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
+
   return (
     <TableRow className="group hover:bg-secondary/50">
       <TableCell>
@@ -112,6 +116,15 @@ const UserTableRow = ({
               )}
               {user.is_suspended ? "Activate" : "Suspend"}
             </DropdownMenuItem>
+            {!isMainAdmin && (
+              <DropdownMenuItem 
+                className="text-red-600 focus:text-red-600" 
+                onClick={() => onDeleteUser(user.id)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete User
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>

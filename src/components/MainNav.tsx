@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Pizza, Menu, X } from 'lucide-react';
+import { Pizza, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import {

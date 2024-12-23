@@ -57,7 +57,6 @@ const PizzaStyle = () => {
     queryFn: async () => {
       console.log('Fetching recipes for style:', style);
       
-      // First, get the category ID by name, using ilike for case-insensitive matching
       const { data: categories, error: categoryError } = await supabase
         .from('categories')
         .select('id')
@@ -71,7 +70,6 @@ const PizzaStyle = () => {
 
       console.log('Found category:', categories);
 
-      // If we found a category, fetch its recipes
       if (categories?.id) {
         const { data: recipes, error: recipesError } = await supabase
           .from('recipes')
@@ -92,12 +90,19 @@ const PizzaStyle = () => {
         return recipes || [];
       }
       
-      // If no category was found, return an empty array
-      console.log('No category found for style:', pizzaStyle?.title);
       return [];
     },
     enabled: !!style && !!pizzaStyle,
   });
+
+  const getImageUrl = (url: string) => {
+    // If it's already a data URL or an absolute URL, return it as is
+    if (url.startsWith('data:') || url.startsWith('http')) {
+      return url;
+    }
+    // Otherwise, assume it's a relative path and prepend the public URL
+    return new URL(url, window.location.origin).href;
+  };
 
   if (!pizzaStyle) {
     return (
@@ -149,14 +154,20 @@ const PizzaStyle = () => {
               >
                 <div className="aspect-video relative">
                   <img
-                    src={recipe.image_url || '/placeholder.svg'}
+                    src={recipe.image_url ? getImageUrl(recipe.image_url) : '/placeholder.svg'}
                     alt={recipe.title}
                     className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder.svg';
+                    }}
                   />
                 </div>
                 <div className="p-4">
                   <h3 className="text-xl font-bold mb-2">{recipe.title}</h3>
-                  <p className="text-gray-300 text-sm mb-4">{recipe.content?.substring(0, 100)}...</p>
+                  <p className="text-gray-300 text-sm mb-4">
+                    {recipe.content?.substring(0, 100)}...
+                  </p>
                   <div className="flex justify-between text-sm text-gray-400">
                     <span>Difficulty: {recipe.difficulty}</span>
                     <span>Prep: {recipe.prep_time}</span>

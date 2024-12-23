@@ -18,6 +18,14 @@ interface LeaderboardEntryProps {
 }
 
 const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
+  // Function to truncate username if longer than 14 characters
+  const displayUsername = (username: string) => {
+    if (username.length > 14) {
+      return `${username.slice(0, 14)}...`;
+    }
+    return username;
+  };
+
   return (
     <div className="flex items-center justify-between bg-background/50 p-4 rounded-lg gap-4">
       <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -58,8 +66,8 @@ const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-textLight truncate max-w-[200px] md:max-w-[300px] lg:max-w-[400px]">
-            {user.username}
+          <p className="font-medium text-textLight">
+            {displayUsername(user.username)}
           </p>
           <div className="flex flex-wrap gap-2 mt-1">
             <Badge variant="secondary" className="text-xs">

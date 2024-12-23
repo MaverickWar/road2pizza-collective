@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { BookOpen, Users, Star, Award } from "lucide-react";
+import { BookOpen, Users, Star, Award, LayoutDashboard } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import UserManagementTable from "@/components/admin/UserManagementTable";

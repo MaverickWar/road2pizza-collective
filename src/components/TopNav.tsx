@@ -50,7 +50,6 @@ const TopNav = () => {
         return;
       }
 
-      // Check if trying to change admin's username
       if (isAdmin && user?.email === 'richgiles@hotmail.co.uk') {
         toast.error("Admin account details cannot be modified");
         return;
@@ -80,11 +79,11 @@ const TopNav = () => {
   return (
     <div className="w-full bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] py-2">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
-          <div className="text-white font-bold">
-            Welcome, {user?.user_metadata?.username || 'User'}!
-          </div>
+        <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
+            <div className="text-white font-bold">
+              Welcome, {user?.user_metadata?.username || 'User'}!
+            </div>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import type { User, Session } from "@supabase/supabase-js";
 
 type AuthContextType = {
   user: User | null;
@@ -20,44 +20,78 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkUserRoles(session.user.id);
-      }
+      console.log("Initial session check:", session);
+      handleSessionChange(session);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkUserRoles(session.user.id);
-      } else {
-        setIsAdmin(false);
-        setIsStaff(false);
-      }
+      console.log("Auth state changed:", session);
+      handleSessionChange(session);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const checkUserRoles = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("is_admin, is_staff")
-      .eq("id", userId)
-      .single();
-
-    if (!error && data) {
-      setIsAdmin(data.is_admin || false);
-      setIsStaff(data.is_staff || false);
+  const handleSessionChange = async (session: Session | null) => {
+    setLoading(true);
+    try {
+      if (session?.user) {
+        setUser(session.user);
+        await checkUserRoles(session.user.id);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+        setIsStaff(false);
+      }
+    } catch (error) {
+      console.error("Error handling session change:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const checkUserRoles = async (userId: string) => {
+    try {
+      console.log("Checking roles for user:", userId);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("is_admin, is_staff, email")
+        .eq("id", userId)
+        .single();
+
+      console.log("User roles data:", data);
+      console.log("User roles error:", error);
+
+      if (error) throw error;
+      
+      if (data) {
+        // Special handling for main admin account
+        if (data.email === 'richgiles@hotmail.co.uk') {
+          setIsAdmin(true);
+          setIsStaff(true);
+        } else {
+          setIsAdmin(data.is_admin || false);
+          setIsStaff(data.is_staff || false);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking user roles:", error);
+      setIsAdmin(false);
+      setIsStaff(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, isStaff }}>

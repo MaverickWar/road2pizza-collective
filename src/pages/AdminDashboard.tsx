@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -115,15 +114,15 @@ const AdminDashboard = () => {
 
         {stats && <StatsCards stats={stats} />}
 
-        <Tabs defaultValue="recipes" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Overview
+            </TabsTrigger>
             <TabsTrigger value="recipes" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
               Recipes & Reviews
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Users
             </TabsTrigger>
             <TabsTrigger value="rewards" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
@@ -135,14 +134,10 @@ const AdminDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recipes">
-            <RecipeManagement />
-          </TabsContent>
-
-          <TabsContent value="users">
+          <TabsContent value="overview">
             <Card>
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle>Recent User Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <UserManagementTable
@@ -152,6 +147,10 @@ const AdminDashboard = () => {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="recipes">
+            <RecipeManagement />
           </TabsContent>
 
           <TabsContent value="rewards">

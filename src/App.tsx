@@ -9,6 +9,7 @@ import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import UserManagement from "@/pages/UserManagement";
 import StaffDashboard from "@/pages/StaffDashboard";
 import MemberDashboard from "@/pages/MemberDashboard";
 import Community from "@/pages/Community";
@@ -35,6 +36,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/users"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserManagement />
                 </ProtectedRoute>
               }
             />

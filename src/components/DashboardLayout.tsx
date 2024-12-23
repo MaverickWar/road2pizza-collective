@@ -19,10 +19,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <aside className="w-full md:w-64 space-y-2">
             <Button
               asChild
-              variant={isActive("/dashboard") ? "secondary" : "ghost"}
+              variant={isActive("/dashboard/admin") ? "secondary" : "ghost"}
               className="w-full justify-start"
             >
-              <Link to="/dashboard">
+              <Link to="/dashboard/admin">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 Overview
               </Link>
@@ -31,10 +31,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {isAdmin && (
               <Button
                 asChild
-                variant={isActive("/dashboard/admin") ? "secondary" : "ghost"}
+                variant={isActive("/dashboard/admin/users") ? "secondary" : "ghost"}
                 className="w-full justify-start"
               >
-                <Link to="/dashboard/admin">
+                <Link to="/dashboard/admin/users">
                   <Users className="mr-2 h-4 w-4" />
                   User Management
                 </Link>

@@ -58,22 +58,24 @@ const PageForm = ({ onClose, page }: PageFormProps) => {
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       console.log("Saving page:", values);
+      if (!user?.id) throw new Error("User not authenticated");
+
+      const pageData = {
+        ...values,
+        updated_by: user.id,
+        ...(page ? {} : { created_by: user.id }),
+      };
+
       const { data, error } = page?.id
         ? await supabase
             .from("pages")
-            .update({
-              ...values,
-              updated_by: user?.id,
-            })
+            .update(pageData)
             .eq("id", page.id)
             .select()
             .single()
         : await supabase
             .from("pages")
-            .insert({
-              ...values,
-              created_by: user?.id,
-            })
+            .insert(pageData)
             .select()
             .single();
 

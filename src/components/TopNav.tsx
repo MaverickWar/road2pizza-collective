@@ -92,6 +92,7 @@ const TopNav = () => {
               <DropdownMenuContent 
                 className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg" 
                 align="end"
+                sideOffset={5}
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">

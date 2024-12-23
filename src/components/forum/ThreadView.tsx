@@ -136,7 +136,10 @@ const ThreadView = () => {
 
         {/* Original Post */}
         <div className="bg-card p-6 rounded-lg">
-          <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: thread.content }} />
+          <div 
+            className="prose prose-invert max-w-none" 
+            dangerouslySetInnerHTML={{ __html: thread.content }} 
+          />
         </div>
 
         {/* Replies */}
@@ -155,7 +158,10 @@ const ThreadView = () => {
                     {new Date(post.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+                <div 
+                  className="prose prose-invert max-w-none" 
+                  dangerouslySetInnerHTML={{ __html: post.content }} 
+                />
               </div>
             ))
           ) : (
@@ -169,7 +175,9 @@ const ThreadView = () => {
         {!thread.is_locked && user && (
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">Post Reply</h3>
-            <Editor content={replyContent} onChange={setReplyContent} />
+            <div className="min-h-[200px]">
+              <Editor content={replyContent} onChange={setReplyContent} />
+            </div>
             <Button onClick={handleReply}>Post Reply</Button>
           </div>
         )}

@@ -82,14 +82,14 @@ const TopNav = () => {
         <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
-              Welcome, {user?.user_metadata?.username || 'User'}!
+              Welcome, {user?.email || 'User'}!
             </div>
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="relative h-8 w-8 rounded-full hover:bg-white/20"
+                    className="relative h-8 w-8 rounded-full hover:bg-white/20 ring-2 ring-white p-0"
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />

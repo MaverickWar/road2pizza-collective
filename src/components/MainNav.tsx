@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
-import { Pizza } from 'lucide-react';
+import { Pizza, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from './ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const MainNav = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/pizza", label: "Pizza" },
@@ -22,6 +31,7 @@ const MainNav = () => {
             </span>
           </Link>
 
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -32,6 +42,32 @@ const MainNav = () => {
                 {link.label}
               </Link>
             ))}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+                <div className="flex flex-col space-y-4 mt-8">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="text-textLight hover:text-accent transition-colors px-2 py-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

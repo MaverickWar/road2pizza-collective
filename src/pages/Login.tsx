@@ -3,10 +3,12 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Navigation from "@/components/Navigation";
+import { useTheme } from "next-themes";
+import { Pizza } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -18,11 +20,21 @@ const Login = () => {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="container mx-auto px-4 pt-24">
-        <div className="max-w-md mx-auto bg-background/50 p-8 rounded-lg border border-gray-800">
-          <h1 className="text-2xl font-bold text-textLight mb-6">Welcome to Road2Pizza</h1>
+    <div className="min-h-screen bg-background dark:bg-background-dark flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo and Title */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 bg-transparent border-2 border-accent rounded-full flex items-center justify-center mb-4">
+            <Pizza className="w-8 h-8 text-accent" />
+          </div>
+          <h1 className="text-3xl font-light text-accent tracking-wider mb-2">Road2Pizza</h1>
+          <p className="text-textLight dark:text-gray-300 text-center">
+            Join our community of pizza enthusiasts
+          </p>
+        </div>
+
+        {/* Auth Container */}
+        <div className="bg-card dark:bg-card-dark rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-800">
           <Auth
             supabaseClient={supabase}
             appearance={{
@@ -30,10 +42,39 @@ const Login = () => {
               variables: {
                 default: {
                   colors: {
-                    brand: '#ef4444',
-                    brandAccent: '#dc2626',
+                    brand: '#E86565',
+                    brandAccent: '#D45555',
+                    brandButtonText: 'white',
+                    defaultButtonBackground: '#FFE4E7',
+                    defaultButtonBackgroundHover: '#FFD1D6',
+                    defaultButtonText: '#2D2B2F',
+                    inputBackground: 'transparent',
+                    inputBorder: '#E1E1E1',
+                    inputBorderHover: '#E86565',
+                    inputBorderFocus: '#E86565',
+                  },
+                  fonts: {
+                    bodyFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    buttonFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    inputFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    labelFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                  },
+                  borderWidths: {
+                    buttonBorderWidth: '1px',
+                    inputBorderWidth: '1px',
+                  },
+                  radii: {
+                    borderRadiusButton: '0.5rem',
+                    buttonBorderRadius: '0.5rem',
+                    inputBorderRadius: '0.5rem',
                   },
                 },
+              },
+              className: {
+                container: 'w-full',
+                button: 'w-full px-4 py-2 rounded-lg font-medium transition-colors',
+                input: 'w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-accent/20 outline-none transition-colors dark:bg-secondary-dark dark:border-gray-700',
+                label: 'text-sm font-medium text-gray-700 dark:text-gray-300',
               },
             }}
             providers={[]}

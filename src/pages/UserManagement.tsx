@@ -28,8 +28,14 @@ const UserManagement = () => {
       console.log("Fetching profile change requests...");
       const { data, error } = await supabase
         .from("profile_change_requests")
-        .select("*, profiles(username)")
+        .select(`
+          *,
+          profiles:user_id (
+            username
+          )
+        `)
         .order('created_at', { ascending: false });
+      
       if (error) throw error;
       
       // Transform the data to match our expected type
@@ -236,4 +242,3 @@ const UserManagement = () => {
 };
 
 export default UserManagement;
-

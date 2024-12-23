@@ -4,13 +4,23 @@
 
 @layer base {
   body {
-    @apply bg-background text-textLight;
+    @apply bg-background text-textLight min-h-screen;
+  }
+
+  /* Improved form elements for touch devices */
+  input, select, textarea {
+    @apply px-4 py-2 rounded-lg border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all duration-200;
+  }
+
+  /* Better touch targets on mobile */
+  button, a {
+    @apply transition-all duration-200;
   }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  @apply w-2;
 }
 
 ::-webkit-scrollbar-track {
@@ -18,9 +28,73 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-accent/50 rounded-full;
+  @apply bg-accent/50 rounded-full hover:bg-accent transition-colors;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-accent;
+/* Card styles */
+.card {
+  @apply bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden;
+}
+
+/* Form container for better mobile experience */
+.form-container {
+  @apply max-w-3xl mx-auto p-4 sm:p-6 md:p-8 bg-card rounded-xl shadow-sm;
+}
+
+/* Responsive grid layouts */
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+}
+
+/* Mobile-friendly buttons */
+.button-touch {
+  @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+}
+
+/* Safe area padding for modern mobile devices */
+.safe-padding {
+  @apply pt-safe-top pb-safe-bottom;
+}
+
+/* Glass effect for overlays */
+.glass {
+  @apply backdrop-blur-md bg-white/80 dark:bg-black/80;
+}
+
+/* Mobile-optimized editor */
+.editor-container {
+  @apply min-h-[200px] p-4 rounded-lg border border-gray-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20;
+}
+
+/* Responsive table containers */
+.table-container {
+  @apply w-full overflow-x-auto rounded-lg border border-gray-100 bg-white shadow-sm;
+}
+
+/* Better mobile form groups */
+.form-group {
+  @apply space-y-2 mb-4;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+/* Improved mobile dialogs */
+.dialog-content {
+  @apply p-4 sm:p-6 md:p-8 max-w-[90vw] sm:max-w-[85vw] md:max-w-[80vw] lg:max-w-3xl mx-auto;
+}
+
+/* Mobile-friendly tabs */
+.tabs-container {
+  @apply overflow-x-auto pb-2;
+}
+
+.tab-list {
+  @apply flex whitespace-nowrap gap-2 p-1 bg-background-secondary rounded-lg;
+}
+
+/* Responsive images */
+.img-responsive {
+  @apply w-full h-full object-cover;
 }

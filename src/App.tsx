@@ -18,6 +18,7 @@ import PizzaStyle from "@/pages/PizzaStyle";
 import Reviews from "@/pages/Reviews";
 import ArticleDetail from "@/components/ArticleDetail";
 import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
+import ReviewsDashboard from "@/components/reviews/ReviewsDashboard";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -44,6 +45,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireStaff>
+                  <ReviewsDashboard />
                 </ProtectedRoute>
               }
             />

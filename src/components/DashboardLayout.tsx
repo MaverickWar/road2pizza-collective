@@ -42,16 +42,29 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             )}
 
             {(isAdmin || isStaff) && (
-              <Button
-                asChild
-                variant={isActive("/dashboard/staff") ? "secondary" : "ghost"}
-                className="w-full justify-start dark:text-gray-200"
-              >
-                <Link to="/dashboard/staff">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Recipe Management
-                </Link>
-              </Button>
+              <>
+                <Button
+                  asChild
+                  variant={isActive("/dashboard/staff") ? "secondary" : "ghost"}
+                  className="w-full justify-start dark:text-gray-200"
+                >
+                  <Link to="/dashboard/staff">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Recipe Management
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant={isActive("/dashboard/reviews") ? "secondary" : "ghost"}
+                  className="w-full justify-start dark:text-gray-200"
+                >
+                  <Link to="/dashboard/reviews">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Reviews Dashboard
+                  </Link>
+                </Button>
+              </>
             )}
 
             <Button

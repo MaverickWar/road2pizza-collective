@@ -1,17 +1,20 @@
 import { useAuth } from "@/components/AuthProvider";
 import DashboardLayout from "@/components/DashboardLayout";
+import MyReviews from "@/components/reviews/MyReviews";
 
 const MemberDashboard = () => {
   const { user } = useAuth();
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 pt-36 md:pt-32">
-        <h1 className="text-2xl font-bold">My Reviews</h1>
-        <p>Welcome, {user?.email}</p>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Add user's reviews list here */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">My Dashboard</h1>
+          <div className="text-sm text-muted-foreground">
+            Welcome, {user?.email}
+          </div>
         </div>
+        <MyReviews />
       </div>
     </DashboardLayout>
   );

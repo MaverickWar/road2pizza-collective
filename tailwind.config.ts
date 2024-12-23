@@ -34,17 +34,17 @@ export default {
           DEFAULT: "#FFE4E7",
           hover: "#FFD1D6",
           dark: "#2A2F3C",
-          foreground: "#2D2B2F", // Added for light mode button text
+          foreground: "#2D2B2F",
         },
         accent: {
           DEFAULT: "#E86565",
           hover: "#D45555",
-          foreground: "#FFFFFF", // Added for accent button text
+          foreground: "#FFFFFF",
         },
         highlight: {
           DEFAULT: "#FEB088",
           hover: "#FEA575",
-          foreground: "#2D2B2F", // Added for highlight button text
+          foreground: "#2D2B2F",
         },
         textLight: "#2D2B2F",
         card: {

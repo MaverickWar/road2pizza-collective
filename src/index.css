@@ -30,11 +30,11 @@
 
   /* Button variants with improved contrast */
   .button-primary {
-    @apply bg-accent text-accent-foreground hover:bg-accent-hover dark:text-white;
+    @apply bg-accent text-white hover:bg-accent-hover;
   }
 
   .button-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary-hover dark:text-white;
+    @apply bg-secondary text-textLight hover:bg-secondary-hover dark:text-white;
   }
 
   .button-ghost {

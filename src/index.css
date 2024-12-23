@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 95%;
     --foreground: 222.2 84% 4.9%;
   }
 
@@ -17,9 +17,9 @@
     @apply bg-background text-textLight min-h-screen dark:bg-background-dark dark:text-gray-200;
   }
 
-  /* Improved form elements for touch devices */
+  /* Improved form elements for touch devices with better contrast */
   input, select, textarea {
-    @apply px-4 py-2 rounded-lg border border-gray-200 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all duration-200 
+    @apply px-4 py-2 rounded-lg border border-gray-300 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all duration-200 
     dark:bg-secondary-dark dark:border-gray-700 dark:text-gray-200;
   }
 
@@ -29,7 +29,7 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar with improved contrast */
 ::-webkit-scrollbar {
   @apply w-2;
 }
@@ -39,10 +39,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-accent/50 rounded-full hover:bg-accent transition-colors;
+  @apply bg-accent/70 rounded-full hover:bg-accent transition-colors;
 }
 
-/* Card styles */
+/* Card styles with better contrast */
 .card {
   @apply bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden
   dark:bg-card-dark dark:hover:bg-card-dark-hover dark:border dark:border-gray-800;
@@ -69,20 +69,20 @@
   @apply pt-safe-top pb-safe-bottom;
 }
 
-/* Glass effect for overlays */
+/* Glass effect for overlays with improved contrast */
 .glass {
-  @apply backdrop-blur-md bg-white/80 dark:bg-black/80;
+  @apply backdrop-blur-md bg-white/90 dark:bg-black/90;
 }
 
-/* Mobile-optimized editor */
+/* Mobile-optimized editor with better contrast */
 .editor-container {
-  @apply min-h-[200px] p-4 rounded-lg border border-gray-200 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20
+  @apply min-h-[200px] p-4 rounded-lg border border-gray-300 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20
   dark:bg-secondary-dark dark:border-gray-700;
 }
 
-/* Responsive table containers */
+/* Responsive table containers with improved contrast */
 .table-container {
-  @apply w-full overflow-x-auto rounded-lg border border-gray-100 bg-white shadow-sm
+  @apply w-full overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm
   dark:bg-card-dark dark:border-gray-800;
 }
 
@@ -101,7 +101,7 @@
   dark:bg-card-dark dark:border dark:border-gray-800;
 }
 
-/* Mobile-friendly tabs */
+/* Mobile-friendly tabs with better contrast */
 .tabs-container {
   @apply overflow-x-auto pb-2;
 }

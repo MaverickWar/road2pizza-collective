@@ -62,7 +62,7 @@ const TopNav = () => {
           user_id: user?.id,
           requested_username: newUsername || undefined,
           requested_email: newEmail || undefined,
-          preserve_roles: true // Ensure roles are preserved
+          preserve_roles: true
         });
 
       if (error) throw error;
@@ -81,11 +81,9 @@ const TopNav = () => {
     <div className="w-full bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] py-2">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
-          {user && (
-            <div className="text-white font-bold">
-              Welcome, {user.user_metadata?.username || 'User'}
-            </div>
-          )}
+          <div className="text-white font-bold">
+            Welcome, {user?.user_metadata?.username || 'User'}!
+          </div>
           <div className="flex items-center space-x-4">
             {user ? (
               <DropdownMenu>

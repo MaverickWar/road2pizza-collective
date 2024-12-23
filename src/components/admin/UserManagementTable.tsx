@@ -13,9 +13,10 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { format } from "date-fns";
-import { Ban, Eye, Shield, UserCog, Award } from "lucide-react";
+import { Ban, Eye, Shield, UserCog, Award, User } from "lucide-react";
 import { useState } from "react";
 import UserStatsDialog from "./UserStatsDialog";
+import UserProfileDialog from "./UserProfileDialog";
 import UserRoleBadges from "./UserRoleBadges";
 import UserStats from "./UserStats";
 
@@ -28,6 +29,7 @@ interface UserManagementTableProps {
 const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserManagementTableProps) => {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   return (
     <div className="relative overflow-x-auto">
@@ -49,7 +51,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
                   <HoverCardTrigger asChild>
                     <button className="flex items-center space-x-2">
                       <img
-                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+                        src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
                         alt={user.username}
                         className="w-8 h-8 rounded-full"
                       />
@@ -59,6 +61,12 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
                   <HoverCardContent className="w-80">
                     <div className="space-y-2">
                       <h4 className="text-sm font-semibold">{user.username}</h4>
+                      {user.email && (
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                      )}
+                      {user.bio && (
+                        <p className="text-sm text-muted-foreground">{user.bio}</p>
+                      )}
                       <p className="text-sm text-muted-foreground">
                         Joined {format(new Date(user.created_at), "MMMM yyyy")}
                       </p>
@@ -89,6 +97,17 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setProfileDialogOpen(true);
+                    }}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -139,6 +158,15 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
         user={selectedUser}
         open={statsDialogOpen}
         onOpenChange={setStatsDialogOpen}
+        onSuccess={() => {
+          setSelectedUser(null);
+        }}
+      />
+
+      <UserProfileDialog
+        user={selectedUser}
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
         onSuccess={() => {
           setSelectedUser(null);
         }}

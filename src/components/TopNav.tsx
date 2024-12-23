@@ -55,13 +55,19 @@ const TopNav = () => {
         return;
       }
 
+      console.log("Submitting profile change request:", {
+        user_id: user?.id,
+        requested_username: newUsername,
+        requested_email: newEmail
+      });
+
       const { error } = await supabase
         .from('profile_change_requests')
         .insert({
           user_id: user?.id,
-          requested_username: newUsername || undefined,
-          requested_email: newEmail || undefined,
-          preserve_roles: true
+          requested_username: newUsername || null,
+          requested_email: newEmail || null,
+          status: 'pending'
         });
 
       if (error) throw error;

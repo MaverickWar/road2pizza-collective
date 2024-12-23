@@ -19,11 +19,11 @@ export default {
     },
     extend: {
       colors: {
-        background: "#1A1F2C",
-        secondary: "#2A2F3C",
-        accent: "#FF6B6B",
-        highlight: "#FFB168",
-        textLight: "#F1F1F1",
+        background: "#FEF9F9",
+        secondary: "#FFDEE2",
+        accent: "#FF8B8B",
+        highlight: "#FEC6A1",
+        textLight: "#403E43",
       },
       keyframes: {
         "fade-up": {

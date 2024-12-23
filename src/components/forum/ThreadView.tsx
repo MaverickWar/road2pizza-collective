@@ -1,36 +1,15 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
-import Editor from '@/components/Editor';
 import { toast } from 'sonner';
-import { MessageSquare } from 'lucide-react';
-
-interface Post {
-  id: string;
-  content: string;
-  created_at: string;
-  created_by: string;
-  is_solution: boolean;
-  user: {
-    username: string;
-  };
-}
-
-interface Thread {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  created_by: string;
-  is_locked: boolean;
-  category: {
-    name: string;
-  };
-  posts: Post[];
-}
+import ThreadHeader from './ThreadHeader';
+import ThreadContent from './ThreadContent';
+import ThreadReplies from './ThreadReplies';
+import ReplyForm from './ReplyForm';
+import { Thread } from './types';
+import { useState } from 'react';
 
 const ThreadView = () => {
   const { id } = useParams();
@@ -85,7 +64,6 @@ const ThreadView = () => {
 
       toast.success('Reply posted successfully');
       setReplyContent('');
-      // Refresh the thread data to show the new reply
       refetch();
     } catch (error) {
       console.error('Error posting reply:', error);
@@ -123,63 +101,16 @@ const ThreadView = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="space-y-8">
-        {/* Thread Header */}
-        <div>
-          <h1 className="text-3xl font-bold">{thread.title}</h1>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-            <span>Category: {thread.category?.name}</span>
-            {thread.is_locked && (
-              <span className="text-destructive">🔒 Locked</span>
-            )}
-          </div>
-        </div>
+        <ThreadHeader thread={thread} />
+        <ThreadContent content={thread.content} />
+        <ThreadReplies posts={thread.posts} />
 
-        {/* Original Post */}
-        <div className="bg-card p-6 rounded-lg">
-          <div 
-            className="prose prose-invert max-w-none" 
-            dangerouslySetInnerHTML={{ __html: thread.content }} 
-          />
-        </div>
-
-        {/* Replies */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Replies
-          </h2>
-          
-          {thread.posts?.length > 0 ? (
-            thread.posts.map((post) => (
-              <div key={post.id} className="bg-card p-6 rounded-lg space-y-2">
-                <div className="flex justify-between items-start">
-                  <span className="font-medium">{post.user?.username || 'Unknown User'}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <div 
-                  className="prose prose-invert max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: post.content }} 
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-8 text-muted-foreground bg-card rounded-lg">
-              No replies yet. Be the first to reply!
-            </div>
-          )}
-        </div>
-
-        {/* Reply Form */}
         {!thread.is_locked && user && (
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Post Reply</h3>
-            <div className="min-h-[200px]">
-              <Editor content={replyContent} onChange={setReplyContent} />
-            </div>
-            <Button onClick={handleReply}>Post Reply</Button>
-          </div>
+          <ReplyForm
+            content={replyContent}
+            onChange={setReplyContent}
+            onSubmit={handleReply}
+          />
         )}
 
         {thread.is_locked && (

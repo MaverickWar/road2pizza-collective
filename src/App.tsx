@@ -11,7 +11,6 @@ import Dashboard from "@/pages/Dashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import UserManagement from "@/pages/UserManagement";
 import StaffDashboard from "@/pages/StaffDashboard";
-import MemberDashboard from "@/pages/MemberDashboard";
 import Community from "@/pages/Community";
 import Pizza from "@/pages/Pizza";
 import PizzaStyle from "@/pages/PizzaStyle";
@@ -61,14 +60,6 @@ function App() {
               element={
                 <ProtectedRoute requireStaff>
                   <StaffDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/member"
-              element={
-                <ProtectedRoute>
-                  <MemberDashboard />
                 </ProtectedRoute>
               }
             />

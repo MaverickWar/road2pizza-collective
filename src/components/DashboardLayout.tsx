@@ -1,7 +1,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, FileText, MessageSquare, Star } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, MessageSquare } from 'lucide-react';
 import Navigation from "./Navigation";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -66,17 +66,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 </Button>
               </>
             )}
-
-            <Button
-              asChild
-              variant={isActive("/dashboard/member") ? "secondary" : "ghost"}
-              className="w-full justify-start dark:text-gray-200"
-            >
-              <Link to="/dashboard/member">
-                <Star className="mr-2 h-4 w-4" />
-                My Reviews
-              </Link>
-            </Button>
           </aside>
 
           {/* Main Content */}

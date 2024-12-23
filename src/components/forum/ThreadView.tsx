@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
-import { Editor } from '@/components/Editor';
+import Editor from '@/components/Editor';
 import { toast } from 'sonner';
 import { MessageSquare } from 'lucide-react';
 

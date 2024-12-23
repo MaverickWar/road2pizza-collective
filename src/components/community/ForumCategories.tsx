@@ -43,32 +43,56 @@ const ForumCategories = () => {
   const fetchCategories = async () => {
     try {
       console.log('Fetching forum categories...');
-      const { data, error } = await supabase
+      const { data: categoriesData, error: categoriesError } = await supabase
         .from('forum_categories')
-        .select(`
-          id,
-          name,
-          description,
-          forum_threads (
-            id,
-            title,
-            content,
-            created_at,
-            is_pinned,
-            is_locked,
-            posts (
-              id,
-              content,
-              created_at
-            )
-          )
-        `)
+        .select('id, name, description')
         .order('display_order');
 
-      if (error) throw error;
+      if (categoriesError) throw categoriesError;
 
-      console.log('Fetched categories:', data);
-      setCategories(data || []);
+      // Fetch threads for each category
+      const categoriesWithThreads = await Promise.all(
+        (categoriesData || []).map(async (category) => {
+          const { data: threadsData, error: threadsError } = await supabase
+            .from('forum_threads')
+            .select(`
+              id,
+              title,
+              content,
+              created_at,
+              is_pinned,
+              is_locked
+            `)
+            .eq('category_id', category.id);
+
+          if (threadsError) throw threadsError;
+
+          // Fetch post counts for each thread
+          const threadsWithPosts = await Promise.all(
+            (threadsData || []).map(async (thread) => {
+              const { data: postsData, error: postsError } = await supabase
+                .from('forum_posts')
+                .select('id, content, created_at')
+                .eq('thread_id', thread.id);
+
+              if (postsError) throw postsError;
+
+              return {
+                ...thread,
+                posts: postsData || [],
+              };
+            })
+          );
+
+          return {
+            ...category,
+            forum_threads: threadsWithPosts,
+          };
+        })
+      );
+
+      console.log('Fetched categories:', categoriesWithThreads);
+      setCategories(categoriesWithThreads);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast.error('Failed to load forum categories');

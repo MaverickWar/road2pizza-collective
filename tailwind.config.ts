@@ -26,24 +26,27 @@ export default {
     extend: {
       colors: {
         background: {
-          DEFAULT: "#F3F3F3", // Less harsh light background
-          secondary: "#EAEAEA", // Softer secondary background
+          DEFAULT: "#F3F3F3",
+          secondary: "#EAEAEA",
           dark: "#1A1F2C",
         },
         secondary: {
           DEFAULT: "#FFE4E7",
           hover: "#FFD1D6",
           dark: "#2A2F3C",
+          foreground: "#2D2B2F", // Added for light mode button text
         },
         accent: {
-          DEFAULT: "#E86565", // Darker red for better contrast
+          DEFAULT: "#E86565",
           hover: "#D45555",
+          foreground: "#FFFFFF", // Added for accent button text
         },
         highlight: {
           DEFAULT: "#FEB088",
           hover: "#FEA575",
+          foreground: "#2D2B2F", // Added for highlight button text
         },
-        textLight: "#2D2B2F", // Darker text for better contrast
+        textLight: "#2D2B2F",
         card: {
           DEFAULT: "#FFFFFF",
           hover: "#F8F8F8",

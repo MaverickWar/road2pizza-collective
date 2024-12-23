@@ -27,6 +27,24 @@
   button, a {
     @apply transition-all duration-200;
   }
+
+  /* Button variants with improved contrast */
+  .button-primary {
+    @apply bg-accent text-accent-foreground hover:bg-accent-hover dark:text-white;
+  }
+
+  .button-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary-hover dark:text-white;
+  }
+
+  .button-ghost {
+    @apply text-textLight hover:bg-background-secondary dark:text-gray-200;
+  }
+
+  .button-outline {
+    @apply border-2 border-accent text-textLight hover:bg-accent hover:text-white 
+    dark:border-white dark:text-white dark:hover:bg-white/10;
+  }
 }
 
 /* Custom scrollbar with improved contrast */

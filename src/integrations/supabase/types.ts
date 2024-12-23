@@ -556,6 +556,7 @@ export type Database = {
           badge_count: number
           badge_title: string | null
           created_at: string
+          email: string | null
           id: string
           is_admin: boolean | null
           is_staff: boolean | null
@@ -569,6 +570,7 @@ export type Database = {
           badge_count?: number
           badge_title?: string | null
           created_at?: string
+          email?: string | null
           id: string
           is_admin?: boolean | null
           is_staff?: boolean | null
@@ -582,6 +584,7 @@ export type Database = {
           badge_count?: number
           badge_title?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           is_admin?: boolean | null
           is_staff?: boolean | null

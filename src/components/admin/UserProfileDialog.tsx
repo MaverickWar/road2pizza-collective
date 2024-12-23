@@ -16,18 +16,25 @@ interface UserProfileDialogProps {
 
 const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileDialogProps) => {
   const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleUpdateProfile = async (userId: string) => {
     try {
+      setIsSubmitting(true);
       console.log("Updating profile for user:", userId);
+      
+      // Check if trying to change admin's username
+      if (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk') {
+        toast.error("Admin account details cannot be modified");
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({
           username,
-          email,
           bio,
           avatar_url: avatarUrl,
         })
@@ -41,6 +48,8 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
     } catch (error) {
       console.error("Error updating user profile:", error);
       toast.error("Failed to update user profile");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -58,16 +67,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter username"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter email"
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -77,6 +77,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Enter user bio"
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -86,13 +87,15 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="Enter avatar URL"
+              disabled={isSubmitting}
             />
           </div>
           <Button
             className="w-full"
             onClick={() => handleUpdateProfile(user.id)}
+            disabled={isSubmitting}
           >
-            Update Profile
+            {isSubmitting ? "Updating..." : "Update Profile"}
           </Button>
         </div>
       </DialogContent>

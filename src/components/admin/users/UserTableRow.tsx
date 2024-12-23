@@ -48,9 +48,6 @@ const UserTableRow = ({
           <HoverCardContent className="w-80">
             <div className="space-y-2">
               <h4 className="text-sm font-semibold">{user.username}</h4>
-              {user.email && (
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              )}
               {user.bio && (
                 <p className="text-sm text-muted-foreground">{user.bio}</p>
               )}

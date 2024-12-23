@@ -50,12 +50,19 @@ const TopNav = () => {
         return;
       }
 
+      // Check if trying to change admin's username
+      if (isAdmin && user?.email === 'richgiles@hotmail.co.uk') {
+        toast.error("Admin account details cannot be modified");
+        return;
+      }
+
       const { error } = await supabase
         .from('profile_change_requests')
         .insert({
           user_id: user?.id,
           requested_username: newUsername || undefined,
           requested_email: newEmail || undefined,
+          preserve_roles: true // Ensure roles are preserved
         });
 
       if (error) throw error;
@@ -124,6 +131,7 @@ const TopNav = () => {
                           value={newUsername}
                           onChange={(e) => setNewUsername(e.target.value)}
                           placeholder="Enter new username"
+                          disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
                         />
                       </div>
                       <div className="grid gap-2">
@@ -134,6 +142,7 @@ const TopNav = () => {
                           value={newEmail}
                           onChange={(e) => setNewEmail(e.target.value)}
                           placeholder="Enter new email"
+                          disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
                         />
                       </div>
                     </div>

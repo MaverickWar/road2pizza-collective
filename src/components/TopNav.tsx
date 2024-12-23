@@ -71,7 +71,7 @@ const TopNav = () => {
   };
 
   return (
-    <div className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100 py-2">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 py-2 dark:bg-gray-900/95 dark:border-gray-800">
       <div className="container mx-auto px-4">
         <div className="flex justify-end items-center space-x-4">
           {user ? (
@@ -80,10 +80,6 @@ const TopNav = () => {
                 <Button 
                   variant="ghost" 
                   className="relative h-8 w-8 rounded-full"
-                  onClick={(e) => {
-                    e.preventDefault(); // Prevent any default navigation
-                    console.log('Profile button clicked');
-                  }}
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
@@ -95,8 +91,7 @@ const TopNav = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg" 
-                align="end" 
-                forceMount
+                align="end"
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
@@ -113,7 +108,7 @@ const TopNav = () => {
                       Profile Settings
                     </DropdownMenuItem>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="bg-white dark:bg-gray-800">
                     <DialogHeader>
                       <DialogTitle>Edit Profile</DialogTitle>
                       <DialogDescription>
@@ -148,23 +143,17 @@ const TopNav = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <DropdownMenuItem onSelect={(e) => {
-                  e.preventDefault();
-                  navigate('/dashboard');
-                }}>
+                <DropdownMenuItem onSelect={() => navigate('/dashboard')}>
                   {isAdmin ? 'Admin' : 'Member'} Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={(e) => {
-                  e.preventDefault();
-                  handleLogout();
-                }}>
+                <DropdownMenuItem onSelect={handleLogout}>
                   Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link to="/login" className="flex items-center space-x-2 text-sm text-textLight hover:text-accent">
+            <Link to="/login" className="flex items-center space-x-2 text-sm text-gray-700 hover:text-accent dark:text-gray-300">
               <UserRound className="h-4 w-4" />
               <span>Login</span>
             </Link>

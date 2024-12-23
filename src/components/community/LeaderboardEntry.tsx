@@ -24,15 +24,14 @@ const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
         <span className="text-xl font-bold text-textLight min-w-[2rem]">
           #{rank}
         </span>
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
-          <AvatarFallback>
-            <UserRound className="h-6 w-6" />
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="font-medium text-textLight">{user.username || 'Anonymous'}</p>
+        <div className="flex flex-col items-center space-y-2">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} />
+            <AvatarFallback>
+              <UserRound className="h-6 w-6" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-wrap gap-1 justify-center">
             {user.is_admin && (
               <Badge variant="secondary" className="bg-red-100 text-red-700">
                 <Shield className="w-3 h-3 mr-1" />
@@ -54,6 +53,9 @@ const LeaderboardEntry = ({ rank, user }: LeaderboardEntryProps) => {
               </Badge>
             )}
           </div>
+        </div>
+        <div>
+          <p className="font-medium text-textLight">{user.username || 'Anonymous'}</p>
           <div className="flex items-center space-x-2">
             <Badge variant="secondary" className="text-xs">
               {user.badge_count} badges

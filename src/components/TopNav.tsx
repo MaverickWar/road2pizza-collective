@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserRound } from 'lucide-react';
+import { UserRound, Key } from 'lucide-react';
 import { Button } from './ui/button';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
@@ -40,6 +40,21 @@ const TopNav = () => {
     } else {
       toast.success("Signed out successfully");
       navigate("/");
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user?.email || '', {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Password reset email sent. Please check your inbox.");
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      toast.error("Failed to send password reset email");
     }
   };
 
@@ -165,6 +180,10 @@ const TopNav = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
+                  <DropdownMenuItem onSelect={handlePasswordReset}>
+                    <Key className="w-4 h-4 mr-2" />
+                    Reset Password
+                  </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => navigate('/dashboard')}>
                     {isAdmin ? 'Admin' : 'Member'} Dashboard
                   </DropdownMenuItem>

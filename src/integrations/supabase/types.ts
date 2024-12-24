@@ -614,6 +614,7 @@ export type Database = {
           is_admin: boolean | null
           is_staff: boolean | null
           is_suspended: boolean | null
+          is_verified: boolean | null
           points: number
           recipes_shared: number
           username: string
@@ -630,6 +631,7 @@ export type Database = {
           is_admin?: boolean | null
           is_staff?: boolean | null
           is_suspended?: boolean | null
+          is_verified?: boolean | null
           points?: number
           recipes_shared?: number
           username: string
@@ -646,6 +648,7 @@ export type Database = {
           is_admin?: boolean | null
           is_staff?: boolean | null
           is_suspended?: boolean | null
+          is_verified?: boolean | null
           points?: number
           recipes_shared?: number
           username?: string

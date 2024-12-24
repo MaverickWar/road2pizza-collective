@@ -12,9 +12,11 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { format } from "date-fns";
-import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2 } from "lucide-react";
+import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key } from "lucide-react";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface UserTableRowProps {
   user: any;
@@ -34,6 +36,21 @@ const UserTableRow = ({
   onDeleteUser
 }: UserTableRowProps) => {
   const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
+
+  const handleResetPassword = async () => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Password reset email sent");
+    } catch (error) {
+      console.error("Error sending password reset:", error);
+      toast.error("Failed to send password reset email");
+    }
+  };
 
   return (
     <TableRow className="group hover:bg-secondary/50">
@@ -77,10 +94,12 @@ const UserTableRow = ({
           className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
             user.is_suspended
               ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
+              : user.is_verified
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
           }`}
         >
-          {user.is_suspended ? "Suspended" : "Active"}
+          {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
         </span>
       </TableCell>
       <TableCell>
@@ -91,10 +110,17 @@ const UserTableRow = ({
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuContent 
+            align="end" 
+            className="w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg"
+          >
             <DropdownMenuItem onClick={() => onEditProfile(user)}>
               <User className="w-4 h-4 mr-2" />
               Edit Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleResetPassword}>
+              <Key className="w-4 h-4 mr-2" />
+              Reset Password
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onManageStats(user)}>
               <Award className="w-4 h-4 mr-2" />

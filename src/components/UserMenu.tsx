@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Key, UserRound } from 'lucide-react';
+import { UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from './ui/button';
@@ -22,8 +22,6 @@ interface UserMenuProps {
 
 export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
   const navigate = useNavigate();
-  const [isResetting, setIsResetting] = useState(false);
-  const [lastResetTime, setLastResetTime] = useState(0);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,35 +30,6 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
     } else {
       toast.success("Signed out successfully");
       navigate("/");
-    }
-  };
-
-  const handlePasswordReset = async () => {
-    const now = Date.now();
-    const timeSinceLastReset = now - lastResetTime;
-    const COOLDOWN_PERIOD = 55 * 1000; // 55 seconds in milliseconds
-
-    if (timeSinceLastReset < COOLDOWN_PERIOD) {
-      const remainingTime = Math.ceil((COOLDOWN_PERIOD - timeSinceLastReset) / 1000);
-      toast.error(`Please wait ${remainingTime} seconds before requesting another reset`);
-      return;
-    }
-
-    try {
-      setIsResetting(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(user?.email || '', {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) throw error;
-      
-      setLastResetTime(now);
-      toast.success("Password reset email sent. Please check your inbox.");
-    } catch (error) {
-      console.error('Error sending password reset:', error);
-      toast.error("Failed to send password reset email");
-    } finally {
-      setIsResetting(false);
     }
   };
 
@@ -96,13 +65,6 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ProfileDialog user={user} isAdmin={isAdmin} />
-        <DropdownMenuItem 
-          onSelect={handlePasswordReset}
-          disabled={isResetting}
-        >
-          <Key className="w-4 h-4 mr-2" />
-          {isResetting ? 'Sending...' : 'Reset Password'}
-        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => navigate('/dashboard')}>
           {isAdmin ? 'Admin' : 'Member'} Dashboard
         </DropdownMenuItem>

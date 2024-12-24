@@ -9,6 +9,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,8 +31,11 @@ interface ProfileDialogProps {
 
 export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [lastResetTime, setLastResetTime] = useState(0);
 
   const handleProfileUpdate = async () => {
     try {
@@ -57,50 +70,107 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
     }
   };
 
+  const handlePasswordReset = async () => {
+    const now = Date.now();
+    const timeSinceLastReset = now - lastResetTime;
+    const COOLDOWN_PERIOD = 55 * 1000; // 55 seconds in milliseconds
+
+    if (timeSinceLastReset < COOLDOWN_PERIOD) {
+      const remainingTime = Math.ceil((COOLDOWN_PERIOD - timeSinceLastReset) / 1000);
+      toast.error(`Please wait ${remainingTime} seconds before requesting another reset`);
+      return;
+    }
+
+    try {
+      setIsResetting(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(user?.email || '', {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      if (error) throw error;
+      
+      setLastResetTime(now);
+      toast.success("Password reset email sent. Please check your inbox for further instructions.");
+      setShowResetConfirm(false);
+      setIsProfileOpen(false);
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      toast.error("Failed to send password reset email");
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
-    <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          Profile Settings
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-800">
-        <DialogHeader>
-          <DialogTitle>Edit Profile</DialogTitle>
-          <DialogDescription>
-            Request changes to your profile. Changes will be reviewed by an admin.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="username">New Username</Label>
-            <Input
-              id="username"
-              type="text"
-              placeholder="Enter new username"
-              value={newUsername}
-              onChange={(e) => setNewUsername(e.target.value)}
-              disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
-            />
+    <>
+      <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+        <DialogTrigger asChild>
+          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+            Profile Settings
+          </DropdownMenuItem>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Request changes to your profile. Changes will be reviewed by an admin.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="username">New Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Enter new username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">New Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter new email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => setShowResetConfirm(true)}
+              disabled={isResetting}
+            >
+              Reset Password
+            </Button>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">New Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter new email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
-            />
+          <div className="flex justify-end">
+            <Button onClick={handleProfileUpdate}>
+              Submit Request
+            </Button>
           </div>
-        </div>
-        <div className="flex justify-end">
-          <Button onClick={handleProfileUpdate}>
-            Submit Request
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset Password</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will send a password reset email to {user?.email}. You'll need to click the link in the email to set a new password.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePasswordReset} disabled={isResetting}>
+              {isResetting ? "Sending..." : "Send Reset Email"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };

@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { MessageSquare, Plus } from 'lucide-react';
+import ForumLayout from './ForumLayout';
+import ForumBreadcrumbs from './ForumBreadcrumbs';
 
 interface Thread {
   id: string;
@@ -94,85 +96,92 @@ const CategoryView = () => {
 
   if (categoryLoading || threadsLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="h-8 bg-secondary/50 animate-pulse rounded-lg w-1/4 mb-4"></div>
+      <ForumLayout>
         <div className="space-y-4">
+          <div className="h-8 bg-secondary/50 animate-pulse rounded-lg w-1/4 mb-4"></div>
           <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
           <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
         </div>
-      </div>
+      </ForumLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">{category?.name}</h1>
-          {category?.description && (
-            <p className="text-muted-foreground mt-2">{category.description}</p>
-          )}
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Thread
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Thread</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Thread Title"
-                value={newThread.title}
-                onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
-              />
-              <Textarea
-                placeholder="Thread Content"
-                value={newThread.content}
-                onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
-                rows={5}
-              />
-              <Button onClick={handleCreateThread} className="w-full">
-                Create Thread
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="space-y-4">
-        {threads?.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground bg-card rounded-lg">
-            No threads yet. Be the first to start a discussion!
+    <ForumLayout>
+      <div className="space-y-6">
+        <ForumBreadcrumbs items={[{ label: category?.name || 'Loading...' }]} />
+        
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-accent">{category?.name}</h1>
+            {category?.description && (
+              <p className="text-muted-foreground mt-2">{category.description}</p>
+            )}
           </div>
-        ) : (
-          threads?.map((thread) => (
-            <div
-              key={thread.id}
-              className="p-4 bg-card rounded-lg hover:bg-card/80 transition-colors cursor-pointer"
-              onClick={() => navigate(`/community/forum/thread/${thread.id}`)}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">{thread.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {thread.content}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  <MessageSquare className="w-4 h-4" />
-                  <span>{thread.posts?.length || 0} posts</span>
+          
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-accent hover:bg-accent-hover text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                New Thread
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Thread</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Thread Title"
+                  value={newThread.title}
+                  onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
+                />
+                <Textarea
+                  placeholder="Thread Content"
+                  value={newThread.content}
+                  onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
+                  rows={5}
+                />
+                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover">
+                  Create Thread
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="space-y-4">
+          {threads?.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground bg-card rounded-lg border border-border">
+              No threads yet. Be the first to start a discussion!
+            </div>
+          ) : (
+            threads?.map((thread) => (
+              <div
+                key={thread.id}
+                className="p-6 bg-card hover:bg-card-hover border border-border rounded-lg transition-colors cursor-pointer"
+                onClick={() => navigate(`/community/forum/thread/${thread.id}`)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-semibold hover:text-accent transition-colors">
+                      {thread.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {thread.content}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>{thread.posts?.length || 0} posts</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </ForumLayout>
   );
 };
 

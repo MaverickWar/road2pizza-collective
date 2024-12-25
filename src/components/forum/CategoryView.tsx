@@ -6,27 +6,12 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import Editor from '@/components/Editor';
 import { toast } from 'sonner';
-import { MessageSquare, Plus } from 'lucide-react';
+import { MessageSquare, Pin, Lock, Plus } from 'lucide-react';
 import ForumLayout from './ForumLayout';
 import ForumBreadcrumbs from './ForumBreadcrumbs';
-
-interface Thread {
-  id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  is_pinned: boolean;
-  is_locked: boolean;
-  view_count: number;
-  created_by: string;
-  posts: {
-    id: string;
-    content: string;
-    created_at: string;
-  }[];
-}
+import { Card } from '@/components/ui/card';
 
 const CategoryView = () => {
   const { id } = useParams();
@@ -63,11 +48,16 @@ const CategoryView = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Thread[];
+      return data;
     },
   });
 
   const handleCreateThread = async () => {
+    if (!user) {
+      toast.error('You must be logged in to create a thread');
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('forum_threads')
@@ -76,7 +66,7 @@ const CategoryView = () => {
             title: newThread.title,
             content: newThread.content,
             category_id: id,
-            created_by: user?.id,
+            created_by: user.id,
           },
         ])
         .select()
@@ -98,9 +88,9 @@ const CategoryView = () => {
     return (
       <ForumLayout>
         <div className="space-y-4">
-          <div className="h-8 bg-secondary/50 animate-pulse rounded-lg w-1/4 mb-4"></div>
-          <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
-          <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
+          <div className="h-8 bg-purple-100/50 animate-pulse rounded-lg w-1/4"></div>
+          <div className="h-20 bg-purple-100/50 animate-pulse rounded-lg"></div>
+          <div className="h-20 bg-purple-100/50 animate-pulse rounded-lg"></div>
         </div>
       </ForumLayout>
     );
@@ -113,20 +103,24 @@ const CategoryView = () => {
         
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-accent">{category?.name}</h1>
+            <h1 className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+              {category?.name}
+            </h1>
             {category?.description && (
-              <p className="text-muted-foreground mt-2">{category.description}</p>
+              <p className="text-purple-700/80 dark:text-purple-300/80 mt-2">
+                {category.description}
+              </p>
             )}
           </div>
           
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-accent hover:bg-accent-hover text-white">
+              <Button className="bg-purple-600 hover:bg-purple-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 New Thread
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create New Thread</DialogTitle>
               </DialogHeader>
@@ -136,13 +130,16 @@ const CategoryView = () => {
                   value={newThread.title}
                   onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
                 />
-                <Textarea
-                  placeholder="Thread Content"
-                  value={newThread.content}
-                  onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
-                  rows={5}
-                />
-                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover">
+                <div className="min-h-[200px]">
+                  <Editor
+                    content={newThread.content}
+                    onChange={(content) => setNewThread({ ...newThread, content })}
+                  />
+                </div>
+                <Button 
+                  onClick={handleCreateThread} 
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
                   Create Thread
                 </Button>
               </div>
@@ -151,32 +148,40 @@ const CategoryView = () => {
         </div>
 
         <div className="space-y-4">
-          {threads?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground bg-card rounded-lg border border-border">
-              No threads yet. Be the first to start a discussion!
-            </div>
+          {!threads?.length ? (
+            <Card className="p-8 text-center text-purple-700/80 dark:text-purple-300/80 bg-purple-50/50 dark:bg-purple-900/20">
+              <p>No threads yet. Be the first to start a discussion!</p>
+            </Card>
           ) : (
-            threads?.map((thread) => (
-              <div
+            threads.map((thread) => (
+              <Card
                 key={thread.id}
-                className="p-6 bg-card hover:bg-card-hover border border-border rounded-lg transition-colors cursor-pointer"
+                className="p-6 hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors cursor-pointer border-purple-100 dark:border-purple-800"
                 onClick={() => navigate(`/community/forum/thread/${thread.id}`)}
               >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold hover:text-accent transition-colors">
-                      {thread.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {thread.content}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {thread.is_pinned && (
+                        <Pin className="w-4 h-4 text-purple-500" />
+                      )}
+                      {thread.is_locked && (
+                        <Lock className="w-4 h-4 text-red-500" />
+                      )}
+                      <h3 className="font-medium text-purple-900 dark:text-purple-100 truncate">
+                        {thread.title}
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-sm text-purple-700/80 dark:text-purple-300/80 line-clamp-2">
+                      {thread.content.replace(/<[^>]*>/g, '')}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-purple-600/80 dark:text-purple-400/80 whitespace-nowrap">
                     <MessageSquare className="w-4 h-4" />
-                    <span>{thread.posts?.length || 0} posts</span>
+                    <span>{thread.posts?.length || 0}</span>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))
           )}
         </div>

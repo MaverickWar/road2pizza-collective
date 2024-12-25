@@ -13,6 +13,7 @@ import ReviewManagement from "@/components/admin/ReviewManagement";
 import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
 import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
 import PageManagement from "@/components/admin/pages/PageManagement";
+import { RecipeImportForm } from "@/components/admin/recipe-import/RecipeImportForm";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -152,6 +153,14 @@ const AdminDashboard = () => {
 
           <TabsContent value="content">
             <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recipe Import</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RecipeImportForm />
+                </CardContent>
+              </Card>
               <PageManagement />
               <RecipeManagement />
             </div>

@@ -51,8 +51,7 @@ const ForumCategories = () => {
               content,
               created_at,
               is_pinned,
-              is_locked,
-              likes_count
+              is_locked
             `)
             .eq('category_id', category.id);
 

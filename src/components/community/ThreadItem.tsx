@@ -1,6 +1,5 @@
 import { MessageSquare, Pin, Lock, ThumbsUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,12 +14,11 @@ interface ThreadItemProps {
     is_pinned: boolean;
     is_locked: boolean;
     posts: any[];
-    likes_count?: number;
   };
 }
 
 const ThreadItem = ({ thread }: ThreadItemProps) => {
-  const [likesCount, setLikesCount] = useState(thread.likes_count || 0);
+  const [likesCount, setLikesCount] = useState(0);
   const { user } = useAuth();
 
   const handleLike = async (e: React.MouseEvent) => {
@@ -33,7 +31,7 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
     try {
       const { error } = await supabase
         .from('forum_threads')
-        .update({ likes_count: likesCount + 1 })
+        .update({ view_count: (thread.view_count || 0) + 1 })
         .eq('id', thread.id);
 
       if (error) throw error;

@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { MessageSquare, Pin, Lock } from 'lucide-react';
+import { Card } from '@/components/ui/card';
 
 interface CategorySectionProps {
   category: {
@@ -56,13 +58,17 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-purple-50 rounded-lg p-6 border border-purple-100">
-        <div className="flex justify-between items-start mb-4">
+    <Card className="overflow-hidden">
+      <div className="p-6 bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900/20 dark:to-purple-800/20 border-b border-purple-100 dark:border-purple-800">
+        <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-semibold text-purple-900">{category.name}</h3>
+            <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-100">
+              {category.name}
+            </h3>
             {category.description && (
-              <p className="text-sm text-purple-700 mt-1">{category.description}</p>
+              <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                {category.description}
+              </p>
             )}
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -71,7 +77,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                 New Thread
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create New Thread</DialogTitle>
               </DialogHeader>
@@ -94,18 +100,18 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             </DialogContent>
           </Dialog>
         </div>
-        <div className="space-y-3">
-          {category.forum_threads?.map((thread) => (
-            <ThreadItem key={thread.id} thread={thread} />
-          ))}
-          {category.forum_threads?.length === 0 && (
-            <p className="text-center py-4 text-gray-500 bg-white/50 rounded-lg">
-              No threads yet. Be the first to start a discussion!
-            </p>
-          )}
-        </div>
       </div>
-    </div>
+      <div className="divide-y divide-purple-100 dark:divide-purple-800">
+        {category.forum_threads?.map((thread) => (
+          <ThreadItem key={thread.id} thread={thread} />
+        ))}
+        {category.forum_threads?.length === 0 && (
+          <p className="text-center py-8 text-gray-500">
+            No threads yet. Be the first to start a discussion!
+          </p>
+        )}
+      </div>
+    </Card>
   );
 };
 

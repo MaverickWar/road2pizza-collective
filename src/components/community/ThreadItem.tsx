@@ -1,5 +1,11 @@
-import { MessageSquare, Pin, Lock } from 'lucide-react';
+import { MessageSquare, Pin, Lock, ThumbsUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/AuthProvider';
+import { toast } from 'sonner';
 
 interface ThreadItemProps {
   thread: {
@@ -9,33 +15,74 @@ interface ThreadItemProps {
     is_pinned: boolean;
     is_locked: boolean;
     posts: any[];
+    likes_count?: number;
   };
 }
 
 const ThreadItem = ({ thread }: ThreadItemProps) => {
+  const [likesCount, setLikesCount] = useState(thread.likes_count || 0);
+  const { user } = useAuth();
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    if (!user) {
+      toast.error('Please login to like threads');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('forum_threads')
+        .update({ likes_count: likesCount + 1 })
+        .eq('id', thread.id);
+
+      if (error) throw error;
+      setLikesCount(prev => prev + 1);
+      toast.success('Thread liked!');
+    } catch (error) {
+      console.error('Error liking thread:', error);
+      toast.error('Failed to like thread');
+    }
+  };
+
   return (
     <Link
       to={`/community/forum/thread/${thread.id}`}
-      className="block p-4 bg-white/50 backdrop-blur-sm rounded-lg hover:bg-white/70 transition-all border border-purple-100 shadow-sm"
+      className="block hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            {thread.is_pinned && (
-              <Pin className="w-4 h-4 text-purple-500" />
-            )}
-            {thread.is_locked && (
-              <Lock className="w-4 h-4 text-red-500" />
-            )}
-            <h4 className="font-medium text-gray-900 truncate">{thread.title}</h4>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {thread.is_pinned && (
+                <Pin className="w-4 h-4 text-purple-500" />
+              )}
+              {thread.is_locked && (
+                <Lock className="w-4 h-4 text-red-500" />
+              )}
+              <h4 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                {thread.title}
+              </h4>
+            </div>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+              {thread.content.replace(/<[^>]*>/g, '')}
+            </p>
           </div>
-          <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-            {thread.content}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500 whitespace-nowrap">
-          <MessageSquare className="w-4 h-4" />
-          <span>{thread.posts?.length || 0} replies</span>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-1 text-purple-600 dark:text-purple-400"
+              onClick={handleLike}
+            >
+              <ThumbsUp className="w-4 h-4" />
+              <span>{likesCount}</span>
+            </Button>
+            <div className="flex items-center gap-1 text-sm text-gray-500 whitespace-nowrap">
+              <MessageSquare className="w-4 h-4" />
+              <span>{thread.posts?.length || 0}</span>
+            </div>
+          </div>
         </div>
       </div>
     </Link>

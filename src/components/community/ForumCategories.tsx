@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
 import CategorySection from './CategorySection';
+import ForumBreadcrumbs from '../forum/ForumBreadcrumbs';
 
 interface ForumCategory {
   id: string;
@@ -40,7 +41,6 @@ const ForumCategories = () => {
 
       if (categoriesError) throw categoriesError;
 
-      // Fetch threads for each category
       const categoriesWithThreads = await Promise.all(
         (categoriesData || []).map(async (category) => {
           const { data: threadsData, error: threadsError } = await supabase
@@ -51,13 +51,13 @@ const ForumCategories = () => {
               content,
               created_at,
               is_pinned,
-              is_locked
+              is_locked,
+              likes_count
             `)
             .eq('category_id', category.id);
 
           if (threadsError) throw threadsError;
 
-          // Fetch post counts for each thread
           const threadsWithPosts = await Promise.all(
             (threadsData || []).map(async (thread) => {
               const { data: postsData, error: postsError } = await supabase
@@ -107,8 +107,12 @@ const ForumCategories = () => {
 
   return (
     <div className="space-y-6">
+      <ForumBreadcrumbs />
+      
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-purple-900">Forum Categories</h2>
+        <h2 className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+          Forum Categories
+        </h2>
         {isAdmin && (
           <Button asChild variant="outline">
             <Link to="/dashboard/admin/forum">Manage Categories</Link>
@@ -117,7 +121,7 @@ const ForumCategories = () => {
       </div>
 
       {categories.length === 0 ? (
-        <div className="text-center py-8 text-gray-600 bg-purple-50 rounded-lg border border-purple-100">
+        <div className="text-center py-8 text-gray-600 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
           No categories available yet.
         </div>
       ) : (

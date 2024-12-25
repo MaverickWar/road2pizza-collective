@@ -18,6 +18,7 @@ interface ForumCategory {
     created_at: string;
     is_pinned: boolean;
     is_locked: boolean;
+    view_count: number;
     posts: {
       id: string;
       content: string;
@@ -51,7 +52,8 @@ const ForumCategories = () => {
               content,
               created_at,
               is_pinned,
-              is_locked
+              is_locked,
+              view_count
             `)
             .eq('category_id', category.id);
 

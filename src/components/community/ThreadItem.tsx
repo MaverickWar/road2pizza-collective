@@ -14,6 +14,7 @@ interface ThreadItemProps {
     is_pinned: boolean;
     is_locked: boolean;
     posts: any[];
+    view_count?: number;
   };
 }
 

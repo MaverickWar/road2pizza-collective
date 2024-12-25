@@ -28,12 +28,12 @@ const ForumBreadcrumbs = ({ items = [] }: ForumBreadcrumbsProps) => {
 
   return (
     <Breadcrumb className="mb-6">
-      <BreadcrumbList className="text-purple-700 dark:text-purple-300">
+      <BreadcrumbList className="text-textLight/60 dark:text-gray-400">
         {allItems.map((item, index) => (
           <BreadcrumbItem key={index}>
             {index === 0 ? (
               <BreadcrumbLink asChild>
-                <Link to={item.path || '#'} className="hover:text-purple-900 dark:hover:text-purple-100">
+                <Link to={item.path || '#'} className="hover:text-accent dark:hover:text-accent">
                   <Home className="h-4 w-4" />
                 </Link>
               </BreadcrumbLink>
@@ -41,7 +41,7 @@ const ForumBreadcrumbs = ({ items = [] }: ForumBreadcrumbsProps) => {
               <BreadcrumbLink asChild>
                 <Link 
                   to={item.path}
-                  className="hover:text-purple-900 dark:hover:text-purple-100"
+                  className="hover:text-accent dark:hover:text-accent"
                 >
                   {item.label}
                 </Link>

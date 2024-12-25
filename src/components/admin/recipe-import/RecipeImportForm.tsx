@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useToast } from "sonner";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,6 @@ export const RecipeImportForm = () => {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [scrapedRecipes, setScrapedRecipes] = useState<any[]>([]);
-  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

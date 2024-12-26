@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,14 @@ import ReplyForm from './ReplyForm';
 import { Thread } from './types';
 import { useState } from 'react';
 
-const ThreadView = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+interface ThreadViewProps {
+  threadId?: string;
+  inModal?: boolean;
+}
+
+const ThreadView = ({ threadId, inModal = false }: ThreadViewProps) => {
+  const params = useParams();
+  const id = threadId || params.id;
   const { user } = useAuth();
   const [replyContent, setReplyContent] = useState('');
 
@@ -73,7 +78,7 @@ const ThreadView = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
         <div className="space-y-4">
           <div className="h-8 bg-secondary/50 animate-pulse rounded-lg w-1/4"></div>
           <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
@@ -84,22 +89,16 @@ const ThreadView = () => {
 
   if (!thread) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
         <div className="text-center">
           <h2 className="text-2xl font-bold">Thread not found</h2>
-          <Button
-            onClick={() => navigate('/community')}
-            className="mt-4"
-          >
-            Return to Community
-          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
       <div className="space-y-8">
         <ThreadHeader thread={thread} />
         <ThreadContent content={thread.content} />

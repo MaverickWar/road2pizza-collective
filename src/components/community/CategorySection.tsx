@@ -59,21 +59,21 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-6 bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900/20 dark:to-purple-800/20 border-b border-purple-100 dark:border-purple-800">
+      <div className="p-6 bg-gradient-to-r from-orange-100 to-orange-50 dark:from-[#221F26]/20 dark:to-[#1A1F2C]/20 border-b border-orange-100 dark:border-[#221F26]">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-semibold text-purple-900 dark:text-purple-100">
+            <h3 className="text-xl font-semibold text-orange-900 dark:text-orange-100">
               {category.name}
             </h3>
             {category.description && (
-              <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+              <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
                 {category.description}
               </p>
             )}
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" className="bg-purple-100 hover:bg-purple-200 text-purple-900">
+              <Button variant="secondary" className="bg-orange-100 hover:bg-orange-200 text-orange-900 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C] dark:text-white">
                 New Thread
               </Button>
             </DialogTrigger>
@@ -93,7 +93,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                     onChange={(content) => setNewThread({ ...newThread, content })}
                   />
                 </div>
-                <Button onClick={handleCreateThread} className="w-full">
+                <Button onClick={handleCreateThread} className="w-full bg-orange-500 hover:bg-orange-600 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C]">
                   Create Thread
                 </Button>
               </div>
@@ -101,12 +101,12 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </Dialog>
         </div>
       </div>
-      <div className="divide-y divide-purple-100 dark:divide-purple-800">
+      <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
         {category.forum_threads?.map((thread) => (
           <ThreadItem key={thread.id} thread={thread} />
         ))}
         {category.forum_threads?.length === 0 && (
-          <p className="text-center py-8 text-gray-500">
+          <p className="text-center py-8 text-gray-500 dark:text-gray-400">
             No threads yet. Be the first to start a discussion!
           </p>
         )}

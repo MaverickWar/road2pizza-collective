@@ -23,7 +23,7 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
   const { user } = useAuth();
 
   const handleLike = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
+    e.preventDefault();
     if (!user) {
       toast.error('Please login to like threads');
       return;
@@ -47,14 +47,14 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
   return (
     <Link
       to={`/community/forum/thread/${thread.id}`}
-      className="block hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
+      className="block hover:bg-orange-50/50 dark:hover:bg-[#221F26]/20 transition-colors"
     >
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               {thread.is_pinned && (
-                <Pin className="w-4 h-4 text-purple-500" />
+                <Pin className="w-4 h-4 text-orange-500 dark:text-orange-400" />
               )}
               {thread.is_locked && (
                 <Lock className="w-4 h-4 text-red-500" />
@@ -71,7 +71,7 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
             <Button
               variant="ghost"
               size="sm"
-              className="flex items-center gap-1 text-purple-600 dark:text-purple-400"
+              className="flex items-center gap-1 text-orange-600 dark:text-orange-400"
               onClick={handleLike}
             >
               <ThumbsUp className="w-4 h-4" />

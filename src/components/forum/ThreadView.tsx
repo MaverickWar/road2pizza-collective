@@ -30,16 +30,27 @@ const ThreadView = ({ threadId, inModal = false }: ThreadViewProps) => {
         .from('forum_threads')
         .select(`
           *,
-          category:forum_categories(*),
+          forum:forums(
+            id,
+            title,
+            category:forum_categories(
+              id,
+              name
+            )
+          ),
           posts:forum_posts(
             *,
             user:profiles(username)
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching thread:', error);
+        throw error;
+      }
+      
       console.log('Thread data:', data);
       return data as Thread;
     },

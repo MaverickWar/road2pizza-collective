@@ -322,10 +322,12 @@ export type Database = {
           content: string
           created_at: string
           created_by: string | null
+          forum_id: string | null
           id: string
           is_locked: boolean | null
           is_pinned: boolean | null
           last_post_at: string
+          slug: string | null
           title: string
           updated_at: string
           view_count: number | null
@@ -335,10 +337,12 @@ export type Database = {
           content: string
           created_at?: string
           created_by?: string | null
+          forum_id?: string | null
           id?: string
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          slug?: string | null
           title: string
           updated_at?: string
           view_count?: number | null
@@ -348,24 +352,77 @@ export type Database = {
           content?: string
           created_at?: string
           created_by?: string | null
+          forum_id?: string | null
           id?: string
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          slug?: string | null
           title?: string
           updated_at?: string
           view_count?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "forum_threads_category_id_fkey"
+            foreignKeyName: "forum_threads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_threads_forum_id_fkey"
+            columns: ["forum_id"]
+            isOneToOne: false
+            referencedRelation: "forums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forums: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forums_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "forum_categories"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "forum_threads_created_by_fkey"
+            foreignKeyName: "forums_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"

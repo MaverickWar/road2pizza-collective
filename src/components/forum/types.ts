@@ -16,8 +16,13 @@ export interface Thread {
   created_at: string;
   created_by: string;
   is_locked: boolean;
-  category: {
-    name: string;
+  forum: {
+    id: string;
+    title: string;
+    category: {
+      id: string;
+      name: string;
+    };
   };
   posts: Post[];
 }

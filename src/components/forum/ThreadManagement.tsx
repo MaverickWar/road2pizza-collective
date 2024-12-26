@@ -3,31 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Pin, Lock, Unlock, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
-
-interface Thread {
-  id: string;
-  title: string;
-  category_id: string;
-  is_pinned: boolean;
-  is_locked: boolean;
-  created_at: string;
-  view_count: number;
-  category: {
-    name: string;
-  };
-  posts: Post[];
-}
-
-interface Post {
-  id: string;
-  content: string;
-  created_at: string;
-  created_by: string;
-  is_solution: boolean;
-  user: {
-    username: string;
-  };
-}
+import { Thread } from './types';
 
 const ThreadManagement = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -45,7 +21,14 @@ const ThreadManagement = () => {
         .from('forum_threads')
         .select(`
           *,
-          category:forum_categories(name),
+          forum:forums(
+            id,
+            title,
+            category:forum_categories(
+              id,
+              name
+            )
+          ),
           posts:forum_posts(
             id,
             content,
@@ -60,7 +43,7 @@ const ThreadManagement = () => {
       if (error) throw error;
 
       console.log('Fetched threads:', data);
-      setThreads(data || []);
+      setThreads(data as Thread[]);
     } catch (error) {
       console.error('Error fetching threads:', error);
       toast.error('Failed to load threads');
@@ -171,8 +154,14 @@ const ThreadManagement = () => {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MessageSquare className="w-4 h-4" />
-                  <span>Category: {thread.category?.name}</span>
-                  <span>•</span>
+                  {thread.forum && (
+                    <>
+                      <span>Forum: {thread.forum.title}</span>
+                      <span>•</span>
+                      <span>Category: {thread.forum.category?.name}</span>
+                      <span>•</span>
+                    </>
+                  )}
                   <span>{thread.posts?.length || 0} posts</span>
                   <span>•</span>
                   <span>{thread.view_count} views</span>

@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -28,12 +27,10 @@ export default {
         background: {
           DEFAULT: "#F3F3F3",
           secondary: "#EAEAEA",
-          dark: "#1A1F2C",
         },
         secondary: {
           DEFAULT: "#FFE4E7",
           hover: "#FFD1D6",
-          dark: "#2A2F3C",
           foreground: "#2D2B2F",
         },
         accent: {
@@ -50,8 +47,6 @@ export default {
         card: {
           DEFAULT: "#FFFFFF",
           hover: "#F8F8F8",
-          dark: "#222632",
-          "dark-hover": "#272B36",
         },
       },
       keyframes: {

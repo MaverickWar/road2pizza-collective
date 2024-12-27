@@ -37,13 +37,13 @@ function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
     setIsTransitioning(true);
     const timer = setTimeout(() => {
       setIsTransitioning(false);
-    }, 5000);
+    }, 3000); // Changed to 3 seconds
 
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
   if (isTransitioning) {
-    return <LoadingScreen />;
+    return <LoadingScreen duration={3000} />;
   }
 
   return <>{children}</>;
@@ -57,83 +57,83 @@ function App() {
           <PageTransitionWrapper>
             <Suspense fallback={<LoadingScreen />}>
               <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route
-                path="/dashboard/admin"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/users"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <UserManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/forum"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <ForumManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/forum/categories"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <CategoryManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/forum/settings"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <ForumSettings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/forum/threads"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <ThreadManagement />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/reviews"
-                element={
-                  <ProtectedRoute requireStaff>
-                    <ReviewsDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/staff"
-                element={
-                  <ProtectedRoute requireStaff>
-                    <StaffDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/forum/category/:id" element={<CategoryView />} />
-              <Route path="/community/forum/thread/:id" element={<ThreadView />} />
-              <Route path="/pizza" element={<Pizza />} />
-              <Route path="/pizza/:style" element={<PizzaStyle />} />
-              <Route path="/pizza-style" element={<PizzaStyle />} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/article/:id" element={<ArticleDetail />} />
-              <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                  path="/dashboard/admin"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/users"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <UserManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ForumManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/categories"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <CategoryManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/settings"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ForumSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/threads"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ThreadManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/reviews"
+                  element={
+                    <ProtectedRoute requireStaff>
+                      <ReviewsDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/staff"
+                  element={
+                    <ProtectedRoute requireStaff>
+                      <StaffDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/forum/category/:id" element={<CategoryView />} />
+                <Route path="/community/forum/thread/:id" element={<ThreadView />} />
+                <Route path="/pizza" element={<Pizza />} />
+                <Route path="/pizza/:style" element={<PizzaStyle />} />
+                <Route path="/pizza-style" element={<PizzaStyle />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/article/:id" element={<ArticleDetail />} />
+                <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
               </Routes>
             </Suspense>
           </PageTransitionWrapper>

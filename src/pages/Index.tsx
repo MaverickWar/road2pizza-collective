@@ -29,7 +29,7 @@ const Index = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen duration={5000} showWelcome={true} />;
   }
 
   return (

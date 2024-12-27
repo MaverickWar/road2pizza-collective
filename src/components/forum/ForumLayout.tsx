@@ -7,10 +7,10 @@ interface ForumLayoutProps {
 
 const ForumLayout = ({ children, className = "" }: ForumLayoutProps) => {
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <div className="pt-36 md:pt-32">
-        <div className={`container mx-auto px-4 ${className}`}>
+        <div className={`container mx-auto px-4 animate-fade-up ${className}`}>
           {children}
         </div>
       </div>

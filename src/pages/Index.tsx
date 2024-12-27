@@ -21,9 +21,9 @@ const Index = () => {
       <Navigation />
       <main className="flex flex-col w-full">
         <Suspense fallback={<LoadingFallback />}>
-          <div className="animate-fade-in">
+          <div className="animate-fade-up">
             <Hero />
-            <div className="mt-8 md:mt-12">
+            <div className="mt-8 md:mt-12 animate-fade-up [animation-delay:200ms]">
               <FeaturedPosts />
             </div>
           </div>

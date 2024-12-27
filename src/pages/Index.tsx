@@ -1,6 +1,7 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import Navigation from '../components/Navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const Hero = React.lazy(() => import('../components/Hero'));
 const FeaturedPosts = React.lazy(() => import('../components/FeaturedPosts'));
@@ -16,6 +17,21 @@ const LoadingFallback = () => (
 );
 
 const Index = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Show loading screen for 2 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />

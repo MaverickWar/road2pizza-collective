@@ -4,9 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 
-// Page imports
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import ResetPassword from "@/pages/ResetPassword";
@@ -30,13 +29,34 @@ import ThreadView from "@/components/forum/ThreadView";
 
 const queryClient = new QueryClient();
 
+function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  useEffect(() => {
+    setIsTransitioning(true);
+    const timer = setTimeout(() => {
+      setIsTransitioning(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
+  if (isTransitioning) {
+    return <LoadingScreen />;
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
+          <PageTransitionWrapper>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/reset-password" element={<ResetPassword />} />
@@ -114,10 +134,11 @@ function App() {
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/article/:id" element={<ArticleDetail />} />
               <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
-            </Routes>
-          </Suspense>
+              </Routes>
+            </Suspense>
+          </PageTransitionWrapper>
+          <Toaster />
         </Router>
-        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );

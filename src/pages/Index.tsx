@@ -20,10 +20,10 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial loading time
+    // Show loading screen for 5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Show loading screen for 2 seconds
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);

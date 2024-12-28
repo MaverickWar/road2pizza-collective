@@ -1,11 +1,13 @@
 import { Post } from './types';
 import { MessageSquare } from 'lucide-react';
 
-interface ThreadRepliesProps {
+export interface ThreadRepliesProps {
   posts: Post[];
+  threadId: string;
+  onReplyAdded: () => void;
 }
 
-const ThreadReplies = ({ posts }: ThreadRepliesProps) => {
+const ThreadReplies = ({ posts, threadId, onReplyAdded }: ThreadRepliesProps) => {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-semibold flex items-center gap-2">

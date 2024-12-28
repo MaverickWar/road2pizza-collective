@@ -1,33 +1,29 @@
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/components/AuthProvider';
-import { toast } from 'sonner';
-import ThreadHeader from './ThreadHeader';
-import ThreadContent from './ThreadContent';
-import ThreadReplies from './ThreadReplies';
-import ReplyForm from './ReplyForm';
-import { Thread } from './types';
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Thread } from "./types";
+import ThreadHeader from "./ThreadHeader";
+import ThreadContent from "./ThreadContent";
+import ThreadReplies from "./ThreadReplies";
+import ReplyForm from "./ReplyForm";
+import { ThreadActions } from "./ThreadActions";
 
 interface ThreadViewProps {
   threadId?: string;
   inModal?: boolean;
 }
 
-const ThreadView = ({ threadId, inModal = false }: ThreadViewProps) => {
-  const params = useParams();
-  const id = threadId || params.id;
-  const { user } = useAuth();
-  const [replyContent, setReplyContent] = useState('');
+const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
+  const { id: paramId } = useParams();
+  const id = propThreadId || paramId;
+  const [thread, setThread] = useState<Thread | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const { data: thread, isLoading, refetch } = useQuery({
-    queryKey: ['thread', id],
-    queryFn: async () => {
-      console.log('Fetching thread:', id);
+  const fetchThread = async () => {
+    try {
+      console.log("Fetching thread:", id);
       const { data, error } = await supabase
-        .from('forum_threads')
+        .from("forum_threads")
         .select(`
           *,
           forum:forums(
@@ -39,102 +35,67 @@ const ThreadView = ({ threadId, inModal = false }: ThreadViewProps) => {
             )
           ),
           posts:forum_posts(
-            *,
+            id,
+            content,
+            created_at,
+            created_by,
+            is_solution,
             user:profiles(username)
           )
         `)
-        .eq('id', id)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching thread:', error);
-        throw error;
-      }
-      
-      console.log('Thread data:', data);
-      return data as Thread;
-    },
-  });
-
-  const handleReply = async () => {
-    if (!user) {
-      toast.error('You must be logged in to reply');
-      return;
-    }
-
-    if (!replyContent.trim()) {
-      toast.error('Reply cannot be empty');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('forum_posts')
-        .insert({
-          thread_id: id,
-          content: replyContent,
-          created_by: user.id,
-        });
+        .eq("id", id)
+        .single();
 
       if (error) throw error;
 
-      toast.success('Reply posted successfully');
-      setReplyContent('');
-      refetch();
+      // Update view count
+      await supabase
+        .from("forum_threads")
+        .update({ view_count: (data.view_count || 0) + 1 })
+        .eq("id", id);
+
+      console.log("Fetched thread:", data);
+      setThread(data);
     } catch (error) {
-      console.error('Error posting reply:', error);
-      toast.error('Failed to post reply');
+      console.error("Error fetching thread:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
-        <div className="space-y-4">
-          <div className="h-8 bg-secondary/50 animate-pulse rounded-lg w-1/4"></div>
-          <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
-        </div>
-      </div>
-    );
+  useEffect(() => {
+    if (id) fetchThread();
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   if (!thread) {
-    return (
-      <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Thread not found</h2>
-        </div>
-      </div>
-    );
+    return <div>Thread not found</div>;
   }
 
   return (
-    <div className={`${inModal ? '' : 'container mx-auto px-4 py-8'}`}>
-      <div className="space-y-8">
+    <div className="space-y-6">
+      <div className="flex justify-between items-start">
         <ThreadHeader thread={thread} />
-        <ThreadContent content={thread.content} />
-        <ThreadReplies posts={thread.posts} />
-
-        {!thread.is_locked && user && (
-          <ReplyForm
-            content={replyContent}
-            onChange={setReplyContent}
-            onSubmit={handleReply}
-          />
-        )}
-
-        {thread.is_locked && (
-          <div className="bg-destructive/10 text-destructive p-4 rounded-lg text-center">
-            This thread is locked and cannot receive new replies
-          </div>
-        )}
-
-        {!user && (
-          <div className="bg-card p-4 rounded-lg text-center">
-            Please log in to reply to this thread
-          </div>
-        )}
+        <ThreadActions 
+          threadId={thread.id}
+          currentTitle={thread.title}
+          currentContent={thread.content}
+          currentCategoryId={thread.forum?.category?.id}
+          onThreadUpdated={fetchThread}
+        />
       </div>
+      <ThreadContent content={thread.content} />
+      <ThreadReplies 
+        posts={thread.posts || []} 
+        threadId={thread.id}
+        onReplyAdded={fetchThread}
+      />
+      {!thread.is_locked && (
+        <ReplyForm threadId={thread.id} onReplyAdded={fetchThread} />
+      )}
     </div>
   );
 };

@@ -536,6 +536,7 @@ export type Database = {
           display_order: number | null
           id: string
           image_url: string | null
+          is_hidden: boolean | null
           name: string
           slug: string
           updated_at: string
@@ -547,6 +548,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           image_url?: string | null
+          is_hidden?: boolean | null
           name: string
           slug: string
           updated_at?: string
@@ -558,6 +560,7 @@ export type Database = {
           display_order?: number | null
           id?: string
           image_url?: string | null
+          is_hidden?: boolean | null
           name?: string
           slug?: string
           updated_at?: string

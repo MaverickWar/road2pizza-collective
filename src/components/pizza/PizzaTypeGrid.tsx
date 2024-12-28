@@ -12,6 +12,7 @@ interface PizzaType {
   image_url: string;
   slug: string;
   display_order: number;
+  is_hidden: boolean;
 }
 
 const PizzaTypeGrid = () => {
@@ -27,6 +28,7 @@ const PizzaTypeGrid = () => {
       const { data, error } = await supabase
         .from('pizza_types')
         .select('*')
+        .eq('is_hidden', false)
         .order('display_order');
 
       if (error) {
@@ -102,6 +104,7 @@ const PizzaTypeGrid = () => {
           isLast={index === (pizzaTypes.length - 1)}
           showControls={showControls}
           onReorder={handleReorder}
+          onDelete={() => queryClient.invalidateQueries({ queryKey: ['pizzaTypes'] })}
         />
       ))}
     </div>

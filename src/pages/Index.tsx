@@ -17,23 +17,23 @@ const LoadingFallback = () => (
 );
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
-    // Show loading screen for 5 seconds
+    // Show splash screen for 5 seconds on first load
     const timer = setTimeout(() => {
-      setIsLoading(false);
+      setIsFirstLoad(false);
     }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  if (isLoading) {
+  if (isFirstLoad) {
     return <LoadingScreen duration={5000} showWelcome={true} />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <Navigation />
       <main className="flex flex-col w-full">
         <Suspense fallback={<LoadingFallback />}>

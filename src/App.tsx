@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense } from "react";
 
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
@@ -31,22 +31,15 @@ const queryClient = new QueryClient();
 
 function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  useEffect(() => {
-    setIsTransitioning(true);
-    const timer = setTimeout(() => {
-      setIsTransitioning(false);
-    }, 3000); // Changed to 3 seconds
-
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
-
-  if (isTransitioning) {
-    return <LoadingScreen duration={3000} />;
-  }
-
-  return <>{children}</>;
+  return (
+    <div
+      key={location.pathname}
+      className="w-full animate-fade-in"
+    >
+      {children}
+    </div>
+  );
 }
 
 function App() {

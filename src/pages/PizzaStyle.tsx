@@ -12,7 +12,7 @@ const PizzaStyle = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const { data: pizzaType, isLoading, error } = useQuery({
+  const { data: pizzaType, isLoading: pizzaTypeLoading, error: pizzaTypeError } = useQuery({
     queryKey: ["pizza-type", style],
     queryFn: async () => {
       console.log("Fetching pizza type:", style);
@@ -64,11 +64,11 @@ const PizzaStyle = () => {
     },
   });
 
-  if (isLoading) {
+  if (pizzaTypeLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-8 mt-20">
+        <div className="container mx-auto px-4 py-8 pt-32">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
             <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -79,11 +79,11 @@ const PizzaStyle = () => {
     );
   }
 
-  if (error || !pizzaType) {
+  if (pizzaTypeError || !pizzaType) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-8 mt-20">
+        <div className="container mx-auto px-4 py-8 pt-32">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-2xl font-bold mb-4">Pizza Style Not Found</h1>
             <p className="text-muted-foreground mb-8">
@@ -101,7 +101,7 @@ const PizzaStyle = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="container mx-auto px-4 py-8 mt-20">
+      <div className="container mx-auto px-4 py-8 pt-32">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold">{pizzaType.name}</h1>

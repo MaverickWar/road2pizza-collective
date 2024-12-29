@@ -8,32 +8,40 @@ import RecipeSubmissionForm from "@/components/recipe/RecipeSubmissionForm";
 import Navigation from "@/components/Navigation";
 
 const PizzaStyle = () => {
-  const { slug } = useParams();
+  const { style } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const { data: pizzaType, isLoading, error } = useQuery({
-    queryKey: ["pizza-type", slug],
+    queryKey: ["pizza-type", style],
     queryFn: async () => {
-      console.log("Fetching pizza type:", slug);
-      if (!slug) {
-        throw new Error("No slug provided");
+      console.log("Fetching pizza type:", style);
+      if (!style) {
+        throw new Error("No style parameter provided");
       }
 
       const { data, error } = await supabase
         .from("pizza_types")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", style)
+        .eq("is_hidden", false)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching pizza type:", error);
+        throw error;
+      }
+      
       if (!data) {
+        console.error("Pizza style not found:", style);
         throw new Error("Pizza style not found");
       }
+
+      console.log("Found pizza type:", data);
       return data;
     },
     retry: false,
-    enabled: !!slug,
+    enabled: !!style,
   });
 
   const { data: recipes } = useQuery({
@@ -51,7 +59,12 @@ const PizzaStyle = () => {
         .eq("status", "published")
         .order("created_at", { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching recipes:", error);
+        throw error;
+      }
+
+      console.log("Found recipes:", data);
       return data;
     },
   });
@@ -71,26 +84,7 @@ const PizzaStyle = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl font-bold mb-4">Pizza Style Not Found</h1>
-            <p className="text-muted-foreground mb-8">
-              The pizza style you're looking for doesn't exist or has been removed.
-            </p>
-            <Button onClick={() => navigate("/pizza")}>
-              Back to Pizza Styles
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!pizzaType) {
+  if (error || !pizzaType) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />

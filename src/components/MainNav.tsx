@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { Pizza, Menu, Home, Users, Star, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Sheet,
   SheetContent,
@@ -13,12 +15,42 @@ import {
 const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const navLinks = [
+  const { data: navigationItems } = useQuery({
+    queryKey: ['navigation-menu'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('navigation_menu')
+        .select(`
+          *,
+          pages (
+            title,
+            slug
+          )
+        `)
+        .eq('menu_type', 'main')
+        .eq('is_visible', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+  
+  const defaultNavLinks = [
     { href: "/", label: "Home", description: "Return to the homepage", icon: Home },
     { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
     { href: "/community", label: "Community", description: "Join discussions and share ideas", icon: Users },
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
   ];
+
+  const customNavLinks = navigationItems?.map(item => ({
+    href: `/page/${item.pages.slug}`,
+    label: item.pages.title,
+    description: `View ${item.pages.title}`,
+    icon: MessageSquare
+  })) || [];
+
+  const allNavLinks = [...defaultNavLinks, ...customNavLinks];
 
   return (
     <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -35,7 +67,7 @@ const MainNav = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
+            {allNavLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
@@ -67,7 +99,7 @@ const MainNav = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col py-6">
-                  {navLinks.map((link) => (
+                  {allNavLinks.map((link) => (
                     <Link
                       key={link.label}
                       to={link.href}

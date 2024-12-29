@@ -430,6 +430,54 @@ export type Database = {
           },
         ]
       }
+      navigation_menu: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number | null
+          id: string
+          is_visible: boolean | null
+          menu_type: string
+          page_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          is_visible?: boolean | null
+          menu_type: string
+          page_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          is_visible?: boolean | null
+          menu_type?: string
+          page_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "navigation_menu_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "navigation_menu_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_permissions: {
         Row: {
           can_delete: boolean | null
@@ -732,6 +780,7 @@ export type Database = {
           nutrition_info: Json | null
           prep_time: string | null
           servings: string | null
+          status: string | null
           tips: Json | null
           title: string
         }
@@ -751,6 +800,7 @@ export type Database = {
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null
+          status?: string | null
           tips?: Json | null
           title: string
         }
@@ -770,6 +820,7 @@ export type Database = {
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null
+          status?: string | null
           tips?: Json | null
           title?: string
         }

@@ -7,10 +7,10 @@ const Hero = () => {
   const navigate = useNavigate();
 
   const stats = React.useMemo(() => [
-    { icon: ChefHat, label: 'Expert Guidance', value: '50+ Chefs' },
-    { icon: Pizza, label: 'Pizza Styles', value: '20+ Styles' },
-    { icon: Users, label: 'Community', value: '10k+ Members' },
-    { icon: Star, label: 'Rating', value: '4.9/5' },
+    { icon: ChefHat, label: 'Expert Guidance', value: '10 Pizza Experts' },
+    { icon: Pizza, label: 'Pizza Styles', value: '8 Styles' },
+    { icon: Users, label: 'Community', value: '12k+ Members' },
+    { icon: Star, label: 'Rating', value: '4.5/5' },
   ], []);
 
   return (

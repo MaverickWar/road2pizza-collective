@@ -37,7 +37,7 @@ const MainNav = () => {
   });
   
   const defaultNavLinks = [
-    { href: "/", label: "Home", description: "Return to the homepage", icon: Home },
+    { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
     { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
     { href: "/community", label: "Community", description: "Join discussions and share ideas", icon: Users },
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },

@@ -23,6 +23,11 @@ const ReviewsDashboard = lazy(() => import("@/components/reviews/ReviewsDashboar
 const ForumManagement = lazy(() => import("@/components/forum/ForumManagement"));
 const BadgeManagement = lazy(() => import("@/components/admin/rewards/BadgeManagement"));
 const PageManagement = lazy(() => import("@/components/admin/pages/PageManagement"));
+const AppearanceSettings = lazy(() => import("@/pages/admin/AppearanceSettings"));
+const TypographySettings = lazy(() => import("@/pages/admin/TypographySettings"));
+const LayoutSettings = lazy(() => import("@/pages/admin/LayoutSettings"));
+const ModerationDashboard = lazy(() => import("@/pages/admin/ModerationDashboard"));
+const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,21 +68,11 @@ function App() {
                       <Route path="/forum/*" element={<ForumManagement />} />
                       <Route path="/rewards" element={<BadgeManagement />} />
                       <Route path="/pages" element={<PageManagement />} />
-                    </Routes>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard/admin/*"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Routes>
-                      <Route path="/" element={<AdminOverview />} />
-                      <Route path="/users" element={<UserManagement />} />
-                      <Route path="/reviews" element={<ReviewsDashboard />} />
-                      <Route path="/forum/*" element={<ForumManagement />} />
-                      <Route path="/rewards" element={<BadgeManagement />} />
-                      <Route path="/pages" element={<PageManagement />} />
+                      <Route path="/appearance" element={<AppearanceSettings />} />
+                      <Route path="/typography" element={<TypographySettings />} />
+                      <Route path="/layout" element={<LayoutSettings />} />
+                      <Route path="/moderation" element={<ModerationDashboard />} />
+                      <Route path="/settings" element={<AdminSettings />} />
                     </Routes>
                   </ProtectedRoute>
                 }

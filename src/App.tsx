@@ -18,6 +18,11 @@ const Reviews = lazy(() => import("@/pages/Reviews"));
 
 // Import admin pages
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
+const UserManagement = lazy(() => import("@/pages/UserManagement"));
+const ReviewsDashboard = lazy(() => import("@/components/reviews/ReviewsDashboard"));
+const ForumManagement = lazy(() => import("@/components/forum/ForumManagement"));
+const BadgeManagement = lazy(() => import("@/components/admin/rewards/BadgeManagement"));
+const PageManagement = lazy(() => import("@/components/admin/pages/PageManagement"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +56,14 @@ function App() {
                 path="/admin/*"
                 element={
                   <ProtectedRoute requireAdmin>
-                    <AdminOverview />
+                    <Routes>
+                      <Route path="/" element={<AdminOverview />} />
+                      <Route path="/users" element={<UserManagement />} />
+                      <Route path="/reviews" element={<ReviewsDashboard />} />
+                      <Route path="/forum/*" element={<ForumManagement />} />
+                      <Route path="/rewards" element={<BadgeManagement />} />
+                      <Route path="/pages" element={<PageManagement />} />
+                    </Routes>
                   </ProtectedRoute>
                 }
               />
@@ -59,7 +71,14 @@ function App() {
                 path="/dashboard/admin/*"
                 element={
                   <ProtectedRoute requireAdmin>
-                    <AdminOverview />
+                    <Routes>
+                      <Route path="/" element={<AdminOverview />} />
+                      <Route path="/users" element={<UserManagement />} />
+                      <Route path="/reviews" element={<ReviewsDashboard />} />
+                      <Route path="/forum/*" element={<ForumManagement />} />
+                      <Route path="/rewards" element={<BadgeManagement />} />
+                      <Route path="/pages" element={<PageManagement />} />
+                    </Routes>
                   </ProtectedRoute>
                 }
               />

@@ -7,6 +7,11 @@ import {
   Settings,
   Shield,
   BookOpen,
+  Users,
+  Star,
+  MessageSquare,
+  Award,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -14,6 +19,11 @@ const navItems = [
     title: "Overview",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
   },
   {
     title: "Pizza Types",
@@ -24,6 +34,26 @@ const navItems = [
     title: "Recipes",
     href: "/admin/recipes",
     icon: BookOpen,
+  },
+  {
+    title: "Reviews",
+    href: "/admin/reviews",
+    icon: Star,
+  },
+  {
+    title: "Forum",
+    href: "/admin/forum",
+    icon: MessageSquare,
+  },
+  {
+    title: "Rewards",
+    href: "/admin/rewards",
+    icon: Award,
+  },
+  {
+    title: "Pages",
+    href: "/admin/pages",
+    icon: FileText,
   },
   {
     title: "Moderation",

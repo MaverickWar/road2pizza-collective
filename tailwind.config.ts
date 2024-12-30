@@ -48,13 +48,6 @@ export default {
           DEFAULT: "#FFFFFF",
           hover: "#F8F8F8",
         },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
       },
       keyframes: {
         "fade-up": {
@@ -70,6 +63,13 @@ export default {
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out",
+      },
+      backgroundImage: {
+        'hero-pattern': "url('https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+      },
+      spacing: {
+        'safe-top': 'env(safe-area-inset-top)',
+        'safe-bottom': 'env(safe-area-inset-bottom)',
       },
     },
   },

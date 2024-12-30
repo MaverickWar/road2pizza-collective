@@ -1,84 +1,135 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Suspense, lazy } from "react";
+import { Suspense } from "react";
 
-// Import existing pages
-const Index = lazy(() => import("@/pages/Index"));
-const Login = lazy(() => import("@/pages/Login"));
-const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Community = lazy(() => import("@/pages/Community"));
-const Pizza = lazy(() => import("@/pages/Pizza"));
-const PizzaStyle = lazy(() => import("@/pages/PizzaStyle"));
-const Reviews = lazy(() => import("@/pages/Reviews"));
+import Index from "@/pages/Index";
+import Login from "@/pages/Login";
+import ResetPassword from "@/pages/ResetPassword";
+import Dashboard from "@/pages/Dashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import UserManagement from "@/pages/UserManagement";
+import StaffDashboard from "@/pages/StaffDashboard";
+import Community from "@/pages/Community";
+import Pizza from "@/pages/Pizza";
+import PizzaStyle from "@/pages/PizzaStyle";
+import Reviews from "@/pages/Reviews";
+import ArticleDetail from "@/components/ArticleDetail";
+import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
+import ReviewsDashboard from "@/components/reviews/ReviewsDashboard";
+import ForumManagement from "@/components/forum/ForumManagement";
+import CategoryManagement from "@/components/forum/CategoryManagement";
+import ForumSettings from "@/components/forum/ForumSettings";
+import ThreadManagement from "@/components/forum/ThreadManagement";
+import CategoryView from "@/components/forum/CategoryView";
+import ThreadView from "@/components/forum/ThreadView";
 
-// Import admin pages
-const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
-const UserManagement = lazy(() => import("@/pages/UserManagement"));
-const ReviewsDashboard = lazy(() => import("@/components/reviews/ReviewsDashboard"));
-const ForumManagement = lazy(() => import("@/components/forum/ForumManagement"));
-const BadgeManagement = lazy(() => import("@/components/admin/rewards/BadgeManagement"));
-const PageManagement = lazy(() => import("@/components/admin/pages/PageManagement"));
-const AppearanceSettings = lazy(() => import("@/pages/admin/AppearanceSettings"));
-const TypographySettings = lazy(() => import("@/pages/admin/TypographySettings"));
-const LayoutSettings = lazy(() => import("@/pages/admin/LayoutSettings"));
-const ModerationDashboard = lazy(() => import("@/pages/admin/ModerationDashboard"));
-const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
+const queryClient = new QueryClient();
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 5000,
-    },
-  },
-});
+function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+
+  return (
+    <div
+      key={location.pathname}
+      className="w-full animate-fade-in"
+    >
+      {children}
+    </div>
+  );
+}
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/pizza" element={<Pizza />} />
-              <Route path="/pizza/:style" element={<PizzaStyle />} />
-              <Route path="/reviews" element={<Reviews />} />
-
-              {/* Admin routes */}
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute requireAdmin>
-                    <Routes>
-                      <Route path="/" element={<AdminOverview />} />
-                      <Route path="/users" element={<UserManagement />} />
-                      <Route path="/reviews" element={<ReviewsDashboard />} />
-                      <Route path="/forum/*" element={<ForumManagement />} />
-                      <Route path="/rewards" element={<BadgeManagement />} />
-                      <Route path="/pages" element={<PageManagement />} />
-                      <Route path="/appearance" element={<AppearanceSettings />} />
-                      <Route path="/typography" element={<TypographySettings />} />
-                      <Route path="/layout" element={<LayoutSettings />} />
-                      <Route path="/moderation" element={<ModerationDashboard />} />
-                      <Route path="/settings" element={<AdminSettings />} />
-                    </Routes>
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Suspense>
+          <PageTransitionWrapper>
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                  path="/dashboard/admin"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/users"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <UserManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ForumManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/categories"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <CategoryManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/settings"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ForumSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/forum/threads"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ThreadManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/reviews"
+                  element={
+                    <ProtectedRoute requireStaff>
+                      <ReviewsDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/staff"
+                  element={
+                    <ProtectedRoute requireStaff>
+                      <StaffDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/forum/category/:id" element={<CategoryView />} />
+                <Route path="/community/forum/thread/:id" element={<ThreadView />} />
+                <Route path="/pizza" element={<Pizza />} />
+                <Route path="/pizza/:style" element={<PizzaStyle />} />
+                <Route path="/pizza-style" element={<PizzaStyle />} />
+                <Route path="/reviews" element={<Reviews />} />
+                <Route path="/article/:id" element={<ArticleDetail />} />
+                <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
+              </Routes>
+            </Suspense>
+          </PageTransitionWrapper>
           <Toaster />
         </Router>
       </AuthProvider>

@@ -75,7 +75,7 @@
 
 /* Safe area padding for modern mobile devices */
 .safe-padding {
-  @apply pt-16 pb-8 md:pt-20;
+  @apply pt-safe-top pb-safe-bottom;
 }
 
 /* Glass effect for overlays with improved contrast */

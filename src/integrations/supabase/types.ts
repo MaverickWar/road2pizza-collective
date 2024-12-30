@@ -272,8 +272,6 @@ export type Database = {
           created_by: string | null
           id: string
           is_edited: boolean | null
-          is_removed: boolean | null
-          is_reported: boolean | null
           is_solution: boolean | null
           likes_count: number | null
           thread_id: string
@@ -285,8 +283,6 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_edited?: boolean | null
-          is_removed?: boolean | null
-          is_reported?: boolean | null
           is_solution?: boolean | null
           likes_count?: number | null
           thread_id: string
@@ -298,8 +294,6 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_edited?: boolean | null
-          is_removed?: boolean | null
-          is_reported?: boolean | null
           is_solution?: boolean | null
           likes_count?: number | null
           thread_id?: string

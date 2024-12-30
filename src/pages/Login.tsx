@@ -1,129 +1,85 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Auth } from "@supabase/auth-ui-react";
+import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
+import { Pizza } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { theme } = useTheme();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // Basic validation
-      if (!email || !password) {
-        throw new Error("Please enter both email and password");
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        navigate("/");
       }
-
-      // Email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        throw new Error("Please enter a valid email address");
-      }
-
-      console.log("Attempting login with email:", email);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password.trim(),
-      });
-
-      if (error) {
-        console.error("Login error:", error);
-        throw error;
-      }
-
-      console.log("Login successful:", data);
-      toast.success("Welcome back!");
-      navigate("/dashboard");
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      
-      // More specific error messages based on the error type
-      if (error.message === "Invalid login credentials") {
-        toast.error("Invalid email or password. Please try again.");
-      } else if (error.message.includes("email")) {
-        toast.error("Please enter a valid email address");
-      } else {
-        toast.error("Failed to log in. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    });
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">Welcome back</h2>
-          <p className="mt-2 text-muted-foreground">
-            Sign in to your account
+    <div className="min-h-screen bg-background dark:bg-background-dark flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo and Title */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-16 h-16 bg-transparent border-2 border-accent rounded-full flex items-center justify-center mb-4">
+            <Pizza className="w-8 h-8 text-accent" />
+          </div>
+          <h1 className="text-3xl font-light text-accent tracking-wider mb-2">Road2Pizza</h1>
+          <p className="text-textLight dark:text-gray-300 text-center">
+            Join our community of pizza enthusiasts
           </p>
         </div>
 
-        <form onSubmit={handleLogin} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium">
-                Email address
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1"
-                placeholder="you@example.com"
-                autoComplete="email"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1"
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                disabled={isLoading}
-                minLength={6}
-              />
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? "Signing in..." : "Sign in"}
-          </Button>
-
-          <div className="text-center">
-            <Button
-              variant="link"
-              className="text-sm"
-              onClick={() => navigate("/reset-password")}
-              disabled={isLoading}
-            >
-              Forgot your password?
-            </Button>
-          </div>
-        </form>
+        {/* Auth Container */}
+        <div className="bg-card dark:bg-card-dark rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-800">
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#E86565',
+                    brandAccent: '#D45555',
+                    brandButtonText: 'white',
+                    defaultButtonBackground: '#FFE4E7',
+                    defaultButtonBackgroundHover: '#FFD1D6',
+                    defaultButtonText: '#2D2B2F',
+                    inputBackground: 'transparent',
+                    inputBorder: '#E1E1E1',
+                    inputBorderHover: '#E86565',
+                    inputBorderFocus: '#E86565',
+                  },
+                  fonts: {
+                    bodyFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    buttonFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    inputFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                    labelFontFamily: `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`,
+                  },
+                  borderWidths: {
+                    buttonBorderWidth: '1px',
+                    inputBorderWidth: '1px',
+                  },
+                  radii: {
+                    borderRadiusButton: '0.5rem',
+                    buttonBorderRadius: '0.5rem',
+                    inputBorderRadius: '0.5rem',
+                  },
+                },
+              },
+              className: {
+                container: 'w-full',
+                button: 'w-full px-4 py-2 rounded-lg font-medium transition-colors',
+                input: 'w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-accent/20 outline-none transition-colors dark:bg-secondary-dark dark:border-gray-700',
+                label: 'text-sm font-medium text-gray-700 dark:text-gray-300',
+              },
+            }}
+            providers={[]}
+          />
+        </div>
       </div>
     </div>
   );

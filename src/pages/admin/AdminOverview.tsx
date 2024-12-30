@@ -2,6 +2,8 @@ import AdminLayout from "@/components/admin/layout/AdminLayout";
 import StatsOverview from "@/components/admin/dashboard/StatsOverview";
 
 const AdminOverview = () => {
+  console.log("Rendering AdminOverview component");
+  
   return (
     <AdminLayout>
       <div className="space-y-6">

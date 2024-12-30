@@ -4,22 +4,29 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LoadingScreen from "@/components/LoadingScreen";
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 
 // Import existing pages
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import ResetPassword from "@/pages/ResetPassword";
-import Dashboard from "@/pages/Dashboard";
-import Community from "@/pages/Community";
-import Pizza from "@/pages/Pizza";
-import PizzaStyle from "@/pages/PizzaStyle";
-import Reviews from "@/pages/Reviews";
+const Index = lazy(() => import("@/pages/Index"));
+const Login = lazy(() => import("@/pages/Login"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Community = lazy(() => import("@/pages/Community"));
+const Pizza = lazy(() => import("@/pages/Pizza"));
+const PizzaStyle = lazy(() => import("@/pages/PizzaStyle"));
+const Reviews = lazy(() => import("@/pages/Reviews"));
 
-// Import new admin pages
-import AdminOverview from "@/pages/admin/AdminOverview";
+// Import admin pages
+const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (
@@ -47,7 +54,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              {/* Additional admin routes will be added here */}
             </Routes>
           </Suspense>
           <Toaster />

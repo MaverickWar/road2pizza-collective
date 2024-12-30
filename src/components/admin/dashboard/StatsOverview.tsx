@@ -5,6 +5,8 @@ import { Users, Pizza, BookOpen, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const StatsOverview = () => {
+  console.log("Rendering StatsOverview component");
+  
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {

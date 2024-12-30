@@ -16,10 +16,21 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      // Basic validation
+      if (!email || !password) {
+        throw new Error("Please enter both email and password");
+      }
+
+      // Email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        throw new Error("Please enter a valid email address");
+      }
+
       console.log("Attempting login with email:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
       });
 
       if (error) {
@@ -32,10 +43,15 @@ const Login = () => {
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Login failed:", error);
-      toast.error(error.message === "Invalid login credentials" 
-        ? "Invalid email or password" 
-        : "Failed to log in. Please try again."
-      );
+      
+      // More specific error messages based on the error type
+      if (error.message === "Invalid login credentials") {
+        toast.error("Invalid email or password. Please try again.");
+      } else if (error.message.includes("email")) {
+        toast.error("Please enter a valid email address");
+      } else {
+        toast.error("Failed to log in. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +82,7 @@ const Login = () => {
                 className="mt-1"
                 placeholder="you@example.com"
                 autoComplete="email"
+                disabled={isLoading}
               />
             </div>
 
@@ -82,6 +99,8 @@ const Login = () => {
                 className="mt-1"
                 placeholder="Enter your password"
                 autoComplete="current-password"
+                disabled={isLoading}
+                minLength={6}
               />
             </div>
           </div>
@@ -99,6 +118,7 @@ const Login = () => {
               variant="link"
               className="text-sm"
               onClick={() => navigate("/reset-password")}
+              disabled={isLoading}
             >
               Forgot your password?
             </Button>

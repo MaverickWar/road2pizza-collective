@@ -2,6 +2,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useEffect } from "react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,10 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { isAdmin } = useAuth();
+
+  useEffect(() => {
+    console.log("AdminLayout mounted, isAdmin:", isAdmin);
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return (

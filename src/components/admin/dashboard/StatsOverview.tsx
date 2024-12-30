@@ -7,27 +7,41 @@ import { cn } from "@/lib/utils";
 const StatsOverview = () => {
   console.log("Rendering StatsOverview component");
   
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading, error } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
       console.log("Fetching admin statistics...");
-      const [usersResponse, pizzaTypesResponse, recipesResponse] = await Promise.all([
-        supabase.from("profiles").select("count"),
-        supabase.from("pizza_types").select("count").eq("is_hidden", false),
-        supabase.from("recipes").select("count"),
-      ]);
+      try {
+        const [usersResponse, pizzaTypesResponse, recipesResponse] = await Promise.all([
+          supabase.from("profiles").select("count"),
+          supabase.from("pizza_types").select("count").eq("is_hidden", false),
+          supabase.from("recipes").select("count"),
+        ]);
 
-      if (usersResponse.error) throw usersResponse.error;
-      if (pizzaTypesResponse.error) throw pizzaTypesResponse.error;
-      if (recipesResponse.error) throw recipesResponse.error;
+        console.log("Users response:", usersResponse);
+        console.log("Pizza types response:", pizzaTypesResponse);
+        console.log("Recipes response:", recipesResponse);
 
-      return {
-        users: usersResponse.data[0]?.count || 0,
-        pizzaTypes: pizzaTypesResponse.data[0]?.count || 0,
-        recipes: recipesResponse.data[0]?.count || 0,
-      };
+        if (usersResponse.error) throw usersResponse.error;
+        if (pizzaTypesResponse.error) throw pizzaTypesResponse.error;
+        if (recipesResponse.error) throw recipesResponse.error;
+
+        return {
+          users: usersResponse.data[0]?.count || 0,
+          pizzaTypes: pizzaTypesResponse.data[0]?.count || 0,
+          recipes: recipesResponse.data[0]?.count || 0,
+        };
+      } catch (error) {
+        console.error("Error fetching admin stats:", error);
+        throw error;
+      }
     },
   });
+
+  if (error) {
+    console.error("Error in StatsOverview:", error);
+    return <div>Error loading statistics. Please try again later.</div>;
+  }
 
   if (isLoading) {
     return (

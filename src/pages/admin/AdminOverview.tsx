@@ -1,9 +1,12 @@
 import AdminLayout from "@/components/admin/layout/AdminLayout";
 import StatsOverview from "@/components/admin/dashboard/StatsOverview";
+import { useEffect } from "react";
 
 const AdminOverview = () => {
-  console.log("Rendering AdminOverview component");
-  
+  useEffect(() => {
+    console.log("Rendering AdminOverview component");
+  }, []);
+
   return (
     <AdminLayout>
       <div className="space-y-6">

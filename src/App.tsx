@@ -24,6 +24,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      staleTime: 5000,
     },
   },
 });
@@ -47,7 +48,15 @@ function App() {
 
               {/* Admin routes */}
               <Route
-                path="/admin"
+                path="/admin/*"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminOverview />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/*"
                 element={
                   <ProtectedRoute requireAdmin>
                     <AdminOverview />

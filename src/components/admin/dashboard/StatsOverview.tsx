@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Pizza, BookOpen, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +18,11 @@ const StatsOverview = () => {
           supabase.from("recipes").select("count"),
         ]);
 
-        console.log("Users response:", usersResponse);
-        console.log("Pizza types response:", pizzaTypesResponse);
-        console.log("Recipes response:", recipesResponse);
+        console.log("API Responses:", {
+          users: usersResponse,
+          pizzaTypes: pizzaTypesResponse,
+          recipes: recipesResponse,
+        });
 
         if (usersResponse.error) throw usersResponse.error;
         if (pizzaTypesResponse.error) throw pizzaTypesResponse.error;
@@ -40,7 +42,11 @@ const StatsOverview = () => {
 
   if (error) {
     console.error("Error in StatsOverview:", error);
-    return <div>Error loading statistics. Please try again later.</div>;
+    return (
+      <div className="p-4 text-red-500 bg-red-50 rounded-lg">
+        Error loading statistics. Please try again later.
+      </div>
+    );
   }
 
   if (isLoading) {

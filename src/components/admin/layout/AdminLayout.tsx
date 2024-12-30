@@ -3,17 +3,26 @@ import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
 
   useEffect(() => {
-    console.log("AdminLayout mounted, isAdmin:", isAdmin);
-  }, [isAdmin]);
+    console.log("AdminLayout mounted", { isAdmin, userId: user?.id });
+  }, [isAdmin, user]);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (

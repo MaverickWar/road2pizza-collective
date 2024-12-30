@@ -23,21 +23,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("AuthProvider mounted");
+    
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session);
-      handleSessionChange(session);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error("Error getting initial session:", sessionError);
+          return;
+        }
+        console.log("Initial session check:", session);
+        await handleSessionChange(session);
+      } catch (error) {
+        console.error("Error during auth initialization:", error);
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", session);
-      handleSessionChange(session);
+      await handleSessionChange(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log("Cleaning up auth subscription");
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSessionChange = async (session: Session | null) => {
@@ -47,6 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session.user);
         await checkUserRoles(session.user.id);
       } else {
+        console.log("No session, clearing user state");
         setUser(null);
         setIsAdmin(false);
         setIsStaff(false);

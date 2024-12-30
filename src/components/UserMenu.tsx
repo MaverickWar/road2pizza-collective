@@ -22,14 +22,32 @@ interface UserMenuProps {
 
 export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error("Error signing out");
-    } else {
+    try {
+      setIsLoggingOut(true);
+      console.log("Starting logout process...");
+      
+      // Clear any stored session data first
+      localStorage.removeItem('supabase.auth.token');
+      
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Logout error:", error);
+        throw error;
+      }
+
+      console.log("Logout successful");
       toast.success("Signed out successfully");
-      navigate("/");
+      
+      // Force navigation to home page
+      window.location.href = '/';
+    } catch (error: any) {
+      console.error("Error during logout:", error);
+      toast.error("Error signing out. Please try again.");
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -39,6 +57,7 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
         <Button 
           variant="ghost" 
           className="relative h-8 w-8 rounded-full hover:bg-white/20 ring-2 ring-white p-0"
+          disabled={isLoggingOut}
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
@@ -69,8 +88,12 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
           {isAdmin ? 'Admin' : 'Member'} Dashboard
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={handleLogout}>
-          Log out
+        <DropdownMenuItem 
+          onSelect={handleLogout}
+          disabled={isLoggingOut}
+          className="text-red-600 dark:text-red-400"
+        >
+          {isLoggingOut ? 'Signing out...' : 'Log out'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

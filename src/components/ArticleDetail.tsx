@@ -78,6 +78,10 @@ const ArticleDetail = () => {
     );
   }
 
+  const ingredients = recipe.ingredients as string[] || [];
+  const instructions = recipe.instructions as string[] || [];
+  const tips = recipe.tips as string[] || [];
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -119,7 +123,7 @@ const ArticleDetail = () => {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <div className="prose prose-invert max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: recipe.content }} />
+              <div dangerouslySetInnerHTML={{ __html: recipe.content || '' }} />
             </div>
 
             {recipe.reviews && recipe.reviews.length > 0 && (
@@ -173,33 +177,33 @@ const ArticleDetail = () => {
               </dl>
             </div>
 
-            {recipe.ingredients && recipe.ingredients.length > 0 && (
+            {ingredients.length > 0 && (
               <div className="bg-secondary rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Ingredients</h3>
                 <ul className="list-disc list-inside space-y-2">
-                  {recipe.ingredients.map((ingredient, index) => (
+                  {ingredients.map((ingredient, index) => (
                     <li key={index}>{ingredient}</li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {recipe.instructions && recipe.instructions.length > 0 && (
+            {instructions.length > 0 && (
               <div className="bg-secondary rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Instructions</h3>
                 <ol className="list-decimal list-inside space-y-2">
-                  {recipe.instructions.map((instruction, index) => (
+                  {instructions.map((instruction, index) => (
                     <li key={index}>{instruction}</li>
                   ))}
                 </ol>
               </div>
             )}
 
-            {recipe.tips && recipe.tips.length > 0 && (
+            {tips.length > 0 && (
               <div className="bg-secondary rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Pro Tips</h3>
                 <ul className="list-disc list-inside space-y-2">
-                  {recipe.tips.map((tip, index) => (
+                  {tips.map((tip, index) => (
                     <li key={index}>{tip}</li>
                   ))}
                 </ul>

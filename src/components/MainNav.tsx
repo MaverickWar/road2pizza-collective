@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from './ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import {
   Sheet,
   SheetContent,
@@ -17,7 +17,7 @@ const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   
-  const { data: navigationItems } = useQuery({
+  const { data: navigationItems, error: navError } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
@@ -41,19 +41,24 @@ const MainNav = () => {
         }
         
         console.log('Fetched navigation menu items:', data);
-        return data;
+        return data || [];
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
-        toast({
-          title: "Navigation Error",
-          description: "Failed to load custom navigation items. Showing default menu.",
-          variant: "destructive",
-        });
+        // Don't show toast here, we'll handle it in the error callback
         return [];
       }
     },
-    retry: 1,
+    retry: 3,
+    retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    onError: (error) => {
+      console.error('Navigation menu query error:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Using default navigation menu",
+        variant: "destructive",
+      });
+    }
   });
   
   const defaultNavLinks = [
@@ -90,7 +95,7 @@ const MainNav = () => {
           <div className="hidden md:flex items-center space-x-8">
             {allNavLinks.map((link) => (
               <Link
-                key={link.label}
+                key={link.href + link.label}
                 to={link.href}
                 className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
               >
@@ -122,7 +127,7 @@ const MainNav = () => {
                 <div className="flex flex-col py-6">
                   {allNavLinks.map((link) => (
                     <Link
-                      key={link.label}
+                      key={link.href + link.label}
                       to={link.href}
                       className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
                       onClick={() => setIsOpen(false)}

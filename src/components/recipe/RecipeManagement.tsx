@@ -47,6 +47,9 @@ const RecipeManagement = () => {
         tips: Array.isArray(recipe.tips) ? recipe.tips.map(String) : [],
         reviews: recipe.reviews || [],
         profiles: recipe.profiles || { username: '' },
+        status: (recipe.status === 'published' || recipe.status === 'unpublished') 
+          ? recipe.status 
+          : 'unpublished',
         nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' && !Array.isArray(recipe.nutrition_info) ? {
           calories: String((recipe.nutrition_info as Record<string, unknown>).calories || ''),
           protein: String((recipe.nutrition_info as Record<string, unknown>).protein || ''),

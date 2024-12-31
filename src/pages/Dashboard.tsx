@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import DashboardLayout from "@/components/DashboardLayout";
-import { RecipeSubmissionForm } from "@/components/recipe/RecipeSubmissionForm";
+import RecipeSubmissionForm from "@/components/recipe/RecipeSubmissionForm";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -12,7 +12,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { format } from "date-fns";
-import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key } from "lucide-react";
+import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key, CheckCircle } from "lucide-react";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,7 @@ interface UserTableRowProps {
   onEditProfile: (user: any) => void;
   onManageStats: (user: any) => void;
   onDeleteUser: (userId: string) => Promise<void>;
+  onVerifyUser: (userId: string) => Promise<void>;
 }
 
 const UserTableRow = ({ 
@@ -33,7 +34,8 @@ const UserTableRow = ({
   onToggleSuspend,
   onEditProfile,
   onManageStats,
-  onDeleteUser
+  onDeleteUser,
+  onVerifyUser
 }: UserTableRowProps) => {
   const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
 
@@ -54,16 +56,16 @@ const UserTableRow = ({
 
   return (
     <TableRow className="group hover:bg-secondary/50">
-      <TableCell>
+      <TableCell className="max-w-[200px]">
         <HoverCard>
           <HoverCardTrigger asChild>
-            <button className="flex items-center space-x-2">
+            <button className="flex items-center space-x-2 truncate">
               <img
                 src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
                 alt={user.username}
-                className="w-8 h-8 rounded-full"
+                className="w-8 h-8 rounded-full flex-shrink-0"
               />
-              <span>{user.username}</span>
+              <span className="truncate">{user.username}</span>
             </button>
           </HoverCardTrigger>
           <HoverCardContent className="w-80">
@@ -79,17 +81,17 @@ const UserTableRow = ({
           </HoverCardContent>
         </HoverCard>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-[150px]">
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-[200px]">
         <UserStats 
           points={user.points} 
           badgeTitle={user.badge_title} 
           badgeColor={user.badge_color} 
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-[150px]">
         <span
           className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
             user.is_suspended
@@ -102,7 +104,7 @@ const UserTableRow = ({
           {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
         </span>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-[100px]">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
@@ -112,7 +114,7 @@ const UserTableRow = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent 
             align="end" 
-            className="w-[200px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg"
+            className="w-[200px] bg-card"
           >
             <DropdownMenuItem onClick={() => onEditProfile(user)}>
               <User className="w-4 h-4 mr-2" />
@@ -126,6 +128,12 @@ const UserTableRow = ({
               <Award className="w-4 h-4 mr-2" />
               Manage Stats
             </DropdownMenuItem>
+            {!user.is_verified && (
+              <DropdownMenuItem onClick={() => onVerifyUser(user.id)}>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Verify User
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}>
               <Shield className="w-4 h-4 mr-2" />
               {user.is_admin ? "Remove Admin" : "Make Admin"}

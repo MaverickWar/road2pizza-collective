@@ -34,7 +34,6 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
       if (error) throw error;
       
       toast.success("User deleted successfully");
-      // Refresh the page to update the user list
       window.location.reload();
     } catch (error) {
       console.error("Error deleting user:", error);
@@ -42,38 +41,58 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
     }
   };
 
+  const handleVerifyUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_verified: true })
+        .eq('id', userId);
+
+      if (error) throw error;
+      
+      toast.success("User verified successfully");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error verifying user:", error);
+      toast.error("Failed to verify user");
+    }
+  };
+
   return (
-    <div className="relative overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Roles</TableHead>
-            <TableHead>Stats</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users?.map((user) => (
-            <UserTableRow
-              key={user.id}
-              user={user}
-              onToggleUserRole={onToggleUserRole}
-              onToggleSuspend={onToggleSuspend}
-              onEditProfile={(user) => {
-                setSelectedUser(user);
-                setProfileDialogOpen(true);
-              }}
-              onManageStats={(user) => {
-                setSelectedUser(user);
-                setStatsDialogOpen(true);
-              }}
-              onDeleteUser={handleDeleteUser}
-            />
-          ))}
-        </TableBody>
-      </Table>
+    <div className="relative overflow-x-auto rounded-lg border">
+      <div className="max-w-[calc(100vw-4rem)] md:max-w-full">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[200px]">User</TableHead>
+              <TableHead className="w-[150px]">Roles</TableHead>
+              <TableHead className="w-[200px]">Stats</TableHead>
+              <TableHead className="w-[150px]">Status</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users?.map((user) => (
+              <UserTableRow
+                key={user.id}
+                user={user}
+                onToggleUserRole={onToggleUserRole}
+                onToggleSuspend={onToggleSuspend}
+                onEditProfile={(user) => {
+                  setSelectedUser(user);
+                  setProfileDialogOpen(true);
+                }}
+                onManageStats={(user) => {
+                  setSelectedUser(user);
+                  setStatsDialogOpen(true);
+                }}
+                onDeleteUser={handleDeleteUser}
+                onVerifyUser={handleVerifyUser}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <UserStatsDialog
         user={selectedUser}

@@ -26,6 +26,9 @@ const ArticleDetail = () => {
           categories (
             name
           ),
+          profiles (
+            username
+          ),
           reviews (
             rating,
             content,
@@ -41,17 +44,25 @@ const ArticleDetail = () => {
 
       if (error) throw error;
 
+      // Cast the data to match our Recipe type
+      const recipeData = {
+        ...data,
+        ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
+        instructions: Array.isArray(data.instructions) ? data.instructions : [],
+        tips: Array.isArray(data.tips) ? data.tips : [],
+      } as Recipe;
+
       // Check if user has access to unpublished recipe
-      if (data.status === 'unpublished') {
+      if (recipeData.status === 'unpublished') {
         if (!user) {
           throw new Error('Recipe not found');
         }
-        if (!isAdmin && !isStaff && user.id !== data.created_by) {
+        if (!isAdmin && !isStaff && user.id !== recipeData.created_by) {
           throw new Error('Recipe not found');
         }
       }
 
-      return data as Recipe;
+      return recipeData;
     }
   });
 
@@ -71,24 +82,24 @@ const ArticleDetail = () => {
           Back
         </Button>
 
-        {recipe.status === 'unpublished' && (
+        {recipe?.status === 'unpublished' && (
           <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-4">
             This recipe is unpublished. You may not have access to view it.
           </div>
         )}
 
-        <h1 className="text-4xl font-bold mb-4">{recipe.title}</h1>
+        <h1 className="text-4xl font-bold mb-4">{recipe?.title}</h1>
         <div className="flex items-center mb-4">
           <Avatar>
-            <AvatarFallback>{getInitials(recipe.profiles.username)}</AvatarFallback>
+            <AvatarFallback>{getInitials(recipe?.profiles?.username || '')}</AvatarFallback>
           </Avatar>
           <div className="ml-2">
-            <p className="text-sm text-gray-500">By {recipe.profiles.username}</p>
-            <p className="text-sm text-gray-500">{format(new Date(recipe.created_at), 'MMMM dd, yyyy')}</p>
+            <p className="text-sm text-gray-500">By {recipe?.profiles?.username}</p>
+            <p className="text-sm text-gray-500">{format(new Date(recipe?.created_at || ''), 'MMMM dd, yyyy')}</p>
           </div>
         </div>
 
-        <Rating value={recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length} />
+        {recipe?.reviews && <Rating value={recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length} />}
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">

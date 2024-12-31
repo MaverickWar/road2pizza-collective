@@ -23,6 +23,7 @@ const RecipeManagement = () => {
             rating,
             content,
             user_id,
+            created_at,
             profiles (username)
           ),
           categories (

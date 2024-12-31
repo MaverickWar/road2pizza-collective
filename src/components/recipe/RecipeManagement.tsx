@@ -28,6 +28,9 @@ const RecipeManagement = () => {
           categories (
             id,
             name
+          ),
+          profiles (
+            username
           )
         `);
       
@@ -43,12 +46,13 @@ const RecipeManagement = () => {
         instructions: Array.isArray(recipe.instructions) ? recipe.instructions.map(String) : [],
         tips: Array.isArray(recipe.tips) ? recipe.tips.map(String) : [],
         reviews: recipe.reviews || [],
+        profiles: recipe.profiles || { username: '' },
         nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' && !Array.isArray(recipe.nutrition_info) ? {
           calories: String((recipe.nutrition_info as Record<string, unknown>).calories || ''),
           protein: String((recipe.nutrition_info as Record<string, unknown>).protein || ''),
           carbs: String((recipe.nutrition_info as Record<string, unknown>).carbs || ''),
           fat: String((recipe.nutrition_info as Record<string, unknown>).fat || '')
-        } : undefined
+        } : null
       }));
       
       console.log("Fetched recipes:", transformedRecipes);

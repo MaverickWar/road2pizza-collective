@@ -4,39 +4,58 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Clock, ChefHat, Star } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/components/ui/use-toast';
 
 const FeaturedPosts = () => {
-  const { data: recipes, isLoading } = useQuery({
+  const { toast } = useToast();
+  
+  const { data: recipes, isLoading, error } = useQuery({
     queryKey: ['featured-recipes'],
     queryFn: async () => {
       console.log('Fetching featured recipes...');
-      const { data, error } = await supabase
-        .from('recipes')
-        .select(`
-          id,
-          title,
-          author,
-          image_url,
-          prep_time,
-          categories (
+      try {
+        const { data, error } = await supabase
+          .from('recipes')
+          .select(`
             id,
-            name
-          )
-        `)
-        .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
-      
-      if (error) {
-        console.error('Error fetching featured recipes:', error);
+            title,
+            author,
+            image_url,
+            prep_time,
+            categories (
+              id,
+              name
+            )
+          `)
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        
+        if (error) {
+          console.error('Error fetching featured recipes:', error);
+          throw error;
+        }
+        
+        console.log('Fetched featured recipes:', data);
+        return data || [];
+      } catch (error) {
+        console.error('Failed to fetch featured recipes:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load featured recipes. Please try again later.",
+          variant: "destructive",
+        });
         throw error;
       }
-      console.log('Fetched featured recipes:', data);
-      return data || [];
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 10 * 60 * 1000,   // Keep in cache for 10 minutes (previously cacheTime)
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
   });
+
+  if (error) {
+    return null;
+  }
 
   if (!isLoading && (!recipes || recipes.length === 0)) {
     return null;

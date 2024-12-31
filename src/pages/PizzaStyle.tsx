@@ -1,9 +1,12 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/AuthProvider';
+import { toast } from 'sonner';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -51,6 +54,8 @@ const pizzaStyles = {
 const PizzaStyle = () => {
   const { style } = useParams();
   const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: recipes, isLoading } = useQuery({
     queryKey: ['recipes', style],
@@ -95,6 +100,33 @@ const PizzaStyle = () => {
     enabled: !!style && !!pizzaStyle,
   });
 
+  const handleSubmitRecipe = async () => {
+    if (!user) {
+      toast.error("Please login to submit a recipe");
+      navigate("/login");
+      return;
+    }
+
+    // Get category ID for the current pizza style
+    const { data: category } = await supabase
+      .from('categories')
+      .select('id')
+      .ilike('name', `%${pizzaStyle?.title}%`)
+      .maybeSingle();
+
+    if (category) {
+      navigate('/dashboard', { 
+        state: { 
+          showRecipeForm: true,
+          categoryId: category.id,
+          categoryName: pizzaStyle?.title 
+        } 
+      });
+    } else {
+      toast.error("Unable to find category. Please try again later.");
+    }
+  };
+
   const getImageUrl = (url: string) => {
     if (url.startsWith('data:') || url.startsWith('http')) {
       return url;
@@ -123,8 +155,19 @@ const PizzaStyle = () => {
           Back to Pizza Styles
         </Link>
         
-        <h1 className="text-4xl font-bold text-textLight mb-4">{pizzaStyle.title}</h1>
-        <p className="text-xl text-textLight mb-8">{pizzaStyle.description}</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-textLight mb-4">{pizzaStyle.title}</h1>
+            <p className="text-xl text-textLight">{pizzaStyle.description}</p>
+          </div>
+          <Button 
+            onClick={handleSubmitRecipe}
+            className="bg-accent hover:bg-accent-hover text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Submit Recipe
+          </Button>
+        </div>
         
         <div className="bg-secondary rounded-lg p-6 mb-12">
           <h2 className="text-2xl font-bold text-textLight mb-4">History</h2>

@@ -44,20 +44,21 @@ const MainNav = () => {
         return data || [];
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
-        // Don't show toast here, we'll handle it in the error callback
         return [];
       }
     },
     retry: 3,
     retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    onError: (error) => {
-      console.error('Navigation menu query error:', error);
-      toast({
-        title: "Navigation Error",
-        description: "Using default navigation menu",
-        variant: "destructive",
-      });
+    meta: {
+      onError: () => {
+        console.error('Navigation menu query error:', navError);
+        toast({
+          title: "Navigation Error",
+          description: "Using default navigation menu",
+          variant: "destructive",
+        });
+      }
     }
   });
   

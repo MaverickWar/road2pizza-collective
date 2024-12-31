@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { ArrowLeft } from "lucide-react";
 
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -28,7 +29,7 @@ interface RecipeSubmissionFormProps {
 }
 
 const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormProps) => {
-  const { user } = useAuth();
+  const { user, isStaff, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -60,16 +61,25 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
         cook_time: values.cookTime,
         servings: values.servings,
         difficulty: values.difficulty,
-        status: 'unpublished'
+        status: isAdmin || isStaff ? 'published' : 'unpublished'
       };
 
-      const { error } = await supabase.from("recipes").insert(recipeData);
+      const { data: recipe, error } = await supabase
+        .from("recipes")
+        .insert(recipeData)
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast.success("Recipe submitted successfully! It will be reviewed by our team.");
+      if (isAdmin || isStaff) {
+        toast.success("Recipe published successfully!");
+      } else {
+        toast.success("Recipe submitted successfully! It will be reviewed by our team.");
+      }
+      
       if (onSubmit) onSubmit();
-      navigate("/dashboard");
+      navigate(`/article/${recipe.id}`);
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("Failed to submit recipe");
@@ -81,6 +91,19 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+          <h2 className="text-2xl font-bold">Submit Recipe</h2>
+        </div>
+
         <FormField
           control={form.control}
           name="title"

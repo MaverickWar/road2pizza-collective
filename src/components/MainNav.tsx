@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from './ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 import {
   Sheet,
   SheetContent,
@@ -14,26 +15,45 @@ import {
 
 const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
   
   const { data: navigationItems } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('navigation_menu')
-        .select(`
-          *,
-          pages (
-            title,
-            slug
-          )
-        `)
-        .eq('menu_type', 'main')
-        .eq('is_visible', true)
-        .order('display_order');
-      
-      if (error) throw error;
-      return data;
+      try {
+        console.log('Fetching navigation menu items...');
+        const { data, error } = await supabase
+          .from('navigation_menu')
+          .select(`
+            *,
+            pages (
+              title,
+              slug
+            )
+          `)
+          .eq('menu_type', 'main')
+          .eq('is_visible', true)
+          .order('display_order');
+        
+        if (error) {
+          console.error('Error fetching navigation menu:', error);
+          throw error;
+        }
+        
+        console.log('Fetched navigation menu items:', data);
+        return data;
+      } catch (error) {
+        console.error('Failed to fetch navigation menu:', error);
+        toast({
+          title: "Navigation Error",
+          description: "Failed to load custom navigation items. Showing default menu.",
+          variant: "destructive",
+        });
+        return [];
+      }
     },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
   const defaultNavLinks = [
@@ -43,12 +63,13 @@ const MainNav = () => {
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
   ];
 
-  const customNavLinks = navigationItems?.map(item => ({
-    href: `/page/${item.pages.slug}`,
-    label: item.pages.title,
-    description: `View ${item.pages.title}`,
+  // Only add custom nav links if they were successfully fetched
+  const customNavLinks = (navigationItems || []).map(item => ({
+    href: `/page/${item.pages?.slug}`,
+    label: item.pages?.title,
+    description: `View ${item.pages?.title}`,
     icon: MessageSquare
-  })) || [];
+  }));
 
   const allNavLinks = [...defaultNavLinks, ...customNavLinks];
 

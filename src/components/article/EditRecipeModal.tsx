@@ -32,7 +32,7 @@ const EditRecipeModal = ({ recipe, onClose }: EditRecipeModalProps) => {
       // Get user's post count
       const { data: postCount } = await supabase
         .from('forum_posts')
-        .select('id', { count: true })
+        .select('id', { count: "exact" })
         .eq('created_by', user?.id);
 
       const requiresApproval = userProfile?.requires_recipe_approval || (postCount?.length || 0) < 5;

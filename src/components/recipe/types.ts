@@ -18,7 +18,7 @@ export interface Recipe {
   created_at: string;
   created_by: string | null;
   is_featured?: boolean;
-  status?: 'published' | 'unpublished';
+  status: 'published' | 'unpublished' | 'rejected';
   reviews: Review[];
   categories?: {
     name: string;
@@ -39,5 +39,7 @@ export interface Recipe {
     carbs?: string;
     fat?: string;
   } | null;
-  approval_status?: 'pending' | 'approved' | 'rejected';
+  approval_status: 'pending' | 'approved' | 'rejected';
+  edit_requires_approval: boolean;
+  last_edited_at?: string | null;
 }

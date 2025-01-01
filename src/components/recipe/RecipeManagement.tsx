@@ -45,7 +45,7 @@ const RecipeManagement = () => {
         throw error;
       }
       
-      return data;
+      return data as Recipe[];
     },
   });
 

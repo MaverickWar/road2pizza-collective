@@ -5,11 +5,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
 import UserApprovalToggle from "./UserApprovalToggle";
 import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface UserTableRowProps {
   user: any;

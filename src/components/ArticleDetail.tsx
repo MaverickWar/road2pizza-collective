@@ -50,6 +50,12 @@ const ArticleDetail = () => {
         ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
         instructions: Array.isArray(data.instructions) ? data.instructions : [],
         tips: Array.isArray(data.tips) ? data.tips : [],
+        nutrition_info: data.nutrition_info ? {
+          calories: data.nutrition_info.calories?.toString() || '',
+          protein: data.nutrition_info.protein?.toString() || '',
+          carbs: data.nutrition_info.carbs?.toString() || '',
+          fat: data.nutrition_info.fat?.toString() || '',
+        } : null
       } as Recipe;
 
       // Check if user has access to unpublished recipe

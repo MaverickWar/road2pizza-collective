@@ -34,9 +34,10 @@ export interface Recipe {
     username: string;
   };
   nutrition_info?: {
-    calories: string;
-    protein: string;
-    carbs: string;
-    fat: string;
+    calories?: string;
+    protein?: string;
+    carbs?: string;
+    fat?: string;
   } | null;
+  approval_status?: 'pending' | 'approved' | 'rejected';
 }

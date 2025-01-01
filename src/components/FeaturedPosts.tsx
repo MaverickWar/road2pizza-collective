@@ -28,6 +28,8 @@ const FeaturedPosts = () => {
             )
           `)
           .eq('is_featured', true)
+          .eq('status', 'published')
+          .eq('approval_status', 'approved')
           .order('created_at', { ascending: false })
           .limit(3);
         

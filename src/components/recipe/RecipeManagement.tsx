@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import RecipeTable from "./RecipeTable";
 import { Recipe } from "./types";
 import EditRecipeModal from "../article/EditRecipeModal";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 const RecipeManagement = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -33,14 +35,14 @@ const RecipeManagement = () => {
           profiles (
             username
           )
-        `);
+        `)
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error("Error fetching recipes:", error);
         throw error;
       }
       
-      // Transform the data to match the Recipe type
       const transformedRecipes: Recipe[] = data.map(recipe => ({
         ...recipe,
         ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.map(String) : [],
@@ -86,6 +88,23 @@ const RecipeManagement = () => {
     }
   };
 
+  const handleApproval = async (recipeId: string, status: 'approved' | 'rejected') => {
+    try {
+      const { error } = await supabase
+        .from("recipes")
+        .update({ approval_status: status })
+        .eq("id", recipeId);
+      
+      if (error) throw error;
+      
+      await queryClient.invalidateQueries({ queryKey: ["recipes-with-reviews"] });
+      toast.success(`Recipe ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
+    } catch (error) {
+      console.error("Error updating recipe approval:", error);
+      toast.error("Failed to update recipe approval status");
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -103,17 +122,60 @@ const RecipeManagement = () => {
     );
   }
 
+  const pendingRecipes = recipes?.filter(recipe => recipe.approval_status === 'pending') || [];
+  const approvedRecipes = recipes?.filter(recipe => recipe.approval_status === 'approved') || [];
+  const rejectedRecipes = recipes?.filter(recipe => recipe.approval_status === 'rejected') || [];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recipe Management</CardTitle>
+        <CardTitle className="flex items-center justify-between">
+          <span>Recipe Management</span>
+          <div className="flex gap-2">
+            <Badge variant="secondary">{pendingRecipes.length} Pending</Badge>
+            <Badge variant="default">{approvedRecipes.length} Approved</Badge>
+            <Badge variant="destructive">{rejectedRecipes.length} Rejected</Badge>
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <RecipeTable
-          recipes={recipes || []}
-          onEdit={setEditingRecipe}
-          onToggleFeature={handleToggleFeature}
-        />
+        <Tabs defaultValue="pending" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="pending">Pending Approval</TabsTrigger>
+            <TabsTrigger value="approved">Approved</TabsTrigger>
+            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="pending">
+            <RecipeTable
+              recipes={pendingRecipes}
+              onEdit={setEditingRecipe}
+              onToggleFeature={handleToggleFeature}
+              onApprove={(id) => handleApproval(id, 'approved')}
+              onReject={(id) => handleApproval(id, 'rejected')}
+              showApprovalActions
+            />
+          </TabsContent>
+
+          <TabsContent value="approved">
+            <RecipeTable
+              recipes={approvedRecipes}
+              onEdit={setEditingRecipe}
+              onToggleFeature={handleToggleFeature}
+            />
+          </TabsContent>
+
+          <TabsContent value="rejected">
+            <RecipeTable
+              recipes={rejectedRecipes}
+              onEdit={setEditingRecipe}
+              onToggleFeature={handleToggleFeature}
+              onApprove={(id) => handleApproval(id, 'approved')}
+              showApprovalActions
+            />
+          </TabsContent>
+        </Tabs>
+
         {editingRecipe && (
           <EditRecipeModal
             recipe={editingRecipe}

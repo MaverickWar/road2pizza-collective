@@ -17,7 +17,9 @@ import {
   MessageSquare,
   FileText,
   PenSquare,
+  Clock,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const Dashboard = () => {
   const { user, isAdmin, isStaff } = useAuth();
@@ -27,6 +29,7 @@ const Dashboard = () => {
     showRecipeForm?: boolean;
     categoryId?: string;
     categoryName?: string;
+    recipeSubmitted?: boolean;
   };
 
   const { data: userRecipes } = useQuery({
@@ -50,6 +53,12 @@ const Dashboard = () => {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (state?.recipeSubmitted) {
+      toast.success("Recipe submitted successfully! It will be reviewed by our team.");
+    }
+  }, [state?.recipeSubmitted]);
 
   if (!user) return null;
 
@@ -122,12 +131,26 @@ const Dashboard = () => {
               {userRecipes && userRecipes.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {userRecipes.map((recipe) => (
-                    <Card key={recipe.id} className="p-6">
+                    <Card 
+                      key={recipe.id} 
+                      className={cn(
+                        "p-6",
+                        recipe.approval_status === "pending" && "opacity-60"
+                      )}
+                    >
                       <FileText className="w-8 h-8 mb-4 text-accent" />
                       <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
-                      <p className="text-gray-500 mb-4">
-                        Status: {recipe.status || "draft"}
-                      </p>
+                      <div className="space-y-2 mb-4">
+                        <p className="text-sm text-muted-foreground">
+                          Status: {recipe.status || "draft"}
+                        </p>
+                        {recipe.approval_status === "pending" && (
+                          <div className="flex items-center text-sm text-yellow-500">
+                            <Clock className="w-4 h-4 mr-1" />
+                            Awaiting Approval
+                          </div>
+                        )}
+                      </div>
                       <Button
                         variant="outline"
                         onClick={() => navigate(`/article/${recipe.id}`)}

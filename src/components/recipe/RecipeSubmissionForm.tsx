@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import ImageUpload from "./form/ImageUpload";
+import { useNavigate } from "react-router-dom";
 
 interface RecipeSubmissionFormProps {
   pizzaTypeId?: string;
@@ -14,6 +15,7 @@ interface RecipeSubmissionFormProps {
 
 const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -39,19 +41,28 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       setLoading(true);
       console.log("Submitting recipe:", formData);
 
-      const { error } = await supabase.from("recipes").insert([
+      const { data, error } = await supabase.from("recipes").insert([
         {
           ...formData,
           category_id: pizzaTypeId,
           created_by: user.id,
           author: user.email,
         },
-      ]);
+      ]).select();
 
       if (error) throw error;
 
-      toast.success("Recipe submitted successfully!");
+      toast.success("Recipe submitted successfully! It will be reviewed by our team.");
       onSuccess?.();
+      
+      // Redirect to dashboard
+      navigate("/dashboard", { 
+        state: { 
+          showRecipeForm: false,
+          recipeSubmitted: true 
+        } 
+      });
+      
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("Failed to submit recipe");
@@ -84,6 +95,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             value={formData.title}
             onChange={handleChange}
             required
+            disabled={loading}
           />
         </div>
 
@@ -94,6 +106,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
           <ImageUpload
             onImageUploaded={handleImageUploaded}
             currentImageUrl={formData.image_url}
+            disabled={loading}
           />
         </div>
 
@@ -108,6 +121,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             onChange={handleChange}
             rows={4}
             required
+            disabled={loading}
           />
         </div>
 
@@ -121,6 +135,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             value={formData.prep_time}
             onChange={handleChange}
             placeholder="e.g., 30 minutes"
+            disabled={loading}
           />
         </div>
 
@@ -134,6 +149,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             value={formData.cook_time}
             onChange={handleChange}
             placeholder="e.g., 15 minutes"
+            disabled={loading}
           />
         </div>
 
@@ -147,6 +163,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             value={formData.servings}
             onChange={handleChange}
             placeholder="e.g., 4"
+            disabled={loading}
           />
         </div>
 
@@ -160,6 +177,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
             value={formData.difficulty}
             onChange={handleChange}
             placeholder="e.g., Easy, Medium, Hard"
+            disabled={loading}
           />
         </div>
       </div>

@@ -7,12 +7,22 @@ interface RecipeTableProps {
   recipes: Recipe[];
   onEdit: (recipe: Recipe) => void;
   onToggleFeature: (recipeId: string, currentStatus: boolean) => void;
+  onApprove?: (recipeId: string) => void;
+  onReject?: (recipeId: string) => void;
+  showApprovalActions?: boolean;
 }
 
-const RecipeTable = ({ recipes, onEdit, onToggleFeature }: RecipeTableProps) => {
+const RecipeTable = ({ 
+  recipes, 
+  onEdit, 
+  onToggleFeature,
+  onApprove,
+  onReject,
+  showApprovalActions 
+}: RecipeTableProps) => {
   return (
     <Table>
-      <RecipeTableHeader />
+      <RecipeTableHeader showApprovalActions={showApprovalActions} />
       <TableBody>
         {recipes?.map((recipe) => (
           <RecipeTableRow
@@ -20,6 +30,9 @@ const RecipeTable = ({ recipes, onEdit, onToggleFeature }: RecipeTableProps) => 
             recipe={recipe}
             onEdit={onEdit}
             onToggleFeature={onToggleFeature}
+            onApprove={onApprove}
+            onReject={onReject}
+            showApprovalActions={showApprovalActions}
           />
         ))}
         {(!recipes || recipes.length === 0) && (

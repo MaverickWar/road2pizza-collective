@@ -1,3 +1,9 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { Upload, Image as ImageIcon } from "lucide-react";
+import { toast } from "sonner";
+
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
   currentImageUrl?: string;

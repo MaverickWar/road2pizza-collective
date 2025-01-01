@@ -1,6 +1,10 @@
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-const RecipeTableHeader = () => {
+interface RecipeTableHeaderProps {
+  showApprovalActions?: boolean;
+}
+
+const RecipeTableHeader = ({ showApprovalActions }: RecipeTableHeaderProps) => {
   return (
     <TableHeader>
       <TableRow>

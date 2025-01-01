@@ -1,15 +1,10 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { Upload, Image as ImageIcon } from "lucide-react";
-import { toast } from "sonner";
-
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
   currentImageUrl?: string;
+  disabled?: boolean;
 }
 
-const ImageUpload = ({ onImageUploaded, currentImageUrl }: ImageUploadProps) => {
+const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +62,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl }: ImageUploadProps) => 
         <Button
           type="button"
           variant="outline"
-          disabled={uploading}
+          disabled={disabled || uploading}
           className="relative"
           onClick={() => document.getElementById('image-upload')?.click()}
         >
@@ -91,6 +86,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl }: ImageUploadProps) => 
           accept="image/*"
           onChange={handleUpload}
           className="hidden"
+          disabled={disabled}
         />
       </div>
     </div>

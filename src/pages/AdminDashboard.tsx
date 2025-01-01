@@ -2,23 +2,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Users, Star, Award, LayoutDashboard, FileText, Pizza } from 'lucide-react';
+import { BookOpen, Users, Star, Award, LayoutDashboard, FileText } from 'lucide-react';
 import { toast } from "sonner";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import RecipeManagement from "@/components/recipe/RecipeManagement";
+import RecipeApprovalSection from "@/components/admin/recipe/RecipeApprovalSection";
 import ReviewManagement from "@/components/admin/ReviewManagement";
 import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
 import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
 import PageManagement from "@/components/admin/pages/PageManagement";
-import { RecipeImportForm } from "@/components/admin/recipe-import/RecipeImportForm";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
 
-  // Fetch all necessary data
   const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
@@ -113,90 +111,53 @@ const AdminDashboard = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <AdminHeader />
-
         {stats && <StatsCards stats={stats} />}
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <LayoutDashboard className="w-4 h-4" />
+          <TabsList>
+            <TabsTrigger value="overview">
+              <LayoutDashboard className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="content" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Content
+            <TabsTrigger value="recipes">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Recipes
             </TabsTrigger>
-            <TabsTrigger value="rewards" className="flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              Rewards
+            <TabsTrigger value="users">
+              <Users className="w-4 h-4 mr-2" />
+              Users
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="flex items-center gap-2">
-              <Star className="w-4 h-4" />
+            <TabsTrigger value="reviews">
+              <Star className="w-4 h-4 mr-2" />
               Reviews
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent User Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <UserManagementTable
-                  users={users || []}
-                  onToggleUserRole={handleToggleUserRole}
-                  onToggleSuspend={handleToggleSuspend}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="content">
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recipe Import</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RecipeImportForm />
-                </CardContent>
-              </Card>
-              <PageManagement />
-              <RecipeManagement />
+              <RecipeApprovalSection />
+              <UserManagementTable
+                users={users || []}
+                onToggleUserRole={handleToggleUserRole}
+                onToggleSuspend={handleToggleSuspend}
+              />
             </div>
           </TabsContent>
 
-          <TabsContent value="rewards">
-            <div className="space-y-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Badge Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <BadgeManagement />
-                </CardContent>
-              </Card>
+          <TabsContent value="recipes">
+            <RecipeManagement />
+          </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Point Rules Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PointRulesManagement />
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="users">
+            <UserManagementTable
+              users={users || []}
+              onToggleUserRole={handleToggleUserRole}
+              onToggleSuspend={handleToggleSuspend}
+            />
           </TabsContent>
 
           <TabsContent value="reviews">
-            <Card>
-              <CardHeader>
-                <CardTitle>Equipment Reviews Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ReviewManagement />
-              </CardContent>
-            </Card>
+            <ReviewManagement />
           </TabsContent>
         </Tabs>
       </div>

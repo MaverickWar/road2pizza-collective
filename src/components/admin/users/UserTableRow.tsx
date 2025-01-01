@@ -6,17 +6,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { format } from "date-fns";
-import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key, CheckCircle } from "lucide-react";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import UserApprovalToggle from "./UserApprovalToggle";
+import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key, CheckCircle } from "lucide-react";
 
 interface UserTableRowProps {
   user: any;
@@ -85,11 +78,18 @@ const UserTableRow = ({
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
       </TableCell>
       <TableCell className="max-w-[200px]">
-        <UserStats 
-          points={user.points} 
-          badgeTitle={user.badge_title} 
-          badgeColor={user.badge_color} 
-        />
+        <div className="space-y-2">
+          <UserStats 
+            points={user.points} 
+            badgeTitle={user.badge_title} 
+            badgeColor={user.badge_color} 
+          />
+          <UserApprovalToggle
+            userId={user.id}
+            requiresApproval={user.requires_recipe_approval}
+            onUpdate={() => window.location.reload()}
+          />
+        </div>
       </TableCell>
       <TableCell className="max-w-[150px]">
         <span

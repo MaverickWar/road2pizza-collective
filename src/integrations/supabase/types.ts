@@ -731,6 +731,7 @@ export type Database = {
           is_verified: boolean | null
           points: number
           recipes_shared: number
+          requires_recipe_approval: boolean | null
           username: string
         }
         Insert: {
@@ -748,6 +749,7 @@ export type Database = {
           is_verified?: boolean | null
           points?: number
           recipes_shared?: number
+          requires_recipe_approval?: boolean | null
           username: string
         }
         Update: {
@@ -765,12 +767,14 @@ export type Database = {
           is_verified?: boolean | null
           points?: number
           recipes_shared?: number
+          requires_recipe_approval?: boolean | null
           username?: string
         }
         Relationships: []
       }
       recipes: {
         Row: {
+          approval_status: string | null
           author: string
           category_id: string | null
           content: string | null
@@ -791,6 +795,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          approval_status?: string | null
           author: string
           category_id?: string | null
           content?: string | null
@@ -811,6 +816,7 @@ export type Database = {
           title: string
         }
         Update: {
+          approval_status?: string | null
           author?: string
           category_id?: string | null
           content?: string | null
@@ -903,6 +909,12 @@ export type Database = {
           action_type: string
         }
         Returns: undefined
+      }
+      check_user_recipe_approval: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
       }
       get_user_role: {
         Args: {

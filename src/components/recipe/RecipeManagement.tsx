@@ -56,11 +56,11 @@ const RecipeManagement = () => {
                          recipe.approval_status === 'rejected')
           ? recipe.approval_status
           : 'pending',
-        nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' ? {
-          calories: String(recipe.nutrition_info.calories || ''),
-          protein: String(recipe.nutrition_info.protein || ''),
-          carbs: String(recipe.nutrition_info.carbs || ''),
-          fat: String(recipe.nutrition_info.fat || '')
+        nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' && !Array.isArray(recipe.nutrition_info) ? {
+          calories: String((recipe.nutrition_info as Record<string, unknown>).calories || ''),
+          protein: String((recipe.nutrition_info as Record<string, unknown>).protein || ''),
+          carbs: String((recipe.nutrition_info as Record<string, unknown>).carbs || ''),
+          fat: String((recipe.nutrition_info as Record<string, unknown>).fat || '')
         } : null
       }));
       

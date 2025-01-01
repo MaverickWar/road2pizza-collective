@@ -50,11 +50,11 @@ const ArticleDetail = () => {
         ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
         instructions: Array.isArray(data.instructions) ? data.instructions : [],
         tips: Array.isArray(data.tips) ? data.tips : [],
-        nutrition_info: data.nutrition_info && typeof data.nutrition_info === 'object' ? {
-          calories: String(data.nutrition_info.calories || ''),
-          protein: String(data.nutrition_info.protein || ''),
-          carbs: String(data.nutrition_info.carbs || ''),
-          fat: String(data.nutrition_info.fat || '')
+        nutrition_info: data.nutrition_info && typeof data.nutrition_info === 'object' && !Array.isArray(data.nutrition_info) ? {
+          calories: String((data.nutrition_info as Record<string, unknown>).calories || ''),
+          protein: String((data.nutrition_info as Record<string, unknown>).protein || ''),
+          carbs: String((data.nutrition_info as Record<string, unknown>).carbs || ''),
+          fat: String((data.nutrition_info as Record<string, unknown>).fat || '')
         } : null,
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;

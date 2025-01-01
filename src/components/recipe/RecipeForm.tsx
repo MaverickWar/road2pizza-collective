@@ -18,6 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import ImageUpload from "./form/ImageUpload";
 
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -38,6 +39,7 @@ const RecipeForm = ({ onCancel, existingRecipe }: RecipeFormProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(existingRecipe?.image_url || "");
 
   const form = useForm({
     resolver: zodResolver(recipeSchema),
@@ -86,6 +88,7 @@ const RecipeForm = ({ onCancel, existingRecipe }: RecipeFormProps) => {
         cook_time: values.cookTime,
         servings: values.servings,
         difficulty: values.difficulty,
+        image_url: imageUrl,
       };
 
       let error;
@@ -127,6 +130,14 @@ const RecipeForm = ({ onCancel, existingRecipe }: RecipeFormProps) => {
               </FormItem>
             )}
           />
+
+          <FormItem>
+            <FormLabel>Recipe Image</FormLabel>
+            <ImageUpload 
+              onImageUrlChange={setImageUrl} 
+              existingImageUrl={imageUrl}
+            />
+          </FormItem>
 
           <div className="grid grid-cols-2 gap-4">
             <FormField

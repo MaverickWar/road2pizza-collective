@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { ArrowLeft } from "lucide-react";
+import ImageUpload from "./form/ImageUpload";
 
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -32,6 +32,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
   const { user, isStaff, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const form = useForm({
     resolver: zodResolver(recipeSchema),
@@ -61,7 +62,8 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
         cook_time: values.cookTime,
         servings: values.servings,
         difficulty: values.difficulty,
-        status: isAdmin || isStaff ? 'published' : 'unpublished'
+        status: isAdmin || isStaff ? 'published' : 'unpublished',
+        image_url: imageUrl,
       };
 
       const { data: recipe, error } = await supabase
@@ -98,7 +100,6 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
             onClick={() => navigate(-1)}
             className="flex items-center gap-2"
           >
-            <ArrowLeft className="w-4 h-4" />
             Back
           </Button>
           <h2 className="text-2xl font-bold">Submit Recipe</h2>
@@ -117,6 +118,14 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
             </FormItem>
           )}
         />
+
+        <FormItem>
+          <FormLabel>Recipe Image</FormLabel>
+          <ImageUpload 
+            onImageUrlChange={setImageUrl} 
+            existingImageUrl={imageUrl}
+          />
+        </FormItem>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

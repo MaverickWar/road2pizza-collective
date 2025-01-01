@@ -1,86 +1,97 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
-import { Loader2, Upload } from "lucide-react";
 
 interface ImageUploadProps {
-  onImageUrlChange: (url: string) => void;
-  existingImageUrl?: string;
+  onImageUploaded: (url: string) => void;
+  currentImageUrl?: string;
 }
 
-const ImageUpload = ({ onImageUrlChange, existingImageUrl }: ImageUploadProps) => {
-  const [isUploading, setIsUploading] = useState(false);
+const ImageUpload = ({ onImageUploaded, currentImageUrl }: ImageUploadProps) => {
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      setUploading(true);
+      
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('You must select an image to upload.');
+      }
 
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${Math.random()}.${fileExt}`;
+
+      console.log('Uploading image:', filePath);
+      
       const { error: uploadError, data } = await supabase.storage
         .from('recipe-images')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', data);
 
       const { data: { publicUrl } } = supabase.storage
         .from('recipe-images')
         .getPublicUrl(filePath);
 
-      onImageUrlChange(publicUrl);
+      console.log('Public URL:', publicUrl);
+      onImageUploaded(publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      toast.error('Error uploading image');
     } finally {
-      setIsUploading(false);
+      setUploading(false);
     }
   };
 
   return (
     <div className="space-y-4">
-      {existingImageUrl && (
-        <img 
-          src={existingImageUrl} 
-          alt="Recipe" 
-          className="w-full max-w-md rounded-lg shadow-md"
-        />
+      {currentImageUrl && (
+        <div className="relative w-full h-48 rounded-lg overflow-hidden">
+          <img
+            src={currentImageUrl}
+            alt="Recipe"
+            className="w-full h-full object-cover"
+          />
+        </div>
       )}
-      <div>
+      
+      <div className="flex items-center gap-4">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={uploading}
+          className="relative"
+          onClick={() => document.getElementById('image-upload')?.click()}
+        >
+          {uploading ? (
+            "Uploading..."
+          ) : currentImageUrl ? (
+            <>
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Change Image
+            </>
+          ) : (
+            <>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Image
+            </>
+          )}
+        </Button>
         <input
+          id="image-upload"
           type="file"
           accept="image/*"
-          onChange={handleFileUpload}
+          onChange={handleUpload}
           className="hidden"
-          id="recipe-image"
         />
-        <label htmlFor="recipe-image">
-          <Button 
-            type="button" 
-            variant="outline" 
-            disabled={isUploading}
-            className="cursor-pointer"
-            asChild
-          >
-            <span>
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Image
-                </>
-              )}
-            </span>
-          </Button>
-        </label>
       </div>
     </div>
   );

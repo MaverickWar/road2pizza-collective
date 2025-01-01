@@ -1,87 +1,57 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Editor from "@/components/Editor";
-import { supabase } from "@/integrations/supabase/client";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import ImageUpload from "./form/ImageUpload";
-
-const recipeSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  categoryId: z.string().min(1, "Category is required"),
-  difficulty: z.string().min(1, "Difficulty is required"),
-  prepTime: z.string().min(1, "Prep time is required"),
-  cookTime: z.string().min(1, "Cook time is required"),
-  servings: z.string().min(1, "Servings is required"),
-  content: z.string().min(1, "Recipe content is required"),
-});
 
 interface RecipeSubmissionFormProps {
   pizzaTypeId?: string;
-  onSubmit?: () => void;
+  onSuccess?: () => void;
 }
 
-const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormProps) => {
-  const { user, isStaff, isAdmin } = useAuth();
-  const navigate = useNavigate();
+const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormProps) => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-
-  const form = useForm({
-    resolver: zodResolver(recipeSchema),
-    defaultValues: {
-      title: "",
-      categoryId: pizzaTypeId || "",
-      difficulty: "",
-      prepTime: "",
-      cookTime: "",
-      servings: "",
-      content: "",
-    },
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    image_url: "",
+    ingredients: [] as string[],
+    instructions: [] as string[],
+    tips: [] as string[],
+    prep_time: "",
+    cook_time: "",
+    servings: "",
+    difficulty: "",
   });
 
-  const handleSubmit = async (values: z.infer<typeof recipeSchema>) => {
-    if (!user) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error("Please login to submit a recipe");
+      return;
+    }
 
-    setLoading(true);
     try {
-      const recipeData = {
-        title: values.title,
-        content: values.content,
-        author: user.email,
-        created_by: user.id,
-        category_id: values.categoryId,
-        prep_time: values.prepTime,
-        cook_time: values.cookTime,
-        servings: values.servings,
-        difficulty: values.difficulty,
-        status: isAdmin || isStaff ? 'published' : 'unpublished',
-        image_url: imageUrl,
-      };
+      setLoading(true);
+      console.log("Submitting recipe:", formData);
 
-      const { data: recipe, error } = await supabase
-        .from("recipes")
-        .insert(recipeData)
-        .select()
-        .single();
+      const { error } = await supabase.from("recipes").insert([
+        {
+          ...formData,
+          category_id: pizzaTypeId,
+          created_by: user.id,
+          author: user.email,
+        },
+      ]);
 
       if (error) throw error;
 
-      if (isAdmin || isStaff) {
-        toast.success("Recipe published successfully!");
-      } else {
-        toast.success("Recipe submitted successfully! It will be reviewed by our team.");
-      }
-      
-      if (onSubmit) onSubmit();
-      navigate(`/article/${recipe.id}`);
+      toast.success("Recipe submitted successfully!");
+      onSuccess?.();
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("Failed to submit recipe");
@@ -90,134 +60,114 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSubmit }: RecipeSubmissionFormPro
     }
   };
 
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUploaded = (imageUrl: string) => {
+    setFormData((prev) => ({ ...prev, image_url: imageUrl }));
+  };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2"
-          >
-            Back
-          </Button>
-          <h2 className="text-2xl font-bold">Submit Recipe</h2>
-        </div>
-
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Recipe Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter recipe title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormItem>
-          <FormLabel>Recipe Image</FormLabel>
-          <ImageUpload 
-            onImageUrlChange={setImageUrl} 
-            existingImageUrl={imageUrl}
-          />
-        </FormItem>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="difficulty"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Difficulty</FormLabel>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Difficulty" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium mb-1">
+            Recipe Title
+          </label>
+          <Input
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="prepTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Prep Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 30 mins" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium mb-1">
+            Recipe Image
+          </label>
+          <ImageUpload
+            onImageUploaded={handleImageUploaded}
+            currentImageUrl={formData.image_url}
           />
-          <FormField
-            control={form.control}
-            name="cookTime"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cook Time</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 1 hour" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+        </div>
+
+        <div>
+          <label htmlFor="content" className="block text-sm font-medium mb-1">
+            Description
+          </label>
+          <Textarea
+            id="content"
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            rows={4}
+            required
           />
-          <FormField
-            control={form.control}
+        </div>
+
+        <div>
+          <label htmlFor="prep_time" className="block text-sm font-medium mb-1">
+            Prep Time
+          </label>
+          <Input
+            id="prep_time"
+            name="prep_time"
+            value={formData.prep_time}
+            onChange={handleChange}
+            placeholder="e.g., 30 minutes"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="cook_time" className="block text-sm font-medium mb-1">
+            Cook Time
+          </label>
+          <Input
+            id="cook_time"
+            name="cook_time"
+            value={formData.cook_time}
+            onChange={handleChange}
+            placeholder="e.g., 15 minutes"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="servings" className="block text-sm font-medium mb-1">
+            Servings
+          </label>
+          <Input
+            id="servings"
             name="servings"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Servings</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., 4-6" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            value={formData.servings}
+            onChange={handleChange}
+            placeholder="e.g., 4"
           />
         </div>
 
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Recipe Content</FormLabel>
-              <FormControl>
-                <Editor content={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={() => navigate(-1)} disabled={loading}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Submitting..." : "Submit Recipe"}
-          </Button>
+        <div>
+          <label htmlFor="difficulty" className="block text-sm font-medium mb-1">
+            Difficulty
+          </label>
+          <Input
+            id="difficulty"
+            name="difficulty"
+            value={formData.difficulty}
+            onChange={handleChange}
+            placeholder="e.g., Easy, Medium, Hard"
+          />
         </div>
-      </form>
-    </Form>
+      </div>
+
+      <Button type="submit" disabled={loading}>
+        {loading ? "Submitting..." : "Submit Recipe"}
+      </Button>
+    </form>
   );
 };
 

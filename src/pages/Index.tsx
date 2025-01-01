@@ -2,9 +2,9 @@ import React, { Suspense, useState, useEffect } from 'react';
 import Navigation from '../components/Navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import LoadingScreen from '@/components/LoadingScreen';
+import FeaturedPosts from '@/components/FeaturedPosts';
 
 const Hero = React.lazy(() => import('../components/Hero'));
-const FeaturedPosts = React.lazy(() => import('../components/FeaturedPosts'));
 
 const LoadingFallback = () => (
   <div className="animate-fade-in space-y-8 p-8">
@@ -20,7 +20,6 @@ const Index = () => {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
-    // Show splash screen for 5 seconds on first load
     const timer = setTimeout(() => {
       setIsFirstLoad(false);
     }, 5000);

@@ -782,11 +782,13 @@ export type Database = {
           created_at: string
           created_by: string | null
           difficulty: string | null
+          edit_requires_approval: boolean | null
           id: string
           image_url: string | null
           ingredients: Json | null
           instructions: Json | null
           is_featured: boolean | null
+          last_edited_at: string | null
           nutrition_info: Json | null
           prep_time: string | null
           servings: string | null
@@ -803,11 +805,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           difficulty?: string | null
+          edit_requires_approval?: boolean | null
           id?: string
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
           is_featured?: boolean | null
+          last_edited_at?: string | null
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null
@@ -824,11 +828,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           difficulty?: string | null
+          edit_requires_approval?: boolean | null
           id?: string
           image_url?: string | null
           ingredients?: Json | null
           instructions?: Json | null
           is_featured?: boolean | null
+          last_edited_at?: string | null
           nutrition_info?: Json | null
           prep_time?: string | null
           servings?: string | null

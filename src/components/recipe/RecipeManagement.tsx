@@ -8,6 +8,7 @@ import { Recipe } from "./types";
 import EditRecipeModal from "../article/EditRecipeModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { ChefHat, Clock, CheckSquare, XSquare } from "lucide-react";
 
 const RecipeManagement = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -33,7 +34,8 @@ const RecipeManagement = () => {
             name
           ),
           profiles (
-            username
+            username,
+            requires_recipe_approval
           )
         `)
         .order('created_at', { ascending: false });
@@ -43,31 +45,7 @@ const RecipeManagement = () => {
         throw error;
       }
       
-      const transformedRecipes: Recipe[] = data.map(recipe => ({
-        ...recipe,
-        ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients.map(String) : [],
-        instructions: Array.isArray(recipe.instructions) ? recipe.instructions.map(String) : [],
-        tips: Array.isArray(recipe.tips) ? recipe.tips.map(String) : [],
-        reviews: recipe.reviews || [],
-        profiles: recipe.profiles || { username: '' },
-        status: (recipe.status === 'published' || recipe.status === 'unpublished') 
-          ? recipe.status 
-          : 'unpublished',
-        approval_status: (recipe.approval_status === 'pending' || 
-                         recipe.approval_status === 'approved' || 
-                         recipe.approval_status === 'rejected')
-          ? recipe.approval_status
-          : 'pending',
-        nutrition_info: recipe.nutrition_info && typeof recipe.nutrition_info === 'object' && !Array.isArray(recipe.nutrition_info) ? {
-          calories: String((recipe.nutrition_info as Record<string, unknown>).calories || ''),
-          protein: String((recipe.nutrition_info as Record<string, unknown>).protein || ''),
-          carbs: String((recipe.nutrition_info as Record<string, unknown>).carbs || ''),
-          fat: String((recipe.nutrition_info as Record<string, unknown>).fat || '')
-        } : null
-      }));
-      
-      console.log("Fetched recipes:", transformedRecipes);
-      return transformedRecipes;
+      return data;
     },
   });
 
@@ -92,7 +70,10 @@ const RecipeManagement = () => {
     try {
       const { error } = await supabase
         .from("recipes")
-        .update({ approval_status: status })
+        .update({ 
+          approval_status: status,
+          edit_requires_approval: false // Reset the edit approval flag
+        })
         .eq("id", recipeId);
       
       if (error) throw error;
@@ -122,28 +103,50 @@ const RecipeManagement = () => {
     );
   }
 
-  const pendingRecipes = recipes?.filter(recipe => recipe.approval_status === 'pending') || [];
-  const approvedRecipes = recipes?.filter(recipe => recipe.approval_status === 'approved') || [];
+  const pendingRecipes = recipes?.filter(recipe => 
+    recipe.approval_status === 'pending' || recipe.edit_requires_approval
+  ) || [];
+  const approvedRecipes = recipes?.filter(recipe => 
+    recipe.approval_status === 'approved' && !recipe.edit_requires_approval
+  ) || [];
   const rejectedRecipes = recipes?.filter(recipe => recipe.approval_status === 'rejected') || [];
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-card shadow-lg">
+      <CardHeader className="border-b">
         <CardTitle className="flex items-center justify-between">
-          <span>Recipe Management</span>
+          <div className="flex items-center gap-2">
+            <ChefHat className="w-6 h-6 text-accent" />
+            <span>Recipe Management</span>
+          </div>
           <div className="flex gap-2">
-            <Badge variant="secondary">{pendingRecipes.length} Pending</Badge>
-            <Badge variant="default">{approvedRecipes.length} Approved</Badge>
-            <Badge variant="destructive">{rejectedRecipes.length} Rejected</Badge>
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              {pendingRecipes.length} Pending
+            </Badge>
+            <Badge variant="default" className="flex items-center gap-1">
+              <CheckSquare className="w-4 h-4" />
+              {approvedRecipes.length} Approved
+            </Badge>
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <XSquare className="w-4 h-4" />
+              {rejectedRecipes.length} Rejected
+            </Badge>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="pending" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="pending">Pending Approval</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+      <CardContent className="p-6">
+        <Tabs defaultValue="pending" className="space-y-6">
+          <TabsList className="bg-background/50 p-1">
+            <TabsTrigger value="pending" className="data-[state=active]:bg-accent data-[state=active]:text-white">
+              Pending Approval
+            </TabsTrigger>
+            <TabsTrigger value="approved" className="data-[state=active]:bg-accent data-[state=active]:text-white">
+              Approved
+            </TabsTrigger>
+            <TabsTrigger value="rejected" className="data-[state=active]:bg-accent data-[state=active]:text-white">
+              Rejected
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">

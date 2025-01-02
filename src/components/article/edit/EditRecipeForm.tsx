@@ -25,6 +25,8 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
   const [servings, setServings] = useState(recipe.servings || "");
   const [difficulty, setDifficulty] = useState(recipe.difficulty || "");
   const [categoryId, setCategoryId] = useState(recipe.category_id || "");
+  const [videoUrl, setVideoUrl] = useState(recipe.video_url || "");
+  const [videoProvider, setVideoProvider] = useState(recipe.video_provider || "");
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -38,6 +40,17 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
     },
   });
 
+  const handleVideoUrlChange = (url: string) => {
+    setVideoUrl(url);
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      setVideoProvider('youtube');
+    } else if (url.includes('vimeo.com')) {
+      setVideoProvider('vimeo');
+    } else {
+      setVideoProvider('');
+    }
+  };
+
   const handleSubmit = async () => {
     await onSave({
       content,
@@ -48,7 +61,9 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
       cook_time: cookTime,
       servings,
       difficulty,
-      category_id: categoryId
+      category_id: categoryId,
+      video_url: videoUrl,
+      video_provider: videoProvider
     });
   };
 
@@ -110,6 +125,18 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
             placeholder="e.g., 4-6 servings"
           />
         </div>
+      </div>
+
+      <div>
+        <Label>Video URL (YouTube or Vimeo)</Label>
+        <Input
+          value={videoUrl}
+          onChange={(e) => handleVideoUrlChange(e.target.value)}
+          placeholder="e.g., https://youtube.com/watch?v=..."
+        />
+        <p className="text-sm text-gray-500 mt-1">
+          Supports YouTube and Vimeo URLs
+        </p>
       </div>
 
       <ListEditor

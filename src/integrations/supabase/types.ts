@@ -795,6 +795,8 @@ export type Database = {
           status: string | null
           tips: Json | null
           title: string
+          video_provider: string | null
+          video_url: string | null
         }
         Insert: {
           approval_status?: string | null
@@ -818,6 +820,8 @@ export type Database = {
           status?: string | null
           tips?: Json | null
           title: string
+          video_provider?: string | null
+          video_url?: string | null
         }
         Update: {
           approval_status?: string | null
@@ -841,6 +845,8 @@ export type Database = {
           status?: string | null
           tips?: Json | null
           title?: string
+          video_provider?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {

@@ -14,6 +14,8 @@ export interface Recipe {
   author: string;
   category_id: string | null;
   image_url: string | null;
+  video_url?: string | null;
+  video_provider?: 'youtube' | 'vimeo' | null;
   content: string | null;
   created_at: string;
   created_by: string | null;

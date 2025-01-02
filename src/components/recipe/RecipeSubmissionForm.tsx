@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import ImageUpload from "./form/ImageUpload";
+import DifficultySelect from "./form/DifficultySelect";
 import { useNavigate } from "react-router-dom";
 
 interface RecipeSubmissionFormProps {
@@ -21,6 +23,8 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
     title: "",
     content: "",
     image_url: "",
+    video_url: "",
+    video_provider: "",
     ingredients: [] as string[],
     instructions: [] as string[],
     tips: [] as string[],
@@ -55,7 +59,6 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       toast.success("Recipe submitted successfully! It will be reviewed by our team.");
       onSuccess?.();
       
-      // Redirect to dashboard
       navigate("/dashboard", { 
         state: { 
           showRecipeForm: false,
@@ -78,6 +81,20 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleVideoUrlChange = (url: string) => {
+    let provider = '';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      provider = 'youtube';
+    } else if (url.includes('vimeo.com')) {
+      provider = 'vimeo';
+    }
+    setFormData((prev) => ({ 
+      ...prev, 
+      video_url: url,
+      video_provider: provider 
+    }));
+  };
+
   const handleImageUploaded = (imageUrl: string) => {
     setFormData((prev) => ({ ...prev, image_url: imageUrl }));
   };
@@ -86,9 +103,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">
-            Recipe Title
-          </label>
+          <Label htmlFor="title">Recipe Title</Label>
           <Input
             id="title"
             name="title"
@@ -100,9 +115,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         </div>
 
         <div>
-          <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Recipe Image
-          </label>
+          <Label htmlFor="image">Recipe Image</Label>
           <ImageUpload
             onImageUploaded={handleImageUploaded}
             currentImageUrl={formData.image_url}
@@ -111,9 +124,22 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         </div>
 
         <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-1">
-            Description
-          </label>
+          <Label htmlFor="video_url">Video URL (YouTube or Vimeo)</Label>
+          <Input
+            id="video_url"
+            name="video_url"
+            value={formData.video_url}
+            onChange={(e) => handleVideoUrlChange(e.target.value)}
+            placeholder="e.g., https://youtube.com/watch?v=..."
+            disabled={loading}
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Supports YouTube and Vimeo URLs
+          </p>
+        </div>
+
+        <div>
+          <Label htmlFor="content">Description</Label>
           <Textarea
             id="content"
             name="content"
@@ -126,9 +152,16 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         </div>
 
         <div>
-          <label htmlFor="prep_time" className="block text-sm font-medium mb-1">
-            Prep Time
-          </label>
+          <Label htmlFor="difficulty">Difficulty</Label>
+          <DifficultySelect
+            value={formData.difficulty}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty: value }))}
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="prep_time">Prep Time</Label>
           <Input
             id="prep_time"
             name="prep_time"
@@ -140,9 +173,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         </div>
 
         <div>
-          <label htmlFor="cook_time" className="block text-sm font-medium mb-1">
-            Cook Time
-          </label>
+          <Label htmlFor="cook_time">Cook Time</Label>
           <Input
             id="cook_time"
             name="cook_time"
@@ -154,29 +185,13 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         </div>
 
         <div>
-          <label htmlFor="servings" className="block text-sm font-medium mb-1">
-            Servings
-          </label>
+          <Label htmlFor="servings">Servings</Label>
           <Input
             id="servings"
             name="servings"
             value={formData.servings}
             onChange={handleChange}
             placeholder="e.g., 4"
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium mb-1">
-            Difficulty
-          </label>
-          <Input
-            id="difficulty"
-            name="difficulty"
-            value={formData.difficulty}
-            onChange={handleChange}
-            placeholder="e.g., Easy, Medium, Hard"
             disabled={loading}
           />
         </div>

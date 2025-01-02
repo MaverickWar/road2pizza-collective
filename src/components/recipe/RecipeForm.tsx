@@ -2,15 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Recipe } from "./types";
 import ImageUpload from "./form/ImageUpload";
+import DifficultySelect from "./form/DifficultySelect";
 
 interface RecipeFormProps {
   onSubmit: (recipe: Partial<Recipe>) => void;
@@ -33,6 +28,20 @@ const RecipeForm = ({ onSubmit, initialData, buttonText = "Submit" }: RecipeForm
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleVideoUrlChange = (url: string) => {
+    let provider = '';
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      provider = 'youtube';
+    } else if (url.includes('vimeo.com')) {
+      provider = 'vimeo';
+    }
+    setFormData((prev) => ({ 
+      ...prev, 
+      video_url: url,
+      video_provider: provider 
+    }));
+  };
+
   const handleImageUploaded = (imageUrl: string) => {
     setFormData((prev) => ({ ...prev, image_url: imageUrl }));
   };
@@ -41,9 +50,7 @@ const RecipeForm = ({ onSubmit, initialData, buttonText = "Submit" }: RecipeForm
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">
-            Title
-          </label>
+          <Label htmlFor="title">Title</Label>
           <Input
             id="title"
             name="title"
@@ -54,9 +61,7 @@ const RecipeForm = ({ onSubmit, initialData, buttonText = "Submit" }: RecipeForm
         </div>
 
         <div>
-          <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Recipe Image
-          </label>
+          <Label htmlFor="image">Recipe Image</Label>
           <ImageUpload
             onImageUploaded={handleImageUploaded}
             currentImageUrl={formData.image_url}
@@ -64,66 +69,64 @@ const RecipeForm = ({ onSubmit, initialData, buttonText = "Submit" }: RecipeForm
         </div>
 
         <div>
-          <label htmlFor="difficulty" className="block text-sm font-medium mb-1">
-            Difficulty
-          </label>
-          <Select
+          <Label htmlFor="video_url">Video URL (YouTube or Vimeo)</Label>
+          <Input
+            id="video_url"
+            name="video_url"
+            value={formData.video_url || ""}
+            onChange={(e) => handleVideoUrlChange(e.target.value)}
+            placeholder="e.g., https://youtube.com/watch?v=..."
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Supports YouTube and Vimeo URLs
+          </p>
+        </div>
+
+        <div>
+          <Label htmlFor="difficulty">Difficulty</Label>
+          <DifficultySelect
             value={formData.difficulty || ""}
             onValueChange={(value) =>
               setFormData((prev) => ({ ...prev, difficulty: value }))
             }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select difficulty" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="easy">Easy</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="hard">Hard</SelectItem>
-            </SelectContent>
-          </Select>
+          />
         </div>
 
         <div>
-          <label htmlFor="prep_time" className="block text-sm font-medium mb-1">
-            Prep Time
-          </label>
+          <Label htmlFor="prep_time">Prep Time</Label>
           <Input
             id="prep_time"
             name="prep_time"
             value={formData.prep_time || ""}
             onChange={handleChange}
+            placeholder="e.g., 30 minutes"
           />
         </div>
 
         <div>
-          <label htmlFor="cook_time" className="block text-sm font-medium mb-1">
-            Cook Time
-          </label>
+          <Label htmlFor="cook_time">Cook Time</Label>
           <Input
             id="cook_time"
             name="cook_time"
             value={formData.cook_time || ""}
             onChange={handleChange}
+            placeholder="e.g., 15 minutes"
           />
         </div>
 
         <div>
-          <label htmlFor="servings" className="block text-sm font-medium mb-1">
-            Servings
-          </label>
+          <Label htmlFor="servings">Servings</Label>
           <Input
             id="servings"
             name="servings"
             value={formData.servings || ""}
             onChange={handleChange}
+            placeholder="e.g., 4"
           />
         </div>
 
         <div>
-          <label htmlFor="content" className="block text-sm font-medium mb-1">
-            Description
-          </label>
+          <Label htmlFor="content">Description</Label>
           <Textarea
             id="content"
             name="content"

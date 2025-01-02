@@ -8,12 +8,16 @@ import {
   MessageSquare,
   Settings,
   Menu,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-mobile";
+import { SidebarProvider } from "./ui/sidebar/SidebarContext";
+import { Sidebar } from "./ui/sidebar/SidebarBase";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, isStaff } = useAuth();
@@ -21,7 +25,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Auto-close sidebar on mobile
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false);
@@ -30,7 +33,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [isMobile]);
 
-  // Close sidebar when route changes on mobile
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false);
@@ -76,31 +78,47 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen bg-background dark:bg-background-dark">
       <Navigation />
       
-      {/* Mobile Menu Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-20 left-4 z-50 md:hidden"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? (
-          <X className="h-5 w-5" />
-        ) : (
-          <Menu className="h-5 w-5" />
-        )}
-      </Button>
+      <SidebarProvider defaultOpen={!isMobile}>
+        <div className="flex min-h-screen pt-16">
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-20 left-4 z-50 md:hidden"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </Button>
 
-      <div className="container mx-auto px-4 pt-32 md:pt-28">
-        <div className="flex">
           {/* Sidebar */}
-          <aside 
+          <Sidebar
+            variant="floating"
             className={cn(
-              "fixed inset-y-0 left-0 z-40 w-64 bg-card border-r pt-28 transition-transform duration-300 ease-in-out md:translate-x-0",
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-              isMobile && "shadow-xl"
+              "transition-transform duration-300 ease-in-out",
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}
           >
-            <div className="flex flex-col h-full p-4">
+            <div className="flex flex-col h-full p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Dashboard</h2>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hidden md:flex"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                  {isSidebarOpen ? (
+                    <ChevronLeft className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+
               <nav className="space-y-2 flex-1">
                 {navigationItems
                   .filter(item => item.show)
@@ -120,27 +138,25 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   ))}
               </nav>
             </div>
-          </aside>
+          </Sidebar>
 
           {/* Main Content */}
           <main className={cn(
-            "flex-1 transition-all duration-300 ease-in-out min-h-[calc(100vh-8rem)]",
+            "flex-1 transition-all duration-300 ease-in-out p-6",
             isSidebarOpen ? "md:ml-64" : "ml-0"
           )}>
-            <div className="p-4 md:p-6">
-              {children}
-            </div>
+            {children}
           </main>
-        </div>
-      </div>
 
-      {/* Overlay for mobile */}
-      {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+          {/* Mobile Overlay */}
+          {isMobile && isSidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-30"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+        </div>
+      </SidebarProvider>
     </div>
   );
 };

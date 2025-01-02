@@ -29,7 +29,7 @@ const RecipeForm = ({ onSubmit, initialData, buttonText = "Submit" }: RecipeForm
   };
 
   const handleVideoUrlChange = (url: string) => {
-    let provider = '';
+    let provider: "youtube" | "vimeo" | null = null;
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       provider = 'youtube';
     } else if (url.includes('vimeo.com')) {

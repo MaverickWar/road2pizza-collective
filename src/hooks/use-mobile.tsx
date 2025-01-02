@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 
+export function useIsMobile(): boolean {
+  return useMediaQuery('(max-width: 768px)');
+}
+
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(false);
 

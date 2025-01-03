@@ -17,7 +17,7 @@ const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   
-  const { data: navigationItems, error: navError } = useQuery({
+  const { data: navigationItems } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
@@ -41,27 +41,22 @@ const MainNav = () => {
         }
         
         console.log('Fetched navigation menu items:', data);
-        return data || [];
+        return data;
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
+        toast({
+          title: "Navigation Error",
+          description: "Using default navigation menu",
+          variant: "destructive",
+        });
         return [];
       }
     },
     retry: 3,
     retryDelay: 1000,
     staleTime: 5 * 60 * 1000,
-    meta: {
-      onError: () => {
-        console.error('Navigation menu query error:', navError);
-        toast({
-          title: "Navigation Error",
-          description: "Using default navigation menu",
-          variant: "destructive",
-        });
-      }
-    }
   });
-  
+
   const defaultNavLinks = [
     { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
     { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
@@ -69,10 +64,14 @@ const MainNav = () => {
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
   ];
 
-  // Only add custom nav links if they were successfully fetched and have valid page data
+  // Safely handle custom navigation links
   const customNavLinks = Array.isArray(navigationItems) 
     ? navigationItems
-        .filter(item => item?.pages?.title && item?.pages?.slug)
+        .filter(item => {
+          // Ensure both item and pages exist and have required properties
+          return item && item.pages && typeof item.pages === 'object' && 
+                 item.pages.title && item.pages.slug;
+        })
         .map(item => ({
           href: `/page/${item.pages.slug}`,
           label: item.pages.title,
@@ -98,16 +97,21 @@ const MainNav = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {allNavLinks.map((link, index) => (
-              <Link
-                key={`${link.href}-${index}`}
-                to={link.href}
-                className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
-              >
-                {link.icon && <link.icon className="w-4 h-4" />}
-                {link.label}
-              </Link>
-            ))}
+            {allNavLinks.map((link, index) => {
+              // Ensure link object exists and has required properties
+              if (!link || typeof link !== 'object') return null;
+              
+              return (
+                <Link
+                  key={`${link.href}-${index}`}
+                  to={link.href}
+                  className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
+                >
+                  {link.icon && <link.icon className="w-4 h-4" />}
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Mobile Navigation */}
@@ -130,24 +134,29 @@ const MainNav = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col py-6">
-                  {allNavLinks.map((link, index) => (
-                    <Link
-                      key={`${link.href}-${index}`}
-                      to={link.href}
-                      className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <div className="flex items-center gap-3">
-                        {link.icon && <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />}
-                        <div>
-                          <div className="text-lg font-medium">{link.label}</div>
-                          <div className="text-sm text-gray-500 mt-1">
-                            {link.description}
+                  {allNavLinks.map((link, index) => {
+                    // Ensure link object exists and has required properties
+                    if (!link || typeof link !== 'object') return null;
+                    
+                    return (
+                      <Link
+                        key={`${link.href}-${index}`}
+                        to={link.href}
+                        className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <div className="flex items-center gap-3">
+                          {link.icon && <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />}
+                          <div>
+                            <div className="text-lg font-medium">{link.label}</div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              {link.description}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </SheetContent>
             </Sheet>

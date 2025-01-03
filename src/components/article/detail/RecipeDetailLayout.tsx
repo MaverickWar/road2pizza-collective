@@ -4,6 +4,9 @@ import AuthorCard from "../AuthorCard";
 import MediaGallery from "../MediaGallery";
 import RecipeContent from "../RecipeContent";
 import ReviewSection from "../ReviewSection";
+import RecipeIngredients from "./RecipeIngredients";
+import RecipeInstructions from "./RecipeInstructions";
+import RecipeTips from "./RecipeTips";
 
 interface RecipeDetailLayoutProps {
   recipe: Recipe;

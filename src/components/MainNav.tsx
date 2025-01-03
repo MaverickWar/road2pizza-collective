@@ -20,6 +20,13 @@ interface NavigationItem {
   } | null;
 }
 
+interface NavLink {
+  href: string;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+}
+
 const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
@@ -64,7 +71,7 @@ const MainNav = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const defaultNavLinks = [
+  const defaultNavLinks: NavLink[] = [
     { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
     { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
     { href: "/community", label: "Community", description: "Join discussions and share ideas", icon: Users },
@@ -99,7 +106,7 @@ const MainNav = () => {
   }
 
   // Safely handle custom navigation links
-  const customNavLinks = Array.isArray(navigationItems) 
+  const customNavLinks: NavLink[] = Array.isArray(navigationItems) 
     ? navigationItems
         .filter(item => item?.pages?.title && item?.pages?.slug)
         .map(item => ({

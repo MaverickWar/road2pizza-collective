@@ -78,8 +78,16 @@ const ArticleDetail = () => {
     }
   });
 
-  const canEdit = user && (isAdmin || isStaff || user.id === recipe?.created_by);
-  console.log('Can edit:', canEdit, 'isAdmin:', isAdmin, 'user:', user?.id, 'recipe creator:', recipe?.created_by); // Debug log
+  // Simplified permission check - if you're admin or staff, or if you created the recipe
+  const canEdit = Boolean(user && (isAdmin || isStaff || (recipe && user.id === recipe.created_by)));
+  
+  console.log('Permission check:', {
+    userId: user?.id,
+    recipeCreator: recipe?.created_by,
+    isAdmin,
+    isStaff,
+    canEdit
+  });
 
   const handleHideRecipe = async () => {
     try {

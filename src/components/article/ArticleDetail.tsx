@@ -17,6 +17,14 @@ const ArticleDetail = () => {
   const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
 
+  console.log('Auth state:', { 
+    user, 
+    isStaff, 
+    isAdmin, 
+    userEmail: user?.email,
+    userId: user?.id 
+  });
+
   const { data: recipe, isLoading, error, refetch } = useQuery({
     queryKey: ['recipe', id],
     queryFn: async () => {
@@ -50,6 +58,8 @@ const ArticleDetail = () => {
         .single();
 
       if (error) throw error;
+
+      console.log('Recipe data:', data);
 
       const recipeData = {
         ...data,

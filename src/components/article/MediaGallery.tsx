@@ -1,6 +1,7 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface MediaGalleryProps {
   imageUrl?: string | null;
@@ -11,6 +12,10 @@ interface MediaGalleryProps {
 }
 
 const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], className }: MediaGalleryProps) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const fallbackImage = "https://images.unsplash.com/photo-1504893524553-b855bce32c67";
+
   const getVideoEmbedUrl = (url: string, provider: string) => {
     if (provider === 'youtube') {
       const videoId = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&\?]{10,12})/);
@@ -22,16 +27,22 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
     return null;
   };
 
+  const handleImageError = () => {
+    console.log('Image failed to load, using fallback');
+    setImageError(true);
+  };
+
   const embedUrl = videoUrl && videoProvider ? getVideoEmbedUrl(videoUrl, videoProvider) : null;
 
   return (
     <div className={cn("space-y-4", className)}>
-      {imageUrl && (
+      {(imageUrl || imageError) && (
         <Card className="overflow-hidden">
           <AspectRatio ratio={16/9}>
             <img 
-              src={imageUrl} 
+              src={!imageError ? imageUrl || fallbackImage : fallbackImage}
               alt="Recipe" 
+              onError={handleImageError}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
             />
           </AspectRatio>
@@ -58,7 +69,11 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
               <AspectRatio ratio={1}>
                 <img 
                   src={img} 
-                  alt={`Recipe image ${index + 1}`} 
+                  alt={`Recipe image ${index + 1}`}
+                  onError={(e) => {
+                    console.log(`Additional image ${index + 1} failed to load, using fallback`);
+                    (e.target as HTMLImageElement).src = fallbackImage;
+                  }}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
               </AspectRatio>

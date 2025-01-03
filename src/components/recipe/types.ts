@@ -34,6 +34,11 @@ export interface Recipe {
   tips: string[];
   profiles: {
     username: string;
+    points?: number;
+    badge_title?: string;
+    badge_color?: string;
+    recipes_shared?: number;
+    created_at: string;
   };
   nutrition_info?: {
     calories?: string;
@@ -44,4 +49,5 @@ export interface Recipe {
   approval_status: 'pending' | 'approved' | 'rejected';
   edit_requires_approval: boolean;
   last_edited_at?: string | null;
+  images?: string[];
 }

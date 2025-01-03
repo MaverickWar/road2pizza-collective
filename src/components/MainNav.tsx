@@ -110,9 +110,9 @@ const MainNav = () => {
     ? navigationItems
         .filter(item => item?.pages?.title && item?.pages?.slug)
         .map(item => ({
-          href: `/page/${item.pages?.slug}`,
+          href: `/page/${item.pages?.slug || ''}`,
           label: item.pages?.title || '',
-          description: `View ${item.pages?.title}`,
+          description: `View ${item.pages?.title || ''}`,
           icon: MessageSquare
         }))
     : [];
@@ -123,6 +123,7 @@ const MainNav = () => {
     <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
+          {/* Logo and brand */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-transparent border-2 border-accent rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-accent">
               <Pizza className="w-6 h-6 text-accent transition-colors group-hover:text-white" />
@@ -136,7 +137,7 @@ const MainNav = () => {
           <div className="hidden md:flex items-center space-x-8">
             {allNavLinks.map((link, index) => (
               <Link
-                key={`${link.href}-${index}`}
+                key={`desktop-${link.href}-${index}`}
                 to={link.href}
                 className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
               >

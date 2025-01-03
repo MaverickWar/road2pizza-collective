@@ -1,8 +1,8 @@
-import { Recipe } from "@/components/recipe/types";
-import { format } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import { format } from "date-fns";
 import { Rating } from "@/components/Rating";
+import { Recipe } from "@/components/recipe/types";
 
 interface RecipeContentProps {
   recipe: Recipe;

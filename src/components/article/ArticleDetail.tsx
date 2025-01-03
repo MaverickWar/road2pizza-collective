@@ -8,6 +8,8 @@ import type { Recipe } from "@/components/recipe/types";
 import EditRecipeModal from "./EditRecipeModal";
 import RecipeHeader from "./RecipeHeader";
 import RecipeContent from "./RecipeContent";
+import RecipeDetails from "./RecipeDetails";
+import ReviewSection from "./ReviewSection";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -117,72 +119,10 @@ const ArticleDetail = () => {
               <div dangerouslySetInnerHTML={{ __html: recipe.content || '' }} />
             </div>
 
-            {recipe.reviews && recipe.reviews.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-                <div className="space-y-6">
-                  {recipe.reviews.map((review, index) => (
-                    <div key={index} className="bg-secondary rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <Avatar>
-                          <AvatarFallback>{getInitials(review.profiles.username)}</AvatarFallback>
-                        </Avatar>
-                        <div className="ml-2">
-                          <p className="font-semibold">{review.profiles.username}</p>
-                          <p className="text-sm text-gray-500">{format(new Date(review.created_at), 'MMMM dd, yyyy')}</p>
-                        </div>
-                      </div>
-                      <Rating value={review.rating} />
-                      <p className="mt-2">{review.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <ReviewSection reviews={recipe.reviews} />
           </div>
 
-          <div className="space-y-6">
-            <div className="bg-secondary rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Recipe Details</h3>
-              <p><strong>Prep Time:</strong> {recipe.prep_time}</p>
-              <p><strong>Cook Time:</strong> {recipe.cook_time}</p>
-              <p><strong>Servings:</strong> {recipe.servings}</p>
-              <p><strong>Difficulty:</strong> {recipe.difficulty}</p>
-            </div>
-
-            {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Ingredients</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index}>{ingredient}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {Array.isArray(recipe.instructions) && recipe.instructions.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Instructions</h3>
-                <ol className="list-decimal list-inside space-y-2">
-                  {recipe.instructions.map((instruction, index) => (
-                    <li key={index}>{instruction}</li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {Array.isArray(recipe.tips) && recipe.tips.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Pro Tips</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {recipe.tips.map((tip, index) => (
-                    <li key={index}>{tip}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+          <RecipeDetails recipe={recipe} />
         </div>
       </div>
 

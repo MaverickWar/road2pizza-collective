@@ -17,20 +17,14 @@ const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   
-  const { data: navigationItems, error: navError } = useQuery({
+  const { data: navigationItems } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
         console.log('Fetching navigation menu items...');
         const { data, error } = await supabase
           .from('navigation_menu')
-          .select(`
-            *,
-            pages (
-              title,
-              slug
-            )
-          `)
+          .select('*, pages(title, slug)')
           .eq('menu_type', 'main')
           .eq('is_visible', true)
           .order('display_order');
@@ -47,19 +41,8 @@ const MainNav = () => {
         return [];
       }
     },
-    retry: 3,
-    retryDelay: 1000,
+    retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    meta: {
-      onError: () => {
-        console.error('Navigation menu query error:', navError);
-        toast({
-          title: "Navigation Error",
-          description: "Using default navigation menu",
-          variant: "destructive",
-        });
-      }
-    }
   });
   
   const defaultNavLinks = [

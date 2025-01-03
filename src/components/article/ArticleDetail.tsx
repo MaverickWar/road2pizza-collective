@@ -79,6 +79,7 @@ const ArticleDetail = () => {
   });
 
   const canEdit = user && (isAdmin || isStaff || user.id === recipe?.created_by);
+  console.log('Can edit:', canEdit, 'isAdmin:', isAdmin, 'user:', user?.id, 'recipe creator:', recipe?.created_by); // Debug log
 
   const handleHideRecipe = async () => {
     try {

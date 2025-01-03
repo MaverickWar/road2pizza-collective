@@ -9,6 +9,8 @@ interface RecipeHeaderProps {
 }
 
 const RecipeHeader = ({ canEdit, onBack, onEdit, onHide }: RecipeHeaderProps) => {
+  console.log('RecipeHeader canEdit:', canEdit); // Debug log to verify prop value
+
   return (
     <div className="flex items-center justify-between mb-8">
       <Button onClick={onBack} variant="outline" size="sm">

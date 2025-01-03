@@ -1,19 +1,15 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import SuspensionNotice from "./SuspensionNotice";
 
 type AuthContextType = {
   user: User | null;
   isAdmin: boolean;
   isStaff: boolean;
-};
+} | null;
 
-const AuthContext = createContext<AuthContextType>({ 
-  user: null, 
-  isAdmin: false,
-  isStaff: false 
-});
+const AuthContext = createContext<AuthContextType>(null);
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -28,7 +24,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Initial session check:", session);
-      handleSessionChange(session);
+      if (session?.user) {
+        setUser(session.user);
+        checkSuspensionStatus(session.user.id);
+        checkUserRoles(session.user.id);
+      }
     });
 
     // Listen for auth changes
@@ -36,34 +36,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state changed:", session);
-      handleSessionChange(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleSessionChange = async (session: Session | null) => {
-    setLoading(true);
-    try {
       if (session?.user) {
         setUser(session.user);
-        const suspended = await checkSuspensionStatus(session.user.id);
-        setIsSuspended(suspended);
-        if (!suspended) {
-          await checkUserRoles(session.user.id);
-        }
+        checkSuspensionStatus(session.user.id);
+        checkUserRoles(session.user.id);
       } else {
         setUser(null);
         setIsAdmin(false);
         setIsStaff(false);
         setIsSuspended(false);
       }
-    } catch (error) {
-      console.error("Error handling session change:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const checkSuspensionStatus = async (userId: string) => {
     try {
@@ -78,10 +64,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Suspension check error:", error);
 
       if (error) throw error;
-      return data?.is_suspended || false;
+      setIsSuspended(data?.is_suspended || false);
     } catch (error) {
       console.error("Error checking suspension status:", error);
-      return false;
+      setIsSuspended(false);
     }
   };
 
@@ -113,6 +99,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error checking user roles:", error);
       setIsAdmin(false);
       setIsStaff(false);
+    } finally {
+      setLoading(false);
     }
   };
 

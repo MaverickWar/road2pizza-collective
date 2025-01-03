@@ -3,20 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit2, EyeOff } from "lucide-react";
 import { format } from "date-fns";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Rating } from "@/components/Rating";
 import ArticleImage from "./ArticleImage";
+import EditRecipeModal from "./EditRecipeModal";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
 
 const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isStaff, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const { data: recipe, isLoading, error } = useQuery({
+  const { data: recipe, isLoading, error, refetch } = useQuery({
     queryKey: ['recipe', id],
     queryFn: async () => {
       console.log('Fetching recipe:', id);
@@ -72,34 +76,23 @@ const ArticleDetail = () => {
     }
   });
 
-  const renderVideo = () => {
-    if (!recipe?.video_url) return null;
+  const canEdit = user && (isAdmin || isStaff || user.id === recipe?.created_by);
 
-    let embedUrl = '';
-    if (recipe.video_provider === 'youtube') {
-      const videoId = recipe.video_url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-      if (videoId) {
-        embedUrl = `https://www.youtube.com/embed/${videoId}`;
-      }
-    } else if (recipe.video_provider === 'vimeo') {
-      const videoId = recipe.video_url.match(/vimeo\.com\/([0-9]+)/)?.[1];
-      if (videoId) {
-        embedUrl = `https://player.vimeo.com/video/${videoId}`;
-      }
+  const handleHideRecipe = async () => {
+    try {
+      const { error } = await supabase
+        .from('recipes')
+        .update({ status: 'unpublished' })
+        .eq('id', recipe?.id);
+
+      if (error) throw error;
+
+      toast.success('Recipe hidden successfully');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error hiding recipe:', error);
+      toast.error('Failed to hide recipe');
     }
-
-    if (!embedUrl) return null;
-
-    return (
-      <div className="aspect-video mb-8">
-        <iframe
-          src={embedUrl}
-          className="w-full h-full rounded-lg"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
   };
 
   if (isLoading) {
@@ -113,10 +106,31 @@ const ArticleDetail = () => {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button onClick={() => navigate(-1)} variant="outline" className="mb-4">
-          <ArrowLeft className="mr-2" />
-          Back
-        </Button>
+        <div className="flex items-center justify-between mb-4">
+          <Button onClick={() => navigate(-1)} variant="outline">
+            <ArrowLeft className="mr-2" />
+            Back
+          </Button>
+          
+          {canEdit && (
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => setShowEditModal(true)}
+              >
+                <Edit2 className="w-4 h-4 mr-2" />
+                Edit
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleHideRecipe}
+              >
+                <EyeOff className="w-4 h-4 mr-2" />
+                Hide
+              </Button>
+            </div>
+          )}
+        </div>
 
         {recipe?.status === 'unpublished' && (
           <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-4">
@@ -129,8 +143,6 @@ const ArticleDetail = () => {
         {recipe?.image_url && (
           <ArticleImage imageUrl={recipe.image_url} title={recipe.title} />
         )}
-
-        {renderVideo()}
 
         <div className="flex items-center mb-4">
           <Avatar>
@@ -219,6 +231,16 @@ const ArticleDetail = () => {
           </div>
         </div>
       </div>
+
+      {showEditModal && recipe && (
+        <EditRecipeModal
+          recipe={recipe}
+          onClose={() => {
+            setShowEditModal(false);
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 };

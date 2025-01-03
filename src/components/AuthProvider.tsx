@@ -111,9 +111,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
       
+      console.log("User role data:", data); // Add this log
+      
       if (data) {
         // Special handling for main admin account
         if (data.email === 'richgiles@hotmail.co.uk') {
+          console.log("Setting admin privileges for main admin account");
           setIsAdmin(true);
           setIsStaff(true);
         } else {

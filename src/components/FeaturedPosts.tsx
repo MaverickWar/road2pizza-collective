@@ -56,12 +56,10 @@ const FeaturedPosts = () => {
   });
 
   if (error) {
-    console.error('Featured recipes error:', error);
     return null;
   }
 
   if (!isLoading && (!recipes || recipes.length === 0)) {
-    console.log('No featured recipes found');
     return null;
   }
 

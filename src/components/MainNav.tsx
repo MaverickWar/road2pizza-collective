@@ -70,14 +70,16 @@ const MainNav = () => {
   ];
 
   // Only add custom nav links if they were successfully fetched and have valid page data
-  const customNavLinks = (navigationItems || [])
-    .filter(item => item.pages?.title && item.pages?.slug)
-    .map(item => ({
-      href: `/page/${item.pages.slug}`,
-      label: item.pages.title,
-      description: `View ${item.pages.title}`,
-      icon: MessageSquare
-    }));
+  const customNavLinks = Array.isArray(navigationItems) 
+    ? navigationItems
+        .filter(item => item?.pages?.title && item?.pages?.slug)
+        .map(item => ({
+          href: `/page/${item.pages.slug}`,
+          label: item.pages.title,
+          description: `View ${item.pages.title}`,
+          icon: MessageSquare
+        }))
+    : [];
 
   const allNavLinks = [...defaultNavLinks, ...customNavLinks];
 
@@ -96,13 +98,13 @@ const MainNav = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {allNavLinks.map((link) => (
+            {allNavLinks.map((link, index) => (
               <Link
-                key={link.href + link.label}
+                key={`${link.href}-${index}`}
                 to={link.href}
                 className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
               >
-                <link.icon className="w-4 h-4" />
+                {link.icon && <link.icon className="w-4 h-4" />}
                 {link.label}
               </Link>
             ))}
@@ -128,15 +130,15 @@ const MainNav = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col py-6">
-                  {allNavLinks.map((link) => (
+                  {allNavLinks.map((link, index) => (
                     <Link
-                      key={link.href + link.label}
+                      key={`${link.href}-${index}`}
                       to={link.href}
                       className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
                       onClick={() => setIsOpen(false)}
                     >
                       <div className="flex items-center gap-3">
-                        <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />
+                        {link.icon && <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />}
                         <div>
                           <div className="text-lg font-medium">{link.label}</div>
                           <div className="text-sm text-gray-500 mt-1">

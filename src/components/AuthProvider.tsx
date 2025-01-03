@@ -7,12 +7,14 @@ type AuthContextType = {
   user: User | null;
   isAdmin: boolean;
   isStaff: boolean;
+  loading: boolean;
 };
 
-const AuthContext = createContext<AuthContextType>({ 
+const AuthContext = createContext<AuthContextType>({
   user: null,
   isAdmin: false,
-  isStaff: false
+  isStaff: false,
+  loading: true
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -26,31 +28,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     console.log("AuthProvider mounted");
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session);
-      if (session?.user) {
-        setUser(session.user);
-        checkSuspensionStatus(session.user.id);
-        checkUserRoles(session.user.id);
+    
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session);
+        
+        if (session?.user) {
+          setUser(session.user);
+          await checkSuspensionStatus(session.user.id);
+          await checkUserRoles(session.user.id);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", session);
       if (session?.user) {
         setUser(session.user);
-        checkSuspensionStatus(session.user.id);
-        checkUserRoles(session.user.id);
+        await checkSuspensionStatus(session.user.id);
+        await checkUserRoles(session.user.id);
       } else {
         setUser(null);
         setIsAdmin(false);
         setIsStaff(false);
         setIsSuspended(false);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -64,9 +78,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .select("is_suspended")
         .eq("id", userId)
         .single();
-
-      console.log("Suspension check data:", data);
-      console.log("Suspension check error:", error);
 
       if (error) throw error;
       setIsSuspended(data?.is_suspended || false);
@@ -85,9 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq("id", userId)
         .single();
 
-      console.log("User roles data:", data);
-      console.log("User roles error:", error);
-
       if (error) throw error;
       
       if (data) {
@@ -104,8 +112,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error checking user roles:", error);
       setIsAdmin(false);
       setIsStaff(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -118,7 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, isStaff }}>
+    <AuthContext.Provider value={{ user, isAdmin, isStaff, loading }}>
       {children}
     </AuthContext.Provider>
   );

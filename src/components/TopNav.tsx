@@ -4,14 +4,11 @@ import { UserRound } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 
 const TopNav = () => {
-  const auth = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   
-  // If no auth context is available, don't render anything
-  if (!auth) {
+  if (loading) {
     return null;
   }
-
-  const { user, isAdmin } = auth;
 
   // If no user is logged in, show login link
   if (!user) {

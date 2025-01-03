@@ -7,7 +7,7 @@ const TopNav = () => {
   const { user, isAdmin } = useAuth();
 
   // If user is suspended, don't render the top nav
-  if (user?.is_suspended) {
+  if (user?.user_metadata?.is_suspended) {
     return null;
   }
 

@@ -76,6 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .single();
 
       if (error) throw error;
+      console.log("Suspension status:", data?.is_suspended);
       setIsSuspended(data?.is_suspended || false);
     } catch (error) {
       console.error("Error checking suspension status:", error);
@@ -115,6 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (isSuspended && user) {
+    console.log("User is suspended, showing suspension notice");
     return <SuspensionNotice />;
   }
 

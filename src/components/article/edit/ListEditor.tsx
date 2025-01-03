@@ -7,9 +7,10 @@ interface ListEditorProps {
   items: string[];
   onChange: (items: string[]) => void;
   placeholder: string;
+  disabled?: boolean; // Added disabled prop
 }
 
-const ListEditor = ({ title, items, onChange, placeholder }: ListEditorProps) => {
+const ListEditor = ({ title, items, onChange, placeholder, disabled }: ListEditorProps) => {
   const handleItemChange = (index: number, value: string) => {
     const newItems = [...items];
     newItems[index] = value;
@@ -32,17 +33,19 @@ const ListEditor = ({ title, items, onChange, placeholder }: ListEditorProps) =>
               value={item}
               onChange={(e) => handleItemChange(index, e.target.value)}
               placeholder={placeholder}
+              disabled={disabled}
             />
             <Button
               variant="destructive"
               size="icon"
               onClick={() => removeItem(index)}
+              disabled={disabled}
             >
               ×
             </Button>
           </div>
         ))}
-        <Button onClick={addItem} variant="outline" size="sm">
+        <Button onClick={addItem} variant="outline" size="sm" disabled={disabled}>
           Add {title.slice(0, -1)}
         </Button>
       </div>

@@ -78,10 +78,18 @@ const ArticleDetail = () => {
     }
   });
 
-  // Simplified permission check - if you're admin or staff, or if you created the recipe
-  const canEdit = Boolean(user && (isAdmin || isStaff || (recipe && user.id === recipe.created_by)));
+  // Always allow edit access for admin accounts with email richgiles@hotmail.co.uk
+  const canEdit = Boolean(
+    user && (
+      user.email === 'richgiles@hotmail.co.uk' || 
+      isAdmin || 
+      isStaff || 
+      (recipe && user.id === recipe.created_by)
+    )
+  );
   
   console.log('Permission check:', {
+    userEmail: user?.email,
     userId: user?.id,
     recipeCreator: recipe?.created_by,
     isAdmin,

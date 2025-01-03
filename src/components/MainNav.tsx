@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Pizza, Menu, Home, Users, Star, MessageSquare } from 'lucide-react';
+import { Pizza, Menu, Home, Users, Star, MessageSquare, AlertCircle, Loader } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -13,11 +13,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+interface NavigationItem {
+  pages: {
+    title: string;
+    slug: string;
+  } | null;
+}
+
 const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   
-  const { data: navigationItems } = useQuery({
+  const { data: navigationItems, isLoading, error } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
@@ -41,7 +48,7 @@ const MainNav = () => {
         }
         
         console.log('Fetched navigation menu items:', data);
-        return data;
+        return data as NavigationItem[];
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
         toast({
@@ -64,18 +71,41 @@ const MainNav = () => {
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
   ];
 
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-center">
+            <Loader className="w-6 h-6 animate-spin text-accent" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-center text-destructive gap-2">
+            <AlertCircle className="w-6 h-6" />
+            <span>Error loading navigation</span>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
   // Safely handle custom navigation links
   const customNavLinks = Array.isArray(navigationItems) 
     ? navigationItems
-        .filter(item => {
-          // Ensure both item and pages exist and have required properties
-          return item && item.pages && typeof item.pages === 'object' && 
-                 item.pages.title && item.pages.slug;
-        })
+        .filter(item => item?.pages?.title && item?.pages?.slug)
         .map(item => ({
-          href: `/page/${item.pages.slug}`,
-          label: item.pages.title,
-          description: `View ${item.pages.title}`,
+          href: `/page/${item.pages?.slug}`,
+          label: item.pages?.title || '',
+          description: `View ${item.pages?.title}`,
           icon: MessageSquare
         }))
     : [];
@@ -97,21 +127,16 @@ const MainNav = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {allNavLinks.map((link, index) => {
-              // Ensure link object exists and has required properties
-              if (!link || typeof link !== 'object') return null;
-              
-              return (
-                <Link
-                  key={`${link.href}-${index}`}
-                  to={link.href}
-                  className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
-                >
-                  {link.icon && <link.icon className="w-4 h-4" />}
-                  {link.label}
-                </Link>
-              );
-            })}
+            {allNavLinks.map((link, index) => (
+              <Link
+                key={`${link.href}-${index}`}
+                to={link.href}
+                className="text-textLight hover:text-accent transition-colors flex items-center gap-2"
+              >
+                {link.icon && <link.icon className="w-4 h-4" />}
+                <span>{link.label}</span>
+              </Link>
+            ))}
           </div>
 
           {/* Mobile Navigation */}
@@ -134,29 +159,24 @@ const MainNav = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col py-6">
-                  {allNavLinks.map((link, index) => {
-                    // Ensure link object exists and has required properties
-                    if (!link || typeof link !== 'object') return null;
-                    
-                    return (
-                      <Link
-                        key={`${link.href}-${index}`}
-                        to={link.href}
-                        className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        <div className="flex items-center gap-3">
-                          {link.icon && <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />}
-                          <div>
-                            <div className="text-lg font-medium">{link.label}</div>
-                            <div className="text-sm text-gray-500 mt-1">
-                              {link.description}
-                            </div>
+                  {allNavLinks.map((link, index) => (
+                    <Link
+                      key={`mobile-${link.href}-${index}`}
+                      to={link.href}
+                      className="px-6 py-4 text-textLight hover:bg-accent/5 transition-all duration-300 group"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <div className="flex items-center gap-3">
+                        {link.icon && <link.icon className="w-5 h-5 text-accent transition-colors group-hover:text-accent-hover" />}
+                        <div>
+                          <div className="text-lg font-medium">{link.label}</div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {link.description}
                           </div>
                         </div>
-                      </Link>
-                    );
-                  })}
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </SheetContent>
             </Sheet>

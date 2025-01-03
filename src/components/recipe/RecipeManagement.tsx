@@ -35,7 +35,12 @@ const RecipeManagement = () => {
           ),
           profiles (
             username,
-            requires_recipe_approval
+            requires_recipe_approval,
+            points,
+            badge_title,
+            badge_color,
+            recipes_shared,
+            created_at
           )
         `)
         .order('created_at', { ascending: false });
@@ -45,7 +50,7 @@ const RecipeManagement = () => {
         throw error;
       }
       
-      return data as Recipe[];
+      return data as unknown as Recipe[];
     },
   });
 

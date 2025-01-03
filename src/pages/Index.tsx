@@ -1,7 +1,6 @@
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import Navigation from '../components/Navigation';
 import { Skeleton } from '@/components/ui/skeleton';
-import LoadingScreen from '@/components/LoadingScreen';
 import FeaturedPosts from '@/components/FeaturedPosts';
 
 const Hero = React.lazy(() => import('../components/Hero'));
@@ -17,20 +16,6 @@ const LoadingFallback = () => (
 );
 
 const Index = () => {
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsFirstLoad(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isFirstLoad) {
-    return <LoadingScreen duration={5000} showWelcome={true} />;
-  }
-
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <Navigation />

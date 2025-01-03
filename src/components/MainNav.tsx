@@ -49,7 +49,7 @@ const MainNav = () => {
     },
     retry: 3,
     retryDelay: 1000,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     meta: {
       onError: () => {
         console.error('Navigation menu query error:', navError);
@@ -69,13 +69,15 @@ const MainNav = () => {
     { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
   ];
 
-  // Only add custom nav links if they were successfully fetched
-  const customNavLinks = (navigationItems || []).map(item => ({
-    href: `/page/${item.pages?.slug}`,
-    label: item.pages?.title,
-    description: `View ${item.pages?.title}`,
-    icon: MessageSquare
-  }));
+  // Only add custom nav links if they were successfully fetched and have valid page data
+  const customNavLinks = (navigationItems || [])
+    .filter(item => item.pages?.title && item.pages?.slug)
+    .map(item => ({
+      href: `/page/${item.pages.slug}`,
+      label: item.pages.title,
+      description: `View ${item.pages.title}`,
+      icon: MessageSquare
+    }));
 
   const allNavLinks = [...defaultNavLinks, ...customNavLinks];
 

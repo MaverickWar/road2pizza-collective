@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import SuspensionNotice from "./SuspensionNotice";
 
 type AuthContextType = {
   user: User | null;
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -45,16 +47,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       if (session?.user) {
         setUser(session.user);
-        await checkUserRoles(session.user.id);
+        const suspended = await checkSuspensionStatus(session.user.id);
+        setIsSuspended(suspended);
+        if (!suspended) {
+          await checkUserRoles(session.user.id);
+        }
       } else {
         setUser(null);
         setIsAdmin(false);
         setIsStaff(false);
+        setIsSuspended(false);
       }
     } catch (error) {
       console.error("Error handling session change:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkSuspensionStatus = async (userId: string) => {
+    try {
+      console.log("Checking suspension status for user:", userId);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", userId)
+        .single();
+
+      console.log("Suspension check data:", data);
+      console.log("Suspension check error:", error);
+
+      if (error) throw error;
+      return data?.is_suspended || false;
+    } catch (error) {
+      console.error("Error checking suspension status:", error);
+      return false;
     }
   };
 
@@ -91,6 +118,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (isSuspended && user) {
+    return <SuspensionNotice />;
   }
 
   return (

@@ -2,17 +2,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit2, EyeOff } from "lucide-react";
-import { format } from "date-fns";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
-import { Rating } from "@/components/Rating";
-import ArticleImage from "./ArticleImage";
+import { toast } from "sonner";
 import EditRecipeModal from "./EditRecipeModal";
 import { useState } from "react";
-import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
+import RecipeHeader from "./RecipeHeader";
+import RecipeContent from "./RecipeContent";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -106,55 +101,15 @@ const ArticleDetail = () => {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-4">
-          <Button onClick={() => navigate(-1)} variant="outline">
-            <ArrowLeft className="mr-2" />
-            Back
-          </Button>
-          
-          {canEdit && (
-            <div className="flex gap-2">
-              <Button 
-                variant="outline"
-                onClick={() => setShowEditModal(true)}
-              >
-                <Edit2 className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleHideRecipe}
-              >
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide
-              </Button>
-            </div>
-          )}
-        </div>
+        <RecipeHeader
+          recipe={recipe}
+          canEdit={canEdit}
+          onBack={() => navigate(-1)}
+          onEdit={() => setShowEditModal(true)}
+          onHide={handleHideRecipe}
+        />
 
-        {recipe?.status === 'unpublished' && (
-          <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-4">
-            This recipe is unpublished. You may not have access to view it.
-          </div>
-        )}
-
-        <h1 className="text-4xl font-bold mb-4">{recipe?.title}</h1>
-        
-        {recipe?.image_url && (
-          <ArticleImage imageUrl={recipe.image_url} title={recipe.title} />
-        )}
-
-        <div className="flex items-center mb-4">
-          <Avatar>
-            <AvatarFallback>{getInitials(recipe?.profiles?.username || '')}</AvatarFallback>
-          </Avatar>
-          <div className="ml-2">
-            <p className="text-sm text-gray-500">By {recipe?.profiles?.username}</p>
-            <p className="text-sm text-gray-500">{format(new Date(recipe?.created_at || ''), 'MMMM dd, yyyy')}</p>
-          </div>
-        </div>
-
-        {recipe?.reviews && <Rating value={recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length} />}
+        <RecipeContent recipe={recipe} />
 
         <div className="grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">

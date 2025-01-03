@@ -3,9 +3,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const SuspensionNotice = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="max-w-md w-full">
-        <Alert variant="destructive">
+    <main className="container mx-auto px-4 py-32">
+      <div className="max-w-md mx-auto">
+        <Alert variant="destructive" className="shadow-lg">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Account Suspended</AlertTitle>
           <AlertDescription>
@@ -13,7 +13,7 @@ const SuspensionNotice = () => {
           </AlertDescription>
         </Alert>
       </div>
-    </div>
+    </main>
   );
 };
 

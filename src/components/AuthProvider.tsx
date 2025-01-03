@@ -47,10 +47,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       if (session?.user) {
         setUser(session.user);
+        // First check suspension status
         const suspended = await checkSuspensionStatus(session.user.id);
+        console.log("User suspension status:", suspended);
         setIsSuspended(suspended);
+        
+        // Only check roles if user is not suspended
         if (!suspended) {
           await checkUserRoles(session.user.id);
+        } else {
+          // Reset roles if user is suspended
+          setIsAdmin(false);
+          setIsStaff(false);
         }
       } else {
         setUser(null);
@@ -60,6 +68,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       console.error("Error handling session change:", error);
+      // Reset everything on error
+      setUser(null);
+      setIsAdmin(false);
+      setIsStaff(false);
+      setIsSuspended(false);
     } finally {
       setLoading(false);
     }
@@ -74,10 +87,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .eq("id", userId)
         .single();
 
-      console.log("Suspension check data:", data);
-      console.log("Suspension check error:", error);
+      if (error) {
+        console.error("Suspension check error:", error);
+        return false;
+      }
 
-      if (error) throw error;
+      console.log("Suspension check data:", data);
       return data?.is_suspended || false;
     } catch (error) {
       console.error("Error checking suspension status:", error);
@@ -93,9 +108,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         .select("is_admin, is_staff, email")
         .eq("id", userId)
         .single();
-
-      console.log("User roles data:", data);
-      console.log("User roles error:", error);
 
       if (error) throw error;
       
@@ -117,11 +129,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
+  // If user is suspended, show suspension notice without any navigation
   if (isSuspended && user) {
-    return <SuspensionNotice />;
+    return (
+      <div className="min-h-screen bg-background">
+        <SuspensionNotice />
+      </div>
+    );
   }
 
   return (

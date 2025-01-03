@@ -8,11 +8,14 @@ const RecipeInstructions = ({ instructions }: RecipeInstructionsProps) => {
   if (!instructions?.length) return null;
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-card hover:bg-card-hover transition-colors">
       <h3 className="text-lg font-semibold mb-4">Instructions</h3>
-      <ol className="list-decimal list-inside space-y-2">
+      <ol className="space-y-4">
         {instructions.map((instruction, index) => (
-          <li key={index} className="text-gray-600">{instruction}</li>
+          <li key={index} className="flex space-x-4">
+            <span className="text-accent font-bold min-w-[1.5rem]">{index + 1}.</span>
+            <span>{instruction}</span>
+          </li>
         ))}
       </ol>
     </Card>

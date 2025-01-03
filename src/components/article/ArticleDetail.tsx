@@ -6,15 +6,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
 import EditRecipeModal from "./EditRecipeModal";
-import RecipeHeader from "./RecipeHeader";
-import { Card } from "@/components/ui/card";
-import Navigation from "@/components/Navigation";
 import RecipeDetailLayout from "./detail/RecipeDetailLayout";
 
 const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isStaff, isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [showEditModal, setShowEditModal] = useState(false);
 
   console.log('Auth state:', { 
@@ -117,57 +113,50 @@ const ArticleDetail = () => {
       if (error) throw error;
 
       toast.success('Recipe hidden successfully');
-      navigate('/dashboard');
+      refetch();
     } catch (error) {
       console.error('Error hiding recipe:', error);
       toast.error('Failed to hide recipe');
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-lg">Loading recipe...</div>
+      </div>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="bg-card p-6 rounded-lg shadow-lg max-w-lg mx-auto">
+          <h2 className="text-xl font-semibold mb-2">Error loading recipe</h2>
+          <p className="text-gray-500">{error?.message || 'Recipe not found'}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      <Navigation />
-      <main className="pt-[120px] min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <div className="animate-pulse text-lg">Loading recipe...</div>
-            </div>
-          ) : error || !recipe ? (
-            <Card className="p-6 max-w-lg mx-auto">
-              <h2 className="text-xl font-semibold mb-2">Error loading recipe</h2>
-              <p className="text-gray-500">{error?.message || 'Recipe not found'}</p>
-            </Card>
-          ) : (
-            <>
-              <RecipeHeader
-                canEdit={canEdit}
-                onBack={() => navigate(-1)}
-                onEdit={() => setShowEditModal(true)}
-                onHide={handleHideRecipe}
-              />
+      <RecipeDetailLayout
+        recipe={recipe}
+        canEdit={canEdit}
+        onEdit={() => setShowEditModal(true)}
+        onHide={handleHideRecipe}
+      />
 
-              {recipe.status === 'unpublished' && (
-                <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-6">
-                  This recipe is unpublished. Only you and administrators can view it.
-                </div>
-              )}
-
-              <RecipeDetailLayout recipe={recipe} />
-
-              {showEditModal && (
-                <EditRecipeModal
-                  recipe={recipe}
-                  onClose={() => {
-                    setShowEditModal(false);
-                    refetch();
-                  }}
-                />
-              )}
-            </>
-          )}
-        </div>
-      </main>
+      {showEditModal && (
+        <EditRecipeModal
+          recipe={recipe}
+          onClose={() => {
+            setShowEditModal(false);
+            refetch();
+          }}
+        />
+      )}
     </>
   );
 };

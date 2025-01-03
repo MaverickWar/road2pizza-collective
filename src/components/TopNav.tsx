@@ -6,7 +6,7 @@ import { UserMenu } from './UserMenu';
 const TopNav = () => {
   const auth = useAuth();
   
-  // Early return if auth context is not available
+  // If no auth context is available, don't render anything
   if (!auth) {
     return null;
   }

@@ -7,9 +7,13 @@ type AuthContextType = {
   user: User | null;
   isAdmin: boolean;
   isStaff: boolean;
-} | null;
+};
 
-const AuthContext = createContext<AuthContextType>(null);
+const AuthContext = createContext<AuthContextType>({ 
+  user: null,
+  isAdmin: false,
+  isStaff: false
+});
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -21,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
+    console.log("AuthProvider mounted");
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Initial session check:", session);

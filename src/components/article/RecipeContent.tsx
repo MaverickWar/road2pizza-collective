@@ -19,12 +19,6 @@ const RecipeContent = ({ recipe }: RecipeContentProps) => {
 
       <h1 className="text-4xl font-bold mb-4">{recipe?.title}</h1>
       
-      {recipe?.image_url && (
-        <div className="rounded-lg overflow-hidden mb-8">
-          <img src={recipe.image_url} alt={recipe.title} className="w-full h-auto" />
-        </div>
-      )}
-
       <div className="flex items-center mb-4">
         <Avatar>
           <AvatarFallback>{getInitials(recipe?.profiles?.username || '')}</AvatarFallback>

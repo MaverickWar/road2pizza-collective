@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit2, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Recipe } from "@/components/recipe/types";
 
 interface RecipeHeaderProps {
@@ -19,20 +19,18 @@ const RecipeHeader = ({ recipe, canEdit, onBack, onEdit, onHide }: RecipeHeaderP
       </Button>
       
       {canEdit && (
-        <div className="flex gap-2">
+        <div className="space-x-2">
           <Button 
             variant="outline"
             onClick={onEdit}
           >
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit
+            Edit Recipe
           </Button>
           <Button 
-            variant="outline"
+            variant="destructive"
             onClick={onHide}
           >
-            <EyeOff className="w-4 h-4 mr-2" />
-            Hide
+            Hide Recipe
           </Button>
         </div>
       )}

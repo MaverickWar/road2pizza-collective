@@ -785,6 +785,7 @@ export type Database = {
           edit_requires_approval: boolean | null
           id: string
           image_url: string | null
+          images: Json | null
           ingredients: Json | null
           instructions: Json | null
           is_featured: boolean | null
@@ -810,6 +811,7 @@ export type Database = {
           edit_requires_approval?: boolean | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           ingredients?: Json | null
           instructions?: Json | null
           is_featured?: boolean | null
@@ -835,6 +837,7 @@ export type Database = {
           edit_requires_approval?: boolean | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           ingredients?: Json | null
           instructions?: Json | null
           is_featured?: boolean | null

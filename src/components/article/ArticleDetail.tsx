@@ -8,7 +8,6 @@ import type { Recipe } from "@/components/recipe/types";
 import EditRecipeModal from "./EditRecipeModal";
 import RecipeHeader from "./RecipeHeader";
 import RecipeContent from "./RecipeContent";
-import RecipeDetails from "./RecipeDetails";
 import ReviewSection from "./ReviewSection";
 
 const ArticleDetail = () => {
@@ -29,7 +28,12 @@ const ArticleDetail = () => {
             name
           ),
           profiles (
-            username
+            username,
+            points,
+            badge_title,
+            badge_color,
+            recipes_shared,
+            created_at
           ),
           reviews (
             rating,
@@ -104,7 +108,6 @@ const ArticleDetail = () => {
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <RecipeHeader
-          recipe={recipe}
           canEdit={canEdit}
           onBack={() => navigate(-1)}
           onEdit={() => setShowEditModal(true)}
@@ -113,28 +116,18 @@ const ArticleDetail = () => {
 
         <RecipeContent recipe={recipe} />
 
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <div className="prose prose-invert max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: recipe.content || '' }} />
-            </div>
+        <ReviewSection reviews={recipe.reviews} />
 
-            <ReviewSection reviews={recipe.reviews} />
-          </div>
-
-          <RecipeDetails recipe={recipe} />
-        </div>
+        {showEditModal && recipe && (
+          <EditRecipeModal
+            recipe={recipe}
+            onClose={() => {
+              setShowEditModal(false);
+              refetch();
+            }}
+          />
+        )}
       </div>
-
-      {showEditModal && recipe && (
-        <EditRecipeModal
-          recipe={recipe}
-          onClose={() => {
-            setShowEditModal(false);
-            refetch();
-          }}
-        />
-      )}
     </div>
   );
 };

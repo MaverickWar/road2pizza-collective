@@ -13,19 +13,18 @@ const RecipeHeader = ({ canEdit, isHidden, onBack, onEdit, onHide }: RecipeHeade
   console.log('RecipeHeader: Rendering with canEdit:', canEdit, 'isHidden:', isHidden);
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-      <Button onClick={onBack} variant="outline" size="sm" className="self-start">
+    <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+      <Button onClick={onBack} variant="outline" size="sm">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back
       </Button>
       
       {canEdit && (
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <div className="flex gap-2">
           <Button 
             variant="outline"
             size="sm"
             onClick={onEdit}
-            className="w-full sm:w-auto"
           >
             <Edit className="w-4 h-4 mr-2" />
             Edit Recipe
@@ -34,7 +33,6 @@ const RecipeHeader = ({ canEdit, isHidden, onBack, onEdit, onHide }: RecipeHeade
             variant={isHidden ? "default" : "destructive"}
             size="sm"
             onClick={onHide}
-            className="w-full sm:w-auto"
           >
             {isHidden ? (
               <>

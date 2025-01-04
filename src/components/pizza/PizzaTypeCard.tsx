@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronUp, ChevronDown, Edit2, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import Editor from '@/components/Editor';
+import SortControls from './controls/SortControls';
+import EditControls from './controls/EditControls';
 
 interface PizzaTypeCardProps {
   id: string;
@@ -34,46 +35,11 @@ const PizzaTypeCard = ({
   onReorder,
   onDelete
 }: PizzaTypeCardProps) => {
-  const [isLongPressed, setIsLongPressed] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editedName, setEditedName] = useState(name);
   const [editedDescription, setEditedDescription] = useState(description);
   const [editedImageUrl, setEditedImageUrl] = useState(imageUrl);
-  const longPressTimeout = React.useRef<NodeJS.Timeout>();
-
-  const handleTouchStart = () => {
-    if (!showControls) return;
-    longPressTimeout.current = setTimeout(() => {
-      setIsLongPressed(true);
-    }, 500);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-    }
-  };
-
-  const handleMouseDown = () => {
-    if (!showControls) return;
-    longPressTimeout.current = setTimeout(() => {
-      setIsLongPressed(true);
-    }, 500);
-  };
-
-  const handleMouseUp = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (longPressTimeout.current) {
-      clearTimeout(longPressTimeout.current);
-    }
-    setIsLongPressed(false);
-  };
 
   const handleEdit = async () => {
     try {
@@ -91,7 +57,7 @@ const PizzaTypeCard = ({
 
       toast.success('Pizza style updated successfully');
       setIsEditDialogOpen(false);
-      window.location.reload(); // Refresh to show changes
+      window.location.reload();
     } catch (error) {
       console.error('Error updating pizza type:', error);
       toast.error('Failed to update pizza style');
@@ -100,7 +66,6 @@ const PizzaTypeCard = ({
 
   const handleDelete = async () => {
     try {
-      // First, update any recipes in this category to Uncategorized
       const { data: uncategorizedCategory } = await supabase
         .from('categories')
         .select('id')
@@ -114,7 +79,6 @@ const PizzaTypeCard = ({
           .eq('category_id', id);
       }
 
-      // Then delete the pizza type
       const { error } = await supabase
         .from('pizza_types')
         .update({ is_hidden: true })
@@ -132,68 +96,24 @@ const PizzaTypeCard = ({
   };
 
   return (
-    <div 
-      className="relative"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="relative">
       {showControls && (
-        <div className="absolute top-2 right-2 z-10 flex gap-1">
-          {isLongPressed ? (
-            <>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => onReorder(id, displayOrder, 'up')}
-                disabled={isFirst}
-              >
-                <ChevronUp className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => onReorder(id, displayOrder, 'down')}
-                disabled={isLast}
-              >
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => setIsEditDialogOpen(true)}
-              >
-                <Edit2 className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="w-8 h-8"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </>
-          )}
-        </div>
+        <>
+          <SortControls
+            onReorder={(direction) => onReorder(id, displayOrder, direction)}
+            isFirst={isFirst}
+            isLast={isLast}
+          />
+          <EditControls
+            onEdit={() => setIsEditDialogOpen(true)}
+            onDelete={() => setIsDeleteDialogOpen(true)}
+          />
+        </>
       )}
 
       <Link
         to={`/pizza/${slug}`}
         className="block relative overflow-hidden rounded-lg aspect-square hover:transform hover:scale-105 transition-transform duration-300"
-        onClick={(e) => {
-          if (isLongPressed) {
-            e.preventDefault();
-          }
-        }}
       >
         <img
           src={imageUrl}

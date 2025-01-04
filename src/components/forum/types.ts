@@ -1,4 +1,4 @@
-import { Database } from '@/integrations/supabase/types/generated';
+import { Database } from '@/integrations/supabase/types';
 
 type DBThread = Database['public']['Tables']['forum_threads']['Row'];
 type DBPost = Database['public']['Tables']['forum_posts']['Row'];
@@ -19,6 +19,9 @@ export interface Thread extends DBThread {
     username: string;
     avatar_url?: string | null;
     created_at: string;
+    points?: number;
+    badge_title?: string;
+    badge_color?: string;
   };
   posts?: Post[];
 }
@@ -26,7 +29,9 @@ export interface Thread extends DBThread {
 export interface Post extends DBPost {
   user?: {
     username: string;
+    avatar_url?: string;
   };
+  is_pinned?: boolean;
 }
 
 export interface Forum extends DBForum {

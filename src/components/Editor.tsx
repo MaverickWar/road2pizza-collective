@@ -89,10 +89,15 @@ const Editor = ({ content, onChange }: EditorProps) => {
           <Quote className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent 
-        editor={editor} 
-        className="prose prose-sm prose-invert max-w-none p-4 min-h-[200px] focus:outline-none"
-      />
+      <div 
+        className="relative cursor-text min-h-[200px]" 
+        onClick={() => editor.chain().focus().run()}
+      >
+        <EditorContent 
+          editor={editor} 
+          className="prose prose-sm prose-invert max-w-none p-4 focus:outline-none"
+        />
+      </div>
     </div>
   );
 };

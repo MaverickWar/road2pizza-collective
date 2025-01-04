@@ -1,23 +1,9 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { Button } from "@/components/ui/button";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
 import UserApprovalToggle from "./UserApprovalToggle";
-import { MoreHorizontal, Shield, UserCog, Ban, Eye, User, Award, Trash2, Key, CheckCircle } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { format } from "date-fns";
+import UserCard from "./UserCard";
+import UserActions from "./UserActions";
 
 interface UserTableRowProps {
   user: any;
@@ -31,8 +17,8 @@ interface UserTableRowProps {
 }
 
 const UserTableRow = ({ 
-  user, 
-  onToggleUserRole, 
+  user,
+  onToggleUserRole,
   onToggleSuspend,
   onEditProfile,
   onManageStats,
@@ -40,104 +26,22 @@ const UserTableRow = ({
   onVerifyUser,
   isMobile = false
 }: UserTableRowProps) => {
-  const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
-
-  const handleResetPassword = async () => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) throw error;
-      
-      toast.success("Password reset email sent");
-    } catch (error) {
-      console.error("Error sending password reset:", error);
-      toast.error("Failed to send password reset email");
-    }
-  };
-
-  const UserActions = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className={isMobile ? "w-full justify-start" : ""}>
-          {isMobile ? (
-            <span className="flex items-center">
-              <MoreHorizontal className="h-4 w-4 mr-2" />
-              Actions
-            </span>
-          ) : (
-            <MoreHorizontal className="h-4 w-4" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align={isMobile ? "end" : "end"} className="w-[200px] bg-card">
-        <DropdownMenuItem onClick={() => onEditProfile(user)}>
-          <User className="w-4 h-4 mr-2" />
-          Edit Profile
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleResetPassword}>
-          <Key className="w-4 h-4 mr-2" />
-          Reset Password
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onManageStats(user)}>
-          <Award className="w-4 h-4 mr-2" />
-          Manage Stats
-        </DropdownMenuItem>
-        {!user.is_verified && (
-          <DropdownMenuItem onClick={() => onVerifyUser(user.id)}>
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Verify User
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}>
-          <Shield className="w-4 h-4 mr-2" />
-          {user.is_admin ? "Remove Admin" : "Make Admin"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'staff', user.is_staff)}>
-          <UserCog className="w-4 h-4 mr-2" />
-          {user.is_staff ? "Remove Staff" : "Make Staff"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onToggleSuspend(user.id, user.is_suspended)}>
-          {user.is_suspended ? (
-            <Eye className="w-4 h-4 mr-2" />
-          ) : (
-            <Ban className="w-4 h-4 mr-2" />
-          )}
-          {user.is_suspended ? "Activate" : "Suspend"}
-        </DropdownMenuItem>
-        {!isMainAdmin && (
-          <DropdownMenuItem 
-            className="text-red-600 focus:text-red-600" 
-            onClick={() => onDeleteUser(user.id)}
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete User
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-
-  if (isMobile) {
-    return (
+  const UserContent = () => (
+    <>
       <div className="space-y-3">
-        <div className="flex flex-wrap gap-2">
-          <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
-        </div>
+        <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
         
-        <div className="space-y-2">
-          <UserStats 
-            points={user.points} 
-            badgeTitle={user.badge_title} 
-            badgeColor={user.badge_color} 
-          />
-          <UserApprovalToggle
-            userId={user.id}
-            requiresApproval={user.requires_recipe_approval}
-            onUpdate={() => window.location.reload()}
-          />
-        </div>
+        <UserStats 
+          points={user.points} 
+          badgeTitle={user.badge_title} 
+          badgeColor={user.badge_color} 
+        />
+        
+        <UserApprovalToggle
+          userId={user.id}
+          requiresApproval={user.requires_recipe_approval}
+          onUpdate={() => window.location.reload()}
+        />
         
         <div>
           <span
@@ -152,38 +56,35 @@ const UserTableRow = ({
             {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
           </span>
         </div>
-        
-        <UserActions />
       </div>
+      
+      <UserActions
+        user={user}
+        onToggleUserRole={onToggleUserRole}
+        onToggleSuspend={onToggleSuspend}
+        onEditProfile={onEditProfile}
+        onManageStats={onManageStats}
+        onDeleteUser={onDeleteUser}
+        onVerifyUser={onVerifyUser}
+        isMobile={isMobile}
+      />
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <UserCard user={user}>
+        <UserContent />
+      </UserCard>
     );
   }
 
   return (
     <TableRow className="group hover:bg-secondary/50">
       <TableCell className="max-w-[200px]">
-        <HoverCard>
-          <HoverCardTrigger asChild>
-            <button className="flex items-center space-x-2 truncate">
-              <img
-                src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
-                alt={user.username}
-                className="w-8 h-8 rounded-full flex-shrink-0"
-              />
-              <span className="truncate">{user.username}</span>
-            </button>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold">{user.username}</h4>
-              {user.bio && (
-                <p className="text-sm text-muted-foreground">{user.bio}</p>
-              )}
-              <p className="text-sm text-muted-foreground">
-                Joined {format(new Date(user.created_at), "MMMM yyyy")}
-              </p>
-            </div>
-          </HoverCardContent>
-        </HoverCard>
+        <UserCard user={user}>
+          <></>
+        </UserCard>
       </TableCell>
       <TableCell className="max-w-[150px]">
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
@@ -216,7 +117,16 @@ const UserTableRow = ({
         </span>
       </TableCell>
       <TableCell className="max-w-[100px]">
-        <UserActions />
+        <UserActions
+          user={user}
+          onToggleUserRole={onToggleUserRole}
+          onToggleSuspend={onToggleSuspend}
+          onEditProfile={onEditProfile}
+          onManageStats={onManageStats}
+          onDeleteUser={onDeleteUser}
+          onVerifyUser={onVerifyUser}
+          isMobile={false}
+        />
       </TableCell>
     </TableRow>
   );

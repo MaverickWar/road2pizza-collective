@@ -39,6 +39,7 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
   const [newEmail, setNewEmail] = useState('');
   const [lastResetTime, setLastResetTime] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -58,6 +59,7 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
       }
 
       setIsUploading(true);
+      console.log('Starting image upload for user:', user.id);
 
       // Upload image to Supabase Storage
       const fileExt = file.name.split('.').pop();
@@ -69,12 +71,19 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
           upsert: true,
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('Upload successful:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('profile-images')
         .getPublicUrl(fileName);
+
+      console.log('Generated public URL:', publicUrl);
 
       // Update profile with new avatar URL
       const { error: updateError } = await supabase
@@ -82,8 +91,12 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
         .update({ avatar_url: publicUrl })
         .eq('id', user.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('Profile update error:', updateError);
+        throw updateError;
+      }
 
+      setAvatarUrl(publicUrl);
       toast.success('Profile image updated successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -176,8 +189,8 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
             <div className="flex flex-col items-center gap-4">
               <Avatar className="w-24 h-24">
                 <AvatarImage
-                  src={user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
-                  alt={user?.user_metadata?.username || 'Profile'}
+                  src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
+                  alt={user?.username || 'Profile'}
                 />
                 <AvatarFallback>
                   <UserRound className="w-12 h-12" />

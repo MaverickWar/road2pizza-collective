@@ -89,15 +89,17 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="space-y-4">
         <ThreadHeader thread={thread} />
-        <ThreadActions 
-          threadId={thread.id}
-          currentTitle={thread.title}
-          currentContent={thread.content}
-          currentCategoryId={thread.forum?.category?.id}
-          onThreadUpdated={fetchThread}
-        />
+        <div className="flex justify-end">
+          <ThreadActions 
+            threadId={thread.id}
+            currentTitle={thread.title}
+            currentContent={thread.content}
+            currentCategoryId={thread.forum?.category?.id}
+            onThreadUpdated={fetchThread}
+          />
+        </div>
       </div>
       <ThreadContent content={thread.content} />
       <ThreadReplies 

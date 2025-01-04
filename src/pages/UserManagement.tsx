@@ -49,7 +49,6 @@ const UserManagement = () => {
       }
 
       console.log("Fetched change requests:", data);
-      // Cast the status to the correct type since we know Supabase enforces these values
       return (data || []).map(request => ({
         ...request,
         status: request.status as "pending" | "approved" | "rejected"
@@ -67,6 +66,7 @@ const UserManagement = () => {
       
       if (error) throw error;
       
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(`User ${role} status updated`);
     } catch (error) {
       console.error("Error updating user role:", error);
@@ -83,6 +83,7 @@ const UserManagement = () => {
       
       if (error) throw error;
       
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("User suspension status updated");
     } catch (error) {
       console.error("Error updating user suspension:", error);
@@ -98,9 +99,11 @@ const UserManagement = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="space-y-6 animate-pulse">
-          <div className="h-20 bg-secondary/50 rounded-lg" />
-          <div className="h-[400px] bg-secondary/50 rounded-lg" />
+        <div className="container mx-auto p-6">
+          <div className="space-y-6 animate-pulse">
+            <div className="h-20 bg-secondary/50 rounded-lg" />
+            <div className="h-[400px] bg-secondary/50 rounded-lg" />
+          </div>
         </div>
       </DashboardLayout>
     );
@@ -108,22 +111,31 @@ const UserManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <UserTabs
-          users={users}
-          activeUsers={activeUsers}
-          staffUsers={staffUsers}
-          suspendedUsers={suspendedUsers}
-          changeRequests={changeRequests}
-          pendingRequestsCount={pendingRequests.length}
-          onToggleUserRole={handleToggleUserRole}
-          onToggleSuspend={handleToggleSuspend}
-          loadingRequests={loadingRequests}
-          onRequestStatusUpdate={() => {
-            queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
-            queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-          }}
-        />
+      <div className="container mx-auto p-6">
+        <div className="space-y-6">
+          <div className="flex flex-col space-y-2">
+            <h1 className="text-3xl font-bold">User Management</h1>
+            <p className="text-muted-foreground">
+              Manage users, roles, and permissions
+            </p>
+          </div>
+
+          <UserTabs
+            users={users}
+            activeUsers={activeUsers}
+            staffUsers={staffUsers}
+            suspendedUsers={suspendedUsers}
+            changeRequests={changeRequests}
+            pendingRequestsCount={pendingRequests.length}
+            onToggleUserRole={handleToggleUserRole}
+            onToggleSuspend={handleToggleSuspend}
+            loadingRequests={loadingRequests}
+            onRequestStatusUpdate={() => {
+              queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
+              queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+            }}
+          />
+        </div>
       </div>
     </DashboardLayout>
   );

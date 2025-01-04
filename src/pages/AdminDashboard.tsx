@@ -83,27 +83,6 @@ const AdminDashboard = () => {
       icon: Settings,
       href: "/dashboard/admin/settings",
       color: "bg-slate-500/10 text-slate-500",
-    },
-    {
-      title: "Pages",
-      description: "Manage static pages",
-      icon: LayoutDashboard,
-      href: "/dashboard/admin/pages",
-      color: "bg-emerald-500/10 text-emerald-500",
-    },
-    {
-      title: "Forum Management",
-      description: "Manage forum categories and posts",
-      icon: MessageSquare,
-      href: "/dashboard/admin/forum",
-      color: "bg-violet-500/10 text-violet-500",
-    },
-    {
-      title: "Achievements",
-      description: "Configure user achievements",
-      icon: Trophy,
-      href: "/dashboard/admin/achievements",
-      color: "bg-amber-500/10 text-amber-500",
     }
   ];
 
@@ -117,7 +96,7 @@ const AdminDashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {adminCards.map((card) => (
             <Link key={card.title} to={card.href}>
               <Card className="hover:shadow-md transition-all duration-200 cursor-pointer h-full">

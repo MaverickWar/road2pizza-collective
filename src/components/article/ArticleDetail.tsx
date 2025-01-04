@@ -12,6 +12,7 @@ const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isStaff, isAdmin } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
+  const navigate = useNavigate();
 
   console.log('ArticleDetail: Rendering with ID:', id);
   console.log('Auth state:', { user, isStaff, isAdmin });
@@ -27,7 +28,7 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          profiles (
+          profiles!inner (
             username,
             points,
             badge_title,
@@ -56,7 +57,7 @@ const ArticleDetail = () => {
 
       console.log('Recipe data received:', data);
 
-      const recipeData = {
+      return {
         ...data,
         ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
         instructions: Array.isArray(data.instructions) ? data.instructions : [],
@@ -69,17 +70,6 @@ const ArticleDetail = () => {
         } : null,
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;
-
-      if (recipeData.status === 'unpublished') {
-        if (!user) {
-          throw new Error('Recipe not found');
-        }
-        if (!isAdmin && !isStaff && user.id !== recipeData.created_by) {
-          throw new Error('Recipe not found');
-        }
-      }
-
-      return recipeData;
     }
   });
 
@@ -91,15 +81,6 @@ const ArticleDetail = () => {
       (recipe && user.id === recipe.created_by)
     )
   );
-  
-  console.log('Permission check:', {
-    userEmail: user?.email,
-    userId: user?.id,
-    recipeCreator: recipe?.created_by,
-    isAdmin,
-    isStaff,
-    canEdit
-  });
 
   const handleHideRecipe = async () => {
     try {

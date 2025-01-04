@@ -1,8 +1,20 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Users, Star, Award, LayoutDashboard, FileText } from 'lucide-react';
+import { 
+  BookOpen, 
+  Users, 
+  Star, 
+  Award, 
+  LayoutDashboard, 
+  FileText,
+  Settings,
+  Bell,
+  Palette,
+  Image
+} from 'lucide-react';
 import { toast } from "sonner";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatsCards from "@/components/admin/StatsCards";
@@ -13,6 +25,11 @@ import ReviewManagement from "@/components/admin/ReviewManagement";
 import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
 import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
 import PageManagement from "@/components/admin/pages/PageManagement";
+import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
+import NotificationManagement from "@/pages/admin/NotificationManagement";
+import SiteSettings from "@/pages/admin/SiteSettings";
+import ThemeSettings from "@/pages/admin/ThemeSettings";
+import MediaGallery from "@/pages/admin/MediaGallery";
 
 const AdminDashboard = () => {
   const queryClient = useQueryClient();
@@ -114,50 +131,193 @@ const AdminDashboard = () => {
         {stats && <StatsCards stats={stats} />}
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">
+          <TabsList className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-4">
+            <TabsTrigger value="overview" className="w-full">
               <LayoutDashboard className="w-4 h-4 mr-2" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="recipes">
-              <BookOpen className="w-4 h-4 mr-2" />
-              Recipes
-            </TabsTrigger>
-            <TabsTrigger value="users">
+            <TabsTrigger value="users" className="w-full">
               <Users className="w-4 h-4 mr-2" />
               Users
             </TabsTrigger>
-            <TabsTrigger value="reviews">
+            <TabsTrigger value="recipes" className="w-full">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Recipes
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="w-full">
               <Star className="w-4 h-4 mr-2" />
               Reviews
+            </TabsTrigger>
+            <TabsTrigger value="rewards" className="w-full">
+              <Award className="w-4 h-4 mr-2" />
+              Rewards
+            </TabsTrigger>
+            <TabsTrigger value="pizza" className="w-full">
+              <FileText className="w-4 h-4 mr-2" />
+              Pizza Types
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="w-full">
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="w-full">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+            <TabsTrigger value="theme" className="w-full">
+              <Palette className="w-4 h-4 mr-2" />
+              Theme
+            </TabsTrigger>
+            <TabsTrigger value="media" className="w-full">
+              <Image className="w-4 h-4 mr-2" />
+              Media
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
-            <div className="space-y-6">
-              <RecipeApprovalSection />
-              <UserManagementTable
-                users={users || []}
-                onToggleUserRole={handleToggleUserRole}
-                onToggleSuspend={handleToggleSuspend}
-              />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RecipeApprovalSection />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>User Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <UserManagementTable
+                    users={users?.slice(0, 5) || []}
+                    onToggleUserRole={handleToggleUserRole}
+                    onToggleSuspend={handleToggleSuspend}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Page Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PageManagement />
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="recipes">
-            <RecipeManagement />
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <UserManagementTable
+                  users={users || []}
+                  onToggleUserRole={handleToggleUserRole}
+                  onToggleSuspend={handleToggleSuspend}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="users">
-            <UserManagementTable
-              users={users || []}
-              onToggleUserRole={handleToggleUserRole}
-              onToggleSuspend={handleToggleSuspend}
-            />
+          <TabsContent value="recipes">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recipe Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RecipeManagement />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="reviews">
-            <ReviewManagement />
+            <Card>
+              <CardHeader>
+                <CardTitle>Review Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ReviewManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="rewards">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Badge Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <BadgeManagement />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Point Rules</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PointRulesManagement />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="pizza">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pizza Type Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PizzaTypeManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <NotificationManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Site Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SiteSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="theme">
+            <Card>
+              <CardHeader>
+                <CardTitle>Theme Settings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ThemeSettings />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="media">
+            <Card>
+              <CardHeader>
+                <CardTitle>Media Gallery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MediaGallery />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

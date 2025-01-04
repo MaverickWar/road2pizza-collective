@@ -3,21 +3,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Plus } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, Pencil, Trash2, X, Check } from 'lucide-react';
 
 interface Category {
   id: string;
   name: string;
   description: string | null;
-  display_order: number | null;
+  display_order: number;
+  created_at: string;
 }
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [showNewForm, setShowNewForm] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -25,14 +29,13 @@ const CategoryManagement = () => {
 
   const fetchCategories = async () => {
     try {
-      console.log('Fetching forum categories...');
       const { data, error } = await supabase
         .from('forum_categories')
         .select('*')
         .order('display_order', { ascending: true });
 
       if (error) throw error;
-
+      
       console.log('Fetched categories:', data);
       setCategories(data || []);
     } catch (error) {
@@ -43,7 +46,7 @@ const CategoryManagement = () => {
     }
   };
 
-  const handleAddCategory = async () => {
+  const handleCreate = async () => {
     try {
       if (!newCategory.name.trim()) {
         toast.error('Category name is required');
@@ -52,54 +55,47 @@ const CategoryManagement = () => {
 
       const { data, error } = await supabase
         .from('forum_categories')
-        .insert({
-          name: newCategory.name.trim(),
-          description: newCategory.description.trim() || null,
-          display_order: (categories.length + 1) * 10
-        })
+        .insert([{
+          name: newCategory.name,
+          description: newCategory.description,
+          display_order: categories.length
+        }])
         .select()
         .single();
 
       if (error) throw error;
 
-      toast.success('Category added successfully');
       setCategories([...categories, data]);
       setNewCategory({ name: '', description: '' });
+      setShowNewForm(false);
+      toast.success('Category created successfully');
     } catch (error) {
-      console.error('Error adding category:', error);
-      toast.error('Failed to add category');
+      console.error('Error creating category:', error);
+      toast.error('Failed to create category');
     }
   };
 
-  const handleUpdateCategory = async (id: string) => {
+  const handleUpdate = async (id: string, updates: Partial<Category>) => {
     try {
-      if (!editingCategory || !editingCategory.name.trim()) {
-        toast.error('Category name is required');
-        return;
-      }
-
       const { error } = await supabase
         .from('forum_categories')
-        .update({
-          name: editingCategory.name.trim(),
-          description: editingCategory.description?.trim() || null
-        })
+        .update(updates)
         .eq('id', id);
 
       if (error) throw error;
 
-      toast.success('Category updated successfully');
       setCategories(categories.map(cat => 
-        cat.id === id ? editingCategory : cat
+        cat.id === id ? { ...cat, ...updates } : cat
       ));
-      setEditingCategory(null);
+      setEditingId(null);
+      toast.success('Category updated successfully');
     } catch (error) {
       console.error('Error updating category:', error);
       toast.error('Failed to update category');
     }
   };
 
-  const handleDeleteCategory = async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
         .from('forum_categories')
@@ -108,8 +104,8 @@ const CategoryManagement = () => {
 
       if (error) throw error;
 
-      toast.success('Category deleted successfully');
       setCategories(categories.filter(cat => cat.id !== id));
+      toast.success('Category deleted successfully');
     } catch (error) {
       console.error('Error deleting category:', error);
       toast.error('Failed to delete category');
@@ -119,98 +115,106 @@ const CategoryManagement = () => {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
-        <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="bg-card p-6 rounded-lg space-y-4">
-        <h3 className="text-lg font-semibold">Add New Category</h3>
-        <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Forum Categories</h2>
+        <Button
+          onClick={() => setShowNewForm(!showNewForm)}
+          variant="outline"
+        >
+          {showNewForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+          {showNewForm ? 'Cancel' : 'New Category'}
+        </Button>
+      </div>
+
+      {showNewForm && (
+        <Card className="p-4 space-y-4">
           <Input
             placeholder="Category Name"
             value={newCategory.name}
             onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
           />
           <Textarea
-            placeholder="Category Description (optional)"
+            placeholder="Description (optional)"
             value={newCategory.description}
             onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
           />
-          <Button onClick={handleAddCategory} className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Category
-          </Button>
-        </div>
-      </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowNewForm(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleCreate}>
+              Create Category
+            </Button>
+          </div>
+        </Card>
+      )}
 
       <div className="space-y-4">
         {categories.map((category) => (
-          <div key={category.id} className="bg-card p-6 rounded-lg space-y-4">
-            {editingCategory?.id === category.id ? (
+          <Card key={category.id} className="p-4">
+            {editingId === category.id ? (
               <div className="space-y-4">
                 <Input
-                  value={editingCategory.name}
-                  onChange={(e) => setEditingCategory({ 
-                    ...editingCategory, 
-                    name: e.target.value 
-                  })}
+                  value={category.name}
+                  onChange={(e) => handleUpdate(category.id, { name: e.target.value })}
                 />
                 <Textarea
-                  value={editingCategory.description || ''}
-                  onChange={(e) => setEditingCategory({ 
-                    ...editingCategory, 
-                    description: e.target.value 
-                  })}
+                  value={category.description || ''}
+                  onChange={(e) => handleUpdate(category.id, { description: e.target.value })}
                 />
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => handleUpdateCategory(category.id)}
-                    className="flex-1"
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingId(null)}
                   >
-                    Save
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setEditingCategory(null)}
-                    className="flex-1"
-                  >
+                    <X className="h-4 w-4 mr-2" />
                     Cancel
+                  </Button>
+                  <Button onClick={() => handleUpdate(category.id, { name: category.name, description: category.description })}>
+                    <Check className="h-4 w-4 mr-2" />
+                    Save
                   </Button>
                 </div>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{category.name}</h3>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditingCategory(category)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteCategory(category.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-medium">{category.name}</h3>
+                  {category.description && (
+                    <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+                  )}
                 </div>
-                {category.description && (
-                  <p className="text-sm text-muted-foreground">
-                    {category.description}
-                  </p>
-                )}
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditingId(category.id)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(category.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             )}
-          </div>
+          </Card>
         ))}
       </div>
     </div>

@@ -5,6 +5,14 @@ import {
   FileText, 
   MessageSquare,
   Settings,
+  Star,
+  Award,
+  Bell,
+  Palette,
+  Image,
+  Navigation,
+  Trophy,
+  Pizza
 } from 'lucide-react';
 import { useAuth } from "@/components/AuthProvider";
 
@@ -49,20 +57,62 @@ export const getNavigationItems = (isAdmin: boolean, isStaff: boolean) => [
   },
   {
     title: "Reviews Dashboard",
-    icon: MessageSquare,
+    icon: Star,
     href: "/dashboard/admin/reviews",
     show: isAdmin || isStaff,
   },
   {
     title: "Pizza Types",
-    icon: FileText,
+    icon: Pizza,
     href: "/dashboard/admin/pizza-types",
     show: isAdmin || isStaff,
   },
   {
     title: "Forum Settings",
-    icon: Settings,
+    icon: MessageSquare,
     href: "/dashboard/admin/forum",
+    show: isAdmin,
+  },
+  {
+    title: "Rewards System",
+    icon: Award,
+    href: "/dashboard/admin/rewards",
+    show: isAdmin,
+  },
+  {
+    title: "Notifications",
+    icon: Bell,
+    href: "/dashboard/admin/notifications",
+    show: isAdmin,
+  },
+  {
+    title: "Theme Settings",
+    icon: Palette,
+    href: "/dashboard/admin/theme",
+    show: isAdmin,
+  },
+  {
+    title: "Media Gallery",
+    icon: Image,
+    href: "/dashboard/admin/media",
+    show: isAdmin,
+  },
+  {
+    title: "Navigation",
+    icon: Navigation,
+    href: "/dashboard/admin/navigation",
+    show: isAdmin,
+  },
+  {
+    title: "Achievements",
+    icon: Trophy,
+    href: "/dashboard/admin/achievements",
+    show: isAdmin,
+  },
+  {
+    title: "Site Settings",
+    icon: Settings,
+    href: "/dashboard/admin/settings",
     show: isAdmin,
   },
 ];

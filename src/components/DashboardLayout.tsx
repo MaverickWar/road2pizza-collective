@@ -7,6 +7,8 @@ import {
   FileText, 
   MessageSquare,
   Settings,
+  Menu,
+  X
 } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
@@ -76,12 +78,27 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen pt-16">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-20 left-4 z-50 md:hidden"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </Button>
+
           {/* Sidebar */}
           <Sidebar
             variant="floating"
             className={cn(
-              "transition-transform duration-300 ease-in-out z-40",
-              isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+              "fixed left-0 top-0 z-40 h-full w-64 transform transition-transform duration-300 ease-in-out",
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+              "md:relative md:translate-x-0"
             )}
           >
             <div className="flex flex-col h-full p-4 space-y-4">

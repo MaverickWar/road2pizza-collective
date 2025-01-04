@@ -74,14 +74,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
           <main className="flex-1 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-secondary/50 p-6 rounded-lg backdrop-blur-sm">
-                <div className="space-y-1">
-                  <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-                  <p className="text-muted-foreground">
-                    Welcome to your dashboard
-                  </p>
-                </div>
-              </div>
               {children}
             </div>
           </main>

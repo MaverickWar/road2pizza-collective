@@ -13,18 +13,13 @@ const ArticleDetail = () => {
   const { user, isStaff, isAdmin } = useAuth();
   const [showEditModal, setShowEditModal] = useState(false);
 
-  console.log('Auth state:', { 
-    user, 
-    isStaff, 
-    isAdmin, 
-    userEmail: user?.email,
-    userId: user?.id 
-  });
+  console.log('ArticleDetail: Rendering with ID:', id);
+  console.log('Auth state:', { user, isStaff, isAdmin });
 
   const { data: recipe, isLoading, error, refetch } = useQuery({
     queryKey: ['recipe', id],
     queryFn: async () => {
-      console.log('Fetching recipe:', id);
+      console.log('Fetching recipe data for ID:', id);
       const { data, error } = await supabase
         .from('recipes')
         .select(`
@@ -53,9 +48,12 @@ const ArticleDetail = () => {
         .eq('id', id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching recipe:', error);
+        throw error;
+      }
 
-      console.log('Recipe data:', data);
+      console.log('Recipe data received:', data);
 
       const recipeData = {
         ...data,
@@ -84,7 +82,6 @@ const ArticleDetail = () => {
     }
   });
 
-  // Always allow edit access for admin accounts with email richgiles@hotmail.co.uk
   const canEdit = Boolean(
     user && (
       user.email === 'richgiles@hotmail.co.uk' || 
@@ -121,6 +118,7 @@ const ArticleDetail = () => {
   };
 
   if (isLoading) {
+    console.log('Recipe is loading...');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse text-lg">Loading recipe...</div>
@@ -129,6 +127,7 @@ const ArticleDetail = () => {
   }
 
   if (error || !recipe) {
+    console.error('Error or no recipe:', error);
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="bg-card p-6 rounded-lg shadow-lg max-w-lg mx-auto">
@@ -138,6 +137,8 @@ const ArticleDetail = () => {
       </div>
     );
   }
+
+  console.log('Rendering recipe:', recipe);
 
   return (
     <>

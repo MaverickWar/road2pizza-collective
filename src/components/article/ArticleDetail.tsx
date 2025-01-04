@@ -1,12 +1,15 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Recipe } from "@/components/recipe/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import RecipeContent from "./RecipeContent";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const ArticleDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const { data: recipe, isLoading } = useQuery({
     queryKey: ["recipe", id],
@@ -25,6 +28,10 @@ const ArticleDetail = () => {
             recipes_shared,
             created_at,
             email
+          ),
+          categories (
+            name,
+            id
           ),
           reviews (
             id,
@@ -52,6 +59,20 @@ const ArticleDetail = () => {
     },
   });
 
+  const handleBack = () => {
+    if (recipe?.categories?.name) {
+      // Convert category name to URL-friendly format
+      const categorySlug = recipe.categories.name
+        .toLowerCase()
+        .replace(/ /g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+      navigate(`/pizza/${categorySlug}`);
+    } else {
+      // Fallback to main pizza page if no category
+      navigate("/pizza");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-4 space-y-4">
@@ -77,7 +98,19 @@ const ArticleDetail = () => {
     );
   }
 
-  return <RecipeContent recipe={recipe} />;
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Button 
+        variant="ghost" 
+        onClick={handleBack}
+        className="mb-6 hover:bg-accent/10"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back to {recipe.categories?.name || "Pizza Styles"}
+      </Button>
+      <RecipeContent recipe={recipe} />
+    </div>
+  );
 };
 
 export default ArticleDetail;

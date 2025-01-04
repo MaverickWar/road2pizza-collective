@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import queryClient from "@/lib/queryClient";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
+import AdminDashboard from "@/pages/AdminDashboard";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 import NotificationManagement from "@/pages/admin/NotificationManagement";
 import SiteSettings from "@/pages/admin/SiteSettings";
@@ -17,6 +18,14 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={createBrowserRouter([
+          {
+            path: "/dashboard/admin",
+            element: (
+              <ProtectedRoute requireAdmin>
+                <AdminDashboard />
+              </ProtectedRoute>
+            ),
+          },
           {
             path: "/dashboard/admin/pizza-types",
             element: (

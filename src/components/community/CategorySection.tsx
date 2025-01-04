@@ -87,7 +87,8 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             <DialogTrigger asChild>
               <Button variant="secondary" className="bg-orange-100 hover:bg-orange-200 text-orange-900 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C] dark:text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                New Thread
+                <span className="sm:inline hidden">New Thread</span>
+                <span className="sm:hidden inline">New</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">

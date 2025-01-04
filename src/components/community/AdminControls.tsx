@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import Editor from '@/components/Editor';
 
 interface AdminControlsProps {
@@ -60,11 +60,9 @@ export const AdminControls = ({ categoryId, threadId, title, content, onUpdate, 
   return (
     <div className="flex gap-2">
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="sm">
-            <Edit className="h-4 w-4" />
-          </Button>
-        </DialogTrigger>
+        <Button variant="ghost" size="sm" onClick={() => setIsEditOpen(true)}>
+          <Edit className="h-4 w-4" />
+        </Button>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit {type === 'category' ? 'Category' : 'Thread'}</DialogTitle>

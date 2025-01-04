@@ -10,7 +10,8 @@ import {
   Bell,
   Settings,
   Palette,
-  Image
+  Image,
+  Trophy
 } from 'lucide-react';
 
 interface DashboardNavItemsProps {

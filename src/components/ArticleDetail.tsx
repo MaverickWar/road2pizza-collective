@@ -5,8 +5,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
-import EditRecipeModal from "./EditRecipeModal";
-import RecipeDetailLayout from "./detail/RecipeDetailLayout";
+import EditRecipeModal from "@/components/article/EditRecipeModal";
+import RecipeDetailLayout from "@/components/article/detail/RecipeDetailLayout";
 
 const ArticleDetail = () => {
   const { id } = useParams();

@@ -76,8 +76,8 @@ const BadgeForm = ({ onSubmit, initialData }: BadgeFormProps) => {
               className="w-24"
             />
             <div
-              className="w-10 h-10 rounded-full ring-2 ring-offset-2 transition-colors"
-              style={{ backgroundColor: formData.color, ringColor: formData.color }}
+              className="w-10 h-10 rounded-full ring-2 ring-offset-2"
+              style={{ backgroundColor: formData.color, borderColor: formData.color }}
             />
           </div>
         </div>

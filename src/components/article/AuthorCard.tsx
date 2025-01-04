@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getInitials } from "@/lib/utils";
 import { format } from "date-fns";
@@ -14,9 +14,11 @@ interface AuthorCardProps {
     points?: number;
     badge_title?: string;
     badge_color?: string;
+    badge_count?: number;
     recipes_shared?: number;
     created_at: string;
     id: string;
+    avatar_url?: string;
   } | null;
 }
 
@@ -59,6 +61,18 @@ const AuthorCard = ({ author }: AuthorCardProps) => {
     <Card className="bg-card hover:bg-card-hover transition-colors">
       <CardHeader className="flex flex-row items-center space-x-4 pb-2">
         <Avatar className="h-12 w-12">
+          {author.avatar_url ? (
+            <AvatarImage 
+              src={author.avatar_url} 
+              alt={author.username}
+              className="object-cover"
+              onError={(e) => {
+                console.error('Avatar image failed to load:', e);
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
+          ) : null}
           <AvatarFallback>{getInitials(author.username)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">

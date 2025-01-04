@@ -1,13 +1,8 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MessageSquare, Settings, List, Users } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 const ForumManagement = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const managementCards = [
     {
       title: 'Categories',
@@ -53,36 +48,25 @@ const ForumManagement = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {managementCards.map((card, index) => (
-            <Button
+            <Link
               key={index}
-              variant="ghost"
-              className="p-0 h-auto w-full hover:bg-transparent"
-              onClick={() => {
-                console.log('Navigating to:', card.path);
-                // Only navigate if we're not already on this route
-                if (location.pathname !== card.path) {
-                  navigate(card.path);
-                }
-              }}
+              to={card.path}
+              className="block p-6 bg-card rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <Card className="w-full transition-all duration-300 hover:shadow-md">
-                <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className={`p-3 rounded-lg ${card.color}`}>
-                      {card.icon}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <h2 className="text-xl font-semibold">
-                        {card.title}
-                      </h2>
-                      <p className="text-muted-foreground mt-1">
-                        {card.description}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Button>
+              <div className="flex items-start space-x-4">
+                <div className={`p-3 rounded-lg ${card.color}`}>
+                  {card.icon}
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold">
+                    {card.title}
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    {card.description}
+                  </p>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

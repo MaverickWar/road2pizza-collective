@@ -70,7 +70,7 @@ export interface Database {
           title: string;
           description: string | null;
           slug: string;
-          display_order: number;
+          display_order: number | null;
           created_at: string;
           created_by: string | null;
           updated_at: string;
@@ -79,11 +79,25 @@ export interface Database {
       forum_settings: {
         Row: {
           id: number;
-          allow_guest_viewing: boolean;
-          require_approval: boolean;
-          auto_lock_inactive: boolean;
+          allow_guest_viewing: boolean | null;
+          require_approval: boolean | null;
+          auto_lock_inactive: boolean | null;
           created_at: string;
           updated_at: string;
+        };
+      };
+      pizza_types: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          image_url: string | null;
+          created_at: string;
+          created_by: string | null;
+          updated_at: string;
+          slug: string;
+          display_order: number | null;
+          is_hidden: boolean | null;
         };
       };
     };

@@ -34,7 +34,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
               name
             )
           ),
-          author:profiles!forum_threads_created_by_fkey(
+          author:profiles(
             username,
             avatar_url,
             created_at,
@@ -64,7 +64,10 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
         .eq("id", id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching thread:", error);
+        throw error;
+      }
 
       if (data) {
         // Update view count only if thread exists

@@ -1,11 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
-import UserManagementTable from "@/components/admin/UserManagementTable";
 import UserTabs from "@/components/admin/users/UserTabs";
 import { toast } from "sonner";
+import type { ProfileChangeRequest } from "@/types/profile";
 
 const UserManagement = () => {
+  const queryClient = useQueryClient();
+
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
@@ -47,7 +49,11 @@ const UserManagement = () => {
       }
 
       console.log("Fetched change requests:", data);
-      return data || [];
+      // Cast the status to the correct type since we know Supabase enforces these values
+      return (data || []).map(request => ({
+        ...request,
+        status: request.status as "pending" | "approved" | "rejected"
+      })) as ProfileChangeRequest[];
     },
   });
 
@@ -114,7 +120,6 @@ const UserManagement = () => {
           onToggleSuspend={handleToggleSuspend}
           loadingRequests={loadingRequests}
           onRequestStatusUpdate={() => {
-            // Invalidate queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
           }}

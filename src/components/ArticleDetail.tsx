@@ -28,13 +28,14 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          profiles (
+          profiles!recipes_created_by_fkey (
             username,
             points,
             badge_title,
             badge_color,
             recipes_shared,
-            created_at
+            created_at,
+            email
           ),
           reviews (
             rating,
@@ -47,16 +48,11 @@ const ArticleDetail = () => {
           )
         `)
         .eq('id', id)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error fetching recipe:', error);
         throw error;
-      }
-
-      if (!data) {
-        console.log('No recipe found with ID:', id);
-        throw new Error('Recipe not found');
       }
 
       console.log('Recipe data received:', data);
@@ -74,9 +70,7 @@ const ArticleDetail = () => {
         } : null,
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;
-    },
-    retry: 1,
-    retryDelay: 1000
+    }
   });
 
   const canEdit = Boolean(

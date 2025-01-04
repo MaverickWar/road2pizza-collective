@@ -8,9 +8,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Badge } from "lucide-react";
+import { Tables } from "@/integrations/supabase/types";
 
 interface BadgeAssignmentDialogProps {
-  badge: any;
+  badge: Tables<"badges">;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -130,24 +131,26 @@ const BadgeAssignmentDialog = ({ badge, open, onOpenChange }: BadgeAssignmentDia
                         {user.badge_count || 0} badges
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        assignBadgeMutation.mutate({ userId: user.id });
-                      }}
-                    >
-                      Assign
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        removeBadgeMutation.mutate({ userId: user.id });
-                      }}
-                    >
-                      Remove
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          assignBadgeMutation.mutate({ userId: user.id });
+                        }}
+                      >
+                        Assign
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          removeBadgeMutation.mutate({ userId: user.id });
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

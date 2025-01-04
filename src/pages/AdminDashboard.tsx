@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
@@ -15,6 +15,7 @@ import NotificationManagement from "@/pages/admin/NotificationManagement";
 import SiteSettings from "@/pages/admin/SiteSettings";
 import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
+import { toast } from "sonner";
 
 function AdminDashboardOverview() {
   const { data: stats, isLoading: loadingStats } = useQuery({
@@ -67,6 +68,36 @@ function AdminDashboardOverview() {
 }
 
 function AdminDashboard() {
+  const handleToggleUserRole = async (userId: string, role: 'admin' | 'staff', currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [`is_${role}`]: !currentStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+      toast.success(`User ${role} status updated successfully`);
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast.error('Failed to update user role');
+    }
+  };
+
+  const handleToggleSuspend = async (userId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_suspended: !currentStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+      toast.success('User suspension status updated successfully');
+    } catch (error) {
+      console.error('Error updating user suspension:', error);
+      toast.error('Failed to update user suspension status');
+    }
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen bg-background flex">
@@ -74,7 +105,16 @@ function AdminDashboard() {
         <main className="flex-1 p-8 overflow-auto">
           <Routes>
             <Route index element={<AdminDashboardOverview />} />
-            <Route path="users" element={<UserManagementTable users={[]} onToggleUserRole={() => {}} onToggleSuspend={() => {}} />} />
+            <Route 
+              path="users" 
+              element={
+                <UserManagementTable 
+                  users={[]} 
+                  onToggleUserRole={handleToggleUserRole} 
+                  onToggleSuspend={handleToggleSuspend} 
+                />
+              } 
+            />
             <Route path="recipes" element={<RecipeManagement />} />
             <Route path="reviews" element={<ReviewManagement />} />
             <Route path="rewards" element={

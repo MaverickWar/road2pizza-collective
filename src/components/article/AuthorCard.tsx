@@ -14,10 +14,14 @@ interface AuthorCardProps {
     badge_color?: string;
     recipes_shared?: number;
     created_at: string;
-  };
+  } | null;
 }
 
 const AuthorCard = ({ author }: AuthorCardProps) => {
+  if (!author) {
+    return null; // Don't render anything if there's no author
+  }
+
   return (
     <Card className="bg-card hover:bg-card-hover transition-colors">
       <CardHeader className="flex flex-row items-center space-x-4 pb-2">

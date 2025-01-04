@@ -2,80 +2,88 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { Pencil, Trash2, X, Check } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Category } from '../types/category';
+import { Pencil, Trash2, X, Check } from 'lucide-react';
 
 interface CategoryItemProps {
   category: Category;
-  onUpdate: (id: string, updates: Partial<Category>) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onUpdate: (id: string, updates: Partial<Category>) => void;
+  onDelete: (id: string) => void;
 }
 
-export const CategoryItem = ({ category, onUpdate, onDelete }: CategoryItemProps) => {
+export function CategoryItem({ category, onUpdate, onDelete }: CategoryItemProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState(category);
+  const [name, setName] = useState(category.name);
+  const [description, setDescription] = useState(category.description || '');
 
-  const handleUpdate = async () => {
-    await onUpdate(category.id, {
-      name: editData.name,
-      description: editData.description
-    });
+  const handleSave = () => {
+    onUpdate(category.id, { name, description });
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setName(category.name);
+    setDescription(category.description || '');
     setIsEditing(false);
   };
 
   return (
-    <Card className="p-4">
-      {isEditing ? (
-        <div className="space-y-4">
-          <Input
-            value={editData.name}
-            onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-          />
-          <Textarea
-            value={editData.description || ''}
-            onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-          />
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
-            <Button onClick={handleUpdate}>
-              <Check className="h-4 w-4 mr-2" />
-              Save
-            </Button>
+    <Card>
+      <CardContent className="p-4">
+        {isEditing ? (
+          <div className="space-y-4">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Category Name"
+            />
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Category Description"
+              rows={2}
+            />
+            <div className="flex space-x-2">
+              <Button onClick={handleSave} size="sm" className="flex items-center">
+                <Check className="w-4 h-4 mr-1" />
+                Save
+              </Button>
+              <Button onClick={handleCancel} variant="outline" size="sm" className="flex items-center">
+                <X className="w-4 h-4 mr-1" />
+                Cancel
+              </Button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="flex justify-between items-center">
-          <div>
-            <h3 className="font-medium">{category.name}</h3>
-            {category.description && (
-              <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
-            )}
+        ) : (
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="font-medium">{category.name}</h3>
+              {category.description && (
+                <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+              )}
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => setIsEditing(true)}
+                variant="ghost"
+                size="sm"
+                className="flex items-center"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={() => onDelete(category.id)}
+                variant="ghost"
+                size="sm"
+                className="flex items-center text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsEditing(true)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onDelete(category.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
+      </CardContent>
     </Card>
   );
-};
+}

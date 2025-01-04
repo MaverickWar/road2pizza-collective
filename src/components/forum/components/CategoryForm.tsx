@@ -2,65 +2,42 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { Plus, X } from 'lucide-react';
 import { CategoryFormData } from '../types/category';
 
 interface CategoryFormProps {
-  onSubmit: (data: CategoryFormData) => Promise<void>;
+  onSubmit: (data: CategoryFormData) => void;
 }
 
-export const CategoryForm = ({ onSubmit }: CategoryFormProps) => {
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<CategoryFormData>({
-    name: '',
-    description: ''
-  });
+export function CategoryForm({ onSubmit }: CategoryFormProps) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
 
-  const handleSubmit = async () => {
-    await onSubmit(formData);
-    setFormData({ name: '', description: '' });
-    setShowForm(false);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({ name, description });
+    setName('');
+    setDescription('');
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Forum Categories</h2>
-        <Button
-          onClick={() => setShowForm(!showForm)}
-          variant="outline"
-        >
-          {showForm ? <X className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-          {showForm ? 'Cancel' : 'New Category'}
-        </Button>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Input
+          placeholder="Category Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
       </div>
-
-      {showForm && (
-        <Card className="p-4 space-y-4">
-          <Input
-            placeholder="Category Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          />
-          <Textarea
-            placeholder="Description (optional)"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          />
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowForm(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>
-              Create Category
-            </Button>
-          </div>
-        </Card>
-      )}
-    </div>
+      <div>
+        <Textarea
+          placeholder="Category Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+        />
+      </div>
+      <Button type="submit">Add Category</Button>
+    </form>
   );
-};
+}

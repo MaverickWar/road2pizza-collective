@@ -2,7 +2,6 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import UserRoleBadges from "../UserRoleBadges";
 import UserStats from "../UserStats";
 import UserApprovalToggle from "./UserApprovalToggle";
-import UserCard from "./UserCard";
 import UserActions from "./UserActions";
 
 interface UserTableRowProps {
@@ -26,73 +25,77 @@ const UserTableRow = ({
   onVerifyUser,
   isMobile = false
 }: UserTableRowProps) => {
-  const UserContent = () => (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <div className="text-sm font-medium text-muted-foreground">Roles</div>
-        <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
-      </div>
-      
-      <div className="space-y-2">
-        <div className="text-sm font-medium text-muted-foreground">Stats</div>
-        <UserStats 
-          points={user.points} 
-          badgeTitle={user.badge_title} 
-          badgeColor={user.badge_color} 
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <div className="text-sm font-medium text-muted-foreground">Recipe Approval</div>
-        <UserApprovalToggle
-          userId={user.id}
-          requiresApproval={user.requires_recipe_approval}
-          onUpdate={() => window.location.reload()}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <div className="text-sm font-medium text-muted-foreground">Status</div>
-        <span
-          className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
-            user.is_suspended
-              ? "bg-red-100 text-red-700"
-              : user.is_verified
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
-        >
-          {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
-        </span>
-      </div>
-      
-      <UserActions
-        user={user}
-        onToggleUserRole={onToggleUserRole}
-        onToggleSuspend={onToggleSuspend}
-        onEditProfile={onEditProfile}
-        onManageStats={onManageStats}
-        onDeleteUser={onDeleteUser}
-        onVerifyUser={onVerifyUser}
-        isMobile={isMobile}
-      />
-    </div>
-  );
-
   if (isMobile) {
     return (
-      <UserCard user={user}>
-        <UserContent />
-      </UserCard>
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-muted-foreground">Roles</div>
+          <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-muted-foreground">Stats</div>
+          <UserStats 
+            points={user.points} 
+            badgeTitle={user.badge_title} 
+            badgeColor={user.badge_color} 
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-muted-foreground">Recipe Approval</div>
+          <UserApprovalToggle
+            userId={user.id}
+            requiresApproval={user.requires_recipe_approval}
+            onUpdate={() => window.location.reload()}
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-muted-foreground">Status</div>
+          <span
+            className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
+              user.is_suspended
+                ? "bg-red-100 text-red-700"
+                : user.is_verified
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
+          >
+            {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
+          </span>
+        </div>
+        
+        <UserActions
+          user={user}
+          onToggleUserRole={onToggleUserRole}
+          onToggleSuspend={onToggleSuspend}
+          onEditProfile={onEditProfile}
+          onManageStats={onManageStats}
+          onDeleteUser={onDeleteUser}
+          onVerifyUser={onVerifyUser}
+          isMobile={true}
+        />
+      </div>
     );
   }
 
   return (
-    <TableRow className="group hover:bg-secondary/50">
+    <TableRow>
       <TableCell>
-        <UserCard user={user}>
-          <></>
-        </UserCard>
+        <div className="flex items-center space-x-3">
+          <img
+            src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
+            alt={user.username}
+            className="w-10 h-10 rounded-full"
+          />
+          <div>
+            <p className="font-medium">{user.username}</p>
+            {user.email && (
+              <p className="text-sm text-muted-foreground">{user.email}</p>
+            )}
+          </div>
+        </div>
       </TableCell>
       <TableCell>
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />

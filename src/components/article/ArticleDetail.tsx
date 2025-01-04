@@ -30,6 +30,7 @@ const ArticleDetail = () => {
             name
           ),
           profiles (
+            id,
             username,
             points,
             badge_title,

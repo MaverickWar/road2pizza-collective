@@ -61,14 +61,26 @@ const ArticleDetail = () => {
 
   const handleBack = () => {
     if (recipe?.categories?.name) {
-      // Convert category name to URL-friendly format
-      const categorySlug = recipe.categories.name
-        .toLowerCase()
-        .replace(/ /g, "-")
-        .replace(/[^a-z0-9-]/g, "");
+      // Map common pizza styles to their URL slugs
+      const styleMap: { [key: string]: string } = {
+        "Neapolitan Pizza": "neapolitan",
+        "New York Style Pizza": "new-york",
+        "Chicago Deep Dish": "chicago",
+        "Detroit Style Pizza": "detroit",
+        "Sicilian Pizza": "sicilian",
+        "Thin & Crispy Pizza": "thin-crispy"
+      };
+
+      const categorySlug = styleMap[recipe.categories.name] || 
+        recipe.categories.name
+          .toLowerCase()
+          .replace(/ /g, "-")
+          .replace(/[^a-z0-9-]/g, "");
+
+      console.log("Navigating back to category:", categorySlug);
       navigate(`/pizza/${categorySlug}`);
     } else {
-      // Fallback to main pizza page if no category
+      console.log("No category found, navigating to main pizza page");
       navigate("/pizza");
     }
   };

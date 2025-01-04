@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import ThreadView from '../forum/ThreadView';
+import { AdminControls } from './AdminControls';
 
 interface ThreadItemProps {
   thread: {
@@ -22,9 +23,11 @@ interface ThreadItemProps {
     posts: any[];
     view_count?: number;
   };
+  showAdminControls?: boolean;
+  onThreadUpdated?: () => void;
 }
 
-const ThreadItem = ({ thread }: ThreadItemProps) => {
+const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemProps) => {
   const [likesCount, setLikesCount] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
@@ -55,13 +58,13 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
 
   return (
     <>
-      <div
-        onClick={() => setIsDialogOpen(true)}
-        className="block hover:bg-orange-50/50 dark:hover:bg-[#221F26]/20 transition-colors cursor-pointer"
-      >
+      <div className="block hover:bg-orange-50/50 dark:hover:bg-[#221F26]/20 transition-colors">
         <div className="p-4">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
+            <div 
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => setIsDialogOpen(true)}
+            >
               <div className="flex items-center gap-2">
                 {thread.is_pinned && (
                   <Pin className="w-4 h-4 text-orange-500 dark:text-orange-400" />
@@ -78,6 +81,16 @@ const ThreadItem = ({ thread }: ThreadItemProps) => {
               </p>
             </div>
             <div className="flex items-center gap-4">
+              {showAdminControls && (
+                <AdminControls
+                  categoryId={thread.id}
+                  threadId={thread.id}
+                  title={thread.title}
+                  content={thread.content}
+                  onUpdate={() => onThreadUpdated?.()}
+                  type="thread"
+                />
+              )}
               <Button
                 variant="ghost"
                 size="sm"

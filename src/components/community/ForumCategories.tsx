@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
 import CategorySection from './CategorySection';
 import ForumBreadcrumbs from '../forum/ForumBreadcrumbs';
 import { Search, Filter, SortAsc, SortDesc } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { CategoryManager } from './CategoryManager';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from '../ui/button';
 
 interface ForumCategory {
   id: string;
@@ -41,7 +40,6 @@ const ForumCategories = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterPinned, setFilterPinned] = useState(false);
-  const { isAdmin } = useAuth();
 
   const fetchCategories = async () => {
     try {
@@ -64,31 +62,20 @@ const ForumCategories = () => {
               created_at,
               is_pinned,
               is_locked,
-              view_count
+              view_count,
+              posts (
+                id,
+                content,
+                created_at
+              )
             `)
             .eq('category_id', category.id);
 
           if (threadsError) throw threadsError;
 
-          const threadsWithPosts = await Promise.all(
-            (threadsData || []).map(async (thread) => {
-              const { data: postsData, error: postsError } = await supabase
-                .from('forum_posts')
-                .select('id, content, created_at')
-                .eq('thread_id', thread.id);
-
-              if (postsError) throw postsError;
-
-              return {
-                ...thread,
-                posts: postsData || [],
-              };
-            })
-          );
-
           return {
             ...category,
-            forum_threads: threadsWithPosts,
+            forum_threads: threadsData || [],
           };
         })
       );
@@ -139,13 +126,7 @@ const ForumCategories = () => {
         <h2 className="text-2xl font-bold text-orange-900 dark:text-orange-100">
           Forum Categories
         </h2>
-        <div className="flex flex-wrap gap-2">
-          {isAdmin && (
-            <Button asChild variant="outline" className="bg-orange-50 hover:bg-orange-100 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C]">
-              <Link to="/dashboard/admin/forum">Manage Categories</Link>
-            </Button>
-          )}
-        </div>
+        <CategoryManager onCategoryAdded={fetchCategories} />
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">

@@ -7,8 +7,9 @@ import { useState } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { MessageSquare, Pin, Lock, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { AdminControls } from './AdminControls';
 
 interface CategorySectionProps {
   category: {
@@ -30,7 +31,7 @@ interface CategorySectionProps {
 const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newThread, setNewThread] = useState({ title: '', content: '' });
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
 
   const handleCreateThread = async () => {
     try {
@@ -62,9 +63,19 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
       <div className="p-6 bg-gradient-to-r from-orange-100 to-orange-50 dark:from-[#221F26]/20 dark:to-[#1A1F2C]/20 border-b border-orange-100 dark:border-[#221F26]">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-xl font-semibold text-orange-900 dark:text-orange-100">
-              {category.name}
-            </h3>
+            <div className="flex items-center gap-4">
+              <h3 className="text-xl font-semibold text-orange-900 dark:text-orange-100">
+                {category.name}
+              </h3>
+              {isAdmin && (
+                <AdminControls
+                  categoryId={category.id}
+                  title={category.name}
+                  onUpdate={onThreadCreated}
+                  type="category"
+                />
+              )}
+            </div>
             {category.description && (
               <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
                 {category.description}
@@ -104,7 +115,12 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
       </div>
       <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
         {category.forum_threads?.map((thread) => (
-          <ThreadItem key={thread.id} thread={thread} />
+          <ThreadItem 
+            key={thread.id} 
+            thread={thread}
+            showAdminControls={isAdmin}
+            onThreadUpdated={onThreadCreated}
+          />
         ))}
         {category.forum_threads?.length === 0 && (
           <p className="text-center py-8 text-gray-500 dark:text-gray-400">

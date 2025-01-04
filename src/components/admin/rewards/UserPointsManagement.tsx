@@ -110,8 +110,8 @@ const UserPointsManagement = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    onClick={(event) => {
+                      const input = (event.currentTarget.previousElementSibling as HTMLInputElement);
                       const points = parseInt(input.value);
                       if (!isNaN(points)) {
                         updatePointsMutation.mutate({ userId: user.id, points });

@@ -7,9 +7,9 @@ export interface Database {
           category_id: string | null;
           title: string;
           content: string;
-          is_pinned: boolean;
-          is_locked: boolean;
-          view_count: number;
+          is_pinned: boolean | null;
+          is_locked: boolean | null;
+          view_count: number | null;
           created_at: string;
           updated_at: string;
           created_by: string | null;
@@ -22,9 +22,9 @@ export interface Database {
           category_id?: string | null;
           title: string;
           content: string;
-          is_pinned?: boolean;
-          is_locked?: boolean;
-          view_count?: number;
+          is_pinned?: boolean | null;
+          is_locked?: boolean | null;
+          view_count?: number | null;
           created_at?: string;
           updated_at?: string;
           created_by?: string | null;
@@ -37,9 +37,9 @@ export interface Database {
           category_id?: string | null;
           title?: string;
           content?: string;
-          is_pinned?: boolean;
-          is_locked?: boolean;
-          view_count?: number;
+          is_pinned?: boolean | null;
+          is_locked?: boolean | null;
+          view_count?: number | null;
           created_at?: string;
           updated_at?: string;
           created_by?: string | null;
@@ -56,11 +56,11 @@ export interface Database {
           created_by: string | null;
           created_at: string;
           updated_at: string;
-          is_solution: boolean;
-          is_edited: boolean;
-          likes_count: number;
-          is_reported: boolean;
-          is_removed: boolean;
+          is_solution: boolean | null;
+          is_edited: boolean | null;
+          likes_count: number | null;
+          is_reported: boolean | null;
+          is_removed: boolean | null;
         };
       };
       forums: {

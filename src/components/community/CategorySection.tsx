@@ -22,6 +22,7 @@ interface CategorySectionProps {
       content: string;
       is_pinned: boolean;
       is_locked: boolean;
+      category_id: string;
       forum_posts: any[];
     }>;
   };
@@ -117,7 +118,10 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
         {category.forum_threads?.map((thread) => (
           <ThreadItem 
             key={thread.id} 
-            thread={thread}
+            thread={{
+              ...thread,
+              category_id: category.id // Ensure category_id is passed
+            }}
             showAdminControls={isAdmin}
             onThreadUpdated={onThreadCreated}
           />

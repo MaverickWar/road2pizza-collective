@@ -12,12 +12,17 @@ import NotificationManagement from "@/pages/admin/NotificationManagement";
 import SiteSettings from "@/pages/admin/SiteSettings";
 import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
+import Index from "@/pages/Index";
 
 function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={createBrowserRouter([
+          {
+            path: "/",
+            element: <Index />
+          },
           {
             path: "/dashboard/admin",
             element: (

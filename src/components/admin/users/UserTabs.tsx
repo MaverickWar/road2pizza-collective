@@ -31,81 +31,93 @@ const UserTabs = ({
 }: UserTabsProps) => {
   return (
     <Tabs defaultValue="all" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="all">All Users</TabsTrigger>
-        <TabsTrigger value="active">Active Users</TabsTrigger>
-        <TabsTrigger value="staff">Staff Members</TabsTrigger>
-        <TabsTrigger value="suspended">Suspended Users</TabsTrigger>
-        <TabsTrigger value="requests" className="relative">
-          Profile Requests
-          {pendingRequestsCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
-              {pendingRequestsCount}
-            </span>
-          )}
-        </TabsTrigger>
-      </TabsList>
+      <div className="overflow-x-auto">
+        <TabsList className="inline-flex w-auto min-w-full md:w-full">
+          <TabsTrigger value="all" className="flex-1">All Users</TabsTrigger>
+          <TabsTrigger value="active" className="flex-1">Active Users</TabsTrigger>
+          <TabsTrigger value="staff" className="flex-1">Staff Members</TabsTrigger>
+          <TabsTrigger value="suspended" className="flex-1">Suspended Users</TabsTrigger>
+          <TabsTrigger value="requests" className="flex-1 relative">
+            Profile Requests
+            {pendingRequestsCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                {pendingRequestsCount}
+              </span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+      </div>
 
       <TabsContent value="all">
         <Card>
-          <CardContent className="pt-6">
-            <UserManagementTable
-              users={users}
-              onToggleUserRole={onToggleUserRole}
-              onToggleSuspend={onToggleSuspend}
-            />
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+              <UserManagementTable
+                users={users}
+                onToggleUserRole={onToggleUserRole}
+                onToggleSuspend={onToggleSuspend}
+              />
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="active">
         <Card>
-          <CardContent className="pt-6">
-            <UserManagementTable
-              users={activeUsers}
-              onToggleUserRole={onToggleUserRole}
-              onToggleSuspend={onToggleSuspend}
-            />
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+              <UserManagementTable
+                users={activeUsers}
+                onToggleUserRole={onToggleUserRole}
+                onToggleSuspend={onToggleSuspend}
+              />
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="staff">
         <Card>
-          <CardContent className="pt-6">
-            <UserManagementTable
-              users={staffUsers}
-              onToggleUserRole={onToggleUserRole}
-              onToggleSuspend={onToggleSuspend}
-            />
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+              <UserManagementTable
+                users={staffUsers}
+                onToggleUserRole={onToggleUserRole}
+                onToggleSuspend={onToggleSuspend}
+              />
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="suspended">
         <Card>
-          <CardContent className="pt-6">
-            <UserManagementTable
-              users={suspendedUsers}
-              onToggleUserRole={onToggleUserRole}
-              onToggleSuspend={onToggleSuspend}
-            />
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+              <UserManagementTable
+                users={suspendedUsers}
+                onToggleUserRole={onToggleUserRole}
+                onToggleSuspend={onToggleSuspend}
+              />
+            </div>
           </CardContent>
         </Card>
       </TabsContent>
 
       <TabsContent value="requests">
         <Card>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6">
             {loadingRequests ? (
               <div className="h-32 flex items-center justify-center">
                 <p className="text-muted-foreground">Loading requests...</p>
               </div>
             ) : (
-              <ProfileChangeRequestsTable
-                requests={changeRequests}
-                onStatusUpdate={onRequestStatusUpdate}
-              />
+              <div className="overflow-x-auto">
+                <ProfileChangeRequestsTable
+                  requests={changeRequests}
+                  onStatusUpdate={onRequestStatusUpdate}
+                />
+              </div>
             )}
           </CardContent>
         </Card>

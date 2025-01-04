@@ -100,8 +100,8 @@ const UserManagement = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6">
-          <div className="space-y-6 animate-pulse">
+        <div className="container mx-auto p-4 md:p-6">
+          <div className="space-y-4 md:space-y-6 animate-pulse">
             <div className="h-20 bg-secondary/50 rounded-lg" />
             <div className="h-[400px] bg-secondary/50 rounded-lg" />
           </div>
@@ -112,37 +112,41 @@ const UserManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6">
-        <div className="space-y-6">
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="space-y-4 md:space-y-6">
           <div className="flex flex-col space-y-2">
-            <h1 className="text-3xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold">User Management</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Manage users, roles, and permissions
             </p>
           </div>
 
-          <UserStatsCards
-            totalUsers={users.length}
-            staffCount={staffUsers.length}
-            suspendedCount={suspendedUsers.length}
-            pendingRequestsCount={pendingRequests.length}
-          />
+          <div className="grid grid-cols-1 gap-4 md:gap-6">
+            <UserStatsCards
+              totalUsers={users.length}
+              staffCount={staffUsers.length}
+              suspendedCount={suspendedUsers.length}
+              pendingRequestsCount={pendingRequests.length}
+            />
+          </div>
 
-          <UserTabs
-            users={users}
-            activeUsers={activeUsers}
-            staffUsers={staffUsers}
-            suspendedUsers={suspendedUsers}
-            changeRequests={changeRequests}
-            pendingRequestsCount={pendingRequests.length}
-            onToggleUserRole={handleToggleUserRole}
-            onToggleSuspend={handleToggleSuspend}
-            loadingRequests={loadingRequests}
-            onRequestStatusUpdate={() => {
-              queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
-              queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-            }}
-          />
+          <div className="overflow-hidden">
+            <UserTabs
+              users={users}
+              activeUsers={activeUsers}
+              staffUsers={staffUsers}
+              suspendedUsers={suspendedUsers}
+              changeRequests={changeRequests}
+              pendingRequestsCount={pendingRequests.length}
+              onToggleUserRole={handleToggleUserRole}
+              onToggleSuspend={handleToggleSuspend}
+              loadingRequests={loadingRequests}
+              onRequestStatusUpdate={() => {
+                queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
+                queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+              }}
+            />
+          </div>
         </div>
       </div>
     </DashboardLayout>

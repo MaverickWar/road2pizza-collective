@@ -2,6 +2,9 @@ import { Card } from "@/components/ui/card";
 import type { Recipe } from "@/components/recipe/types";
 import MediaGallery from "../MediaGallery";
 import AuthorCard from "../AuthorCard";
+import RecipeContent from "./RecipeContent";
+import NutritionInfo from "../NutritionInfo";
+import ReviewSection from "../ReviewSection";
 
 interface RecipeMainContentProps {
   recipe: Recipe;
@@ -20,10 +23,14 @@ const RecipeMainContent = ({ recipe }: RecipeMainContentProps) => {
       />
 
       <Card className="p-6">
-        <div className="prose prose-invert max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: recipe.content || '' }} />
-        </div>
+        <RecipeContent recipe={recipe} />
       </Card>
+
+      {recipe.nutrition_info && (
+        <NutritionInfo nutritionInfo={recipe.nutrition_info} />
+      )}
+      
+      <ReviewSection reviews={recipe.reviews} />
     </div>
   );
 };

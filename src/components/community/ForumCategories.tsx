@@ -26,6 +26,7 @@ interface ForumCategory {
     is_pinned: boolean;
     is_locked: boolean;
     view_count: number;
+    category_id: string;
     forum_posts: {
       id: string;
       content: string;
@@ -63,6 +64,7 @@ const ForumCategories = () => {
               is_pinned,
               is_locked,
               view_count,
+              category_id,
               forum_posts (
                 id,
                 content,

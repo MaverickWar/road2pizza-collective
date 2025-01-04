@@ -118,10 +118,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
         {category.forum_threads?.map((thread) => (
           <ThreadItem 
             key={thread.id} 
-            thread={{
-              ...thread,
-              category_id: category.id // Ensure category_id is passed
-            }}
+            thread={thread}
             showAdminControls={isAdmin}
             onThreadUpdated={onThreadCreated}
           />

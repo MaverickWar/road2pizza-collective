@@ -77,12 +77,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <Navigation />
       
       <SidebarProvider defaultOpen={!isMobile}>
-        <div className="flex min-h-screen pt-16">
+        <div className="flex min-h-screen pt-16 relative">
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="fixed top-20 left-4 z-50 md:hidden"
+            className="fixed top-[4.5rem] left-4 z-[60] md:hidden"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
             {isSidebarOpen ? (
@@ -96,7 +96,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <Sidebar
             variant="floating"
             className={cn(
-              "fixed left-0 top-0 z-40 h-full w-64 transform transition-transform duration-300 ease-in-out",
+              "fixed left-0 top-16 z-[51] h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 ease-in-out bg-background",
               isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
               "md:relative md:translate-x-0"
             )}
@@ -138,7 +138,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           {/* Mobile Overlay */}
           {isMobile && isSidebarOpen && (
             <div 
-              className="fixed inset-0 bg-black/50 z-30"
+              className="fixed inset-0 bg-black/50 z-50"
               onClick={() => setIsSidebarOpen(false)}
             />
           )}

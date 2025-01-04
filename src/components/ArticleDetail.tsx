@@ -88,6 +88,24 @@ const ArticleDetail = () => {
     )
   );
 
+  const handleVisibilityToggle = async () => {
+    try {
+      const newStatus = recipe?.status === 'unpublished' ? 'published' : 'unpublished';
+      const { error } = await supabase
+        .from('recipes')
+        .update({ status: newStatus })
+        .eq('id', recipe?.id);
+
+      if (error) throw error;
+      
+      toast.success(newStatus === 'published' ? 'Recipe published successfully' : 'Recipe hidden successfully');
+      navigate('/pizza');
+    } catch (error) {
+      console.error('Error toggling recipe visibility:', error);
+      toast.error('Failed to update recipe visibility');
+    }
+  };
+
   if (isLoading) {
     console.log('Recipe is loading...');
     return (
@@ -119,21 +137,7 @@ const ArticleDetail = () => {
         recipe={recipe}
         canEdit={canEdit}
         onEdit={() => setShowEditModal(true)}
-        onHide={async () => {
-          try {
-            const { error } = await supabase
-              .from('recipes')
-              .update({ status: 'unpublished' })
-              .eq('id', recipe?.id);
-
-            if (error) throw error;
-            toast.success('Recipe hidden successfully');
-            navigate('/pizza');
-          } catch (error) {
-            console.error('Error hiding recipe:', error);
-            toast.error('Failed to hide recipe');
-          }
-        }}
+        onHide={handleVisibilityToggle}
       />
 
       {showEditModal && (

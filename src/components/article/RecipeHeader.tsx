@@ -1,15 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, EyeOff } from "lucide-react";
+import { ArrowLeft, Edit, EyeOff, Eye } from "lucide-react";
 
 interface RecipeHeaderProps {
   canEdit: boolean;
+  isHidden: boolean;
   onBack: () => void;
   onEdit: () => void;
   onHide: () => void;
 }
 
-const RecipeHeader = ({ canEdit, onBack, onEdit, onHide }: RecipeHeaderProps) => {
-  console.log('RecipeHeader: Rendering with canEdit:', canEdit); // Debug log
+const RecipeHeader = ({ canEdit, isHidden, onBack, onEdit, onHide }: RecipeHeaderProps) => {
+  console.log('RecipeHeader: Rendering with canEdit:', canEdit, 'isHidden:', isHidden);
 
   return (
     <div className="flex items-center justify-between mb-8">
@@ -29,12 +30,21 @@ const RecipeHeader = ({ canEdit, onBack, onEdit, onHide }: RecipeHeaderProps) =>
             Edit Recipe
           </Button>
           <Button 
-            variant="destructive"
+            variant={isHidden ? "default" : "destructive"}
             size="sm"
             onClick={onHide}
           >
-            <EyeOff className="w-4 h-4 mr-2" />
-            Hide Recipe
+            {isHidden ? (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Publish Recipe
+              </>
+            ) : (
+              <>
+                <EyeOff className="w-4 h-4 mr-2" />
+                Hide Recipe
+              </>
+            )}
           </Button>
         </div>
       )}

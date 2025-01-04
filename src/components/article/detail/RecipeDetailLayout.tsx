@@ -2,8 +2,6 @@ import { Recipe } from "@/components/recipe/types";
 import { Card } from "@/components/ui/card";
 import { Rating } from "@/components/Rating";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Edit, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthorCard from "../AuthorCard";
 import MediaGallery from "../MediaGallery";
@@ -13,6 +11,7 @@ import RecipeInstructions from "./RecipeInstructions";
 import RecipeTips from "./RecipeTips";
 import ReviewSection from "../ReviewSection";
 import NutritionInfo from "../NutritionInfo";
+import RecipeHeader from "../RecipeHeader";
 
 interface RecipeDetailLayoutProps {
   recipe: Recipe;
@@ -27,42 +26,20 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
     ? recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length
     : 0;
 
+  const isHidden = recipe.status === 'unpublished';
+
   return (
     <div className="min-h-screen bg-background pb-12">
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Header Section with Edit/Hide Buttons */}
-        <div className="flex items-center justify-between">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button>
-          
-          {canEdit && (
-            <div className="space-x-2">
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={onEdit}
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Recipe
-              </Button>
-              <Button 
-                variant="destructive"
-                size="sm"
-                onClick={onHide}
-              >
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide Recipe
-              </Button>
-            </div>
-          )}
-        </div>
+        <RecipeHeader
+          canEdit={canEdit}
+          isHidden={isHidden}
+          onBack={() => navigate(-1)}
+          onEdit={onEdit}
+          onHide={onHide}
+        />
 
-        {recipe.status === 'unpublished' && (
+        {isHidden && (
           <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg">
             This recipe is unpublished. Only you and administrators can view it.
           </div>
@@ -100,7 +77,6 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
           </div>
 
           <div className="space-y-6">
-            {/* Author Card Section */}
             <AuthorCard author={recipe.profiles} />
             
             <Card className="p-6">

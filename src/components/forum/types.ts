@@ -22,6 +22,8 @@ export interface Thread extends DBThread {
     points?: number;
     badge_title?: string;
     badge_color?: string;
+    is_admin?: boolean;
+    is_staff?: boolean;
   };
   posts?: Post[];
 }

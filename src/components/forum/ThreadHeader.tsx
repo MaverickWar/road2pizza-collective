@@ -3,8 +3,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils";
 import { format } from "date-fns";
-import { Award, Lock, Shield, Star } from "lucide-react";
+import { Lock, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import UserRoleBadges from "@/components/admin/UserRoleBadges";
+import UserStats from "@/components/admin/UserStats";
 
 interface ThreadHeaderProps {
   thread: Thread;
@@ -36,7 +38,7 @@ const ThreadHeader = ({ thread }: ThreadHeaderProps) => {
         </div>
       </div>
       
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-accent/5 rounded-lg">
+      <div className="flex flex-col sm:flex-row sm:items-start gap-4 p-4 bg-accent/5 rounded-lg">
         <Avatar className="h-12 w-12 border-2 border-accent">
           {thread.author?.avatar_url ? (
             <AvatarImage 
@@ -48,25 +50,23 @@ const ThreadHeader = ({ thread }: ThreadHeaderProps) => {
           <AvatarFallback>{getInitials(thread.author?.username || 'Unknown User')}</AvatarFallback>
         </Avatar>
         
-        <div className="space-y-1 flex-1">
+        <div className="space-y-2 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="font-semibold text-lg">{thread.author?.username || 'Unknown User'}</p>
-            {thread.author?.badge_title && (
-              <Badge variant="secondary" className="text-xs">
-                <Award className="w-3 h-3 mr-1" />
-                {thread.author.badge_title}
-              </Badge>
-            )}
+            <UserRoleBadges 
+              isAdmin={thread.author?.is_admin || false}
+              isStaff={thread.author?.is_staff || false}
+            />
           </div>
+          
+          <UserStats 
+            points={thread.author?.points || 0}
+            badgeTitle={thread.author?.badge_title}
+            badgeColor={thread.author?.badge_color}
+          />
           
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>{format(new Date(thread.created_at), 'PPp')}</span>
-            {thread.author?.points !== undefined && (
-              <span className="flex items-center">
-                <Star className="w-4 h-4 mr-1 text-yellow-500" />
-                {thread.author.points} points
-              </span>
-            )}
           </div>
         </div>
       </div>

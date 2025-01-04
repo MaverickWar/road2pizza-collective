@@ -37,7 +37,12 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
           author:profiles!forum_threads_created_by_fkey(
             username,
             avatar_url,
-            created_at
+            created_at,
+            points,
+            badge_title,
+            badge_color,
+            is_admin,
+            is_staff
           ),
           posts:forum_posts(
             id,
@@ -50,7 +55,10 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             likes_count,
             is_reported,
             is_removed,
-            user:profiles(username)
+            user:profiles(
+              username,
+              avatar_url
+            )
           )
         `)
         .eq("id", id)

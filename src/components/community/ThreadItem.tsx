@@ -45,8 +45,10 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
           </div>
           {showAdminControls && (
             <AdminControls
+              categoryId={thread.category_id}
               threadId={thread.id}
               title={thread.title}
+              content={thread.content}
               onUpdate={onThreadUpdated}
               type="thread"
             />

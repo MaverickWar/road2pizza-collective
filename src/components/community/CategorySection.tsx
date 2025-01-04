@@ -22,7 +22,7 @@ interface CategorySectionProps {
       content: string;
       is_pinned: boolean;
       is_locked: boolean;
-      posts: any[];
+      forum_posts: any[];
     }>;
   };
   onThreadCreated: () => void;

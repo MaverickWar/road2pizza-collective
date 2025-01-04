@@ -62,11 +62,11 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
 
   if (isMobile) {
     return (
-      <div className="space-y-4 px-4">
+      <div className="space-y-6">
         {users?.map((user) => (
           <div 
             key={user.id} 
-            className="bg-card rounded-xl shadow-sm overflow-hidden border border-gray-100 animate-fade-up"
+            className="bg-card rounded-xl shadow-sm overflow-hidden border border-gray-100 animate-fade-up p-4"
           >
             <UserTableRow
               user={user}
@@ -110,15 +110,15 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
   }
 
   return (
-    <div className="overflow-auto rounded-lg border">
+    <div className="rounded-lg border bg-card">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Roles</TableHead>
-            <TableHead>Stats</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+          <TableRow className="bg-muted/50">
+            <TableHead className="w-[250px]">User</TableHead>
+            <TableHead className="w-[150px]">Roles</TableHead>
+            <TableHead className="w-[200px]">Stats</TableHead>
+            <TableHead className="w-[120px]">Status</TableHead>
+            <TableHead className="w-[180px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

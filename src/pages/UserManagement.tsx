@@ -1,28 +1,35 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
-import { toast } from "sonner";
-import UserStatsCards from "@/components/admin/users/UserStatsCards";
+import UserManagementTable from "@/components/admin/UserManagementTable";
 import UserTabs from "@/components/admin/users/UserTabs";
-import type { ProfileChangeRequest } from "@/types/profile";
+import { toast } from "sonner";
 
 const UserManagement = () => {
-  const queryClient = useQueryClient();
-
-  const { data: users, isLoading } = useQuery({
+  const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      console.log("Fetching users for management...");
-      const { data, error } = await supabase.from("profiles").select("*");
-      if (error) throw error;
-      return data;
+      console.log("Fetching users...");
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Failed to load users");
+        throw error;
+      }
+
+      console.log("Fetched users:", data);
+      return data || [];
     },
   });
 
-  const { data: changeRequests, isLoading: loadingRequests } = useQuery({
+  const { data: changeRequests = [], isLoading: loadingRequests } = useQuery({
     queryKey: ["profile-change-requests"],
     queryFn: async () => {
-      console.log("Fetching profile change requests...");
+      console.log("Fetching change requests...");
       const { data, error } = await supabase
         .from("profile_change_requests")
         .select(`
@@ -31,16 +38,16 @@ const UserManagement = () => {
             username
           )
         `)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      const transformedData = data?.map(request => ({
-        ...request,
-        profiles: request.profiles ? { username: request.profiles.username } : null
-      }));
-      
-      return transformedData as ProfileChangeRequest[];
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching change requests:", error);
+        toast.error("Failed to load change requests");
+        throw error;
+      }
+
+      console.log("Fetched change requests:", data);
+      return data || [];
     },
   });
 
@@ -54,7 +61,6 @@ const UserManagement = () => {
       
       if (error) throw error;
       
-      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(`User ${role} status updated`);
     } catch (error) {
       console.error("Error updating user role:", error);
@@ -71,13 +77,17 @@ const UserManagement = () => {
       
       if (error) throw error;
       
-      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("User suspension status updated");
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating user suspension:", error);
       toast.error("Failed to update user suspension status");
     }
   };
+
+  const activeUsers = users.filter(user => !user.is_suspended);
+  const staffUsers = users.filter(user => user.is_staff || user.is_admin);
+  const suspendedUsers = users.filter(user => user.is_suspended);
+  const pendingRequests = changeRequests.filter(req => req.status === 'pending');
 
   if (isLoading) {
     return (
@@ -90,39 +100,21 @@ const UserManagement = () => {
     );
   }
 
-  const activeUsers = users?.filter(user => !user.is_suspended) || [];
-  const suspendedUsers = users?.filter(user => user.is_suspended) || [];
-  const staffUsers = users?.filter(user => user.is_staff || user.is_admin) || [];
-  const pendingRequests = changeRequests?.filter(req => req.status === 'pending') || [];
-
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-full overflow-x-hidden px-4">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage user roles, permissions, and account status
-          </p>
-        </div>
-
-        <UserStatsCards
-          totalUsers={users?.length || 0}
-          staffCount={staffUsers.length}
-          suspendedCount={suspendedUsers.length}
-          pendingRequestsCount={pendingRequests.length}
-        />
-
+      <div className="space-y-6">
         <UserTabs
-          users={users || []}
+          users={users}
           activeUsers={activeUsers}
           staffUsers={staffUsers}
           suspendedUsers={suspendedUsers}
-          changeRequests={changeRequests || []}
+          changeRequests={changeRequests}
           pendingRequestsCount={pendingRequests.length}
           onToggleUserRole={handleToggleUserRole}
           onToggleSuspend={handleToggleSuspend}
           loadingRequests={loadingRequests}
           onRequestStatusUpdate={() => {
+            // Invalidate queries to refresh data
             queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
           }}

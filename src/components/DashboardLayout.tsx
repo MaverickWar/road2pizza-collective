@@ -36,7 +36,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [location, isMobile]);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    console.log(`Checking if ${path} matches ${location.pathname}`);
+    return location.pathname === path;
+  };
 
   const navigationItems = [
     {
@@ -54,13 +57,19 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     {
       title: "Recipe Management",
       icon: FileText,
-      href: "/dashboard/staff",
+      href: "/dashboard/admin/recipes",
       show: isAdmin || isStaff,
     },
     {
       title: "Reviews Dashboard",
       icon: MessageSquare,
-      href: "/dashboard/reviews",
+      href: "/dashboard/admin/reviews",
+      show: isAdmin || isStaff,
+    },
+    {
+      title: "Pizza Types",
+      icon: FileText,
+      href: "/dashboard/admin/pizza-types",
       show: isAdmin || isStaff,
     },
     {
@@ -73,11 +82,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   console.log("Current route:", location.pathname);
   console.log("Mobile menu state:", { isMobile, isSidebarOpen });
+  console.log("Navigation items:", navigationItems.filter(item => item.show).map(item => ({
+    title: item.title,
+    href: item.href,
+    isActive: isActive(item.href)
+  })));
 
   const handleNavigation = (href: string) => {
-    navigate(href);
-    if (isMobile) {
-      setIsSidebarOpen(false);
+    console.log("Navigating to:", href);
+    try {
+      navigate(href);
+      if (isMobile) {
+        setIsSidebarOpen(false);
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
     }
   };
 

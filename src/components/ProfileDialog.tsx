@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,8 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload, UserRound } from 'lucide-react';
+import { AvatarUpload } from './profile/AvatarUpload';
 
 interface ProfileDialogProps {
   user: any;
@@ -38,73 +37,7 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
   const [newUsername, setNewUsername] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [lastResetTime, setLastResetTime] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
-        return;
-      }
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size should be less than 5MB');
-        return;
-      }
-
-      setIsUploading(true);
-      console.log('Starting image upload for user:', user.id);
-
-      // Upload image to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('profile-images')
-        .upload(fileName, file, {
-          upsert: true,
-        });
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-
-      console.log('Upload successful:', uploadData);
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-images')
-        .getPublicUrl(fileName);
-
-      console.log('Generated public URL:', publicUrl);
-
-      // Update profile with new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
-
-      if (updateError) {
-        console.error('Profile update error:', updateError);
-        throw updateError;
-      }
-
-      setAvatarUrl(publicUrl);
-      toast.success('Profile image updated successfully');
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to update profile image');
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleProfileUpdate = async () => {
     try {
@@ -186,34 +119,11 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="flex flex-col items-center gap-4">
-              <Avatar className="w-24 h-24">
-                <AvatarImage
-                  src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.id}`}
-                  alt={user?.username || 'Profile'}
-                />
-                <AvatarFallback>
-                  <UserRound className="w-12 h-12" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  id="avatar-upload"
-                  onChange={handleImageUpload}
-                  disabled={isUploading}
-                />
-                <Label
-                  htmlFor="avatar-upload"
-                  className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md"
-                >
-                  <Upload className="w-4 h-4" />
-                  {isUploading ? 'Uploading...' : 'Upload Image'}
-                </Label>
-              </div>
-            </div>
+            <AvatarUpload
+              userId={user.id}
+              currentAvatarUrl={avatarUrl}
+              onAvatarUpdate={setAvatarUrl}
+            />
             <div className="grid gap-2">
               <Label htmlFor="username">New Username</Label>
               <Input

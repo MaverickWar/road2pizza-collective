@@ -1,8 +1,22 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Award, Ban, CheckCircle, Eye, Key, MoreHorizontal, Shield, Trash2, User, UserCog } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Ban, CheckCircle, MoreHorizontal, Shield, Trash2, UserCog } from "lucide-react";
 
 interface UserActionsProps {
   user: any;
@@ -10,12 +24,11 @@ interface UserActionsProps {
   onToggleSuspend: (userId: string, currentStatus: boolean) => Promise<void>;
   onEditProfile: (user: any) => void;
   onManageStats: (user: any) => void;
-  onDeleteUser: (userId: string) => Promise<void>;
-  onVerifyUser: (userId: string) => Promise<void>;
-  isMobile?: boolean;
+  onDeleteUser: (userId: string) => void;
+  onVerifyUser: (userId: string) => void;
 }
 
-const UserActions = ({ 
+const UserActions = ({
   user,
   onToggleUserRole,
   onToggleSuspend,
@@ -23,83 +36,81 @@ const UserActions = ({
   onManageStats,
   onDeleteUser,
   onVerifyUser,
-  isMobile = false
 }: UserActionsProps) => {
-  const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
-
-  const handleResetPassword = async () => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) throw error;
-      
-      toast.success("Password reset email sent");
-    } catch (error) {
-      console.error("Error sending password reset:", error);
-      toast.error("Failed to send password reset email");
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className={isMobile ? "w-full justify-start" : ""}>
-          {isMobile ? (
-            <span className="flex items-center">
-              <MoreHorizontal className="h-4 w-4 mr-2" />
-              Actions
-            </span>
-          ) : (
-            <MoreHorizontal className="h-4 w-4" />
-          )}
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={isMobile ? "end" : "end"} className="w-[200px]">
-        <DropdownMenuItem onClick={() => onEditProfile(user)}>
-          <User className="w-4 h-4 mr-2" />
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem 
+          onClick={() => onEditProfile(user)}
+          className="cursor-pointer"
+        >
+          <UserCog className="w-4 h-4 mr-2" />
           Edit Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleResetPassword}>
-          <Key className="w-4 h-4 mr-2" />
-          Reset Password
+        <DropdownMenuItem 
+          onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}
+          className="cursor-pointer"
+        >
+          <Shield className="w-4 h-4 mr-2" />
+          {user.is_admin ? 'Remove Admin' : 'Make Admin'}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onManageStats(user)}>
-          <Award className="w-4 h-4 mr-2" />
-          Manage Stats
+        <DropdownMenuItem 
+          onClick={() => onToggleUserRole(user.id, 'staff', user.is_staff)}
+          className="cursor-pointer"
+        >
+          <UserCog className="w-4 h-4 mr-2" />
+          {user.is_staff ? 'Remove Staff' : 'Make Staff'}
+        </DropdownMenuItem>
+        <DropdownMenuItem 
+          onClick={() => onToggleSuspend(user.id, user.is_suspended)}
+          className="cursor-pointer text-red-600"
+        >
+          <Ban className="w-4 h-4 mr-2" />
+          {user.is_suspended ? 'Unsuspend' : 'Suspend'}
         </DropdownMenuItem>
         {!user.is_verified && (
-          <DropdownMenuItem onClick={() => onVerifyUser(user.id)}>
+          <DropdownMenuItem 
+            onClick={() => onVerifyUser(user.id)}
+            className="cursor-pointer"
+          >
             <CheckCircle className="w-4 h-4 mr-2" />
             Verify User
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}>
-          <Shield className="w-4 h-4 mr-2" />
-          {user.is_admin ? "Remove Admin" : "Make Admin"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'staff', user.is_staff)}>
-          <UserCog className="w-4 h-4 mr-2" />
-          {user.is_staff ? "Remove Staff" : "Make Staff"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onToggleSuspend(user.id, user.is_suspended)}>
-          {user.is_suspended ? (
-            <Eye className="w-4 h-4 mr-2" />
-          ) : (
-            <Ban className="w-4 h-4 mr-2" />
-          )}
-          {user.is_suspended ? "Activate" : "Suspend"}
-        </DropdownMenuItem>
-        {!isMainAdmin && (
-          <DropdownMenuItem 
-            className="text-red-600 focus:text-red-600" 
-            onClick={() => onDeleteUser(user.id)}
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete User
-          </DropdownMenuItem>
-        )}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem 
+              className="cursor-pointer text-red-600"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete User
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the user's
+                account and remove all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDeleteUser(user.id)}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DropdownMenuContent>
     </DropdownMenu>
   );

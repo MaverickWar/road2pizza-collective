@@ -2,6 +2,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import ImageModal from "./ImageModal";
 
 interface MediaGalleryProps {
   imageUrl?: string | null;
@@ -13,6 +14,7 @@ interface MediaGalleryProps {
 
 const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], className }: MediaGalleryProps) => {
   const [imageError, setImageError] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   const fallbackImage = "https://images.unsplash.com/photo-1504893524553-b855bce32c67";
 
@@ -43,7 +45,8 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
               src={!imageError ? imageUrl || fallbackImage : fallbackImage}
               alt="Recipe" 
               onError={handleImageError}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              onClick={() => setSelectedImage(!imageError ? imageUrl || fallbackImage : fallbackImage)}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
             />
           </AspectRatio>
         </Card>
@@ -74,13 +77,20 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
                     console.log(`Additional image ${index + 1} failed to load, using fallback`);
                     (e.target as HTMLImageElement).src = fallbackImage;
                   }}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  onClick={() => setSelectedImage(img)}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
                 />
               </AspectRatio>
             </Card>
           ))}
         </div>
       )}
+
+      <ImageModal
+        imageUrl={selectedImage}
+        isOpen={!!selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
     </div>
   );
 };

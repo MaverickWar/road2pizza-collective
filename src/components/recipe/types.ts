@@ -33,6 +33,7 @@ export interface Recipe {
   instructions: string[];
   tips: string[];
   profiles: {
+    id: string;
     username: string;
     points?: number;
     badge_title?: string;

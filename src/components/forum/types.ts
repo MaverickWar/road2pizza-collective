@@ -3,6 +3,7 @@ import { Database } from '@/integrations/supabase/types/generated';
 type DBThread = Database['public']['Tables']['forum_threads']['Row'];
 type DBPost = Database['public']['Tables']['forum_posts']['Row'];
 type DBForum = Database['public']['Tables']['forums']['Row'];
+type DBForumSettings = Database['public']['Tables']['forum_settings']['Row'];
 
 export interface Thread extends DBThread {
   forum?: {
@@ -34,7 +35,7 @@ export interface Forum extends DBForum {
   };
 }
 
-export interface ForumSettings {
+export interface ForumSettings extends DBForumSettings {
   id: number;
   allow_guest_viewing: boolean | null;
   require_approval: boolean | null;

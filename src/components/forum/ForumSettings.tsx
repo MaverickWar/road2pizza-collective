@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { ForumSettings as ForumSettingsType } from './types';
+import { Card } from '@/components/ui/card';
 
 const ForumSettings = () => {
   const [settings, setSettings] = useState<ForumSettingsType | null>(null);
@@ -26,7 +27,7 @@ const ForumSettings = () => {
       }
 
       console.log('Fetched settings:', data);
-      setSettings(data);
+      setSettings(data as ForumSettingsType);
     } catch (error) {
       console.error('Error in fetchSettings:', error);
       toast.error('Failed to load forum settings');
@@ -64,7 +65,7 @@ const ForumSettings = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <Card className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
           <h3 className="text-base font-medium">Allow Guest Viewing</h3>
@@ -103,7 +104,7 @@ const ForumSettings = () => {
           onCheckedChange={(checked) => updateSetting('auto_lock_inactive', checked)}
         />
       </div>
-    </div>
+    </Card>
   );
 };
 

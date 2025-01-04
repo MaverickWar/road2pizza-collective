@@ -75,7 +75,15 @@ const ArticleDetail = () => {
           carbs: String((data.nutrition_info as Record<string, unknown>).carbs || ''),
           fat: String((data.nutrition_info as Record<string, unknown>).fat || '')
         } : null,
-        profiles: data.profiles,
+        profiles: {
+          id: data.profiles.id,
+          username: data.profiles.username,
+          points: data.profiles.points,
+          badge_title: data.profiles.badge_title,
+          badge_color: data.profiles.badge_color,
+          recipes_shared: data.profiles.recipes_shared,
+          created_at: data.profiles.created_at
+        },
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;
     }

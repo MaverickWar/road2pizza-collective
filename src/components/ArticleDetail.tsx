@@ -28,7 +28,7 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          profiles!recipes_created_by_fkey (
+          profiles!inner (
             username,
             points,
             badge_title,

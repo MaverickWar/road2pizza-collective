@@ -9,6 +9,7 @@ interface ThreadItemProps {
     content: string;
     is_pinned: boolean;
     is_locked: boolean;
+    category_id: string;
     forum_posts: any[];
   };
   showAdminControls?: boolean;

@@ -11,9 +11,8 @@ import {
   Bell,
   Palette,
   Image,
-  LayoutDashboard,
   Navigation,
-  Trophy
+  MessagesSquare
 } from 'lucide-react';
 import { Link } from "react-router-dom";
 
@@ -83,6 +82,13 @@ const AdminDashboard = () => {
       icon: Settings,
       href: "/dashboard/admin/settings",
       color: "bg-slate-500/10 text-slate-500",
+    },
+    {
+      title: "Forum Settings",
+      description: "Manage forum configuration and moderation",
+      icon: MessagesSquare,
+      href: "/dashboard/admin/forum",
+      color: "bg-emerald-500/10 text-emerald-500",
     }
   ];
 

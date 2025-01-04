@@ -8,7 +8,12 @@ import {
   MessageSquare,
   Settings,
   Menu,
-  X
+  X,
+  Image,
+  Palette,
+  Bell,
+  Award,
+  BookOpen,
 } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
@@ -43,7 +48,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       title: "Overview",
       icon: LayoutDashboard,
       href: "/dashboard/admin",
-      show: true,
+      show: isAdmin,
     },
     {
       title: "User Management",
@@ -53,8 +58,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     },
     {
       title: "Recipe Management",
-      icon: FileText,
-      href: "/dashboard/staff",
+      icon: BookOpen,
+      href: "/dashboard/admin/recipes",
       show: isAdmin || isStaff,
     },
     {
@@ -62,6 +67,36 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       icon: MessageSquare,
       href: "/dashboard/reviews",
       show: isAdmin || isStaff,
+    },
+    {
+      title: "Pizza Types",
+      icon: FileText,
+      href: "/dashboard/admin/pizza-types",
+      show: isAdmin || isStaff,
+    },
+    {
+      title: "Rewards",
+      icon: Award,
+      href: "/dashboard/admin/rewards",
+      show: isAdmin,
+    },
+    {
+      title: "Notifications",
+      icon: Bell,
+      href: "/dashboard/admin/notifications",
+      show: isAdmin,
+    },
+    {
+      title: "Media Gallery",
+      icon: Image,
+      href: "/dashboard/admin/media",
+      show: isAdmin,
+    },
+    {
+      title: "Theme Settings",
+      icon: Palette,
+      href: "/dashboard/admin/theme",
+      show: isAdmin,
     },
     {
       title: "Forum Settings",

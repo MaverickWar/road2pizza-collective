@@ -26,6 +26,11 @@ import ForumSettings from "@/components/forum/ForumSettings";
 import ThreadManagement from "@/components/forum/ThreadManagement";
 import CategoryView from "@/components/forum/CategoryView";
 import ThreadView from "@/components/forum/ThreadView";
+import MediaGallery from "@/pages/admin/MediaGallery";
+import ThemeSettings from "@/pages/admin/ThemeSettings";
+import NotificationManagement from "@/pages/admin/NotificationManagement";
+import RewardsManagement from "@/pages/admin/RewardsManagement";
+import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +90,46 @@ function App() {
                   element={
                     <ProtectedRoute requireAdmin>
                       <ForumManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/media"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <MediaGallery />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/theme"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <ThemeSettings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/notifications"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <NotificationManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/rewards"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <RewardsManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/pizza-types"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <PizzaTypeManagement />
                     </ProtectedRoute>
                   }
                 />

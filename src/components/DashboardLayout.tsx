@@ -14,8 +14,6 @@ import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-mobile";
-import { SidebarProvider } from "./ui/sidebar/SidebarContext";
-import { Sidebar } from "./ui/sidebar/SidebarBase";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, isStaff } = useAuth();
@@ -78,12 +76,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="flex min-h-screen pt-16">
+      <div className="flex min-h-[calc(100vh-4rem)] mt-16">
         {/* Mobile Menu Button */}
         <Button
           variant="ghost"
           size="icon"
-          className="fixed top-[4.5rem] left-4 z-[100] md:hidden"
+          className="fixed top-[4.5rem] right-4 z-50 md:hidden"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           {isSidebarOpen ? (
@@ -96,43 +94,41 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Sidebar */}
         <div
           className={cn(
-            "fixed inset-y-0 left-0 z-[90] w-64 transform transition-transform duration-300 ease-in-out pt-16",
+            "fixed md:static top-16 left-0 h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 ease-in-out bg-background border-r",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-            "md:relative md:translate-x-0"
+            "md:translate-x-0"
           )}
         >
-          <div className="h-full bg-background border-r">
-            <div className="flex flex-col h-full p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Dashboard</h2>
-              </div>
-
-              <nav className="space-y-2 flex-1">
-                {navigationItems
-                  .filter(item => item.show)
-                  .map((item) => (
-                    <Button
-                      key={item.href}
-                      asChild
-                      variant={isActive(item.href) ? "secondary" : "ghost"}
-                      className="w-full justify-start"
-                      onClick={() => isMobile && setIsSidebarOpen(false)}
-                    >
-                      <Link to={item.href}>
-                        <item.icon className="h-4 w-4 mr-2" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </Button>
-                  ))}
-              </nav>
+          <div className="flex flex-col h-full p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Dashboard</h2>
             </div>
+
+            <nav className="space-y-2 flex-1">
+              {navigationItems
+                .filter(item => item.show)
+                .map((item) => (
+                  <Button
+                    key={item.href}
+                    asChild
+                    variant={isActive(item.href) ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                    onClick={() => isMobile && setIsSidebarOpen(false)}
+                  >
+                    <Link to={item.href}>
+                      <item.icon className="h-4 w-4 mr-2" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </Button>
+                ))}
+            </nav>
           </div>
         </div>
 
         {/* Main Content */}
         <main className={cn(
-          "flex-1 transition-all duration-300 ease-in-out p-6",
-          isSidebarOpen ? "md:ml-64" : "ml-0"
+          "flex-1 p-6 transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "md:ml-0" : "ml-0"
         )}>
           {children}
         </main>
@@ -140,7 +136,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Mobile Overlay */}
         {isMobile && isSidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-[80]"
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}

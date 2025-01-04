@@ -46,7 +46,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       title: "Overview",
       icon: LayoutDashboard,
       href: "/dashboard/admin",
-      show: true,
+      show: isAdmin,
     },
     {
       title: "User Management",
@@ -89,9 +89,17 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   })));
 
   const handleNavigation = (href: string) => {
-    console.log("Navigating to:", href);
+    console.log("Attempting navigation to:", href);
     try {
+      // Prevent navigation if we're already on the page
+      if (location.pathname === href) {
+        console.log("Already on this page, skipping navigation");
+        return;
+      }
+
+      console.log("Navigating to:", href);
       navigate(href);
+      
       if (isMobile) {
         setIsSidebarOpen(false);
       }

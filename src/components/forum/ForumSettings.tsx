@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
+import type { ForumSettings as ForumSettingsType } from './types';
 
 const ForumSettings = () => {
   const [allowGuestViewing, setAllowGuestViewing] = useState(true);
@@ -41,7 +42,7 @@ const ForumSettings = () => {
       const { error } = await supabase
         .from('forum_settings')
         .upsert({
-          id: 1, // Using a single row for settings
+          id: 1,
           allow_guest_viewing: allowGuestViewing,
           require_approval: requireApproval,
           auto_lock_inactive: autoLockInactive,

@@ -19,14 +19,14 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
   const [likes, setLikes] = useState(Math.floor(Math.random() * 50));
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up bg-card hover:bg-card-hover border-none shadow-md">
       <CardHeader className="p-0">
         {review.recipes?.image_url && (
           <div className="relative h-48 overflow-hidden">
             <img
               src={review.recipes.image_url}
               alt={review.recipes.title}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           </div>
@@ -47,7 +47,7 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             </div>
           </div>
 
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-gray-500">
             by {review.recipes?.author}
           </p>
 
@@ -56,7 +56,7 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
           <div className="flex items-center justify-between pt-4">
             <HoverCard>
               <HoverCardTrigger>
-                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                <div className="flex items-center space-x-2 text-sm text-gray-500 hover:text-accent transition-colors">
                   <img
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${review.profiles?.username}`}
                     alt={review.profiles?.username}

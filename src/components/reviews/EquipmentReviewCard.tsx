@@ -29,20 +29,20 @@ const EquipmentReviewCard = ({ review }: EquipmentReviewProps) => {
   );
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg bg-card hover:bg-card-hover border-none shadow-md">
       <CardHeader className="p-0">
         {review.image_url ? (
           <div className="relative h-48 overflow-hidden">
             <img
               src={review.image_url}
               alt={review.title}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           </div>
         ) : (
-          <div className="h-48 bg-muted flex items-center justify-center">
-            <Wrench className="w-12 h-12 text-muted-foreground" />
+          <div className="h-48 bg-secondary/50 flex items-center justify-center">
+            <Wrench className="w-12 h-12 text-accent/50" />
           </div>
         )}
       </CardHeader>
@@ -62,13 +62,17 @@ const EquipmentReviewCard = ({ review }: EquipmentReviewProps) => {
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-500">
               {review.brand} {review.model}
             </p>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary">{review.category}</Badge>
+              <Badge variant="secondary" className="bg-secondary/50">
+                {review.category}
+              </Badge>
               {review.price_range && (
-                <Badge variant="outline">{review.price_range}</Badge>
+                <Badge variant="outline" className="border-accent/20">
+                  {review.price_range}
+                </Badge>
               )}
             </div>
           </div>
@@ -76,19 +80,19 @@ const EquipmentReviewCard = ({ review }: EquipmentReviewProps) => {
           <div className="grid grid-cols-2 gap-2 text-sm">
             {review.durability_rating && (
               <div>
-                <span className="text-muted-foreground">Durability:</span>{" "}
+                <span className="text-gray-500">Durability:</span>{" "}
                 {review.durability_rating}/5
               </div>
             )}
             {review.value_rating && (
               <div>
-                <span className="text-muted-foreground">Value:</span>{" "}
+                <span className="text-gray-500">Value:</span>{" "}
                 {review.value_rating}/5
               </div>
             )}
             {review.ease_of_use_rating && (
               <div>
-                <span className="text-muted-foreground">Ease of Use:</span>{" "}
+                <span className="text-gray-500">Ease of Use:</span>{" "}
                 {review.ease_of_use_rating}/5
               </div>
             )}

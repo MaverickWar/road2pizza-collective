@@ -8,7 +8,7 @@ export interface Thread extends DBThread {
   forum?: {
     id: string;
     title: string;
-    description: string | null;
+    description?: string | null;
     category?: {
       id: string;
       name: string;
@@ -32,4 +32,13 @@ export interface Forum extends DBForum {
     id: string;
     name: string;
   };
+}
+
+export interface ForumSettings {
+  id: number;
+  allow_guest_viewing: boolean;
+  require_approval: boolean;
+  auto_lock_inactive: boolean;
+  created_at: string;
+  updated_at: string;
 }

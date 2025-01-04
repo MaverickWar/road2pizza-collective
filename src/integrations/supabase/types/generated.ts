@@ -76,21 +76,16 @@ export interface Database {
           updated_at: string;
         };
       };
-      pizza_types: {
+      forum_settings: {
         Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          image_url: string | null;
+          id: number;
+          allow_guest_viewing: boolean;
+          require_approval: boolean;
+          auto_lock_inactive: boolean;
           created_at: string;
-          created_by: string | null;
           updated_at: string;
-          slug: string;
-          display_order: number;
-          is_hidden: boolean;
         };
       };
     };
-    Enums: {};
   };
 }

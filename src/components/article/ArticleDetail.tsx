@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
 import EditRecipeModal from "./EditRecipeModal";
 import RecipeDetailLayout from "./detail/RecipeDetailLayout";
+import ArticleError from "./ArticleError";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -28,7 +29,7 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          profiles!inner (
+          profiles (
             username,
             points,
             badge_title,
@@ -48,11 +49,16 @@ const ArticleDetail = () => {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching recipe:', error);
         throw error;
+      }
+
+      if (!data) {
+        console.log('No recipe found with ID:', id);
+        throw new Error('Recipe not found');
       }
 
       console.log('Recipe data received:', data);
@@ -110,14 +116,7 @@ const ArticleDetail = () => {
 
   if (error || !recipe) {
     console.error('Error or no recipe:', error);
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="bg-card p-6 rounded-lg shadow-lg max-w-lg mx-auto">
-          <h2 className="text-xl font-semibold mb-2">Error loading recipe</h2>
-          <p className="text-gray-500">{error?.message || 'Recipe not found'}</p>
-        </div>
-      </div>
-    );
+    return <ArticleError message={error?.message || 'Recipe not found'} />;
   }
 
   console.log('Rendering recipe:', recipe);

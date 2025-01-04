@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
+import type { Profile } from "@/types/profile";
 import SuspensionNotice from "./SuspensionNotice";
 
 type AuthContextType = {
-  user: User | null;
+  user: (User & Partial<Profile>) | null;
   isAdmin: boolean;
   isStaff: boolean;
 };
@@ -18,7 +19,7 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & Partial<Profile>) | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error("Error checking suspension status:", error);
       return false;
+    }
+  };
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) throw error;
+      return profile;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
     }
   };
 
@@ -84,7 +101,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Initial session check:", session);
 
         if (session?.user) {
-          setUser(session.user);
+          const profile = await fetchUserProfile(session.user.id);
+          setUser(profile ? { ...session.user, ...profile } : session.user);
+          
           const suspended = await checkSuspensionStatus(session.user.id);
           console.log("User suspension status:", suspended);
           setIsSuspended(suspended);
@@ -101,7 +120,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           async (_event, session) => {
             console.log("Auth state changed:", session);
             if (session?.user) {
-              setUser(session.user);
+              const profile = await fetchUserProfile(session.user.id);
+              setUser(profile ? { ...session.user, ...profile } : session.user);
+              
               const suspended = await checkSuspensionStatus(session.user.id);
               setIsSuspended(suspended);
               

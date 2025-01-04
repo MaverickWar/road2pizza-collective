@@ -1,6 +1,6 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
@@ -18,6 +18,7 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, isStaff } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -70,14 +71,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     },
   ];
 
+  console.log("Current route:", location.pathname);
   console.log("Mobile menu state:", { isMobile, isSidebarOpen });
+
+  const handleNavigation = (href: string) => {
+    navigate(href);
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="flex flex-col pt-16">
-        {/* Admin Header stays at the top */}
         <div className="w-full px-6 py-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-secondary/50 p-6 rounded-lg backdrop-blur-sm animate-fade-up">
             <div className="space-y-1">
@@ -89,11 +97,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
 
-        {/* Menu Bar - Below Header */}
         <div className="w-full border-b bg-card">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between h-14">
-              {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -107,21 +113,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 )}
               </Button>
 
-              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-1">
                 {navigationItems
                   .filter(item => item.show)
                   .map((item) => (
                     <Button
                       key={item.href}
-                      asChild
                       variant={isActive(item.href) ? "secondary" : "ghost"}
                       className="h-12"
+                      onClick={() => handleNavigation(item.href)}
                     >
-                      <Link to={item.href} className="flex items-center space-x-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
+                      <item.icon className="h-4 w-4 mr-2" />
+                      <span>{item.title}</span>
                     </Button>
                   ))}
               </div>
@@ -130,11 +133,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
 
         <div className="flex flex-1">
-          {/* Mobile Sidebar */}
           <div
             className={cn(
               "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out",
-              "top-[8.5rem] h-[calc(100vh-8.5rem)]", // Adjusted to account for header + menu bar
+              "top-[8.5rem] h-[calc(100vh-8.5rem)]",
               isSidebarOpen ? "translate-x-0" : "-translate-x-full",
               "md:hidden"
             )}
@@ -145,26 +147,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 .map((item) => (
                   <Button
                     key={item.href}
-                    asChild
                     variant={isActive(item.href) ? "secondary" : "ghost"}
                     className="justify-start"
-                    onClick={() => isMobile && setIsSidebarOpen(false)}
+                    onClick={() => handleNavigation(item.href)}
                   >
-                    <Link to={item.href}>
-                      <item.icon className="h-4 w-4 mr-2" />
-                      <span>{item.title}</span>
-                    </Link>
+                    <item.icon className="h-4 w-4 mr-2" />
+                    <span>{item.title}</span>
                   </Button>
                 ))}
             </nav>
           </div>
 
-          {/* Main Content */}
           <main className="flex-1 p-6">
             {children}
           </main>
 
-          {/* Mobile Overlay */}
           {isMobile && isSidebarOpen && (
             <div 
               className="fixed inset-0 bg-black/50 z-40 top-[8.5rem]"

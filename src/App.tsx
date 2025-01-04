@@ -17,7 +17,7 @@ import Community from "@/pages/Community";
 import Pizza from "@/pages/Pizza";
 import PizzaStyle from "@/pages/PizzaStyle";
 import Reviews from "@/pages/Reviews";
-import ArticleDetail from "@/components/ArticleDetail";
+import ArticleDetail from "@/components/article/ArticleDetail";
 import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 import ReviewsDashboard from "@/components/reviews/ReviewsDashboard";
 import ForumManagement from "@/components/forum/ForumManagement";

@@ -10,7 +10,7 @@ interface SortControlsProps {
 
 const SortControls = ({ onReorder, isFirst, isLast }: SortControlsProps) => {
   return (
-    <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-10">
+    <div className="absolute left-2 top-2 flex flex-col gap-1 z-10">
       <Button
         variant="secondary"
         size="icon"

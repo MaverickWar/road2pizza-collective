@@ -4,14 +4,9 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Users, 
-  Pizza,
-  Bell,
+  FileText, 
   MessageSquare,
   Settings,
-  Image,
-  FileText,
-  Palette,
-  Menu,
 } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
@@ -47,7 +42,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       title: "Overview",
       icon: LayoutDashboard,
       href: "/dashboard/admin",
-      show: isAdmin,
+      show: true,
     },
     {
       title: "User Management",
@@ -56,64 +51,22 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       show: isAdmin,
     },
     {
-      title: "Pizza Types",
-      icon: Pizza,
-      href: "/dashboard/admin/pizza-types",
-      show: isAdmin,
-    },
-    {
-      title: "Notifications",
-      icon: Bell,
-      href: "/dashboard/admin/notifications",
-      show: isAdmin,
-    },
-    {
-      title: "Forum Management",
-      icon: MessageSquare,
-      href: "/dashboard/admin/forum",
-      show: isAdmin,
-    },
-    {
-      title: "Site Settings",
-      icon: Settings,
-      href: "/dashboard/admin/settings",
-      show: isAdmin,
-    },
-    {
-      title: "Navigation",
-      icon: Menu,
-      href: "/dashboard/admin/navigation",
-      show: isAdmin,
-    },
-    {
-      title: "Theme",
-      icon: Palette,
-      href: "/dashboard/admin/theme",
-      show: isAdmin,
-    },
-    {
-      title: "Media Gallery",
-      icon: Image,
-      href: "/dashboard/admin/media",
-      show: isAdmin,
-    },
-    {
-      title: "Pages",
-      icon: FileText,
-      href: "/dashboard/admin/pages",
-      show: isAdmin,
-    },
-    {
       title: "Recipe Management",
       icon: FileText,
       href: "/dashboard/staff",
-      show: isStaff && !isAdmin,
+      show: isAdmin || isStaff,
     },
     {
       title: "Reviews Dashboard",
       icon: MessageSquare,
       href: "/dashboard/reviews",
-      show: isStaff && !isAdmin,
+      show: isAdmin || isStaff,
+    },
+    {
+      title: "Forum Settings",
+      icon: Settings,
+      href: "/dashboard/admin/forum",
+      show: isAdmin,
     },
   ];
 
@@ -123,6 +76,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen pt-16">
+          {/* Sidebar */}
           <Sidebar
             variant="floating"
             className={cn(
@@ -156,6 +110,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </Sidebar>
 
+          {/* Main Content */}
           <main className={cn(
             "flex-1 transition-all duration-300 ease-in-out p-6",
             isSidebarOpen ? "md:ml-64" : "ml-0"
@@ -163,6 +118,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {children}
           </main>
 
+          {/* Mobile Overlay */}
           {isMobile && isSidebarOpen && (
             <div 
               className="fixed inset-0 bg-black/50 z-30"

@@ -12,7 +12,7 @@ const TopNav = () => {
         <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
-              Welcome, {user?.user_metadata?.username || user?.email || 'User'}!
+              Welcome, {user?.username || user?.email || 'User'}!
             </div>
             {user ? (
               <UserMenu user={user} isAdmin={isAdmin} />

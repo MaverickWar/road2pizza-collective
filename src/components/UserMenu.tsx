@@ -41,7 +41,7 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
           className="relative h-8 w-8 rounded-full hover:bg-white/20 ring-2 ring-white p-0"
         >
           <Avatar className="h-8 w-8">
-            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.user_metadata?.username || user.id}`} />
+            <AvatarImage src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} />
             <AvatarFallback>
               <UserRound className="h-4 w-4" />
             </AvatarFallback>
@@ -56,7 +56,7 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.user_metadata?.username || 'User'}
+              {user.username || 'User'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}

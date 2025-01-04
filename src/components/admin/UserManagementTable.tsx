@@ -62,9 +62,12 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
 
   if (isMobile) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 px-4">
         {users?.map((user) => (
-          <div key={user.id} className="bg-card rounded-lg shadow p-4">
+          <div 
+            key={user.id} 
+            className="bg-card rounded-xl shadow-sm overflow-hidden border border-gray-100 animate-fade-up"
+          >
             <UserTableRow
               user={user}
               onToggleUserRole={onToggleUserRole}

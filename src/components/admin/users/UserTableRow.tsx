@@ -27,29 +27,29 @@ const UserTableRow = ({
 }: UserTableRowProps) => {
   if (isMobile) {
     return (
-      <div className="space-y-4">
+      <div className="p-4 space-y-4">
         <div className="flex items-center space-x-3">
           <img
             src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`}
             alt={user.username}
-            className="w-10 h-10 rounded-full"
+            className="w-12 h-12 rounded-full"
           />
           <div>
-            <p className="font-medium">{user.username}</p>
+            <p className="font-medium text-base">{user.username}</p>
             {user.email && (
               <p className="text-sm text-muted-foreground">{user.email}</p>
             )}
           </div>
         </div>
 
-        <div className="space-y-4 divide-y divide-gray-100">
-          <div className="pt-4">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Roles</div>
+        <div className="space-y-3">
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1.5">Roles</div>
             <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
           </div>
           
-          <div className="pt-4">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Stats</div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1.5">Stats</div>
             <div className="space-y-2">
               <UserStats 
                 points={user.points} 
@@ -64,10 +64,10 @@ const UserTableRow = ({
             </div>
           </div>
           
-          <div className="pt-4">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Status</div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1.5">Status</div>
             <span
-              className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
+              className={`inline-flex items-center px-2.5 py-1 text-sm font-medium rounded-full ${
                 user.is_suspended
                   ? "bg-red-100 text-red-700"
                   : user.is_verified
@@ -79,8 +79,8 @@ const UserTableRow = ({
             </span>
           </div>
           
-          <div className="pt-4">
-            <div className="text-sm font-medium text-muted-foreground mb-2">Actions</div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-1.5">Actions</div>
             <UserActions
               user={user}
               onToggleUserRole={onToggleUserRole}

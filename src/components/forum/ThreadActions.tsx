@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
@@ -43,6 +42,7 @@ export const ThreadActions = ({
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   const [editedContent, setEditedContent] = useState(currentContent);
   const [selectedCategory, setSelectedCategory] = useState(currentCategoryId);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { data: categories } = useQuery({
     queryKey: ["forum-categories"],
@@ -114,59 +114,28 @@ export const ThreadActions = ({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogTrigger asChild>
-              <DropdownMenuItem>
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Thread
-              </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl">
-              <DialogHeader>
-                <DialogTitle>Edit Thread</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Editor content={editedContent} onChange={setEditedContent} />
-                <Button onClick={handleEdit}>Save Changes</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <DropdownMenuItem onClick={() => {
+            setIsEditDialogOpen(true);
+            setIsDropdownOpen(false);
+          }}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Thread
+          </DropdownMenuItem>
 
-          <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
-            <DialogTrigger asChild>
-              <DropdownMenuItem>
-                <FolderInput className="w-4 h-4 mr-2" />
-                Move Thread
-              </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Move Thread</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleMove}>Move Thread</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <DropdownMenuItem onClick={() => {
+            setIsMoveDialogOpen(true);
+            setIsDropdownOpen(false);
+          }}>
+            <FolderInput className="w-4 h-4 mr-2" />
+            Move Thread
+          </DropdownMenuItem>
 
           <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
             <Trash2 className="w-4 h-4 mr-2" />
@@ -174,6 +143,41 @@ export const ThreadActions = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Edit Thread</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Editor content={editedContent} onChange={setEditedContent} />
+            <Button onClick={handleEdit}>Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Move Thread</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories?.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleMove}>Move Thread</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

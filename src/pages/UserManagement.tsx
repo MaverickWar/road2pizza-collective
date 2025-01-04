@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import UserTabs from "@/components/admin/users/UserTabs";
+import UserStatsCards from "@/components/admin/users/UserStatsCards";
 import { toast } from "sonner";
 import type { ProfileChangeRequest } from "@/types/profile";
 
@@ -119,6 +120,13 @@ const UserManagement = () => {
               Manage users, roles, and permissions
             </p>
           </div>
+
+          <UserStatsCards
+            totalUsers={users.length}
+            staffCount={staffUsers.length}
+            suspendedCount={suspendedUsers.length}
+            pendingRequestsCount={pendingRequests.length}
+          />
 
           <UserTabs
             users={users}

@@ -61,9 +61,9 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
   };
 
   return (
-    <div className="relative">
+    <div className="w-full">
       {isMobile ? (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-4 px-2">
           {users?.map((user) => (
             <UserTableRow
               key={user.id}
@@ -85,14 +85,14 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border overflow-hidden">
+        <div className="w-full overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">User</TableHead>
-                <TableHead className="w-[150px]">Roles</TableHead>
-                <TableHead className="w-[200px]">Stats</TableHead>
-                <TableHead className="w-[150px]">Status</TableHead>
+                <TableHead>User</TableHead>
+                <TableHead>Roles</TableHead>
+                <TableHead>Stats</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>

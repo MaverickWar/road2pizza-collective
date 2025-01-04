@@ -27,35 +27,43 @@ const UserTableRow = ({
   isMobile = false
 }: UserTableRowProps) => {
   const UserContent = () => (
-    <>
-      <div className="space-y-3">
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-muted-foreground">Roles</div>
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
-        
+      </div>
+      
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-muted-foreground">Stats</div>
         <UserStats 
           points={user.points} 
           badgeTitle={user.badge_title} 
           badgeColor={user.badge_color} 
         />
-        
+      </div>
+      
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-muted-foreground">Recipe Approval</div>
         <UserApprovalToggle
           userId={user.id}
           requiresApproval={user.requires_recipe_approval}
           onUpdate={() => window.location.reload()}
         />
-        
-        <div>
-          <span
-            className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
-              user.is_suspended
-                ? "bg-red-100 text-red-700"
-                : user.is_verified
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
-          </span>
-        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-muted-foreground">Status</div>
+        <span
+          className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
+            user.is_suspended
+              ? "bg-red-100 text-red-700"
+              : user.is_verified
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
+          }`}
+        >
+          {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
+        </span>
       </div>
       
       <UserActions
@@ -68,7 +76,7 @@ const UserTableRow = ({
         onVerifyUser={onVerifyUser}
         isMobile={isMobile}
       />
-    </>
+    </div>
   );
 
   if (isMobile) {
@@ -81,15 +89,15 @@ const UserTableRow = ({
 
   return (
     <TableRow className="group hover:bg-secondary/50">
-      <TableCell className="max-w-[200px]">
+      <TableCell>
         <UserCard user={user}>
           <></>
         </UserCard>
       </TableCell>
-      <TableCell className="max-w-[150px]">
+      <TableCell>
         <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
       </TableCell>
-      <TableCell className="max-w-[200px]">
+      <TableCell>
         <div className="space-y-2">
           <UserStats 
             points={user.points} 
@@ -103,7 +111,7 @@ const UserTableRow = ({
           />
         </div>
       </TableCell>
-      <TableCell className="max-w-[150px]">
+      <TableCell>
         <span
           className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
             user.is_suspended
@@ -116,7 +124,7 @@ const UserTableRow = ({
           {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
         </span>
       </TableCell>
-      <TableCell className="max-w-[100px]">
+      <TableCell>
         <UserActions
           user={user}
           onToggleUserRole={onToggleUserRole}

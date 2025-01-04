@@ -76,34 +76,33 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="flex min-h-[calc(100vh-4rem)] pt-16">
+      <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)] pt-16">
         {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed top-16 left-4 z-50 md:hidden p-2"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          {isSidebarOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </Button>
+        <div className="flex items-center justify-between px-4 py-2 border-b md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </Button>
+          <h2 className="text-lg font-semibold">Dashboard</h2>
+        </div>
 
         {/* Sidebar */}
         <div
           className={cn(
-            "fixed md:static top-16 left-0 h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 ease-in-out bg-background border-r shadow-sm",
+            "fixed md:static top-[5.5rem] left-0 h-[calc(100vh-5.5rem)] w-64 transform transition-transform duration-300 ease-in-out bg-background border-r shadow-sm",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-            "md:translate-x-0"
+            "md:translate-x-0 md:top-16 md:h-[calc(100vh-4rem)]"
           )}
         >
           <div className="flex flex-col h-full p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Dashboard</h2>
-            </div>
-
             <nav className="space-y-2 flex-1">
               {navigationItems
                 .filter(item => item.show)
@@ -136,7 +135,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         {/* Mobile Overlay */}
         {isMobile && isSidebarOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-40 top-[5.5rem]"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}

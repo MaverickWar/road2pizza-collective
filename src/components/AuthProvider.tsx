@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
@@ -26,20 +26,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       console.log("Initial session check:", session);
-      handleSessionChange(session);
-    });
+      await handleSessionChange(session);
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", session);
-      handleSessionChange(session);
-    });
+      // Listen for auth changes
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        console.log("Auth state changed:", session);
+        await handleSessionChange(session);
+      });
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    };
+
+    initializeAuth();
   }, []);
 
   const handleSessionChange = async (session: Session | null) => {
@@ -111,7 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
       
-      console.log("User role data:", data); // Add this log
+      console.log("User role data:", data);
       
       if (data) {
         // Special handling for main admin account
@@ -150,3 +153,5 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

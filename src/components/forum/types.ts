@@ -4,7 +4,7 @@ export type Thread = Database['public']['Tables']['forum_threads']['Row'] & {
   forum?: {
     id: string;
     title: string;
-    description?: string;
+    description?: string | null;
     category?: {
       id: string;
       name: string;

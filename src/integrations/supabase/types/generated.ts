@@ -75,6 +75,21 @@ export interface Database {
           }
         }
       }
+      pizza_types: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          image_url: string | null
+          created_at: string
+          created_by: string | null
+          updated_at: string
+          slug: string
+          display_order: number
+          is_hidden: boolean
+        }
+      }
     }
+    Enums: {}
   }
 }

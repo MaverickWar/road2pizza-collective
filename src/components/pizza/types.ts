@@ -1,8 +1,3 @@
-import { Tables } from '@/integrations/supabase/types/database';
+import { Database } from '@/integrations/supabase/types/generated';
 
-export type PizzaType = Tables<'pizza_types'>;
-
-export interface PizzaTypeUpdatePayload extends Partial<PizzaType> {
-  name?: string;
-  slug?: string;
-}
+export type PizzaType = Database['public']['Tables']['pizza_types']['Row'];

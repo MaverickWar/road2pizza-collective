@@ -1,12 +1,6 @@
-import { Tables } from '@/integrations/supabase/types/database';
+import { Database } from '@/integrations/supabase/types/generated';
 
-export interface Post extends Tables<'forum_posts'> {
-  user?: {
-    username: string;
-  };
-}
-
-export interface Thread extends Tables<'forum_threads'> {
+export type Thread = Database['public']['Tables']['forum_threads']['Row'] & {
   forum?: {
     id: string;
     title: string;
@@ -21,9 +15,15 @@ export interface Thread extends Tables<'forum_threads'> {
     avatar_url: string | null;
   };
   posts?: Post[];
-}
+};
 
-export interface ForumSettings extends Tables<'forum_settings'> {
+export type Post = Database['public']['Tables']['forum_posts']['Row'] & {
+  user?: {
+    username: string;
+  };
+};
+
+export interface ForumSettings {
   allow_guest_viewing: boolean;
   require_approval: boolean;
   auto_lock_inactive: boolean;

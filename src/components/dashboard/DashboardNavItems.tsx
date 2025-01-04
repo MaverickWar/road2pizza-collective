@@ -11,7 +11,8 @@ import {
   Settings,
   Palette,
   Image,
-  Trophy
+  Trophy,
+  MessageSquare
 } from 'lucide-react';
 
 interface DashboardNavItemsProps {
@@ -70,6 +71,12 @@ const DashboardNavItems = ({
           <Link to="/dashboard/admin/pizza-types">
             <FileText className="w-4 h-4 mr-2" />
             Pizza Types
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/forum">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Forum
           </Link>
         </Button>
         <Button variant="ghost" asChild onClick={handleClick}>

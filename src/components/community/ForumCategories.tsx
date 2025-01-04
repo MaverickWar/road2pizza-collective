@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import CategorySection from './CategorySection';
 import ForumBreadcrumbs from '../forum/ForumBreadcrumbs';
 import { Search, Filter, SortAsc, SortDesc } from 'lucide-react';
@@ -26,7 +26,7 @@ interface ForumCategory {
     is_pinned: boolean;
     is_locked: boolean;
     view_count: number;
-    posts: {
+    forum_posts: {
       id: string;
       content: string;
       created_at: string;
@@ -63,7 +63,7 @@ const ForumCategories = () => {
               is_pinned,
               is_locked,
               view_count,
-              posts (
+              forum_posts (
                 id,
                 content,
                 created_at

@@ -7,10 +7,6 @@ import {
   FileText, 
   MessageSquare,
   Settings,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight
 } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
@@ -80,21 +76,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen pt-16">
-          {/* Mobile Menu Toggle - Repositioned and styled */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="fixed top-[4.5rem] left-4 z-50 md:hidden bg-white shadow-sm hover:bg-gray-100"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            aria-label="Toggle menu"
-          >
-            {isSidebarOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
-
           {/* Sidebar */}
           <Sidebar
             variant="floating"
@@ -106,18 +87,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex flex-col h-full p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Dashboard</h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hidden md:flex"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                  {isSidebarOpen ? (
-                    <ChevronLeft className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
               </div>
 
               <nav className="space-y-2 flex-1">

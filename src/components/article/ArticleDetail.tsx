@@ -33,7 +33,8 @@ const ArticleDetail = () => {
             badge_title,
             badge_color,
             recipes_shared,
-            created_at
+            created_at,
+            email
           ),
           reviews (
             rating,

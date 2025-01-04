@@ -2,15 +2,18 @@ import { Card } from "@/components/ui/card";
 import type { Recipe } from "@/components/recipe/types";
 import MediaGallery from "../MediaGallery";
 import AuthorCard from "../AuthorCard";
-import RecipeContent from "./RecipeContent";
 import NutritionInfo from "../NutritionInfo";
 import ReviewSection from "../ReviewSection";
+import RecipeContent from "./RecipeContent";
 
 interface RecipeMainContentProps {
   recipe: Recipe;
 }
 
 const RecipeMainContent = ({ recipe }: RecipeMainContentProps) => {
+  console.log('Rendering RecipeMainContent with recipe:', recipe);
+  console.log('Author info:', recipe.profiles);
+
   return (
     <div className="space-y-6">
       <AuthorCard author={recipe.profiles} />
@@ -30,7 +33,9 @@ const RecipeMainContent = ({ recipe }: RecipeMainContentProps) => {
         <NutritionInfo nutritionInfo={recipe.nutrition_info} />
       )}
       
-      <ReviewSection reviews={recipe.reviews} />
+      {recipe.reviews && recipe.reviews.length > 0 && (
+        <ReviewSection reviews={recipe.reviews} />
+      )}
     </div>
   );
 };

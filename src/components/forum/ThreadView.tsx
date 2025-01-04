@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Thread } from "./types";
 import ThreadHeader from "./ThreadHeader";
@@ -7,6 +7,8 @@ import ThreadContent from "./ThreadContent";
 import ThreadReplies from "./ThreadReplies";
 import ReplyForm from "./ReplyForm";
 import { ThreadActions } from "./ThreadActions";
+import { Button } from "../ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface ThreadViewProps {
   threadId?: string;
@@ -100,6 +102,14 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
 
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <Link to="/community">
+          <Button variant="outline" size="sm" className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Forum
+          </Button>
+        </Link>
+      </div>
       <div className="space-y-4">
         <ThreadHeader thread={thread} />
         <div className="flex justify-end">

@@ -39,7 +39,12 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             content,
             created_at,
             created_by,
+            updated_at,
             is_solution,
+            is_edited,
+            likes_count,
+            is_reported,
+            is_removed,
             user:profiles(username)
           )
         `)
@@ -55,7 +60,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
         .eq("id", id);
 
       console.log("Fetched thread:", data);
-      setThread(data);
+      setThread(data as Thread);
     } catch (error) {
       console.error("Error fetching thread:", error);
     } finally {

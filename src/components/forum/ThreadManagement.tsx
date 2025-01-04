@@ -26,18 +26,27 @@ const ThreadManagement = () => {
 
   const loadThreads = async () => {
     try {
+      console.log('Fetching threads...');
       const { data, error } = await supabase
         .from('forum_threads')
         .select(`
           *,
-          forum:forums(title, description),
-          profiles:created_by(username, avatar_url)
+          forum:forums(
+            id,
+            title,
+            description
+          ),
+          profiles(
+            username,
+            avatar_url
+          )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setThreads(data || []);
+      console.log('Fetched threads:', data);
+      setThreads(data as Thread[]);
     } catch (error) {
       console.error('Error loading threads:', error);
       toast.error('Failed to load threads');
@@ -134,7 +143,7 @@ const ThreadManagement = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => toggleThreadLock(thread.id, thread.is_locked)}
+                    onClick={() => toggleThreadLock(thread.id, thread.is_locked || false)}
                     title={thread.is_locked ? "Unlock thread" : "Lock thread"}
                   >
                     {thread.is_locked ? (
@@ -146,7 +155,7 @@ const ThreadManagement = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => toggleThreadPin(thread.id, thread.is_pinned)}
+                    onClick={() => toggleThreadPin(thread.id, thread.is_pinned || false)}
                     title={thread.is_pinned ? "Unpin thread" : "Pin thread"}
                   >
                     {thread.is_pinned ? (

@@ -16,7 +16,7 @@ export interface Thread extends DBThread {
   };
   profiles?: {
     username: string;
-    avatar_url: string | null;
+    avatar_url?: string | null;
   };
   posts?: Post[];
 }

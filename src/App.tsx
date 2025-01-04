@@ -31,6 +31,7 @@ import ThemeSettings from "@/pages/admin/ThemeSettings";
 import NotificationManagement from "@/pages/admin/NotificationManagement";
 import RewardsManagement from "@/pages/admin/RewardsManagement";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
+import RecipeManagementPage from "@/pages/admin/RecipeManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +83,14 @@ function App() {
                   element={
                     <ProtectedRoute requireAdmin>
                       <UserManagement />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/admin/recipes"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <RecipeManagementPage />
                     </ProtectedRoute>
                   }
                 />

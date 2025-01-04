@@ -2,8 +2,8 @@ import { Recipe } from "@/components/recipe/types";
 import { Card } from "@/components/ui/card";
 import { Rating } from "@/components/Rating";
 import { format } from "date-fns";
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Edit, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthorCard from "../AuthorCard";
 import MediaGallery from "../MediaGallery";
@@ -30,10 +30,13 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
   return (
     <div className="min-h-screen bg-background pb-12">
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Header Section */}
+        {/* Header Section with Edit/Hide Buttons */}
         <div className="flex items-center justify-between">
-          <Button onClick={() => navigate(-1)} variant="outline" size="sm">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(-1)}
+          >
             Back
           </Button>
           
@@ -44,6 +47,7 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
                 size="sm"
                 onClick={onEdit}
               >
+                <Edit className="w-4 h-4 mr-2" />
                 Edit Recipe
               </Button>
               <Button 
@@ -51,6 +55,7 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
                 size="sm"
                 onClick={onHide}
               >
+                <EyeOff className="w-4 h-4 mr-2" />
                 Hide Recipe
               </Button>
             </div>
@@ -66,11 +71,11 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold text-textLight">{recipe.title}</h1>
+              <h1 className="text-4xl font-bold text-foreground">{recipe.title}</h1>
               
               <div className="flex items-center space-x-4">
                 {averageRating > 0 && <Rating value={averageRating} />}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-muted-foreground">
                   {format(new Date(recipe.created_at), 'MMMM dd, yyyy')}
                 </span>
               </div>
@@ -83,7 +88,7 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
               images={Array.isArray(recipe.images) ? recipe.images : []}
             />
             
-            <Card className="p-6 bg-card hover:bg-card-hover transition-colors">
+            <Card className="p-6">
               <RecipeContent recipe={recipe} />
             </Card>
 
@@ -95,9 +100,10 @@ const RecipeDetailLayout = ({ recipe, canEdit, onEdit, onHide }: RecipeDetailLay
           </div>
 
           <div className="space-y-6">
+            {/* Author Card Section */}
             <AuthorCard author={recipe.profiles} />
             
-            <Card className="p-6 bg-card hover:bg-card-hover transition-colors">
+            <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Recipe Details</h3>
               <div className="space-y-2">
                 <p><strong>Prep Time:</strong> {recipe.prep_time}</p>

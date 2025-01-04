@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ArticleContent from "./ArticleContent";
-import type { Recipe } from "@/types/recipe";
+import type { Recipe } from "@/components/recipe/types";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ArticleDetail = () => {
@@ -77,7 +77,7 @@ const ArticleDetail = () => {
     );
   }
 
-  return <ArticleContent recipe={recipe} />;
+  return <RecipeContent recipe={recipe} />;
 };
 
 export default ArticleDetail;

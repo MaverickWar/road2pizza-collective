@@ -17,69 +17,12 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSuspended, setIsSuspended] = useState(false);
-
-  useEffect(() => {
-    // Get initial session
-    const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("Initial session check:", session);
-      await handleSessionChange(session);
-
-      // Listen for auth changes
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (_event, session) => {
-        console.log("Auth state changed:", session);
-        await handleSessionChange(session);
-      });
-
-      return () => subscription.unsubscribe();
-    };
-
-    initializeAuth();
-  }, []);
-
-  const handleSessionChange = async (session: Session | null) => {
-    setLoading(true);
-    try {
-      if (session?.user) {
-        setUser(session.user);
-        // First check suspension status
-        const suspended = await checkSuspensionStatus(session.user.id);
-        console.log("User suspension status:", suspended);
-        setIsSuspended(suspended);
-        
-        // Only check roles if user is not suspended
-        if (!suspended) {
-          await checkUserRoles(session.user.id);
-        } else {
-          // Reset roles if user is suspended
-          setIsAdmin(false);
-          setIsStaff(false);
-        }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
-        setIsStaff(false);
-        setIsSuspended(false);
-      }
-    } catch (error) {
-      console.error("Error handling session change:", error);
-      // Reset everything on error
-      setUser(null);
-      setIsAdmin(false);
-      setIsStaff(false);
-      setIsSuspended(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const checkSuspensionStatus = async (userId: string) => {
     try {
@@ -134,11 +77,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const handleSessionChange = async (session: Session | null) => {
+    setLoading(true);
+    try {
+      if (session?.user) {
+        setUser(session.user);
+        // First check suspension status
+        const suspended = await checkSuspensionStatus(session.user.id);
+        console.log("User suspension status:", suspended);
+        setIsSuspended(suspended);
+        
+        // Only check roles if user is not suspended
+        if (!suspended) {
+          await checkUserRoles(session.user.id);
+        } else {
+          // Reset roles if user is suspended
+          setIsAdmin(false);
+          setIsStaff(false);
+        }
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+        setIsStaff(false);
+        setIsSuspended(false);
+      }
+    } catch (error) {
+      console.error("Error handling session change:", error);
+      // Reset everything on error
+      setUser(null);
+      setIsAdmin(false);
+      setIsStaff(false);
+      setIsSuspended(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session);
+        await handleSessionChange(session);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (_event, session) => {
+            console.log("Auth state changed:", session);
+            await handleSessionChange(session);
+          }
+        );
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  // If user is suspended, show suspension notice without any navigation
   if (isSuspended && user) {
     return (
       <div className="min-h-screen bg-background">

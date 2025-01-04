@@ -27,6 +27,7 @@ interface UserTableRowProps {
   onManageStats: (user: any) => void;
   onDeleteUser: (userId: string) => Promise<void>;
   onVerifyUser: (userId: string) => Promise<void>;
+  isMobile?: boolean;
 }
 
 const UserTableRow = ({ 
@@ -36,7 +37,8 @@ const UserTableRow = ({
   onEditProfile,
   onManageStats,
   onDeleteUser,
-  onVerifyUser
+  onVerifyUser,
+  isMobile = false
 }: UserTableRowProps) => {
   const isMainAdmin = user.email === 'richgiles@hotmail.co.uk';
 
@@ -54,6 +56,107 @@ const UserTableRow = ({
       toast.error("Failed to send password reset email");
     }
   };
+
+  const UserActions = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className={isMobile ? "w-full justify-start" : ""}>
+          {isMobile ? (
+            <span className="flex items-center">
+              <MoreHorizontal className="h-4 w-4 mr-2" />
+              Actions
+            </span>
+          ) : (
+            <MoreHorizontal className="h-4 w-4" />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={isMobile ? "end" : "end"} className="w-[200px] bg-card">
+        <DropdownMenuItem onClick={() => onEditProfile(user)}>
+          <User className="w-4 h-4 mr-2" />
+          Edit Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleResetPassword}>
+          <Key className="w-4 h-4 mr-2" />
+          Reset Password
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onManageStats(user)}>
+          <Award className="w-4 h-4 mr-2" />
+          Manage Stats
+        </DropdownMenuItem>
+        {!user.is_verified && (
+          <DropdownMenuItem onClick={() => onVerifyUser(user.id)}>
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Verify User
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}>
+          <Shield className="w-4 h-4 mr-2" />
+          {user.is_admin ? "Remove Admin" : "Make Admin"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'staff', user.is_staff)}>
+          <UserCog className="w-4 h-4 mr-2" />
+          {user.is_staff ? "Remove Staff" : "Make Staff"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onToggleSuspend(user.id, user.is_suspended)}>
+          {user.is_suspended ? (
+            <Eye className="w-4 h-4 mr-2" />
+          ) : (
+            <Ban className="w-4 h-4 mr-2" />
+          )}
+          {user.is_suspended ? "Activate" : "Suspend"}
+        </DropdownMenuItem>
+        {!isMainAdmin && (
+          <DropdownMenuItem 
+            className="text-red-600 focus:text-red-600" 
+            onClick={() => onDeleteUser(user.id)}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete User
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          <UserRoleBadges isAdmin={user.is_admin} isStaff={user.is_staff} />
+        </div>
+        
+        <div className="space-y-2">
+          <UserStats 
+            points={user.points} 
+            badgeTitle={user.badge_title} 
+            badgeColor={user.badge_color} 
+          />
+          <UserApprovalToggle
+            userId={user.id}
+            requiresApproval={user.requires_recipe_approval}
+            onUpdate={() => window.location.reload()}
+          />
+        </div>
+        
+        <div>
+          <span
+            className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-full ${
+              user.is_suspended
+                ? "bg-red-100 text-red-700"
+                : user.is_verified
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
+          >
+            {user.is_suspended ? "Suspended" : user.is_verified ? "Active" : "Pending Verification"}
+          </span>
+        </div>
+        
+        <UserActions />
+      </div>
+    );
+  }
 
   return (
     <TableRow className="group hover:bg-secondary/50">
@@ -113,62 +216,7 @@ const UserTableRow = ({
         </span>
       </TableCell>
       <TableCell className="max-w-[100px]">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="w-[200px] bg-card"
-          >
-            <DropdownMenuItem onClick={() => onEditProfile(user)}>
-              <User className="w-4 h-4 mr-2" />
-              Edit Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleResetPassword}>
-              <Key className="w-4 h-4 mr-2" />
-              Reset Password
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onManageStats(user)}>
-              <Award className="w-4 h-4 mr-2" />
-              Manage Stats
-            </DropdownMenuItem>
-            {!user.is_verified && (
-              <DropdownMenuItem onClick={() => onVerifyUser(user.id)}>
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Verify User
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'admin', user.is_admin)}>
-              <Shield className="w-4 h-4 mr-2" />
-              {user.is_admin ? "Remove Admin" : "Make Admin"}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggleUserRole(user.id, 'staff', user.is_staff)}>
-              <UserCog className="w-4 h-4 mr-2" />
-              {user.is_staff ? "Remove Staff" : "Make Staff"}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggleSuspend(user.id, user.is_suspended)}>
-              {user.is_suspended ? (
-                <Eye className="w-4 h-4 mr-2" />
-              ) : (
-                <Ban className="w-4 h-4 mr-2" />
-              )}
-              {user.is_suspended ? "Activate" : "Suspend"}
-            </DropdownMenuItem>
-            {!isMainAdmin && (
-              <DropdownMenuItem 
-                className="text-red-600 focus:text-red-600" 
-                onClick={() => onDeleteUser(user.id)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete User
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserActions />
       </TableCell>
     </TableRow>
   );

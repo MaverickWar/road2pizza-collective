@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { MessageSquare, Settings, List, Users } from 'lucide-react';
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
@@ -57,34 +56,41 @@ const ForumManagement = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {managementCards.map((card, index) => (
-            <Card 
+            <div 
               key={index}
-              className="group cursor-pointer transition-all duration-300 hover:shadow-md"
+              className="cursor-pointer touch-manipulation"
               onClick={() => handleCardClick(card.path)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleCardClick(card.path);
+              }}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
                   handleCardClick(card.path);
                 }
               }}
             >
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className={`p-3 rounded-lg ${card.color}`}>
-                    {card.icon}
+              <Card className="h-full transition-all duration-300 hover:shadow-md active:scale-[0.98]">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <div className={`p-3 rounded-lg ${card.color}`}>
+                      {card.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-xl font-semibold group-hover:text-accent transition-colors">
+                        {card.title}
+                      </h2>
+                      <p className="text-muted-foreground mt-1">
+                        {card.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h2 className="text-xl font-semibold group-hover:text-accent transition-colors">
-                      {card.title}
-                    </h2>
-                    <p className="text-muted-foreground mt-1">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
       </div>

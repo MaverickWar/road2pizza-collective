@@ -8,7 +8,8 @@ import { Recipe } from "./types";
 import EditRecipeModal from "../article/EditRecipeModal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Clock, CheckSquare, XSquare } from "lucide-react";
+import { ChefHat, Clock, CheckSquare, XSquare } from 'lucide-react';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const RecipeManagement = () => {
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
@@ -77,7 +78,7 @@ const RecipeManagement = () => {
         .from("recipes")
         .update({ 
           approval_status: status,
-          edit_requires_approval: false // Reset the edit approval flag
+          edit_requires_approval: false
         })
         .eq("id", recipeId);
       
@@ -119,69 +120,73 @@ const RecipeManagement = () => {
   return (
     <Card className="bg-card shadow-lg">
       <CardHeader className="border-b">
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <ChefHat className="w-6 h-6 text-accent" />
             <span>Recipe Management</span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Badge variant="secondary" className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              {pendingRecipes.length} Pending
+              <span className="hidden sm:inline">Pending:</span> {pendingRecipes.length}
             </Badge>
             <Badge variant="default" className="flex items-center gap-1">
               <CheckSquare className="w-4 h-4" />
-              {approvedRecipes.length} Approved
+              <span className="hidden sm:inline">Approved:</span> {approvedRecipes.length}
             </Badge>
             <Badge variant="destructive" className="flex items-center gap-1">
               <XSquare className="w-4 h-4" />
-              {rejectedRecipes.length} Rejected
+              <span className="hidden sm:inline">Rejected:</span> {rejectedRecipes.length}
             </Badge>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="bg-background/50 p-1">
-            <TabsTrigger value="pending" className="data-[state=active]:bg-accent data-[state=active]:text-white">
-              Pending Approval
-            </TabsTrigger>
-            <TabsTrigger value="approved" className="data-[state=active]:bg-accent data-[state=active]:text-white">
-              Approved
-            </TabsTrigger>
-            <TabsTrigger value="rejected" className="data-[state=active]:bg-accent data-[state=active]:text-white">
-              Rejected
-            </TabsTrigger>
-          </TabsList>
+          <ScrollArea className="w-full">
+            <TabsList className="bg-background/50 p-1 w-full sm:w-auto inline-flex">
+              <TabsTrigger value="pending" className="flex-1 sm:flex-none data-[state=active]:bg-accent data-[state=active]:text-white">
+                Pending
+              </TabsTrigger>
+              <TabsTrigger value="approved" className="flex-1 sm:flex-none data-[state=active]:bg-accent data-[state=active]:text-white">
+                Approved
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="flex-1 sm:flex-none data-[state=active]:bg-accent data-[state=active]:text-white">
+                Rejected
+              </TabsTrigger>
+            </TabsList>
+          </ScrollArea>
 
-          <TabsContent value="pending">
-            <RecipeTable
-              recipes={pendingRecipes}
-              onEdit={setEditingRecipe}
-              onToggleFeature={handleToggleFeature}
-              onApprove={(id) => handleApproval(id, 'approved')}
-              onReject={(id) => handleApproval(id, 'rejected')}
-              showApprovalActions
-            />
-          </TabsContent>
+          <div className="overflow-x-auto">
+            <TabsContent value="pending">
+              <RecipeTable
+                recipes={pendingRecipes}
+                onEdit={setEditingRecipe}
+                onToggleFeature={handleToggleFeature}
+                onApprove={(id) => handleApproval(id, 'approved')}
+                onReject={(id) => handleApproval(id, 'rejected')}
+                showApprovalActions
+              />
+            </TabsContent>
 
-          <TabsContent value="approved">
-            <RecipeTable
-              recipes={approvedRecipes}
-              onEdit={setEditingRecipe}
-              onToggleFeature={handleToggleFeature}
-            />
-          </TabsContent>
+            <TabsContent value="approved">
+              <RecipeTable
+                recipes={approvedRecipes}
+                onEdit={setEditingRecipe}
+                onToggleFeature={handleToggleFeature}
+              />
+            </TabsContent>
 
-          <TabsContent value="rejected">
-            <RecipeTable
-              recipes={rejectedRecipes}
-              onEdit={setEditingRecipe}
-              onToggleFeature={handleToggleFeature}
-              onApprove={(id) => handleApproval(id, 'approved')}
-              showApprovalActions
-            />
-          </TabsContent>
+            <TabsContent value="rejected">
+              <RecipeTable
+                recipes={rejectedRecipes}
+                onEdit={setEditingRecipe}
+                onToggleFeature={handleToggleFeature}
+                onApprove={(id) => handleApproval(id, 'approved')}
+                showApprovalActions
+              />
+            </TabsContent>
+          </div>
         </Tabs>
 
         {editingRecipe && (

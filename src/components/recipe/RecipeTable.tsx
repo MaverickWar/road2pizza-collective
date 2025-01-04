@@ -2,6 +2,7 @@ import { Table, TableBody } from "@/components/ui/table";
 import RecipeTableHeader from "./RecipeTableHeader";
 import RecipeTableRow from "./RecipeTableRow";
 import { Recipe } from "./types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RecipeTableProps {
   recipes: Recipe[];
@@ -21,29 +22,33 @@ const RecipeTable = ({
   showApprovalActions 
 }: RecipeTableProps) => {
   return (
-    <Table>
-      <RecipeTableHeader showApprovalActions={showApprovalActions} />
-      <TableBody>
-        {recipes?.map((recipe) => (
-          <RecipeTableRow
-            key={recipe.id}
-            recipe={recipe}
-            onEdit={onEdit}
-            onToggleFeature={onToggleFeature}
-            onApprove={onApprove}
-            onReject={onReject}
-            showApprovalActions={showApprovalActions}
-          />
-        ))}
-        {(!recipes || recipes.length === 0) && (
-          <tr>
-            <td colSpan={4} className="text-center text-muted-foreground py-6">
-              No recipes found
-            </td>
-          </tr>
-        )}
-      </TableBody>
-    </Table>
+    <ScrollArea className="rounded-md border">
+      <div className="min-w-[600px]">
+        <Table>
+          <RecipeTableHeader showApprovalActions={showApprovalActions} />
+          <TableBody>
+            {recipes?.map((recipe) => (
+              <RecipeTableRow
+                key={recipe.id}
+                recipe={recipe}
+                onEdit={onEdit}
+                onToggleFeature={onToggleFeature}
+                onApprove={onApprove}
+                onReject={onReject}
+                showApprovalActions={showApprovalActions}
+              />
+            ))}
+            {(!recipes || recipes.length === 0) && (
+              <tr>
+                <td colSpan={4} className="text-center text-muted-foreground py-6">
+                  No recipes found
+                </td>
+              </tr>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </ScrollArea>
   );
 };
 

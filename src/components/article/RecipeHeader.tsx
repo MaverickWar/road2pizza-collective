@@ -9,7 +9,7 @@ interface RecipeHeaderProps {
 }
 
 const RecipeHeader = ({ canEdit, onBack, onEdit, onHide }: RecipeHeaderProps) => {
-  console.log('RecipeHeader canEdit:', canEdit); // Debug log
+  console.log('RecipeHeader: Rendering with canEdit:', canEdit); // Debug log
 
   return (
     <div className="flex items-center justify-between mb-8">

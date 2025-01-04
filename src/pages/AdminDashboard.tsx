@@ -10,7 +10,10 @@ import {
   FileText,
   Bell,
   Palette,
-  Image
+  Image,
+  LayoutDashboard,
+  Navigation,
+  Trophy
 } from 'lucide-react';
 import { Link } from "react-router-dom";
 
@@ -36,7 +39,7 @@ const AdminDashboard = () => {
       title: "Reviews Dashboard",
       description: "Monitor and manage user reviews",
       icon: MessageSquare,
-      href: "/dashboard/reviews",
+      href: "/dashboard/admin/reviews",
       color: "bg-purple-500/10 text-purple-500",
     },
     {
@@ -54,10 +57,10 @@ const AdminDashboard = () => {
       color: "bg-orange-500/10 text-orange-500",
     },
     {
-      title: "Notifications",
-      description: "Manage system notifications",
-      icon: Bell,
-      href: "/dashboard/admin/notifications",
+      title: "Navigation",
+      description: "Manage site navigation",
+      icon: Navigation,
+      href: "/dashboard/admin/navigation",
       color: "bg-red-500/10 text-red-500",
     },
     {
@@ -74,6 +77,34 @@ const AdminDashboard = () => {
       href: "/dashboard/admin/media",
       color: "bg-pink-500/10 text-pink-500",
     },
+    {
+      title: "Site Settings",
+      description: "Configure global settings",
+      icon: Settings,
+      href: "/dashboard/admin/settings",
+      color: "bg-slate-500/10 text-slate-500",
+    },
+    {
+      title: "Pages",
+      description: "Manage static pages",
+      icon: LayoutDashboard,
+      href: "/dashboard/admin/pages",
+      color: "bg-emerald-500/10 text-emerald-500",
+    },
+    {
+      title: "Forum Management",
+      description: "Manage forum categories and posts",
+      icon: MessageSquare,
+      href: "/dashboard/admin/forum",
+      color: "bg-violet-500/10 text-violet-500",
+    },
+    {
+      title: "Achievements",
+      description: "Configure user achievements",
+      icon: Trophy,
+      href: "/dashboard/admin/achievements",
+      color: "bg-amber-500/10 text-amber-500",
+    }
   ];
 
   return (

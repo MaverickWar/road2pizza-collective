@@ -1,24 +1,17 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Users, 
-  FileText, 
-  MessageSquare,
-  Settings,
-  Image,
-  Palette,
-  Bell,
+  BookOpen, 
+  Star, 
   Award,
-  BookOpen,
+  FileText,
+  Bell,
+  Settings,
+  Palette,
+  Image
 } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
-
-interface NavItem {
-  title: string;
-  icon: any;
-  href: string;
-  show: boolean;
-}
 
 interface DashboardNavItemsProps {
   isAdmin: boolean;
@@ -27,95 +20,138 @@ interface DashboardNavItemsProps {
   setIsSidebarOpen: (open: boolean) => void;
 }
 
-const DashboardNavItems = ({ isAdmin, isStaff, isMobile, setIsSidebarOpen }: DashboardNavItemsProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  const navigationItems = [
-    {
-      title: "Overview",
-      icon: LayoutDashboard,
-      href: "/dashboard/admin",
-      show: isAdmin,
-    },
-    {
-      title: "User Management",
-      icon: Users,
-      href: "/dashboard/admin/users",
-      show: isAdmin,
-    },
-    {
-      title: "Recipe Management",
-      icon: BookOpen,
-      href: "/dashboard/admin/recipes",
-      show: isAdmin || isStaff,
-    },
-    {
-      title: "Reviews Dashboard",
-      icon: MessageSquare,
-      href: "/dashboard/reviews",
-      show: isAdmin || isStaff,
-    },
-    {
-      title: "Pizza Types",
-      icon: FileText,
-      href: "/dashboard/admin/pizza-types",
-      show: isAdmin || isStaff,
-    },
-    {
-      title: "Rewards",
-      icon: Award,
-      href: "/dashboard/admin/rewards",
-      show: isAdmin,
-    },
-    {
-      title: "Notifications",
-      icon: Bell,
-      href: "/dashboard/admin/notifications",
-      show: isAdmin,
-    },
-    {
-      title: "Media Gallery",
-      icon: Image,
-      href: "/dashboard/admin/media",
-      show: isAdmin,
-    },
-    {
-      title: "Theme Settings",
-      icon: Palette,
-      href: "/dashboard/admin/theme",
-      show: isAdmin,
-    },
-    {
-      title: "Forum Settings",
-      icon: Settings,
-      href: "/dashboard/admin/forum",
-      show: isAdmin,
-    },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const handleNavigation = (href: string) => {
-    navigate(href);
+const DashboardNavItems = ({ 
+  isAdmin, 
+  isStaff, 
+  isMobile,
+  setIsSidebarOpen 
+}: DashboardNavItemsProps) => {
+  const handleClick = () => {
     if (isMobile) {
       setIsSidebarOpen(false);
     }
   };
 
-  return navigationItems
-    .filter(item => item.show)
-    .map((item) => (
-      <Button
-        key={item.href}
-        variant={isActive(item.href) ? "secondary" : "ghost"}
-        className="justify-start"
-        onClick={() => handleNavigation(item.href)}
-      >
-        <item.icon className="h-4 w-4 mr-2" />
-        <span>{item.title}</span>
+  if (isAdmin) {
+    return (
+      <>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin">
+            <LayoutDashboard className="w-4 h-4 mr-2" />
+            Overview
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/users">
+            <Users className="w-4 h-4 mr-2" />
+            Users
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/recipes">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Recipes
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/reviews">
+            <Star className="w-4 h-4 mr-2" />
+            Reviews
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/rewards">
+            <Award className="w-4 h-4 mr-2" />
+            Rewards
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/pizza-types">
+            <FileText className="w-4 h-4 mr-2" />
+            Pizza Types
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/notifications">
+            <Bell className="w-4 h-4 mr-2" />
+            Notifications
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/settings">
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/theme">
+            <Palette className="w-4 h-4 mr-2" />
+            Theme
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/admin/media">
+            <Image className="w-4 h-4 mr-2" />
+            Media
+          </Link>
+        </Button>
+      </>
+    );
+  }
+
+  if (isStaff) {
+    return (
+      <>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/staff">
+            <LayoutDashboard className="w-4 h-4 mr-2" />
+            Overview
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/staff/recipes">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Recipes
+          </Link>
+        </Button>
+        <Button variant="ghost" asChild onClick={handleClick}>
+          <Link to="/dashboard/staff/reviews">
+            <Star className="w-4 h-4 mr-2" />
+            Reviews
+          </Link>
+        </Button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Button variant="ghost" asChild onClick={handleClick}>
+        <Link to="/dashboard">
+          <LayoutDashboard className="w-4 h-4 mr-2" />
+          Overview
+        </Link>
       </Button>
-    ));
+      <Button variant="ghost" asChild onClick={handleClick}>
+        <Link to="/dashboard/recipes">
+          <BookOpen className="w-4 h-4 mr-2" />
+          My Recipes
+        </Link>
+      </Button>
+      <Button variant="ghost" asChild onClick={handleClick}>
+        <Link to="/dashboard/reviews">
+          <Star className="w-4 h-4 mr-2" />
+          My Reviews
+        </Link>
+      </Button>
+      <Button variant="ghost" asChild onClick={handleClick}>
+        <Link to="/dashboard/achievements">
+          <Trophy className="w-4 h-4 mr-2" />
+          Achievements
+        </Link>
+      </Button>
+    </>
+  );
 };
 
 export default DashboardNavItems;

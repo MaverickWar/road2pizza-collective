@@ -1,13 +1,18 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pizza, Plus } from "lucide-react";
+import { Pizza, Plus, Pencil, Trash2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import PizzaTypeGrid from "@/components/pizza/PizzaTypeGrid";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const PizzaTypeManagement = () => {
   const [newPizzaType, setNewPizzaType] = useState({ name: "", description: "" });
@@ -32,28 +37,60 @@ const PizzaTypeManagement = () => {
     },
   });
 
-  const handleAddPizzaType = async () => {
-    try {
-      if (!newPizzaType.name.trim()) {
-        toast.error("Pizza type name is required");
-        return;
-      }
-
-      const { error } = await supabase.from("pizza_types").insert({
-        name: newPizzaType.name.trim(),
-        description: newPizzaType.description.trim(),
-        slug: newPizzaType.name.toLowerCase().replace(/\s+/g, "-"),
-      });
+  const createMutation = useMutation({
+    mutationFn: async (newType: typeof newPizzaType) => {
+      const { data, error } = await supabase
+        .from("pizza_types")
+        .insert([
+          {
+            name: newType.name,
+            description: newType.description,
+            slug: newType.name.toLowerCase().replace(/\s+/g, "-"),
+          },
+        ])
+        .select()
+        .single();
 
       if (error) throw error;
-
-      toast.success("Pizza type added successfully");
-      setNewPizzaType({ name: "", description: "" });
+      return data;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pizza-types"] });
-    } catch (error) {
-      console.error("Error adding pizza type:", error);
-      toast.error("Failed to add pizza type");
+      setNewPizzaType({ name: "", description: "" });
+      toast.success("Pizza type created successfully");
+    },
+    onError: (error) => {
+      console.error("Error creating pizza type:", error);
+      toast.error("Failed to create pizza type");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("pizza_types")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pizza-types"] });
+      toast.success("Pizza type deleted successfully");
+    },
+    onError: (error) => {
+      console.error("Error deleting pizza type:", error);
+      toast.error("Failed to delete pizza type");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPizzaType.name) {
+      toast.error("Please enter a name for the pizza type");
+      return;
     }
+    createMutation.mutate(newPizzaType);
   };
 
   if (isLoading) {
@@ -73,34 +110,75 @@ const PizzaTypeManagement = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Pizza className="w-5 h-5" />
+            <Pizza className="h-5 w-5" />
             Add New Pizza Type
           </CardTitle>
+          <CardDescription>
+            Create a new pizza type to categorize recipes
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Pizza Type Name"
-            value={newPizzaType.name}
-            onChange={(e) =>
-              setNewPizzaType({ ...newPizzaType, name: e.target.value })
-            }
-          />
-          <Textarea
-            placeholder="Description"
-            value={newPizzaType.description}
-            onChange={(e) =>
-              setNewPizzaType({ ...newPizzaType, description: e.target.value })
-            }
-          />
-          <Button onClick={handleAddPizzaType} className="w-full">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Pizza Type
-          </Button>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              placeholder="Pizza Type Name"
+              value={newPizzaType.name}
+              onChange={(e) =>
+                setNewPizzaType({ ...newPizzaType, name: e.target.value })
+              }
+            />
+            <Textarea
+              placeholder="Description"
+              value={newPizzaType.description}
+              onChange={(e) =>
+                setNewPizzaType({ ...newPizzaType, description: e.target.value })
+              }
+            />
+            <Button type="submit" className="w-full">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Pizza Type
+            </Button>
+          </form>
         </CardContent>
       </Card>
 
-      <div className="grid gap-4">
-        <PizzaTypeGrid />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {pizzaTypes?.map((type) => (
+          <Card key={type.id} className="group">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">{type.name}</h3>
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => {
+                      // TODO: Implement edit functionality
+                      toast.info("Edit functionality coming soon");
+                    }}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to delete this pizza type?")) {
+                        deleteMutation.mutate(type.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              {type.description && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {type.description}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );

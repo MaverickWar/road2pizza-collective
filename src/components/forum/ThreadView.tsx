@@ -54,18 +54,20 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
           )
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      // Update view count
-      await supabase
-        .from("forum_threads")
-        .update({ view_count: (data.view_count || 0) + 1 })
-        .eq("id", id);
+      if (data) {
+        // Update view count only if thread exists
+        await supabase
+          .from("forum_threads")
+          .update({ view_count: (data.view_count || 0) + 1 })
+          .eq("id", id);
 
-      console.log("Fetched thread:", data);
-      setThread(data as Thread);
+        console.log("Fetched thread:", data);
+        setThread(data as Thread);
+      }
     } catch (error) {
       console.error("Error fetching thread:", error);
     } finally {

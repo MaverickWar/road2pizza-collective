@@ -36,7 +36,7 @@ const ThreadManagement = () => {
             title,
             description
           ),
-          profiles(
+          author:profiles!forum_threads_created_by_fkey(
             username,
             avatar_url
           )
@@ -136,7 +136,7 @@ const ThreadManagement = () => {
             <TableRow key={thread.id}>
               <TableCell>{thread.title}</TableCell>
               <TableCell>{thread.forum?.title}</TableCell>
-              <TableCell>{thread.profiles?.username}</TableCell>
+              <TableCell>{thread.author?.username}</TableCell>
               <TableCell>{new Date(thread.created_at).toLocaleDateString()}</TableCell>
               <TableCell>
                 <div className="flex items-center space-x-2">

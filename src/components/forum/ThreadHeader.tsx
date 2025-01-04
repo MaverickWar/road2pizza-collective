@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getInitials } from "@/lib/utils";
 import { format } from "date-fns";
-import { Award, Star } from "lucide-react";
+import { Award, Lock, Shield, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface ThreadHeaderProps {
@@ -15,11 +15,25 @@ const ThreadHeader = ({ thread }: ThreadHeaderProps) => {
     <Card className="p-6 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <h1 className="text-2xl md:text-3xl font-bold">{thread.title}</h1>
-        {thread.is_pinned && (
-          <Badge variant="secondary" className="shrink-0">
-            Pinned Thread
-          </Badge>
-        )}
+        <div className="flex gap-2 shrink-0">
+          {thread.is_pinned && (
+            <Badge variant="secondary">
+              Pinned Thread
+            </Badge>
+          )}
+          {thread.password_protected && (
+            <Badge variant="destructive">
+              <Lock className="w-3 h-3 mr-1" />
+              Password Protected
+            </Badge>
+          )}
+          {thread.required_role && thread.required_role !== 'member' && (
+            <Badge variant="outline">
+              <Shield className="w-3 h-3 mr-1" />
+              {thread.required_role.charAt(0).toUpperCase() + thread.required_role.slice(1)} Only
+            </Badge>
+          )}
+        </div>
       </div>
       
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-accent/5 rounded-lg">

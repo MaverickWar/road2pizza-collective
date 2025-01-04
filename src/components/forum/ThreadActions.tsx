@@ -14,11 +14,14 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
-import { MoreHorizontal, Edit, Trash2, FolderInput } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, FolderInput, Lock, Shield } from "lucide-react";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import Editor from "@/components/Editor";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 interface ThreadActionsProps {
   threadId: string;
@@ -40,9 +43,13 @@ export const ThreadActions = ({
   const { isAdmin, isStaff } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [isSecurityDialogOpen, setIsSecurityDialogOpen] = useState(false);
   const [editedContent, setEditedContent] = useState(currentContent);
   const [selectedCategory, setSelectedCategory] = useState(currentCategoryId);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [passwordProtected, setPasswordProtected] = useState(false);
+  const [password, setPassword] = useState("");
+  const [requiredRole, setRequiredRole] = useState("member");
 
   const { data: categories } = useQuery({
     queryKey: ["forum-categories"],
@@ -110,6 +117,33 @@ export const ThreadActions = ({
     }
   };
 
+  const handleSecurityUpdate = async () => {
+    try {
+      const updates: any = {
+        password_protected: passwordProtected,
+        required_role: requiredRole,
+      };
+
+      if (passwordProtected) {
+        updates.password = password;
+      }
+
+      const { error } = await supabase
+        .from("forum_threads")
+        .update(updates)
+        .eq("id", threadId);
+
+      if (error) throw error;
+
+      toast.success("Thread security settings updated");
+      setIsSecurityDialogOpen(false);
+      onThreadUpdated();
+    } catch (error) {
+      console.error("Error updating thread security:", error);
+      toast.error("Failed to update thread security");
+    }
+  };
+
   if (!isAdmin && !isStaff && !isInManagement) return null;
 
   return (
@@ -135,6 +169,14 @@ export const ThreadActions = ({
           }}>
             <FolderInput className="w-4 h-4 mr-2" />
             Move Thread
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => {
+            setIsSecurityDialogOpen(true);
+            setIsDropdownOpen(false);
+          }}>
+            <Lock className="w-4 h-4 mr-2" />
+            Security Settings
           </DropdownMenuItem>
 
           <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
@@ -175,6 +217,55 @@ export const ThreadActions = ({
               </SelectContent>
             </Select>
             <Button onClick={handleMove}>Move Thread</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isSecurityDialogOpen} onOpenChange={setIsSecurityDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Thread Security Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password-protection">Password Protection</Label>
+                <Switch
+                  id="password-protection"
+                  checked={passwordProtected}
+                  onCheckedChange={setPasswordProtected}
+                />
+              </div>
+              
+              {passwordProtected && (
+                <div className="space-y-2">
+                  <Label htmlFor="thread-password">Password</Label>
+                  <Input
+                    id="thread-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter thread password"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="required-role">Required Role</Label>
+              <Select value={requiredRole} onValueChange={setRequiredRole}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select required role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button onClick={handleSecurityUpdate}>Save Security Settings</Button>
           </div>
         </DialogContent>
       </Dialog>

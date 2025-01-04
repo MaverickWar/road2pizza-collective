@@ -360,6 +360,9 @@ export type Database = {
           is_locked: boolean | null
           is_pinned: boolean | null
           last_post_at: string
+          password: string | null
+          password_protected: boolean | null
+          required_role: string | null
           slug: string | null
           title: string
           updated_at: string
@@ -375,6 +378,9 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          password?: string | null
+          password_protected?: boolean | null
+          required_role?: string | null
           slug?: string | null
           title: string
           updated_at?: string
@@ -390,6 +396,9 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          password?: string | null
+          password_protected?: boolean | null
+          required_role?: string | null
           slug?: string | null
           title?: string
           updated_at?: string

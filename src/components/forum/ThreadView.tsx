@@ -34,6 +34,11 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
               name
             )
           ),
+          author:profiles!forum_threads_created_by_fkey(
+            username,
+            avatar_url,
+            created_at
+          ),
           posts:forum_posts(
             id,
             content,

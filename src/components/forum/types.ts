@@ -15,9 +15,10 @@ export interface Thread extends DBThread {
       name: string;
     };
   };
-  profiles?: {
+  author?: {
     username: string;
     avatar_url?: string | null;
+    created_at: string;
   };
   posts?: Post[];
 }

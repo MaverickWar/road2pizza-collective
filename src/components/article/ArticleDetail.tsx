@@ -27,7 +27,8 @@ const ArticleDetail = () => {
             badge_color,
             recipes_shared,
             created_at,
-            email
+            email,
+            avatar_url
           ),
           categories (
             name,

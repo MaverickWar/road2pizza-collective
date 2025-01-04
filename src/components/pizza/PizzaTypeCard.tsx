@@ -66,22 +66,13 @@ const PizzaTypeCard = ({
 
   const handleDelete = async () => {
     try {
-      const { data: uncategorizedCategory } = await supabase
-        .from('categories')
-        .select('id')
-        .eq('name', 'Uncategorized')
-        .single();
-
-      if (uncategorizedCategory) {
-        await supabase
-          .from('recipes')
-          .update({ category_id: uncategorizedCategory.id })
-          .eq('category_id', id);
-      }
-
       const { error } = await supabase
         .from('pizza_types')
-        .update({ is_hidden: true })
+        .update({ 
+          is_hidden: true,
+          name: name, // Keep existing name
+          slug: slug  // Keep existing slug
+        })
         .eq('id', id);
 
       if (error) throw error;

@@ -42,10 +42,10 @@ const PizzaTypeGrid = () => {
   });
 
   const updateOrderMutation = useMutation({
-    mutationFn: async ({ id, newOrder }: { id: string; newOrder: number }) => {
+    mutationFn: async ({ id, newOrder, name, slug }: { id: string; newOrder: number; name: string; slug: string }) => {
       const { error } = await supabase
         .from('pizza_types')
-        .update({ display_order: newOrder })
+        .update({ display_order: newOrder, name, slug })
         .eq('id', id);
 
       if (error) throw error;
@@ -74,8 +74,18 @@ const PizzaTypeGrid = () => {
 
     // Update both items
     await Promise.all([
-      updateOrderMutation.mutateAsync({ id, newOrder }),
-      updateOrderMutation.mutateAsync({ id: itemToSwap.id, newOrder: currentOrder })
+      updateOrderMutation.mutateAsync({ 
+        id, 
+        newOrder,
+        name: pizzaTypes.find(t => t.id === id)?.name || '',
+        slug: pizzaTypes.find(t => t.id === id)?.slug || ''
+      }),
+      updateOrderMutation.mutateAsync({ 
+        id: itemToSwap.id, 
+        newOrder: currentOrder,
+        name: itemToSwap.name,
+        slug: itemToSwap.slug
+      })
     ]);
   };
 

@@ -1,38 +1,30 @@
-export interface ForumSettings {
-  id: number;
-  allow_guest_viewing: boolean;
-  require_approval: boolean;
-  auto_lock_inactive: boolean;
-  created_at: string;
-  updated_at: string;
+import { Tables } from '@/integrations/supabase/types/database';
+
+export interface Post extends Tables<'forum_posts'> {
+  user?: {
+    username: string;
+  };
 }
 
-export interface Thread {
-  id: string;
-  title: string;
-  content: string;
-  is_pinned: boolean;
-  is_locked: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by: string;
-  category_id: string | null;
-  forum_id: string | null;
-  view_count: number;
-  last_post_at: string;
-  slug: string | null;
+export interface Thread extends Tables<'forum_threads'> {
   forum?: {
+    id: string;
     title: string;
-    description: string | null;
+    description?: string;
+    category?: {
+      id: string;
+      name: string;
+    };
   };
   profiles?: {
     username: string;
     avatar_url: string | null;
   };
-  posts?: {
-    id: string;
-    content: string;
-    created_at: string;
-    created_by: string;
-  }[];
+  posts?: Post[];
+}
+
+export interface ForumSettings extends Tables<'forum_settings'> {
+  allow_guest_viewing: boolean;
+  require_approval: boolean;
+  auto_lock_inactive: boolean;
 }

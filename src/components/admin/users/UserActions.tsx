@@ -37,6 +37,8 @@ const UserActions = ({
   onDeleteUser,
   onVerifyUser,
 }: UserActionsProps) => {
+  console.log("Rendering user actions for:", user);
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

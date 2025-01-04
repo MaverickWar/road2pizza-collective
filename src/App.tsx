@@ -27,10 +27,18 @@ import ThreadManagement from "@/components/forum/ThreadManagement";
 import CategoryView from "@/components/forum/CategoryView";
 import ThreadView from "@/components/forum/ThreadView";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  console.log("Current route:", location.pathname);
 
   return (
     <div
@@ -53,6 +61,8 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                
+                {/* Dashboard Routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route
                   path="/dashboard/admin"
@@ -71,34 +81,10 @@ function App() {
                   }
                 />
                 <Route
-                  path="/dashboard/admin/forum"
+                  path="/dashboard/admin/forum/*"
                   element={
                     <ProtectedRoute requireAdmin>
                       <ForumManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/forum/categories"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <CategoryManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/forum/settings"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <ForumSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/forum/threads"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <ThreadManagement />
                     </ProtectedRoute>
                   }
                 />
@@ -118,15 +104,27 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+
+                {/* Community Routes */}
                 <Route path="/community" element={<Community />} />
                 <Route path="/community/forum/category/:id" element={<CategoryView />} />
                 <Route path="/community/forum/thread/:id" element={<ThreadView />} />
+
+                {/* Pizza Routes */}
                 <Route path="/pizza" element={<Pizza />} />
                 <Route path="/pizza/:style" element={<PizzaStyle />} />
                 <Route path="/pizza-style" element={<PizzaStyle />} />
+
+                {/* Article and Review Routes */}
                 <Route path="/reviews" element={<Reviews />} />
-                <Route path="/article/:id" element={<ArticleDetail />} />
-                <Route path="/equipment/:id" element={<EquipmentReviewDetail />} />
+                <Route 
+                  path="/article/:id" 
+                  element={<ArticleDetail />} 
+                />
+                <Route 
+                  path="/equipment/:id" 
+                  element={<EquipmentReviewDetail />} 
+                />
               </Routes>
             </Suspense>
           </PageTransitionWrapper>

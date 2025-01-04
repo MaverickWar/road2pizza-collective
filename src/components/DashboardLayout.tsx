@@ -80,12 +80,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       
       <SidebarProvider defaultOpen={!isMobile}>
         <div className="flex min-h-screen pt-16">
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Toggle - Repositioned and styled */}
           <Button
             variant="ghost"
             size="icon"
-            className="fixed top-20 left-4 z-50 md:hidden"
+            className="fixed top-[4.5rem] left-4 z-50 md:hidden bg-white shadow-sm hover:bg-gray-100"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="Toggle menu"
           >
             {isSidebarOpen ? (
               <X className="h-5 w-5" />
@@ -98,7 +99,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <Sidebar
             variant="floating"
             className={cn(
-              "transition-transform duration-300 ease-in-out",
+              "transition-transform duration-300 ease-in-out z-40",
               isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
             )}
           >

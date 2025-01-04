@@ -29,7 +29,7 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          profiles (
+          profiles:author_profile (
             username,
             points,
             badge_title,

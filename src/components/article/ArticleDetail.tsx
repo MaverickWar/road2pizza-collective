@@ -29,7 +29,7 @@ const ArticleDetail = () => {
           categories (
             name
           ),
-          author_profile:profiles (
+          profiles (
             username,
             points,
             badge_title,
@@ -74,7 +74,7 @@ const ArticleDetail = () => {
           carbs: String((data.nutrition_info as Record<string, unknown>).carbs || ''),
           fat: String((data.nutrition_info as Record<string, unknown>).fat || '')
         } : null,
-        profiles: data.author_profile,
+        profiles: data.profiles,
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;
     }

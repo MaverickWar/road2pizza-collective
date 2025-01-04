@@ -4,10 +4,12 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { ForumSettings as ForumSettingsType } from './types';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ForumSettings = () => {
   const [settings, setSettings] = useState<ForumSettingsType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -38,7 +40,9 @@ const ForumSettings = () => {
 
   const updateSetting = async (key: keyof Omit<ForumSettingsType, 'id' | 'created_at' | 'updated_at'>, value: boolean) => {
     try {
+      setUpdating(true);
       console.log('Updating setting:', key, value);
+      
       const { error } = await supabase
         .from('forum_settings')
         .update({ [key]: value })
@@ -51,16 +55,30 @@ const ForumSettings = () => {
     } catch (error) {
       console.error('Error updating setting:', error);
       toast.error('Failed to update setting');
+    } finally {
+      setUpdating(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="h-12 bg-secondary/50 animate-pulse rounded-lg"></div>
-        <div className="h-12 bg-secondary/50 animate-pulse rounded-lg"></div>
-        <div className="h-12 bg-secondary/50 animate-pulse rounded-lg"></div>
-      </div>
+      <Card className="p-6 space-y-6">
+        <div className="space-y-4">
+          <Skeleton className="h-12" />
+          <Skeleton className="h-12" />
+          <Skeleton className="h-12" />
+        </div>
+      </Card>
+    );
+  }
+
+  if (!settings) {
+    return (
+      <Card className="p-6">
+        <p className="text-center text-muted-foreground">
+          Failed to load forum settings. Please try refreshing the page.
+        </p>
+      </Card>
     );
   }
 
@@ -74,8 +92,9 @@ const ForumSettings = () => {
           </p>
         </div>
         <Switch
-          checked={settings?.allow_guest_viewing || false}
+          checked={settings.allow_guest_viewing || false}
           onCheckedChange={(checked) => updateSetting('allow_guest_viewing', checked)}
+          disabled={updating}
         />
       </div>
 
@@ -87,8 +106,9 @@ const ForumSettings = () => {
           </p>
         </div>
         <Switch
-          checked={settings?.require_approval || false}
+          checked={settings.require_approval || false}
           onCheckedChange={(checked) => updateSetting('require_approval', checked)}
+          disabled={updating}
         />
       </div>
 
@@ -100,8 +120,9 @@ const ForumSettings = () => {
           </p>
         </div>
         <Switch
-          checked={settings?.auto_lock_inactive || false}
+          checked={settings.auto_lock_inactive || false}
           onCheckedChange={(checked) => updateSetting('auto_lock_inactive', checked)}
+          disabled={updating}
         />
       </div>
     </Card>

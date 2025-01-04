@@ -2,23 +2,25 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
-import { Rating } from "@/components/Rating";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { Recipe } from "@/components/recipe/types";
+import EditRecipeModal from "./EditRecipeModal";
+import RecipeDetailLayout from "./detail/RecipeDetailLayout";
 
 const ArticleDetail = () => {
   const { id } = useParams();
   const { user, isStaff, isAdmin } = useAuth();
+  const [showEditModal, setShowEditModal] = useState(false);
   const navigate = useNavigate();
+
+  console.log('ArticleDetail: Rendering with ID:', id);
+  console.log('Auth state:', { user, isStaff, isAdmin });
 
   const { data: recipe, isLoading, error } = useQuery({
     queryKey: ['recipe', id],
     queryFn: async () => {
-      console.log('Fetching recipe:', id);
+      console.log('Fetching recipe data for ID:', id);
       const { data, error } = await supabase
         .from('recipes')
         .select(`
@@ -27,7 +29,12 @@ const ArticleDetail = () => {
             name
           ),
           profiles (
-            username
+            username,
+            points,
+            badge_title,
+            badge_color,
+            recipes_shared,
+            created_at
           ),
           reviews (
             rating,
@@ -40,12 +47,21 @@ const ArticleDetail = () => {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching recipe:', error);
+        throw error;
+      }
 
-      // Cast the data to match our Recipe type
-      const recipeData = {
+      if (!data) {
+        console.log('No recipe found with ID:', id);
+        throw new Error('Recipe not found');
+      }
+
+      console.log('Recipe data received:', data);
+
+      return {
         ...data,
         ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
         instructions: Array.isArray(data.instructions) ? data.instructions : [],
@@ -58,132 +74,75 @@ const ArticleDetail = () => {
         } : null,
         approval_status: data.approval_status as Recipe['approval_status']
       } as Recipe;
-
-      // Check if user has access to unpublished recipe
-      if (recipeData.status === 'unpublished') {
-        if (!user) {
-          throw new Error('Recipe not found');
-        }
-        if (!isAdmin && !isStaff && user.id !== recipeData.created_by) {
-          throw new Error('Recipe not found');
-        }
-      }
-
-      return recipeData;
-    }
+    },
+    retry: 1,
+    retryDelay: 1000
   });
 
+  const canEdit = Boolean(
+    user && (
+      user.email === 'richgiles@hotmail.co.uk' || 
+      isAdmin || 
+      isStaff || 
+      (recipe && user.id === recipe.created_by)
+    )
+  );
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    console.log('Recipe is loading...');
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-lg">Loading recipe...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error loading recipe: {error.message}</div>;
+    console.error('Error loading recipe:', error);
+    toast.error('Recipe not found or you do not have permission to view it');
+    navigate('/pizza');
+    return null;
   }
 
+  if (!recipe) {
+    console.log('No recipe data available');
+    toast.error('Recipe not found');
+    navigate('/pizza');
+    return null;
+  }
+
+  console.log('Rendering recipe:', recipe);
+
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <Button onClick={() => navigate(-1)} variant="outline" className="mb-4">
-          <ArrowLeft className="mr-2" />
-          Back
-        </Button>
+    <>
+      <RecipeDetailLayout
+        recipe={recipe}
+        canEdit={canEdit}
+        onEdit={() => setShowEditModal(true)}
+        onHide={async () => {
+          try {
+            const { error } = await supabase
+              .from('recipes')
+              .update({ status: 'unpublished' })
+              .eq('id', recipe?.id);
 
-        {recipe?.status === 'unpublished' && (
-          <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg mb-4">
-            This recipe is unpublished. You may not have access to view it.
-          </div>
-        )}
+            if (error) throw error;
+            toast.success('Recipe hidden successfully');
+            navigate('/pizza');
+          } catch (error) {
+            console.error('Error hiding recipe:', error);
+            toast.error('Failed to hide recipe');
+          }
+        }}
+      />
 
-        <h1 className="text-4xl font-bold mb-4">{recipe?.title}</h1>
-        <div className="flex items-center mb-4">
-          <Avatar>
-            <AvatarFallback>{getInitials(recipe?.profiles?.username || '')}</AvatarFallback>
-          </Avatar>
-          <div className="ml-2">
-            <p className="text-sm text-gray-500">By {recipe?.profiles?.username}</p>
-            <p className="text-sm text-gray-500">{format(new Date(recipe?.created_at || ''), 'MMMM dd, yyyy')}</p>
-          </div>
-        </div>
-
-        {recipe?.reviews && <Rating value={recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length} />}
-
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
-            <div className="prose prose-invert max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: recipe.content || '' }} />
-            </div>
-
-            {recipe.reviews && recipe.reviews.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold mb-6">Reviews</h2>
-                <div className="space-y-6">
-                  {recipe.reviews.map((review, index) => (
-                    <div key={index} className="bg-secondary rounded-lg p-6">
-                      <div className="flex items-center mb-4">
-                        <Avatar>
-                          <AvatarFallback>{getInitials(review.profiles.username)}</AvatarFallback>
-                        </Avatar>
-                        <div className="ml-2">
-                          <p className="font-semibold">{review.profiles.username}</p>
-                          <p className="text-sm text-gray-500">{format(new Date(review.created_at), 'MMMM dd, yyyy')}</p>
-                        </div>
-                      </div>
-                      <Rating value={review.rating} />
-                      <p className="mt-2">{review.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            {/* Recipe Details */}
-            <div className="bg-secondary rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Recipe Details</h3>
-              <p><strong>Prep Time:</strong> {recipe.prep_time}</p>
-              <p><strong>Cook Time:</strong> {recipe.cook_time}</p>
-              <p><strong>Servings:</strong> {recipe.servings}</p>
-              <p><strong>Difficulty:</strong> {recipe.difficulty}</p>
-            </div>
-
-            {Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Ingredients</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {recipe.ingredients.map((ingredient, index) => (
-                    <li key={index}>{ingredient}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {Array.isArray(recipe.instructions) && recipe.instructions.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Instructions</h3>
-                <ol className="list-decimal list-inside space-y-2">
-                  {recipe.instructions.map((instruction, index) => (
-                    <li key={index}>{instruction}</li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {Array.isArray(recipe.tips) && recipe.tips.length > 0 && (
-              <div className="bg-secondary rounded-lg p-6">
-                <h3 className="text-lg font-semibold mb-4">Pro Tips</h3>
-                <ul className="list-disc list-inside space-y-2">
-                  {recipe.tips.map((tip, index) => (
-                    <li key={index}>{tip}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+      {showEditModal && (
+        <EditRecipeModal
+          recipe={recipe}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
+    </>
   );
 };
 

@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
@@ -77,55 +77,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const handleSessionChange = async (session: Session | null) => {
-    setLoading(true);
-    try {
-      if (session?.user) {
-        setUser(session.user);
-        // First check suspension status
-        const suspended = await checkSuspensionStatus(session.user.id);
-        console.log("User suspension status:", suspended);
-        setIsSuspended(suspended);
-        
-        // Only check roles if user is not suspended
-        if (!suspended) {
-          await checkUserRoles(session.user.id);
-        } else {
-          // Reset roles if user is suspended
-          setIsAdmin(false);
-          setIsStaff(false);
-        }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
-        setIsStaff(false);
-        setIsSuspended(false);
-      }
-    } catch (error) {
-      console.error("Error handling session change:", error);
-      // Reset everything on error
-      setUser(null);
-      setIsAdmin(false);
-      setIsStaff(false);
-      setIsSuspended(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         console.log("Initial session check:", session);
-        await handleSessionChange(session);
+
+        if (session?.user) {
+          setUser(session.user);
+          const suspended = await checkSuspensionStatus(session.user.id);
+          console.log("User suspension status:", suspended);
+          setIsSuspended(suspended);
+          
+          if (!suspended) {
+            await checkUserRoles(session.user.id);
+          } else {
+            setIsAdmin(false);
+            setIsStaff(false);
+          }
+        }
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (_event, session) => {
             console.log("Auth state changed:", session);
-            await handleSessionChange(session);
+            if (session?.user) {
+              setUser(session.user);
+              const suspended = await checkSuspensionStatus(session.user.id);
+              setIsSuspended(suspended);
+              
+              if (!suspended) {
+                await checkUserRoles(session.user.id);
+              } else {
+                setIsAdmin(false);
+                setIsStaff(false);
+              }
+            } else {
+              setUser(null);
+              setIsAdmin(false);
+              setIsStaff(false);
+              setIsSuspended(false);
+            }
           }
         );
+
+        setLoading(false);
 
         return () => {
           subscription.unsubscribe();

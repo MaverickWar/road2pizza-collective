@@ -34,6 +34,11 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
     setImageError(true);
   };
 
+  const handleImageClick = (imgUrl: string) => {
+    console.log('Opening image in modal:', imgUrl);
+    setSelectedImage(imgUrl);
+  };
+
   const embedUrl = videoUrl && videoProvider ? getVideoEmbedUrl(videoUrl, videoProvider) : null;
 
   return (
@@ -45,7 +50,7 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
               src={!imageError ? imageUrl || fallbackImage : fallbackImage}
               alt="Recipe" 
               onError={handleImageError}
-              onClick={() => setSelectedImage(!imageError ? imageUrl || fallbackImage : fallbackImage)}
+              onClick={() => handleImageClick(!imageError ? imageUrl || fallbackImage : fallbackImage)}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
             />
           </AspectRatio>
@@ -77,7 +82,7 @@ const MediaGallery = ({ imageUrl, videoUrl, videoProvider, images = [], classNam
                     console.log(`Additional image ${index + 1} failed to load, using fallback`);
                     (e.target as HTMLImageElement).src = fallbackImage;
                   }}
-                  onClick={() => setSelectedImage(img)}
+                  onClick={() => handleImageClick(img)}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
                 />
               </AspectRatio>

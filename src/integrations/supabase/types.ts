@@ -801,7 +801,7 @@ export type Database = {
         }
         Insert: {
           approval_status?: string | null
-          author: string
+          author?: string
           category_id?: string | null
           content?: string | null
           cook_time?: string | null

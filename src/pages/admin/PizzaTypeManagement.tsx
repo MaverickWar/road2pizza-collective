@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pizza, Plus, Pencil, Trash2 } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Pizza, Plus } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import PizzaTypeGrid from "@/components/pizza/PizzaTypeGrid";
 
 const PizzaTypeManagement = () => {
   const [newPizzaType, setNewPizzaType] = useState({ name: "", description: "" });
@@ -21,7 +22,12 @@ const PizzaTypeManagement = () => {
         .select("*")
         .order("display_order", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching pizza types:", error);
+        throw error;
+      }
+
+      console.log("Fetched pizza types:", data);
       return data;
     },
   });
@@ -52,15 +58,18 @@ const PizzaTypeManagement = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-20 bg-secondary/50 rounded-lg" />
-        <div className="h-20 bg-secondary/50 rounded-lg" />
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="h-20 bg-secondary/50 rounded-lg animate-pulse" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -90,29 +99,8 @@ const PizzaTypeManagement = () => {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {pizzaTypes?.map((type) => (
-          <Card key={type.id}>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{type.name}</h3>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-              {type.description && (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {type.description}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4">
+        <PizzaTypeGrid />
       </div>
     </div>
   );

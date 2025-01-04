@@ -1,138 +1,111 @@
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Routes, Route } from "react-router-dom";
-import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import StatsCards from "@/components/admin/StatsCards";
-import AdminHeader from "@/components/admin/AdminHeader";
-import UserManagementTable from "@/components/admin/UserManagementTable";
-import RecipeManagement from "@/components/recipe/RecipeManagement";
-import ReviewManagement from "@/components/admin/ReviewManagement";
-import BadgeManagement from "@/components/admin/rewards/BadgeManagement";
-import PointRulesManagement from "@/components/admin/rewards/PointRulesManagement";
-import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
-import NotificationManagement from "@/pages/admin/NotificationManagement";
-import SiteSettings from "@/pages/admin/SiteSettings";
-import ThemeSettings from "@/pages/admin/ThemeSettings";
-import MediaGallery from "@/pages/admin/MediaGallery";
-import { toast } from "sonner";
+import { useAuth } from "@/components/AuthProvider";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Users, 
+  BookOpen, 
+  MessageSquare, 
+  Settings,
+  Award,
+  FileText,
+  Bell,
+  Palette,
+  Image
+} from 'lucide-react';
+import { Link } from "react-router-dom";
 
-function AdminDashboardOverview() {
-  const { data: stats, isLoading: loadingStats } = useQuery({
-    queryKey: ["admin-stats"],
-    queryFn: async () => {
-      console.log("Fetching admin statistics...");
-      const [usersResponse, recipesResponse, reviewsResponse] = await Promise.all([
-        supabase.from("profiles").select("count"),
-        supabase.from("recipes").select("count"),
-        supabase.from("reviews").select("rating"),
-      ]);
+const AdminDashboard = () => {
+  const { user } = useAuth();
 
-      if (usersResponse.error) throw usersResponse.error;
-      if (recipesResponse.error) throw recipesResponse.error;
-      if (reviewsResponse.error) throw reviewsResponse.error;
-
-      const averageRating = reviewsResponse.data.length
-        ? reviewsResponse.data.reduce((acc, review) => acc + review.rating, 0) /
-          reviewsResponse.data.length
-        : 0;
-
-      return {
-        users: usersResponse.data[0]?.count || 0,
-        recipes: recipesResponse.data[0]?.count || 0,
-        reviews: reviewsResponse.data.length,
-        averageRating,
-      };
+  const adminCards = [
+    {
+      title: "User Management",
+      description: "Manage users, roles, and permissions",
+      icon: Users,
+      href: "/dashboard/admin/users",
+      color: "bg-blue-500/10 text-blue-500",
     },
-  });
+    {
+      title: "Recipe Management",
+      description: "Manage and approve recipes",
+      icon: BookOpen,
+      href: "/dashboard/admin/recipes",
+      color: "bg-green-500/10 text-green-500",
+    },
+    {
+      title: "Reviews Dashboard",
+      description: "Monitor and manage user reviews",
+      icon: MessageSquare,
+      href: "/dashboard/reviews",
+      color: "bg-purple-500/10 text-purple-500",
+    },
+    {
+      title: "Rewards System",
+      description: "Configure badges and points",
+      icon: Award,
+      href: "/dashboard/admin/rewards",
+      color: "bg-yellow-500/10 text-yellow-500",
+    },
+    {
+      title: "Pizza Types",
+      description: "Manage pizza categories",
+      icon: FileText,
+      href: "/dashboard/admin/pizza-types",
+      color: "bg-orange-500/10 text-orange-500",
+    },
+    {
+      title: "Notifications",
+      description: "Manage system notifications",
+      icon: Bell,
+      href: "/dashboard/admin/notifications",
+      color: "bg-red-500/10 text-red-500",
+    },
+    {
+      title: "Theme Settings",
+      description: "Customize site appearance",
+      icon: Palette,
+      href: "/dashboard/admin/theme",
+      color: "bg-indigo-500/10 text-indigo-500",
+    },
+    {
+      title: "Media Gallery",
+      description: "Manage uploaded media",
+      icon: Image,
+      href: "/dashboard/admin/media",
+      color: "bg-pink-500/10 text-pink-500",
+    },
+  ];
 
-  if (loadingStats) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-20 bg-secondary/50 rounded-lg" />
-        <div className="grid gap-4 md:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-secondary/50 rounded-lg" />
+  return (
+    <DashboardLayout>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back, {user?.email}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {adminCards.map((card) => (
+            <Link key={card.title} to={card.href}>
+              <Card className="hover:shadow-md transition-all duration-200 cursor-pointer h-full">
+                <CardHeader className="space-y-1">
+                  <div className={`w-12 h-12 rounded-lg ${card.color} flex items-center justify-center mb-2`}>
+                    <card.icon className="w-6 h-6" />
+                  </div>
+                  <CardTitle className="text-xl">{card.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{card.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <AdminHeader />
-      {stats && <StatsCards stats={stats} />}
-    </div>
+    </DashboardLayout>
   );
-}
-
-function AdminDashboard() {
-  const handleToggleUserRole = async (userId: string, role: 'admin' | 'staff', currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ [`is_${role}`]: !currentStatus })
-        .eq('id', userId);
-
-      if (error) throw error;
-      toast.success(`User ${role} status updated successfully`);
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast.error('Failed to update user role');
-    }
-  };
-
-  const handleToggleSuspend = async (userId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_suspended: !currentStatus })
-        .eq('id', userId);
-
-      if (error) throw error;
-      toast.success('User suspension status updated successfully');
-    } catch (error) {
-      console.error('Error updating user suspension:', error);
-      toast.error('Failed to update user suspension status');
-    }
-  };
-
-  return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen bg-background flex">
-        <AdminSidebar />
-        <main className="flex-1 p-8 overflow-auto">
-          <Routes>
-            <Route index element={<AdminDashboardOverview />} />
-            <Route 
-              path="users" 
-              element={
-                <UserManagementTable 
-                  users={[]} 
-                  onToggleUserRole={handleToggleUserRole} 
-                  onToggleSuspend={handleToggleSuspend} 
-                />
-              } 
-            />
-            <Route path="recipes" element={<RecipeManagement />} />
-            <Route path="reviews" element={<ReviewManagement />} />
-            <Route path="rewards" element={
-              <div className="grid gap-4 md:grid-cols-2">
-                <BadgeManagement />
-                <PointRulesManagement />
-              </div>
-            } />
-            <Route path="pizza-types" element={<PizzaTypeManagement />} />
-            <Route path="notifications" element={<NotificationManagement />} />
-            <Route path="settings" element={<SiteSettings />} />
-            <Route path="theme" element={<ThemeSettings />} />
-            <Route path="media" element={<MediaGallery />} />
-          </Routes>
-        </main>
-      </div>
-    </SidebarProvider>
-  );
-}
+};
 
 export default AdminDashboard;

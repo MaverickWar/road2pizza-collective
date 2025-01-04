@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import ArticleContent from "./ArticleContent";
 import type { Recipe } from "@/components/recipe/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import RecipeContent from "./RecipeContent";
 
 const ArticleDetail = () => {
   const { id } = useParams<{ id: string }>();

@@ -10,6 +10,13 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { AdminControls } from './AdminControls';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategorySectionProps {
   category: {
@@ -29,9 +36,12 @@ interface CategorySectionProps {
   onThreadCreated: () => void;
 }
 
+const THREADS_PER_PAGE = 5;
+
 const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newThread, setNewThread] = useState({ title: '', content: '' });
+  const [currentPage, setCurrentPage] = useState(1);
   const { user, isAdmin } = useAuth();
 
   const handleCreateThread = async () => {
@@ -58,6 +68,21 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
       toast.error('Failed to create thread');
     }
   };
+
+  // Separate pinned and unpinned threads
+  const pinnedThreads = category.forum_threads.filter(thread => thread.is_pinned);
+  const unpinnedThreads = category.forum_threads.filter(thread => !thread.is_pinned);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE);
+  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
+  const endIndex = startIndex + THREADS_PER_PAGE;
+  
+  // Get current page threads
+  const currentThreads = [
+    ...pinnedThreads,
+    ...unpinnedThreads.slice(startIndex, endIndex)
+  ];
 
   return (
     <Card className="overflow-hidden">
@@ -116,7 +141,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
         </div>
       </div>
       <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
-        {category.forum_threads?.map((thread) => (
+        {currentThreads.map((thread) => (
           <ThreadItem 
             key={thread.id} 
             thread={thread}
@@ -130,6 +155,28 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </p>
         )}
       </div>
+      {totalPages > 1 && (
+        <div className="p-4 flex justify-center items-center gap-4">
+          <Select
+            value={currentPage.toString()}
+            onValueChange={(value) => setCurrentPage(parseInt(value))}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Page" />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <SelectItem key={page} value={page.toString()}>
+                  Page {page}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+        </div>
+      )}
     </Card>
   );
 };

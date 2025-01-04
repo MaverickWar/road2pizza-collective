@@ -118,6 +118,8 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             currentTitle={thread.title}
             currentContent={thread.content}
             currentCategoryId={thread.forum?.category?.id}
+            isPinned={thread.is_pinned}
+            isLocked={thread.is_locked}
             onThreadUpdated={fetchThread}
           />
         </div>

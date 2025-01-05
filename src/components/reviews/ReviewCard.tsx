@@ -110,7 +110,7 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             )}
           </div>
           <Link
-            to={`/reviews/${review.id}`}
+            to={`/equipment-reviews/${review.id}`}
             className="text-xs text-accent hover:text-accent/80 font-medium"
           >
             Read more →

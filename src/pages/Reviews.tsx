@@ -5,7 +5,7 @@ import Navigation from "@/components/Navigation";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import ReviewStats from "@/components/reviews/ReviewStats";
 import { Card, CardContent } from "@/components/ui/card";
-import { Fire } from "lucide-react";
+import { Flame } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/reviews/ReviewForm";
 
@@ -63,7 +63,7 @@ const Reviews = () => {
           <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center gap-2">
-                <Fire className="w-8 h-8 text-accent" />
+                <Flame className="w-8 h-8 text-accent" />
                 <h1 className="text-2xl font-bold tracking-tight">Pizza Oven Reviews</h1>
               </div>
               <p className="text-gray-500">

@@ -42,26 +42,20 @@ export const useLogin = () => {
       
       console.log('Starting login attempt...', { email });
 
-      // Attempt login directly
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        console.error('Login error:', {
-          message: signInError.message,
-          status: signInError.status,
-          name: signInError.name,
-          details: signInError
-        });
+      if (error) {
+        console.error('Login error:', error);
 
-        if (signInError.message.includes('Email not confirmed')) {
+        if (error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
           return;
         }
 
-        if (signInError.message.includes('Invalid login credentials')) {
+        if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password. Please try again.');
           return;
         }

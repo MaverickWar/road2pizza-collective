@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LoadingScreen from "@/components/LoadingScreen";
 import { Suspense } from "react";
+import MainNav from "@/components/MainNav";
 
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
@@ -56,133 +57,142 @@ function PageTransitionWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppContent() {
+  return (
+    <>
+      <MainNav />
+      <PageTransitionWrapper>
+        <Suspense fallback={<LoadingScreen />}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* Dashboard Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/dashboard/admin/*"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/users"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/recipes"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RecipeManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/*"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ForumManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/media"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MediaGallery />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/theme"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ThemeSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/notifications"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <NotificationManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/rewards"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RewardsManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/pizza-types"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PizzaTypeManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireStaff>
+                  <ReviewsDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/staff"
+              element={
+                <ProtectedRoute requireStaff>
+                  <StaffDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Community Routes */}
+            <Route path="/community" element={<Community />} />
+            <Route path="/community/forum/category/:id" element={<CategoryView />} />
+            <Route path="/community/forum/thread/:id" element={<ThreadView />} />
+
+            {/* Pizza Routes */}
+            <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza/:style" element={<PizzaStyle />} />
+            <Route path="/pizza-style" element={<PizzaStyle />} />
+
+            {/* Article and Review Routes */}
+            <Route path="/reviews" element={<Reviews />} />
+            <Route 
+              path="/article/:id" 
+              element={<ArticleDetail />} 
+            />
+            <Route 
+              path="/equipment/:id" 
+              element={<EquipmentReviewDetail />} 
+            />
+          </Routes>
+        </Suspense>
+      </PageTransitionWrapper>
+      <Toaster />
+    </>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <PageTransitionWrapper>
-            <Suspense fallback={<LoadingScreen />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                
-                {/* Dashboard Routes */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route
-                  path="/dashboard/admin/*"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/users"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <UserManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/recipes"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <RecipeManagementPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/forum/*"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <ForumManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/media"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <MediaGallery />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/theme"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <ThemeSettings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/notifications"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <NotificationManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/rewards"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <RewardsManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/admin/pizza-types"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <PizzaTypeManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/reviews"
-                  element={
-                    <ProtectedRoute requireStaff>
-                      <ReviewsDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/staff"
-                  element={
-                    <ProtectedRoute requireStaff>
-                      <StaffDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Community Routes */}
-                <Route path="/community" element={<Community />} />
-                <Route path="/community/forum/category/:id" element={<CategoryView />} />
-                <Route path="/community/forum/thread/:id" element={<ThreadView />} />
-
-                {/* Pizza Routes */}
-                <Route path="/pizza" element={<Pizza />} />
-                <Route path="/pizza/:style" element={<PizzaStyle />} />
-                <Route path="/pizza-style" element={<PizzaStyle />} />
-
-                {/* Article and Review Routes */}
-                <Route path="/reviews" element={<Reviews />} />
-                <Route 
-                  path="/article/:id" 
-                  element={<ArticleDetail />} 
-                />
-                <Route 
-                  path="/equipment/:id" 
-                  element={<EquipmentReviewDetail />} 
-                />
-              </Routes>
-            </Suspense>
-          </PageTransitionWrapper>
-          <Toaster />
+          <AppContent />
         </Router>
       </AuthProvider>
     </QueryClientProvider>

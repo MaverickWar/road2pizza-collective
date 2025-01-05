@@ -4,9 +4,10 @@ import NewReviewButton from "./NewReviewButton";
 
 interface ReviewStatsProps {
   reviews: any[];
+  onNewReview: () => void;
 }
 
-const ReviewStats = ({ reviews }: ReviewStatsProps) => {
+const ReviewStats = ({ reviews, onNewReview }: ReviewStatsProps) => {
   const averageRating =
     reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length || 0;
 
@@ -49,7 +50,7 @@ const ReviewStats = ({ reviews }: ReviewStatsProps) => {
         ))}
       </div>
       <div className="flex justify-center md:justify-start">
-        <NewReviewButton onClick={() => {}} />
+        <NewReviewButton onClick={onNewReview} />
       </div>
     </div>
   );

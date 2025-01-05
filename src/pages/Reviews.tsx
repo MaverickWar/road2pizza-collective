@@ -7,7 +7,6 @@ import ReviewStats from "@/components/reviews/ReviewStats";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChefHat } from "lucide-react";
 import { Link } from "react-router-dom";
-import NewReviewButton from "@/components/reviews/NewReviewButton";
 import ReviewForm from "@/components/reviews/ReviewForm";
 
 const Reviews = () => {
@@ -92,10 +91,7 @@ const Reviews = () => {
                   Expert reviews and community insights on the best pizza ovens
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <ReviewStats reviews={reviews || []} />
-                <NewReviewButton onClick={() => setIsReviewFormOpen(true)} />
-              </div>
+              <ReviewStats reviews={reviews || []} onNewReview={() => setIsReviewFormOpen(true)} />
             </div>
 
             {featuredReview && (

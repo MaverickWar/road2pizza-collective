@@ -60,11 +60,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             isSidebarOpen && !isMobile ? "md:ml-64" : ""
           )}>
             <div className="max-w-7xl mx-auto space-y-6">
-              <div className="flex items-center md:hidden">
+              <div className="flex items-center gap-4">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={toggleSidebar}
+                  className="flex md:hidden"
                 >
                   {isSidebarOpen ? (
                     <X className="h-5 w-5" />
@@ -72,6 +73,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Menu className="h-5 w-5" />
                   )}
                 </Button>
+                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
               </div>
               {children}
             </div>

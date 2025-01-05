@@ -70,30 +70,34 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     }
   };
 
-  // Sort threads by created_at date (newest first)
-  const sortedThreads = [...category.forum_threads].sort((a, b) => 
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  // First, separate pinned and unpinned threads
+  const pinnedThreads = category.forum_threads
+    .filter(thread => thread.is_pinned)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  // Calculate total pages based on total threads (including pinned)
-  const totalPages = Math.ceil(sortedThreads.length / THREADS_PER_PAGE);
+  const unpinnedThreads = category.forum_threads
+    .filter(thread => !thread.is_pinned)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Calculate total pages based on total threads minus pinned threads
+  const totalPages = Math.ceil((category.forum_threads.length - pinnedThreads.length) / THREADS_PER_PAGE);
   
   // Ensure currentPage is within bounds
   if (currentPage > totalPages && totalPages > 0) {
     setCurrentPage(totalPages);
   }
   
-  // Get current page threads
+  // Get current page unpinned threads
   const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
   const endIndex = startIndex + THREADS_PER_PAGE;
+  const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
   
-  // Get the threads for the current page
-  const displayThreads = sortedThreads.slice(startIndex, endIndex);
+  // Combine pinned threads with current page unpinned threads
+  const displayThreads = [...pinnedThreads, ...currentUnpinnedThreads];
 
-  console.log('Total threads:', sortedThreads.length);
+  console.log('Total threads:', category.forum_threads.length);
+  console.log('Pinned threads:', pinnedThreads.length);
   console.log('Current page:', currentPage);
-  console.log('Start index:', startIndex);
-  console.log('End index:', endIndex);
   console.log('Display threads:', displayThreads.length);
 
   return (

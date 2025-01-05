@@ -36,34 +36,55 @@ export default function Login() {
       const email = values.email.toLowerCase().trim();
       const { password } = values;
       
-      console.log('Starting login attempt for:', email);
+      console.log('Starting login attempt...', { email });
+
+      // First check if the user exists
+      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers();
       
-      const { data: { session }, error } = await supabase.auth.signInWithPassword({
+      if (getUserError) {
+        console.error('Error checking user:', getUserError);
+        toast.error('An error occurred while verifying your account');
+        setIsLoading(false);
+        return;
+      }
+
+      const userExists = users?.some(user => user.email === email);
+      
+      if (!userExists) {
+        console.log('User not found:', email);
+        toast.error('No account found with this email address');
+        setIsLoading(false);
+        return;
+      }
+
+      // Attempt login
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error('Login error details:', {
-          message: error.message,
-          status: error.status,
-          name: error.name
+      if (signInError) {
+        console.error('Login error:', {
+          message: signInError.message,
+          status: signInError.status,
+          name: signInError.name,
+          details: signInError
         });
         
         setIsLoading(false);
 
-        if (error.message.includes('Email not confirmed')) {
+        if (signInError.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
           return;
         }
 
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('The email or password you entered is incorrect');
+        if (signInError.message.includes('Invalid login credentials')) {
+          toast.error('Incorrect password. Please try again.');
           return;
         }
 
-        // Handle the "Body is disturbed" error specifically
-        if (error.message.includes('Body is disturbed')) {
+        if (signInError.message.includes('Body is disturbed')) {
+          console.error('Body disturbed error:', signInError);
           toast.error('Connection error. Please try again.');
           return;
         }
@@ -72,12 +93,17 @@ export default function Login() {
         return;
       }
 
-      if (session?.user) {
-        console.log('Login successful, user:', session.user.email);
+      if (data?.user) {
+        console.log('Login successful:', {
+          id: data.user.id,
+          email: data.user.email,
+          lastSignIn: data.user.last_sign_in_at
+        });
+        
         toast.success('Login successful');
         navigate('/dashboard');
       } else {
-        console.error('No session data received');
+        console.error('No user data received from successful login');
         toast.error('Login failed - please try again');
       }
     } catch (error) {

@@ -39,9 +39,9 @@ const Reviews = () => {
           equipment_reviews (*)
         `)
         .eq("is_featured", true)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") {
+      if (error) {
         console.error("Error fetching featured review:", error);
         throw error;
       }

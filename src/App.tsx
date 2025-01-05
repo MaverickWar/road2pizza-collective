@@ -33,6 +33,7 @@ import NotificationManagement from "@/pages/admin/NotificationManagement";
 import RewardsManagement from "@/pages/admin/RewardsManagement";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 import RecipeManagementPage from "@/pages/admin/RecipeManagement";
+import MenuManagement from "@/pages/admin/MenuManagement";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -151,10 +152,10 @@ function AppContent() {
               }
             />
             <Route
-              path="/dashboard/reviews"
+              path="/dashboard/admin/menus"
               element={
-                <ProtectedRoute requireStaff>
-                  <ReviewsDashboard />
+                <ProtectedRoute requireAdmin>
+                  <MenuManagement />
                 </ProtectedRoute>
               }
             />

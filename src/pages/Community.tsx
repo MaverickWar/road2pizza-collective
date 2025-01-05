@@ -34,11 +34,9 @@ const Community = () => {
         .order('points', { ascending: false })
         .limit(10);
 
-      console.log("Leaderboard data:", data);
-      console.log("Leaderboard error:", error);
-
       if (error) throw error;
       
+      console.log("Leaderboard data:", data);
       setLeaderboard(data || []);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
@@ -57,10 +55,9 @@ const Community = () => {
         .eq('id', user.id)
         .maybeSingle();
 
-      console.log("User stats data:", data);
-      console.log("User stats error:", error);
-
       if (error) throw error;
+
+      console.log("User stats data:", data);
 
       // Get user's rank
       const { count: rankData, error: rankError } = await supabase
@@ -85,8 +82,8 @@ const Community = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="pt-36 md:pt-32">
-        <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="pt-16">
           <h1 className="text-4xl font-bold text-textLight mb-8">Pizza Community</h1>
           
           {user && <UserStats stats={userStats} />}

@@ -95,12 +95,11 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         pros: formData.pros.filter(Boolean),
         cons: formData.cons.filter(Boolean),
         rating: calculateOverallRating(),
-        design_rating: formData.ratings.design,
-        ease_of_use_rating: formData.ratings.easeOfUse,
-        portability_rating: formData.ratings.portability,
+        durability_rating: formData.ratings.reliability,
         value_rating: formData.ratings.valueForMoney,
-        reliability_rating: formData.ratings.reliability,
+        ease_of_use_rating: formData.ratings.easeOfUse,
         created_by: user?.id,
+        author: user?.username || "Anonymous"
       });
 
       if (error) throw error;

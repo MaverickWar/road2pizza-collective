@@ -13,13 +13,19 @@ const EquipmentReviewDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  console.log('Review ID from params:', id); // Debug log
+
   const { data: review, isLoading, error } = useQuery({
     queryKey: ['equipment-review', id],
     queryFn: async () => {
-      console.log('Fetching equipment review:', id);
+      console.log('Starting to fetch equipment review with ID:', id);
+      
       const { data, error } = await supabase
         .from('equipment_reviews')
-        .select('*')
+        .select(`
+          *,
+          profiles:created_by (username)
+        `)
         .eq('id', id)
         .maybeSingle();
 
@@ -29,19 +35,24 @@ const EquipmentReviewDetail = () => {
       }
 
       if (!data) {
+        console.log('No review found for ID:', id);
         throw new Error('Review not found');
       }
 
-      console.log('Fetched review data:', data);
+      console.log('Successfully fetched review data:', data);
       return data as ReviewData;
     },
+    enabled: !!id,
   });
+
+  console.log('Query state:', { isLoading, error, review }); // Debug log
 
   if (isLoading) {
     return <ReviewLoading />;
   }
 
   if (error || !review) {
+    console.error('Error or no review:', error);
     return <ReviewError />;
   }
 

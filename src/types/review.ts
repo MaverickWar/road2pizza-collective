@@ -18,7 +18,7 @@ export const reviewSchema = z.object({
 export type ReviewFormData = z.infer<typeof reviewSchema>;
 
 export type ReviewData = {
-  id?: string;
+  id: string;
   title: string;
   author: string;
   brand: string;
@@ -36,4 +36,7 @@ export type ReviewData = {
   is_featured?: boolean;
   cons?: string[];
   pros?: string[];
+  profiles?: {
+    username: string;
+  };
 };

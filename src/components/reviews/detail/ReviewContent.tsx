@@ -7,6 +7,8 @@ interface ReviewContentProps {
 }
 
 export const ReviewContent = ({ review }: ReviewContentProps) => {
+  console.log('Rendering ReviewContent with data:', review); // Debug log
+
   return (
     <div className="space-y-8">
       {/* Header */}

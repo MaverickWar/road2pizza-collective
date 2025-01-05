@@ -28,7 +28,11 @@ export default function Login() {
     },
   });
 
-  console.log('Form errors:', form.formState.errors);
+  console.log('Form state:', {
+    isDirty: form.formState.isDirty,
+    isSubmitting: form.formState.isSubmitting,
+    errors: form.formState.errors
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -37,7 +41,11 @@ export default function Login() {
       setShowEmailConfirmAlert(false);
       
       const normalizedEmail = values.email.toLowerCase().trim();
-      console.log('Attempting login with normalized email:', normalizedEmail);
+      console.log('Login attempt details:', {
+        normalizedEmail,
+        passwordLength: values.password.length,
+        timestamp: new Date().toISOString()
+      });
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
@@ -45,13 +53,20 @@ export default function Login() {
       });
 
       console.log('Supabase auth response:', { 
-        data: data ? 'Data present' : 'No data', 
-        error: error || 'No error',
-        user: data?.user ? 'User present' : 'No user'
+        hasData: !!data,
+        hasUser: !!data?.user,
+        errorMessage: error?.message,
+        errorStatus: error?.status,
+        timestamp: new Date().toISOString()
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('Login error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name,
+          stack: error.stack
+        });
         setIsLoading(false);
         
         if (error.message.includes('Invalid login credentials')) {
@@ -69,10 +84,13 @@ export default function Login() {
       }
 
       if (data.user) {
-        console.log('Login successful, user:', {
+        console.log('Login successful, user details:', {
           id: data.user.id,
           email: data.user.email,
-          lastSignIn: data.user.last_sign_in_at
+          lastSignIn: data.user.last_sign_in_at,
+          emailConfirmed: data.user.email_confirmed_at,
+          userMetadata: data.user.user_metadata,
+          timestamp: new Date().toISOString()
         });
         toast.success('Login successful');
         navigate('/dashboard');

@@ -95,6 +95,14 @@ function AppContent() {
               }
             />
             <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireStaff>
+                  <ReviewsDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/admin/forum/*"
               element={
                 <ProtectedRoute requireAdmin>

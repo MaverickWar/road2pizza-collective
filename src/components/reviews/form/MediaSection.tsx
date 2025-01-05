@@ -14,6 +14,10 @@ interface MediaSectionProps {
 
 const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
   const [uploading, setUploading] = useState(false);
+  
+  // Create refs for file inputs
+  const mainImageInputRef = React.useRef<HTMLInputElement>(null);
+  const additionalImageInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleMainImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -21,7 +25,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      console.log("Starting main image upload");
+      console.log("Starting main image upload", file);
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -43,6 +47,8 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       toast.error('Error uploading image');
     } finally {
       setUploading(false);
+      // Reset the input value to allow selecting the same file again
+      if (event.target) event.target.value = '';
     }
   };
 
@@ -52,7 +58,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      console.log("Starting additional image upload");
+      console.log("Starting additional image upload", file);
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -77,6 +83,8 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       toast.error('Error uploading image');
     } finally {
       setUploading(false);
+      // Reset the input value to allow selecting the same file again
+      if (event.target) event.target.value = '';
     }
   };
 
@@ -101,6 +109,15 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
     });
   };
 
+  // Click handlers for the buttons
+  const handleMainImageClick = () => {
+    mainImageInputRef.current?.click();
+  };
+
+  const handleAdditionalImageClick = () => {
+    additionalImageInputRef.current?.click();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -117,24 +134,23 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
           )}
           <div>
             <Input
+              ref={mainImageInputRef}
               type="file"
               accept="image/*"
               onChange={handleMainImageUpload}
               disabled={uploading}
               className="hidden"
-              id="mainImage"
             />
-            <Label htmlFor="mainImage" className="cursor-pointer">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                disabled={uploading}
-              >
-                <ImageIcon className="w-4 h-4 mr-2" />
-                {uploading ? "Uploading..." : "Upload Main Image"}
-              </Button>
-            </Label>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={uploading}
+              onClick={handleMainImageClick}
+            >
+              <ImageIcon className="w-4 h-4 mr-2" />
+              {uploading ? "Uploading..." : "Upload Main Image"}
+            </Button>
           </div>
         </div>
       </div>
@@ -159,24 +175,23 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
           ))}
           <div>
             <Input
+              ref={additionalImageInputRef}
               type="file"
               accept="image/*"
               onChange={handleAdditionalImageUpload}
               disabled={uploading}
               className="hidden"
-              id="additionalImage"
             />
-            <Label htmlFor="additionalImage" className="cursor-pointer">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-32 flex flex-col items-center justify-center"
-                disabled={uploading}
-              >
-                <Plus className="w-6 h-6 mb-2" />
-                Add Image
-              </Button>
-            </Label>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-32 flex flex-col items-center justify-center"
+              disabled={uploading}
+              onClick={handleAdditionalImageClick}
+            >
+              <Plus className="w-6 h-6 mb-2" />
+              Add Image
+            </Button>
           </div>
         </div>
       </div>

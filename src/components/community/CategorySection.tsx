@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import ThreadItem from './ThreadItem';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Editor from '@/components/Editor';
@@ -10,13 +9,8 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { AdminControls } from './AdminControls';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import ThreadList from './ThreadList';
+import ThreadPagination from './ThreadPagination';
 
 interface CategorySectionProps {
   category: {
@@ -70,7 +64,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     }
   };
 
-  // First, separate pinned and unpinned threads
+  // Get pinned and unpinned threads
   const pinnedThreads = category.forum_threads
     .filter(thread => thread.is_pinned)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -79,24 +73,28 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     .filter(thread => !thread.is_pinned)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  // Calculate how many unpinned threads we can show based on number of pinned threads
-  const remainingSlots = Math.max(0, THREADS_PER_PAGE - pinnedThreads.length);
+  // Calculate remaining slots for unpinned threads based on pinned threads (only on first page)
+  const remainingSlots = currentPage === 1 
+    ? Math.max(0, THREADS_PER_PAGE - pinnedThreads.length)
+    : THREADS_PER_PAGE;
   
-  // Calculate total pages based on remaining slots for unpinned threads
-  const totalPages = Math.ceil(unpinnedThreads.length / remainingSlots) || 1;
+  // Calculate total pages based on unpinned threads
+  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE) || 1;
   
   // Ensure currentPage is within bounds
   if (currentPage > totalPages) {
     setCurrentPage(totalPages);
   }
   
-  // Get current page unpinned threads
-  const startIndex = (currentPage - 1) * remainingSlots;
+  // Get current page threads
+  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
   const endIndex = startIndex + remainingSlots;
   const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
   
-  // Combine pinned threads with current page unpinned threads
-  const displayThreads = [...pinnedThreads, ...currentUnpinnedThreads];
+  // Combine threads based on current page
+  const displayThreads = currentPage === 1
+    ? [...pinnedThreads, ...currentUnpinnedThreads]
+    : currentUnpinnedThreads;
 
   console.log('Total threads:', category.forum_threads.length);
   console.log('Pinned threads:', pinnedThreads.length);
@@ -160,43 +158,18 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </Dialog>
         </div>
       </div>
-      <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
-        {displayThreads.map((thread) => (
-          <ThreadItem 
-            key={thread.id} 
-            thread={thread}
-            showAdminControls={isAdmin}
-            onThreadUpdated={onThreadCreated}
-          />
-        ))}
-        {category.forum_threads.length === 0 && (
-          <p className="text-center py-8 text-gray-500 dark:text-gray-400">
-            No threads yet. Be the first to start a discussion!
-          </p>
-        )}
-      </div>
-      {totalPages > 1 && (
-        <div className="p-4 flex justify-center items-center gap-4">
-          <Select
-            value={currentPage.toString()}
-            onValueChange={(value) => setCurrentPage(parseInt(value))}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Page" />
-            </SelectTrigger>
-            <SelectContent>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <SelectItem key={page} value={page.toString()}>
-                  Page {page}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages}
-          </span>
-        </div>
-      )}
+
+      <ThreadList 
+        threads={displayThreads}
+        showAdminControls={isAdmin}
+        onThreadUpdated={onThreadCreated}
+      />
+
+      <ThreadPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </Card>
   );
 };

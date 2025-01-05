@@ -104,7 +104,8 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         value_rating: Math.round(formData.ratings.valueForMoney),
         ease_of_use_rating: Math.round(formData.ratings.easeOfUse),
         created_by: user?.id,
-        author: user?.username || "Anonymous"
+        author: user?.username || "Anonymous",
+        is_published: false // Set initially as unpublished
       });
 
       if (error) throw error;

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
-import { toast } from "sonner";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import ReviewHeader from "@/components/reviews/ReviewHeader";
 import ReviewContent from "@/components/reviews/ReviewContent";
@@ -11,7 +10,6 @@ const Reviews = () => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [hiddenElements, setHiddenElements] = useState<string[]>([]);
-  const [editingReview, setEditingReview] = useState<any>(null);
   
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["pizza-oven-reviews"],
@@ -36,11 +34,6 @@ const Reviews = () => {
 
   const toggleEditMode = (mode: boolean) => {
     setIsEditMode(mode);
-    if (!mode) {
-      toast.success("Layout saved!");
-    } else {
-      toast.info("Edit mode enabled. Click elements to show/hide them.");
-    }
   };
 
   const toggleElementVisibility = (elementId: string) => {
@@ -54,12 +47,6 @@ const Reviews = () => {
   };
 
   const handleNewReview = () => {
-    setEditingReview(null);
-    setIsReviewFormOpen(true);
-  };
-
-  const handleEditReview = (review: any) => {
-    setEditingReview(review);
     setIsReviewFormOpen(true);
   };
 
@@ -87,11 +74,7 @@ const Reviews = () => {
 
       <ReviewForm 
         isOpen={isReviewFormOpen}
-        onClose={() => {
-          setIsReviewFormOpen(false);
-          setEditingReview(null);
-        }}
-        editingReview={editingReview}
+        onClose={() => setIsReviewFormOpen(false)}
       />
     </div>
   );

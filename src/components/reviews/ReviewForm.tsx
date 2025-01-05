@@ -130,8 +130,8 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="ratings">Ratings</TabsTrigger>
             <TabsTrigger value="proscons">Pros & Cons</TabsTrigger>
+            <TabsTrigger value="ratings">Ratings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic">
@@ -148,15 +148,15 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
             />
           </TabsContent>
 
-          <TabsContent value="ratings">
-            <RatingSection 
+          <TabsContent value="proscons">
+            <ProsCons 
               formData={formData} 
               setFormData={setFormData} 
             />
           </TabsContent>
 
-          <TabsContent value="proscons">
-            <ProsCons 
+          <TabsContent value="ratings">
+            <RatingSection 
               formData={formData} 
               setFormData={setFormData} 
             />

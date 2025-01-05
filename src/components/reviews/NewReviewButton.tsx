@@ -14,9 +14,9 @@ const NewReviewButton = ({ onClick }: NewReviewButtonProps) => {
   return (
     <Button 
       onClick={onClick}
-      className="flex items-center gap-2"
+      className="bg-accent hover:bg-accent-hover text-white font-medium rounded-lg px-4 py-2 flex items-center gap-2 transition-colors duration-200"
     >
-      <Plus className="w-4 h-4" />
+      <Plus className="w-5 h-5" />
       New Review
     </Button>
   );

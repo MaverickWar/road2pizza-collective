@@ -66,6 +66,14 @@ const App = () => {
                 }
               />
               <Route
+                path="/dashboard/reviews"
+                element={
+                  <ProtectedRoute>
+                    <ReviewManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/dashboard/admin/reviews"
                 element={
                   <ProtectedRoute requireAdmin>

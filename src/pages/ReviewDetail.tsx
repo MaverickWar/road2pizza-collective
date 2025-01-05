@@ -32,8 +32,8 @@ const ReviewDetail = () => {
       // Cast the data to match ReviewData type
       const reviewData: ReviewData = {
         ...data,
-        pros: Array.isArray(data.pros) ? data.pros : [],
-        cons: Array.isArray(data.cons) ? data.cons : [],
+        pros: Array.isArray(data.pros) ? data.pros.map(String) : [],
+        cons: Array.isArray(data.cons) ? data.cons.map(String) : [],
       };
 
       return reviewData;

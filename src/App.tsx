@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { lazy } from "react";
 
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
@@ -21,6 +21,13 @@ import AdminNotificationsPage from "@/pages/admin/AdminNotificationsPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
 import AdminThemePage from "@/pages/admin/AdminThemePage";
 import AdminMediaPage from "@/pages/admin/AdminMediaPage";
+
+// Lazy load devtools to avoid including them in production bundle
+const ReactQueryDevtools = lazy(() =>
+  import("@tanstack/react-query-devtools").then(({ ReactQueryDevtools }) => ({
+    default: ReactQueryDevtools,
+  }))
+);
 
 const queryClient = new QueryClient();
 
@@ -100,7 +107,7 @@ function App() {
           <Toaster position="top-center" />
         </AuthProvider>
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }

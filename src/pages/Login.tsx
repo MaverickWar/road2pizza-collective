@@ -36,13 +36,19 @@ export default function Login() {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      console.log('Attempting login with email:', values.email);
+      const normalizedEmail = values.email.toLowerCase().trim();
+      console.log('Attempting login with normalized email:', normalizedEmail);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email.toLowerCase().trim(), // Normalize email
+        email: normalizedEmail,
         password: values.password,
       });
 
-      console.log('Supabase auth response:', { data, error });
+      console.log('Supabase auth response:', { 
+        data: data ? 'Data present' : 'No data', 
+        error: error || 'No error',
+        user: data?.user ? 'User present' : 'No user'
+      });
 
       if (error) {
         console.error('Login error:', error);
@@ -63,7 +69,11 @@ export default function Login() {
       }
 
       if (data.user) {
-        console.log('Login successful, user:', data.user);
+        console.log('Login successful, user:', {
+          id: data.user.id,
+          email: data.user.email,
+          lastSignIn: data.user.last_sign_in_at
+        });
         toast.success('Login successful');
         navigate('/dashboard');
       } else {

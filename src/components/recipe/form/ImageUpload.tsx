@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/components/AuthProvider";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -15,9 +16,15 @@ interface ImageUploadProps {
 const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(currentImageUrl || '');
+  const { user } = useAuth();
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
+      if (!user) {
+        toast.error('Please login to upload images');
+        return;
+      }
+
       setUploading(true);
       
       if (!event.target.files || event.target.files.length === 0) {
@@ -28,11 +35,13 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
       const fileExt = file.name.split('.').pop();
       const filePath = `${Math.random()}.${fileExt}`;
 
-      console.log('Uploading image:', filePath);
+      console.log('Starting upload with auth:', !!user);
       
       const { error: uploadError, data } = await supabase.storage
         .from('recipe-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: false
+        });
 
       if (uploadError) {
         throw uploadError;
@@ -49,13 +58,18 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Error uploading image');
+      toast.error('Error uploading image. Please make sure you are logged in.');
     } finally {
       setUploading(false);
     }
   };
 
   const handleUrlSubmit = () => {
+    if (!user) {
+      toast.error('Please login to add images');
+      return;
+    }
+
     if (imageUrl.trim()) {
       onImageUploaded(imageUrl.trim());
       toast.success('Image URL added successfully');
@@ -85,7 +99,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
             <Button
               type="button"
               variant="outline"
-              disabled={disabled || uploading}
+              disabled={disabled || uploading || !user}
               className="relative"
               onClick={() => document.getElementById('image-upload')?.click()}
             >
@@ -109,7 +123,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
               accept="image/*"
               onChange={handleUpload}
               className="hidden"
-              disabled={disabled}
+              disabled={disabled || !user}
             />
           </div>
         </TabsContent>
@@ -121,18 +135,21 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
               placeholder="Enter image URL"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              disabled={disabled}
+              disabled={disabled || !user}
             />
             <Button 
               type="button"
               onClick={handleUrlSubmit}
-              disabled={disabled || !imageUrl.trim()}
+              disabled={disabled || !imageUrl.trim() || !user}
             >
               Add URL
             </Button>
           </div>
         </TabsContent>
       </Tabs>
+      {!user && (
+        <p className="text-sm text-red-500">Please login to upload or add images</p>
+      )}
     </div>
   );
 };

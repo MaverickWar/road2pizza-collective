@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Pizza } from "lucide-react";
 import { toast } from "sonner";
+import { AuthError, AuthResponse, Session, User } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,24 +18,42 @@ const Login = () => {
       console.log("Current session:", session);
       if (error) {
         console.error("Session check error:", error);
+        toast.error("Error checking session");
       }
-      if (session) {
+      if (session?.user) {
+        console.log("User already logged in, redirecting...");
         navigate("/");
       }
     };
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session);
-      if (session) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed - Event:", event);
+      console.log("Auth state changed - Session:", session);
+
+      if (session?.user) {
+        console.log("User authenticated, redirecting...");
         navigate("/");
       }
-      if (event === 'USER_DELETED') {
-        toast.error("Account has been deleted");
-      }
-      if (event === 'PASSWORD_RECOVERY') {
-        toast.info("Password recovery email sent");
+
+      switch (event) {
+        case 'SIGNED_OUT':
+          console.log("User signed out");
+          break;
+        case 'USER_DELETED':
+          console.log("User account deleted");
+          toast.error("Account has been deleted");
+          break;
+        case 'PASSWORD_RECOVERY':
+          console.log("Password recovery initiated");
+          toast.info("Password recovery email sent");
+          break;
+        case 'USER_UPDATED':
+          console.log("User profile updated");
+          break;
+        default:
+          console.log("Other auth event:", event);
       }
     });
 
@@ -103,10 +122,7 @@ const Login = () => {
               },
             }}
             providers={[]}
-            onError={(error) => {
-              console.error("Auth error:", error);
-              toast.error(error.message || "An error occurred during authentication");
-            }}
+            theme={theme === 'dark' ? 'dark' : 'default'}
           />
         </div>
       </div>

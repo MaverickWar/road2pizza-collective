@@ -3,27 +3,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Star, ChefHat, Filter } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import ReviewForm from "./ReviewForm";
 import { toast } from "sonner";
+import ReviewStats from "./reviews/ReviewStats";
+import ReviewFilters from "./reviews/ReviewFilters";
+import ReviewTable from "./reviews/ReviewTable";
 
 const ReviewManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,7 +22,7 @@ const ReviewManagement = () => {
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["equipment-reviews"],
     queryFn: async () => {
-      console.log("Fetching equipment reviews...");
+      console.log("Fetching pizza oven reviews...");
       const { data, error } = await supabase
         .from("equipment_reviews")
         .select("*")
@@ -84,16 +71,14 @@ const ReviewManagement = () => {
   });
 
   const categories = [...new Set(reviews?.map(review => review.category) || [])];
-
-  // Calculate statistics
   const totalReviews = reviews.length;
-  const averageRating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / totalReviews;
+  const averageRating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / totalReviews || 0;
   const featuredReviews = reviews.filter(review => review.is_featured).length;
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4 md:p-6">
           <div className="space-y-4 animate-pulse">
             <div className="h-20 bg-secondary rounded-lg" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -110,142 +95,60 @@ const ReviewManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 md:p-6 space-y-6">
         <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Equipment Reviews</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Pizza Oven Reviews</h1>
           <p className="text-muted-foreground">
-            Manage and monitor equipment reviews across the platform
+            Manage and monitor pizza oven reviews across the platform
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Reviews</CardTitle>
-              <ChefHat className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalReviews}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{averageRating.toFixed(1)}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Featured Reviews</CardTitle>
-              <Filter className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{featuredReviews}</div>
-            </CardContent>
-          </Card>
-        </div>
+        <ReviewStats
+          totalReviews={totalReviews}
+          averageRating={averageRating}
+          featuredReviews={featuredReviews}
+        />
 
         <Card>
           <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-              <div className="flex flex-1 gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search reviews..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-                <Select
-                  value={categoryFilter}
-                  onValueChange={setCategoryFilter}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-col space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <ReviewFilters
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  categoryFilter={categoryFilter}
+                  onCategoryChange={setCategoryFilter}
+                  categories={categories}
+                />
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => setEditingReview(null)} className="w-full sm:w-auto">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Review
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {editingReview ? "Edit Review" : "Add New Review"}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <ReviewForm
+                      review={editingReview}
+                      onSuccess={() => {
+                        setIsDialogOpen(false);
+                        setEditingReview(null);
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => setEditingReview(null)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Review
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingReview ? "Edit Review" : "Add New Review"}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <ReviewForm
-                    review={editingReview}
-                    onSuccess={() => {
-                      setIsDialogOpen(false);
-                      setEditingReview(null);
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
 
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Brand</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredReviews?.map((review) => (
-                    <TableRow key={review.id}>
-                      <TableCell className="font-medium">{review.title}</TableCell>
-                      <TableCell>{review.brand}</TableCell>
-                      <TableCell>{review.category}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                          {review.rating}/5
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(review)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDelete(review.id)}
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <ReviewTable
+                reviews={filteredReviews}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
             </div>
           </CardContent>
         </Card>

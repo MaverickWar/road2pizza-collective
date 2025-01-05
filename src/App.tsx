@@ -1,35 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { AuthProvider } from "@/components/AuthProvider";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import { AuthProvider } from "./components/AuthProvider";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import ResetPassword from "@/pages/ResetPassword";
-import Dashboard from "@/pages/Dashboard";
-import AdminDashboard from "@/pages/AdminDashboard";
-import StaffDashboard from "@/pages/StaffDashboard";
-import MemberDashboard from "@/pages/MemberDashboard";
-import UserManagement from "@/pages/UserManagement";
-import Reviews from "@/pages/Reviews";
-import ReviewsDashboard from "@/pages/ReviewsDashboard";
-import Pizza from "@/pages/Pizza";
-import PizzaStyle from "@/pages/PizzaStyle";
-import Community from "@/pages/Community";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import StaffDashboard from "./pages/StaffDashboard";
+import MemberDashboard from "./pages/MemberDashboard";
+import UserManagement from "./pages/UserManagement";
+import Reviews from "./pages/Reviews";
+import ReviewsDashboard from "./pages/ReviewsDashboard";
+import Pizza from "./pages/Pizza";
+import PizzaStyle from "./pages/PizzaStyle";
+import Community from "./pages/Community";
 
 // Admin pages
-import MenuManagement from "@/pages/admin/MenuManagement";
-import MediaGallery from "@/pages/admin/MediaGallery";
-import NotificationManagement from "@/pages/admin/NotificationManagement";
-import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
-import RewardsManagement from "@/pages/admin/RewardsManagement";
-import SiteSettings from "@/pages/admin/SiteSettings";
-import ThemeSettings from "@/pages/admin/ThemeSettings";
-import ForumManagement from "@/pages/admin/ForumManagement";
+import MenuManagement from "./pages/admin/MenuManagement";
+import MediaGallery from "./pages/admin/MediaGallery";
+import NotificationManagement from "./pages/admin/NotificationManagement";
+import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
+import RewardsManagement from "./pages/admin/RewardsManagement";
+import SiteSettings from "./pages/admin/SiteSettings";
+import ThemeSettings from "./pages/admin/ThemeSettings";
+import ForumManagement from "./pages/admin/ForumManagement";
 
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 
 // Create a new QueryClient instance with configuration

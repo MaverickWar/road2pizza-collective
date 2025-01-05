@@ -79,17 +79,20 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     .filter(thread => !thread.is_pinned)
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  // Calculate total pages based on total threads minus pinned threads
-  const totalPages = Math.ceil((category.forum_threads.length - pinnedThreads.length) / THREADS_PER_PAGE);
+  // Calculate how many unpinned threads we can show based on number of pinned threads
+  const remainingSlots = Math.max(0, THREADS_PER_PAGE - pinnedThreads.length);
+  
+  // Calculate total pages based on remaining slots for unpinned threads
+  const totalPages = Math.ceil(unpinnedThreads.length / remainingSlots) || 1;
   
   // Ensure currentPage is within bounds
-  if (currentPage > totalPages && totalPages > 0) {
+  if (currentPage > totalPages) {
     setCurrentPage(totalPages);
   }
   
   // Get current page unpinned threads
-  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
-  const endIndex = startIndex + THREADS_PER_PAGE;
+  const startIndex = (currentPage - 1) * remainingSlots;
+  const endIndex = startIndex + remainingSlots;
   const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
   
   // Combine pinned threads with current page unpinned threads
@@ -97,6 +100,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
 
   console.log('Total threads:', category.forum_threads.length);
   console.log('Pinned threads:', pinnedThreads.length);
+  console.log('Remaining slots:', remainingSlots);
   console.log('Current page:', currentPage);
   console.log('Display threads:', displayThreads.length);
 

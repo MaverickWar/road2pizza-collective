@@ -31,14 +31,16 @@ const ReviewStats = ({ reviews }: ReviewStatsProps) => {
   ];
 
   return (
-    <div className="flex gap-4 flex-wrap">
+    <div className="grid grid-cols-3 gap-4">
       {stats.map((stat) => (
         <Card key={stat.label} className="bg-card backdrop-blur-sm border-none shadow-md hover:shadow-lg transition-all duration-300">
-          <CardContent className="flex items-center space-x-4 p-4">
-            <stat.icon className={`w-5 h-5 ${stat.color}`} />
-            <div>
-              <p className="text-sm text-gray-500">{stat.label}</p>
-              <p className="text-2xl font-bold">{stat.value}</p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <div>
+                <p className="text-sm text-gray-500">{stat.label}</p>
+                <p className="text-xl font-bold">{stat.value}</p>
+              </div>
             </div>
           </CardContent>
         </Card>

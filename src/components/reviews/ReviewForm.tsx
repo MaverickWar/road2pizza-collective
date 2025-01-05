@@ -127,11 +127,31 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="proscons">Pros & Cons</TabsTrigger>
-            <TabsTrigger value="ratings">Ratings</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-4 bg-background p-1 rounded-lg">
+            <TabsTrigger 
+              value="basic"
+              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors"
+            >
+              Basic Info
+            </TabsTrigger>
+            <TabsTrigger 
+              value="media"
+              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors"
+            >
+              Media
+            </TabsTrigger>
+            <TabsTrigger 
+              value="proscons"
+              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors"
+            >
+              Pros & Cons
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ratings"
+              className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors"
+            >
+              Ratings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic">
@@ -167,7 +187,11 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting}
+            className="bg-accent hover:bg-accent-hover text-accent-foreground"
+          >
             {isSubmitting ? "Submitting..." : "Submit Review"}
           </Button>
         </div>

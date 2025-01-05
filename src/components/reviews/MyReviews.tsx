@@ -7,6 +7,20 @@ import { Star, MessageSquare } from "lucide-react";
 import ReviewCard from "./ReviewCard";
 import EquipmentReviewCard from "./EquipmentReviewCard";
 
+interface RecipeReview {
+  id: string;
+  recipe_id: string;
+  user_id: string;
+  rating: number;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  recipes: {
+    title: string;
+    author: string;
+  };
+}
+
 const MyReviews = () => {
   const { user } = useAuth();
 
@@ -19,7 +33,7 @@ const MyReviews = () => {
         .select("*, recipes(*)")
         .eq("user_id", user?.id);
       if (error) throw error;
-      return data;
+      return data as RecipeReview[];
     },
   });
 
@@ -62,7 +76,17 @@ const MyReviews = () => {
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {recipeReviews?.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
+                  <ReviewCard
+                    key={review.id}
+                    review={{
+                      id: review.id,
+                      title: review.recipes.title,
+                      author: review.recipes.author,
+                      content: review.content,
+                      rating: review.rating,
+                      created_at: review.created_at,
+                    }}
+                  />
                 ))}
               </div>
             </CardContent>

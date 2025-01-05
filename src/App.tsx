@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import ResetPassword from "@/pages/ResetPassword";
@@ -18,72 +19,76 @@ import AuthProvider from "@/components/AuthProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 
+const queryClient = new QueryClient();
+
 const App = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute adminOnly>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/staff"
-            element={
-              <ProtectedRoute staffOnly>
-                <StaffDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/member"
-            element={
-              <ProtectedRoute>
-                <MemberDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/reviews" element={<Reviews />} />
-          <Route path="/reviews/:id" element={<EquipmentReviewDetail />} />
-          <Route
-            path="/dashboard/reviews"
-            element={
-              <ProtectedRoute>
-                <ReviewsDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/pizza" element={<Pizza />} />
-          <Route path="/pizza/:style" element={<PizzaStyle />} />
-          <Route path="/community" element={<Community />} />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute adminOnly>
-                <UserManagement />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-        <Toaster />
-        <Sonner />
-      </AuthProvider>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute requireStaff>
+                  <StaffDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/member"
+              element={
+                <ProtectedRoute>
+                  <MemberDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/reviews" element={<Reviews />} />
+            <Route path="/reviews/:id" element={<EquipmentReviewDetail />} />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute>
+                  <ReviewsDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza/:style" element={<PizzaStyle />} />
+            <Route path="/community" element={<Community />} />
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Toaster />
+          <Sonner />
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
   );
 };
 

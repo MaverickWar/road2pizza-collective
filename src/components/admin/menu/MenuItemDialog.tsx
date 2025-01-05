@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { MenuItem } from "@/types/menu";
 
@@ -32,27 +32,33 @@ export function MenuItemDialog({
   const [isVisible, setIsVisible] = useState(itemToEdit?.is_visible ?? true);
   
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const operation = itemToEdit ? 'update' : 'insert';
-    const { data, error } = await supabase
-      .from('menu_items')
-      [operation]({
-        id: itemToEdit?.id,
-        menu_group_id: menuGroupId,
-        label,
-        path,
-        icon,
-        description,
-        requires_admin: requiresAdmin,
-        requires_staff: requiresStaff,
-        is_visible: isVisible,
-        display_order: itemToEdit?.display_order || 0,
-      })
-      .select()
-      .single();
+    const data = {
+      menu_group_id: menuGroupId,
+      label,
+      path,
+      icon,
+      description,
+      requires_admin: requiresAdmin,
+      requires_staff: requiresStaff,
+      is_visible: isVisible,
+      display_order: itemToEdit?.display_order || 0,
+    };
+
+    const { error } = itemToEdit
+      ? await supabase
+          .from('menu_items')
+          .update(data)
+          .eq('id', itemToEdit.id)
+      : await supabase
+          .from('menu_items')
+          .insert(data)
+          .select()
+          .single();
 
     if (error) {
       console.error('Error saving menu item:', error);

@@ -12,7 +12,7 @@ import { Edit, Trash, ArrowUp, ArrowDown } from "lucide-react";
 import { useState } from "react";
 import { MenuItemDialog } from "./MenuItemDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface MenuItemTableProps {
@@ -23,6 +23,7 @@ interface MenuItemTableProps {
 export function MenuItemTable({ items, menuGroupId }: MenuItemTableProps) {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase
@@ -60,18 +61,25 @@ export function MenuItemTable({ items, menuGroupId }: MenuItemTableProps) {
     const item = newOrder[currentIndex];
     const swapWith = newOrder[direction === 'up' ? currentIndex - 1 : currentIndex + 1];
 
-    // Swap display orders
-    const tempOrder = item.display_order;
-    item.display_order = swapWith.display_order;
-    swapWith.display_order = tempOrder;
+    // Update both items with all required fields
+    const updates = [
+      {
+        id: item.id,
+        label: item.label,
+        path: item.path,
+        display_order: swapWith.display_order
+      },
+      {
+        id: swapWith.id,
+        label: swapWith.label,
+        path: swapWith.path,
+        display_order: item.display_order
+      }
+    ];
 
-    // Update both items in the database
     const { error } = await supabase
       .from('menu_items')
-      .upsert([
-        { id: item.id, display_order: item.display_order },
-        { id: swapWith.id, display_order: swapWith.display_order }
-      ]);
+      .upsert(updates);
 
     if (error) {
       console.error('Error reordering menu items:', error);

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { MenuGroup } from "@/types/menu";
 
@@ -24,21 +24,27 @@ export function MenuGroupDialog({
   const [identifier, setIdentifier] = useState(groupToEdit?.identifier || '');
   const [description, setDescription] = useState(groupToEdit?.description || '');
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const operation = groupToEdit ? 'update' : 'insert';
-    const { data, error } = await supabase
-      .from('menu_groups')
-      [operation]({
-        id: groupToEdit?.id,
-        name,
-        identifier,
-        description,
-      })
-      .select()
-      .single();
+    const data = {
+      name,
+      identifier,
+      description,
+    };
+
+    const { error } = groupToEdit 
+      ? await supabase
+          .from('menu_groups')
+          .update(data)
+          .eq('id', groupToEdit.id)
+      : await supabase
+          .from('menu_groups')
+          .insert(data)
+          .select()
+          .single();
 
     if (error) {
       console.error('Error saving menu group:', error);

@@ -111,7 +111,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
               <img
                 src={formData.imageUrl}
                 alt="Main review image"
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-cover rounded-lg pointer-events-none"
               />
             </div>
           )}
@@ -147,7 +147,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
               <img
                 src={url}
                 alt={`Additional image ${index + 1}`}
-                className="w-full h-32 object-cover rounded-lg"
+                className="w-full h-32 object-cover rounded-lg pointer-events-none"
               />
               <button
                 onClick={() => removeAdditionalImage(index)}

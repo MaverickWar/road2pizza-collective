@@ -30,34 +30,39 @@ export default function Login() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log('Login attempt with email:', values.email);
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      // Create a fresh auth request
-      const response = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
-      if (response.error) {
-        console.error('Login error:', response.error);
+      console.log('Login response:', { data, error });
+
+      if (error) {
+        console.error('Login error:', error);
         
-        if (response.error.message.includes('Invalid login credentials')) {
+        if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password');
           return;
         }
         
-        if (response.error.message.includes('Email not confirmed')) {
+        if (error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
           return;
         }
 
-        toast.error(response.error.message);
+        toast.error(error.message);
         return;
       }
 
-      // If login is successful, navigate to dashboard
-      navigate('/dashboard');
+      if (data.user) {
+        console.log('Login successful, redirecting to dashboard');
+        toast.success('Login successful');
+        navigate('/dashboard');
+      }
       
     } catch (error) {
       console.error('Unexpected login error:', error);

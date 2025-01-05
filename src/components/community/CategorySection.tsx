@@ -45,8 +45,6 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   const [currentPage, setCurrentPage] = useState(1);
   const { user, isAdmin } = useAuth();
 
-  console.log('Total threads:', category.forum_threads.length);
-
   const handleCreateThread = async () => {
     try {
       const { error } = await supabase
@@ -72,20 +70,13 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     }
   };
 
-  // Sort threads by created_at date (newest first) and separate pinned threads
+  // Sort threads by created_at date (newest first)
   const sortedThreads = [...category.forum_threads].sort((a, b) => 
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
-  
-  // Separate pinned and unpinned threads
-  const pinnedThreads = sortedThreads.filter(thread => thread.is_pinned);
-  const unpinnedThreads = sortedThreads.filter(thread => !thread.is_pinned);
 
-  console.log('Pinned threads:', pinnedThreads.length);
-  console.log('Unpinned threads:', unpinnedThreads.length);
-
-  // Calculate pagination
-  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE);
+  // Calculate total pages based on total threads (including pinned)
+  const totalPages = Math.ceil(sortedThreads.length / THREADS_PER_PAGE);
   
   // Ensure currentPage is within bounds
   if (currentPage > totalPages && totalPages > 0) {
@@ -95,17 +86,15 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   // Get current page threads
   const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
   const endIndex = startIndex + THREADS_PER_PAGE;
-  const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
   
+  // Get the threads for the current page
+  const displayThreads = sortedThreads.slice(startIndex, endIndex);
+
+  console.log('Total threads:', sortedThreads.length);
   console.log('Current page:', currentPage);
   console.log('Start index:', startIndex);
   console.log('End index:', endIndex);
-  console.log('Current unpinned threads:', currentUnpinnedThreads.length);
-  
-  // Combine pinned threads with current page threads
-  const displayThreads = [...pinnedThreads, ...currentUnpinnedThreads];
-  
-  console.log('Total display threads:', displayThreads.length);
+  console.log('Display threads:', displayThreads.length);
 
   return (
     <Card className="overflow-hidden">

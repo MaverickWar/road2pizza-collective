@@ -33,17 +33,23 @@ export default function Login() {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      // Normalize email
       const email = values.email.toLowerCase().trim();
-      console.log('Attempting login with email:', email);
-
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { password } = values;
+      
+      console.log('Starting login attempt for:', email);
+      
+      const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
-        password: values.password,
+        password,
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('Login error details:', {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        
         setIsLoading(false);
 
         if (error.message.includes('Email not confirmed')) {
@@ -51,23 +57,27 @@ export default function Login() {
           return;
         }
 
-        // Show specific error message for invalid credentials
         if (error.message.includes('Invalid login credentials')) {
           toast.error('The email or password you entered is incorrect');
           return;
         }
 
-        // Generic error message for other cases
+        // Handle the "Body is disturbed" error specifically
+        if (error.message.includes('Body is disturbed')) {
+          toast.error('Connection error. Please try again.');
+          return;
+        }
+
         toast.error('Login failed. Please try again.');
         return;
       }
 
-      if (data?.user) {
-        console.log('Login successful for user:', data.user.email);
+      if (session?.user) {
+        console.log('Login successful, user:', session.user.email);
         toast.success('Login successful');
         navigate('/dashboard');
       } else {
-        console.error('No user data received');
+        console.error('No session data received');
         toast.error('Login failed - please try again');
       }
     } catch (error) {

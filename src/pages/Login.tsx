@@ -5,18 +5,42 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Pizza } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      console.log("Current session:", session);
+      if (error) {
+        console.error("Session check error:", error);
+      }
       if (session) {
         navigate("/");
       }
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session);
+      if (session) {
+        navigate("/");
+      }
+      if (event === 'USER_DELETED') {
+        toast.error("Account has been deleted");
+      }
+      if (event === 'PASSWORD_RECOVERY') {
+        toast.info("Password recovery email sent");
+      }
     });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (
@@ -75,9 +99,14 @@ const Login = () => {
                 button: 'w-full px-4 py-2 rounded-lg font-medium transition-colors',
                 input: 'w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-accent/20 outline-none transition-colors dark:bg-secondary-dark dark:border-gray-700',
                 label: 'text-sm font-medium text-gray-700 dark:text-gray-300',
+                message: 'text-sm text-red-500 dark:text-red-400',
               },
             }}
             providers={[]}
+            onError={(error) => {
+              console.error("Auth error:", error);
+              toast.error(error.message || "An error occurred during authentication");
+            }}
           />
         </div>
       </div>

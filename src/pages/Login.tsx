@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -18,6 +19,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailConfirmAlert, setShowEmailConfirmAlert] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -30,9 +32,10 @@ export default function Login() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
+      setShowEmailConfirmAlert(false);
       console.log('Attempting login with email:', values.email);
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -40,13 +43,14 @@ export default function Login() {
       if (error) {
         console.error('Login error:', error);
         
-        // Show specific error message for invalid credentials
         if (error.message === 'Invalid login credentials') {
           toast({
             variant: "destructive",
             title: "Login Failed",
             description: "Invalid email or password. Please try again.",
           });
+        } else if (error.message.includes('Email not confirmed')) {
+          setShowEmailConfirmAlert(true);
         } else {
           toast({
             variant: "destructive",
@@ -57,8 +61,10 @@ export default function Login() {
         return;
       }
 
-      console.log('Login successful, redirecting to dashboard');
-      navigate('/dashboard');
+      if (data?.user) {
+        console.log('Login successful, redirecting to dashboard');
+        navigate('/dashboard');
+      }
       
     } catch (error) {
       console.error('Unexpected login error:', error);
@@ -77,10 +83,18 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8 px-8 py-12 bg-card rounded-xl shadow-lg animate-fade-up">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-accent">Welcome back</h1>
-          <p className="text-sm text-textLight/60">
+          <p className="text-sm text-muted-foreground">
             Sign in to your account to continue
           </p>
         </div>
+
+        {showEmailConfirmAlert && (
+          <Alert>
+            <AlertDescription>
+              Please check your email to confirm your account before logging in.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -89,15 +103,15 @@ export default function Login() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-textLight">Email</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Enter your email" 
-                      className="bg-background-secondary border-accent/20 focus:border-accent" 
+                      className="bg-background border-input focus:border-accent" 
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage className="text-accent" />
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -107,23 +121,23 @@ export default function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-textLight">Password</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input 
                       type="password" 
                       placeholder="Enter your password" 
-                      className="bg-background-secondary border-accent/20 focus:border-accent"
+                      className="bg-background border-input focus:border-accent"
                       {...field} 
                     />
                   </FormControl>
-                  <FormMessage className="text-accent" />
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
             <Button 
               type="submit" 
-              className="w-full bg-accent hover:bg-accent-hover text-accent-foreground transition-colors"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground transition-colors"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign in"}
@@ -135,7 +149,7 @@ export default function Login() {
           <Button 
             variant="link" 
             onClick={() => navigate('/signup')} 
-            className="text-accent hover:text-accent-hover"
+            className="text-accent hover:text-accent/90"
           >
             Don't have an account? Sign up
           </Button>

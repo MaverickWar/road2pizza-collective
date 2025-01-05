@@ -1,43 +1,60 @@
-import { useEffect } from 'react';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToast } from '@/components/ui/use-toast';
+
+const formSchema = z.object({
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
 
 export default function Login() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
-      console.log('Auth state changed:', event, session);
-      
-      switch (event) {
-        case 'SIGNED_IN':
-          console.log('User signed in:', session?.user);
-          navigate('/dashboard');
-          break;
-        case 'SIGNED_OUT':
-          console.log('User signed out');
-          navigate('/login');
-          break;
-        case 'TOKEN_REFRESHED':
-          console.log('Token was refreshed:', session?.user);
-          break;
-        case 'USER_UPDATED':
-          console.log('User was updated:', session?.user);
-          break;
-        default:
-          console.log('Unhandled auth event:', event);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      } else {
+        navigate('/dashboard');
       }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
@@ -48,13 +65,48 @@ export default function Login() {
             Sign in to your account to continue
           </p>
         </div>
-        
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          providers={['google']}
-          redirectTo={`${window.location.origin}/auth/callback`}
-        />
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter your password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign in"}
+            </Button>
+          </form>
+        </Form>
+
+        <div className="text-center text-sm">
+          <Button variant="link" onClick={() => navigate('/signup')} className="text-accent">
+            Don't have an account? Sign up
+          </Button>
+        </div>
       </div>
     </div>
   );

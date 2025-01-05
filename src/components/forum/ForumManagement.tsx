@@ -1,74 +1,72 @@
-import { Link } from 'react-router-dom';
-import { MessageSquare, Settings, List, Users } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
+import DashboardLayout from "@/components/DashboardLayout";
+import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
 const ForumManagement = () => {
-  const managementCards = [
-    {
-      title: 'Categories',
-      description: 'Create and manage forum categories',
-      icon: <List className="w-6 h-6" />,
-      path: '/dashboard/admin/forum/categories',
-      color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400'
-    },
-    {
-      title: 'Threads',
-      description: 'Monitor and moderate forum discussions',
-      icon: <MessageSquare className="w-6 h-6" />,
-      path: '/dashboard/admin/forum/threads',
-      color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
-    },
-    {
-      title: 'Members',
-      description: 'Manage forum members and permissions',
-      icon: <Users className="w-6 h-6" />,
-      path: '/dashboard/admin/forum/members',
-      color: 'bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400'
-    },
-    {
-      title: 'Settings',
-      description: 'Configure forum preferences and features',
-      icon: <Settings className="w-6 h-6" />,
-      path: '/dashboard/admin/forum/settings',
-      color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400'
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ['forum-categories'],
+    queryFn: async () => {
+      console.log('Fetching forum categories...');
+      const { data, error } = await supabase
+        .from('forum_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load forum categories');
+        throw error;
+      }
+
+      console.log('Fetched categories:', data);
+      return data;
     }
-  ];
+  });
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-8 animate-fade-up">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">Forum Management</h1>
             <p className="text-muted-foreground mt-2">
-              Manage and moderate your community forums
+              Manage your forum categories and settings
             </p>
           </div>
+          <Button className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            New Category
+          </Button>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {managementCards.map((card, index) => (
-            <Link
-              key={index}
-              to={card.path}
-              className="block p-6 bg-card rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
-            >
-              <div className="flex items-start space-x-4">
-                <div className={`p-3 rounded-lg ${card.color}`}>
-                  {card.icon}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            <Card className="p-6 animate-pulse bg-muted" />
+            <Card className="p-6 animate-pulse bg-muted" />
+            <Card className="p-6 animate-pulse bg-muted" />
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {categories?.map((category) => (
+              <Card key={category.id} className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">{category.name}</h3>
+                    {category.description && (
+                      <p className="text-muted-foreground mt-1">
+                        {category.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold">
-                    {card.title}
-                  </h2>
-                  <p className="text-muted-foreground mt-1">
-                    {card.description}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

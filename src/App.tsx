@@ -19,6 +19,7 @@ import NotificationManagement from "./pages/admin/NotificationManagement";
 import SiteSettings from "./pages/admin/SiteSettings";
 import ThemeSettings from "./pages/admin/ThemeSettings";
 import MediaGallery from "./pages/admin/MediaGallery";
+import ForumManagement from "@/components/forum/ForumManagement";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,14 @@ const App = () => {
                 element={
                   <ProtectedRoute requireAdmin>
                     <ReviewManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/admin/forum"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <ForumManagement />
                   </ProtectedRoute>
                 }
               />

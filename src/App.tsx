@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
-import { toast as Sonner } from "sonner";
+import { Toaster as Sonner } from "sonner";
 
 const queryClient = new QueryClient();
 

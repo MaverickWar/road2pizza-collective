@@ -33,32 +33,45 @@ export default function Login() {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
+      // Normalize email
+      const email = values.email.toLowerCase().trim();
+      console.log('Attempting login with email:', email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email.toLowerCase().trim(),
+        email,
         password: values.password,
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password');
-          return;
-        }
-        
+        console.error('Login error:', error);
+        setIsLoading(false);
+
         if (error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
           return;
         }
 
-        toast.error(error.message);
+        // Show specific error message for invalid credentials
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('The email or password you entered is incorrect');
+          return;
+        }
+
+        // Generic error message for other cases
+        toast.error('Login failed. Please try again.');
         return;
       }
 
       if (data?.user) {
+        console.log('Login successful for user:', data.user.email);
         toast.success('Login successful');
         navigate('/dashboard');
+      } else {
+        console.error('No user data received');
+        toast.error('Login failed - please try again');
       }
     } catch (error) {
-      console.error('Unexpected login error:', error);
+      console.error('Unexpected error during login:', error);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -96,6 +109,7 @@ export default function Login() {
                       type="email"
                       placeholder="Enter your email" 
                       className="bg-background border-input focus:border-accent" 
+                      disabled={isLoading}
                       {...field} 
                     />
                   </FormControl>
@@ -115,6 +129,7 @@ export default function Login() {
                       type="password" 
                       placeholder="Enter your password" 
                       className="bg-background border-input focus:border-accent"
+                      disabled={isLoading}
                       {...field} 
                     />
                   </FormControl>
@@ -138,6 +153,7 @@ export default function Login() {
             variant="link" 
             onClick={() => navigate('/signup')} 
             className="text-accent hover:text-accent/90"
+            disabled={isLoading}
           >
             Don't have an account? Sign up
           </Button>

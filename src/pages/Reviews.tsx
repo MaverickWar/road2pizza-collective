@@ -76,14 +76,14 @@ const Reviews = () => {
       <Navigation />
       <main className="pt-36 md:pt-32 pb-12">
         <div className="container mx-auto px-4">
-          <div className="space-y-8">
+          <div className="space-y-8 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <ChefHat className="w-8 h-8 text-accent" />
                   <h1 className="text-2xl font-bold tracking-tight whitespace-nowrap">Pizza Oven Reviews</h1>
                 </div>
-                <p className="text-gray-500">
+                <p className="text-gray-500 text-left">
                   Expert reviews and community insights on the best pizza ovens
                 </p>
               </div>
@@ -104,7 +104,7 @@ const Reviews = () => {
                         />
                       </div>
                     )}
-                    <div className="w-full md:w-2/3 space-y-4">
+                    <div className="w-full md:w-2/3 space-y-4 text-left">
                       <div className="space-y-2">
                         <div className="inline-block px-3 py-1 bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 rounded-full text-sm font-medium">
                           Featured Review
@@ -129,7 +129,7 @@ const Reviews = () => {
             {/* Top Rated Pizza Ovens */}
             <Card className="border-none shadow-lg">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Top Rated Pizza Ovens</h2>
+                <h2 className="text-2xl font-bold mb-6 text-left">Top Rated Pizza Ovens</h2>
                 <div className="space-y-6">
                   {topRated?.map((review, index) => (
                     <div
@@ -141,7 +141,7 @@ const Reviews = () => {
                           {index + 1}
                         </span>
                       </div>
-                      <div className="flex-grow">
+                      <div className="flex-grow text-left">
                         <h3 className="text-lg font-semibold mb-2">{review.title}</h3>
                         <p className="text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
                           {review.content}
@@ -162,7 +162,7 @@ const Reviews = () => {
             {/* Latest Reviews */}
             <Card className="border-none shadow-lg">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold mb-6">Latest Reviews</h2>
+                <h2 className="text-2xl font-bold mb-6 text-left">Latest Reviews</h2>
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {reviews?.map((review) => (
                     <ReviewCard key={review.id} review={review} />

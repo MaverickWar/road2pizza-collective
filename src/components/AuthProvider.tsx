@@ -5,7 +5,6 @@ import SuspensionNotice from "./SuspensionNotice";
 import EmailPromptDialog from "./EmailPromptDialog";
 import UsernamePromptDialog from "./UsernamePromptDialog";
 import { useAuthState } from "@/hooks/useAuthState";
-import LoadingScreen from "./LoadingScreen";
 
 type AuthContextType = {
   user: (User & Partial<Profile>) | null;
@@ -44,8 +43,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     showUsernamePrompt
   });
 
+  // Remove the loading screen and just render nothing while loading
   if (loading) {
-    return <LoadingScreen />;
+    return null;
   }
 
   if (isSuspended && user) {

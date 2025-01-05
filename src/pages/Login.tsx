@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formSchema = z.object({
@@ -17,7 +17,6 @@ const formSchema = z.object({
 
 export default function Login() {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailConfirmAlert, setShowEmailConfirmAlert] = useState(false);
 
@@ -34,8 +33,8 @@ export default function Login() {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       console.log('Attempting login with email:', values.email);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -43,36 +42,25 @@ export default function Login() {
       if (error) {
         console.error('Login error:', error);
         
-        if (error.message === 'Invalid login credentials') {
-          toast({
-            variant: "destructive",
-            title: "Login Failed",
-            description: "Invalid email or password. Please try again.",
-          });
-        } else if (error.message.includes('Email not confirmed')) {
-          setShowEmailConfirmAlert(true);
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password');
+          return;
         }
+        
+        if (error.message.includes('Email not confirmed')) {
+          setShowEmailConfirmAlert(true);
+          return;
+        }
+
+        toast.error(error.message);
         return;
       }
 
-      if (data?.user) {
-        console.log('Login successful, redirecting to dashboard');
-        navigate('/dashboard');
-      }
+      navigate('/dashboard');
       
     } catch (error) {
       console.error('Unexpected login error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-      });
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }

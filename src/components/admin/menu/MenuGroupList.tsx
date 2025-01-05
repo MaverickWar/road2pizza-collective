@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Plus, Trash } from "lucide-react";
 import { useState } from "react";
 import { MenuGroupDialog } from "./MenuGroupDialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ interface MenuGroupListProps {
 
 export function MenuGroupList({ menuGroups }: MenuGroupListProps) {
   const [editingGroup, setEditingGroup] = useState<MenuGroup | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const handleDelete = async (id: string) => {
@@ -47,6 +48,13 @@ export function MenuGroupList({ menuGroups }: MenuGroupListProps) {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Menu Group
+        </Button>
+      </div>
+
       <Accordion type="single" collapsible className="w-full">
         {menuGroups.map((group) => (
           <AccordionItem key={group.id} value={group.id}>
@@ -90,6 +98,11 @@ export function MenuGroupList({ menuGroups }: MenuGroupListProps) {
           </AccordionItem>
         ))}
       </Accordion>
+
+      <MenuGroupDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
 
       <MenuGroupDialog
         open={!!editingGroup}

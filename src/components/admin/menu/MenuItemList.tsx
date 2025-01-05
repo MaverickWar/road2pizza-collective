@@ -18,6 +18,7 @@ export function MenuItemList({ menuGroupId }: MenuItemListProps) {
   const { data: menuItems, isLoading } = useQuery({
     queryKey: ['menu-items', menuGroupId],
     queryFn: async () => {
+      console.log('Fetching menu items for group:', menuGroupId);
       const { data, error } = await supabase
         .from('menu_items')
         .select('*')

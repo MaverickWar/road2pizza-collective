@@ -31,6 +31,7 @@ interface CategorySectionProps {
       is_locked: boolean;
       category_id: string;
       forum_posts: any[];
+      created_at: string;
     }>;
   };
   onThreadCreated: () => void;
@@ -69,12 +70,17 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     }
   };
 
+  // Sort threads by created_at date (newest first) and separate pinned threads
+  const sortedThreads = [...category.forum_threads].sort((a, b) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  
   // Separate pinned and unpinned threads
-  const pinnedThreads = category.forum_threads.filter(thread => thread.is_pinned);
-  const unpinnedThreads = category.forum_threads.filter(thread => !thread.is_pinned);
+  const pinnedThreads = sortedThreads.filter(thread => thread.is_pinned);
+  const unpinnedThreads = sortedThreads.filter(thread => !thread.is_pinned);
 
   // Calculate pagination
-  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE);
+  const totalPages = Math.max(1, Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE));
   const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
   const endIndex = startIndex + THREADS_PER_PAGE;
   

@@ -33,14 +33,25 @@ export const PasswordManagement = ({ user, onSuccess }: PasswordManagementProps)
 
     try {
       setIsChangingPassword(true);
+      console.log("Attempting to update password...");
 
-      // Update the password directly since user is already authenticated
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { data, error } = await supabase.auth.updateUser({
         password: newPassword
       });
 
-      if (updateError) throw updateError;
+      if (error) {
+        console.error('Error changing password:', error);
+        
+        // Handle specific error cases
+        if (error.message.includes('same_password')) {
+          toast.error("New password must be different from your current password");
+        } else {
+          toast.error(error.message || "Failed to update password");
+        }
+        return;
+      }
 
+      console.log("Password update response:", data);
       toast.success("Password updated successfully");
       setNewPassword('');
       setConfirmPassword('');
@@ -65,6 +76,7 @@ export const PasswordManagement = ({ user, onSuccess }: PasswordManagementProps)
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Enter new password"
+            disabled={isChangingPassword}
           />
         </div>
         <div>
@@ -75,6 +87,7 @@ export const PasswordManagement = ({ user, onSuccess }: PasswordManagementProps)
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm new password"
+            disabled={isChangingPassword}
           />
         </div>
         <Button 

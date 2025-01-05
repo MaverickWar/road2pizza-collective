@@ -50,7 +50,10 @@ const ForumCategories = () => {
         .select('id, name, description')
         .order('display_order');
 
-      if (categoriesError) throw categoriesError;
+      if (categoriesError) {
+        console.error('Error fetching categories:', categoriesError);
+        throw categoriesError;
+      }
 
       const categoriesWithThreads = await Promise.all(
         (categoriesData || []).map(async (category) => {
@@ -73,7 +76,10 @@ const ForumCategories = () => {
             `)
             .eq('category_id', category.id);
 
-          if (threadsError) throw threadsError;
+          if (threadsError) {
+            console.error('Error fetching threads:', threadsError);
+            throw threadsError;
+          }
 
           return {
             ...category,

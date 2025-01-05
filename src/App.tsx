@@ -1,7 +1,8 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from './components/ui/sonner';
+import Index from './pages/Index';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -18,6 +19,9 @@ function App() {
     <Router>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+          </Routes>
           <Toaster />
         </AuthProvider>
       </QueryClientProvider>

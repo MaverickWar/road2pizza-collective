@@ -3,7 +3,7 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent } from '@supabase/supabase-js';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export default function Login() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       console.log('Auth state changed:', event, session);
       
       switch (event) {
@@ -23,9 +23,8 @@ export default function Login() {
           console.log('User signed out');
           navigate('/login');
           break;
-        case 'USER_DELETED':
-          console.log('User was deleted');
-          navigate('/login');
+        case 'TOKEN_REFRESHED':
+          console.log('Token was refreshed:', session?.user);
           break;
         case 'USER_UPDATED':
           console.log('User was updated:', session?.user);

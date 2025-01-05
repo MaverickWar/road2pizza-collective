@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AvatarUpload } from './profile/AvatarUpload';
+import { PasswordManagement } from './profile/PasswordManagement';
 
 interface ProfileDialogProps {
   user: any;
@@ -38,10 +39,6 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
   const [newEmail, setNewEmail] = useState('');
   const [lastResetTime, setLastResetTime] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const handleProfileUpdate = async () => {
     try {
@@ -73,56 +70,6 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
     } catch (error) {
       console.error('Error submitting profile change request:', error);
       toast.error("Failed to submit profile change request");
-    }
-  };
-
-  const handlePasswordChange = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters long");
-      return;
-    }
-
-    try {
-      setIsChangingPassword(true);
-      
-      // First verify the current password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: currentPassword,
-      });
-
-      if (signInError) {
-        toast.error("Current password is incorrect");
-        return;
-      }
-
-      // Update the password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (updateError) throw updateError;
-
-      toast.success("Password updated successfully");
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      setIsProfileOpen(false);
-    } catch (error) {
-      console.error('Error changing password:', error);
-      toast.error("Failed to update password");
-    } finally {
-      setIsChangingPassword(false);
     }
   };
 
@@ -200,49 +147,10 @@ export const ProfileDialog = ({ user, isAdmin }: ProfileDialogProps) => {
                 disabled={isAdmin && user.email === 'richgiles@hotmail.co.uk'}
               />
             </div>
-            <div className="border-t pt-4">
-              <h4 className="text-sm font-medium mb-2">Change Password</h4>
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="currentPassword">Current Password</Label>
-                  <Input
-                    id="currentPassword"
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter current password"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="newPassword">New Password</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                  />
-                </div>
-                <Button 
-                  variant="secondary" 
-                  onClick={handlePasswordChange}
-                  disabled={isChangingPassword}
-                  className="w-full"
-                >
-                  {isChangingPassword ? "Updating Password..." : "Update Password"}
-                </Button>
-              </div>
-            </div>
+            <PasswordManagement 
+              user={user}
+              onSuccess={() => setIsProfileOpen(false)}
+            />
             <Button
               variant="secondary"
               onClick={() => setShowResetConfirm(true)}

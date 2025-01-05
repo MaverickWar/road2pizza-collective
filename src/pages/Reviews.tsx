@@ -77,17 +77,10 @@ const Reviews = () => {
       <main className="pt-36 md:pt-32 pb-12">
         <div className="container mx-auto px-4">
           <div className="space-y-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <ChefHat className="w-8 h-8 text-accent" />
-                  <h1 className="text-4xl font-bold tracking-tight">
-                    Pizza Oven Reviews
-                  </h1>
-                </div>
-                <p className="text-gray-500">
-                  Expert reviews and community insights on the best pizza ovens
-                </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <ChefHat className="w-8 h-8 text-accent" />
+                <h1 className="text-3xl font-bold tracking-tight">Pizza Oven Reviews</h1>
               </div>
               <ReviewStats reviews={reviews || []} />
             </div>

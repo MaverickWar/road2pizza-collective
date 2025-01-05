@@ -1,12 +1,22 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import ReviewHeader from "@/components/reviews/ReviewHeader";
 import ReviewContent from "@/components/reviews/ReviewContent";
 
-const Reviews = () => {
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const ReviewsContent = () => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [hiddenElements, setHiddenElements] = useState<string[]>([]);
@@ -77,6 +87,14 @@ const Reviews = () => {
         onClose={() => setIsReviewFormOpen(false)}
       />
     </div>
+  );
+};
+
+const Reviews = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ReviewsContent />
+    </QueryClientProvider>
   );
 };
 

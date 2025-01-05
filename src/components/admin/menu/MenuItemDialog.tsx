@@ -30,9 +30,28 @@ export function MenuItemDialog({
   const [requiresAdmin, setRequiresAdmin] = useState(itemToEdit?.requires_admin || false);
   const [requiresStaff, setRequiresStaff] = useState(itemToEdit?.requires_staff || false);
   const [isVisible, setIsVisible] = useState(itemToEdit?.is_visible ?? true);
+  const [displayOrder, setDisplayOrder] = useState(itemToEdit?.display_order || 0);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const handleBrowse = () => {
+    // Open a dialog to browse available routes
+    const routes = [
+      '/dashboard',
+      '/dashboard/admin',
+      '/dashboard/admin/menus',
+      '/dashboard/admin/users',
+      '/dashboard/profile',
+      // Add more routes as needed
+    ];
+
+    // Create a simple dialog to select from available routes
+    const route = window.prompt('Select or enter a route:', path);
+    if (route) {
+      setPath(route);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +65,7 @@ export function MenuItemDialog({
       requires_admin: requiresAdmin,
       requires_staff: requiresStaff,
       is_visible: isVisible,
-      display_order: itemToEdit?.display_order || 0,
+      display_order: displayOrder,
     };
 
     const { error } = itemToEdit
@@ -100,12 +119,17 @@ export function MenuItemDialog({
 
           <div className="space-y-2">
             <Label htmlFor="path">Path</Label>
-            <Input
-              id="path"
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-              required
-            />
+            <div className="flex gap-2">
+              <Input
+                id="path"
+                value={path}
+                onChange={(e) => setPath(e.target.value)}
+                required
+              />
+              <Button type="button" onClick={handleBrowse}>
+                Browse
+              </Button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -124,6 +148,16 @@ export function MenuItemDialog({
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="displayOrder">Display Order</Label>
+            <Input
+              id="displayOrder"
+              type="number"
+              value={displayOrder}
+              onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 0)}
             />
           </div>
 

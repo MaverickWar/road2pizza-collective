@@ -5,6 +5,7 @@ import SuspensionNotice from "./SuspensionNotice";
 import EmailPromptDialog from "./EmailPromptDialog";
 import UsernamePromptDialog from "./UsernamePromptDialog";
 import { useAuthState } from "@/hooks/useAuthState";
+import LoadingScreen from "./LoadingScreen";
 
 type AuthContextType = {
   user: (User & Partial<Profile>) | null;
@@ -33,8 +34,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     handleUsernameSet,
   } = useAuthState();
 
+  console.log("AuthProvider state:", { 
+    user, 
+    isAdmin, 
+    isStaff, 
+    loading, 
+    isSuspended,
+    showEmailPrompt,
+    showUsernamePrompt
+  });
+
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (isSuspended && user) {

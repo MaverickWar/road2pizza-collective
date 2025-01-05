@@ -50,14 +50,12 @@ export const useAuthState = () => {
       
       console.log("Fetched profile:", profile);
 
-      // Check if email is missing
       if (!profile.email) {
         console.log("Email missing for user, showing prompt");
         setShowEmailPrompt(true);
       }
 
-      // Check if username is auto-generated
-      if (profile.username.startsWith('user_')) {
+      if (profile.username?.startsWith('user_')) {
         console.log("Username is auto-generated, showing prompt");
         setShowUsernamePrompt(true);
       }
@@ -86,14 +84,8 @@ export const useAuthState = () => {
       console.log("User role data:", data);
       
       if (data) {
-        if (data.email === 'richgiles@hotmail.co.uk') {
-          console.log("Setting admin privileges for main admin account");
-          setIsAdmin(true);
-          setIsStaff(true);
-        } else {
-          setIsAdmin(data.is_admin || false);
-          setIsStaff(data.is_staff || false);
-        }
+        setIsAdmin(data.is_admin || false);
+        setIsStaff(data.is_staff || false);
       }
     } catch (error) {
       console.error("Error checking user roles:", error);
@@ -119,31 +111,39 @@ export const useAuthState = () => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       try {
+        console.log("Initializing auth state...");
         const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial session check:", session);
+        console.log("Initial session:", session);
 
-        if (session?.user) {
+        if (session?.user && mounted) {
           const profile = await fetchUserProfile(session.user.id);
-          setUser(profile ? { ...session.user, ...profile } : session.user);
-          
-          const suspended = await checkSuspensionStatus(session.user.id);
-          console.log("User suspension status:", suspended);
-          setIsSuspended(suspended);
-          
-          if (!suspended) {
-            await checkUserRoles(session.user.id);
-          } else {
-            setIsAdmin(false);
-            setIsStaff(false);
+          if (mounted) {
+            setUser(profile ? { ...session.user, ...profile } : session.user);
+            
+            const suspended = await checkSuspensionStatus(session.user.id);
+            setIsSuspended(suspended);
+            
+            if (!suspended) {
+              await checkUserRoles(session.user.id);
+            } else {
+              setIsAdmin(false);
+              setIsStaff(false);
+            }
           }
         }
 
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Error initializing auth:", error);
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -151,21 +151,24 @@ export const useAuthState = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        console.log("Auth state changed:", session);
-        if (session?.user) {
+        console.log("Auth state changed:", { event: _event, session });
+        
+        if (session?.user && mounted) {
           const profile = await fetchUserProfile(session.user.id);
-          setUser(profile ? { ...session.user, ...profile } : session.user);
-          
-          const suspended = await checkSuspensionStatus(session.user.id);
-          setIsSuspended(suspended);
-          
-          if (!suspended) {
-            await checkUserRoles(session.user.id);
-          } else {
-            setIsAdmin(false);
-            setIsStaff(false);
+          if (mounted) {
+            setUser(profile ? { ...session.user, ...profile } : session.user);
+            
+            const suspended = await checkSuspensionStatus(session.user.id);
+            setIsSuspended(suspended);
+            
+            if (!suspended) {
+              await checkUserRoles(session.user.id);
+            } else {
+              setIsAdmin(false);
+              setIsStaff(false);
+            }
           }
-        } else {
+        } else if (mounted) {
           setUser(null);
           setIsAdmin(false);
           setIsStaff(false);
@@ -175,6 +178,7 @@ export const useAuthState = () => {
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);

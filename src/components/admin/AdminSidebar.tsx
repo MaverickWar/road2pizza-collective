@@ -21,7 +21,7 @@ const menuItems = [
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
   { icon: Menu, label: "Menu", path: "/dashboard/admin/menus" },
   { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
-  { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
+  { icon: Star, label: "Reviews", path: "/dashboard/admin/reviews" },
   { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
   { icon: FileText, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
   { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },

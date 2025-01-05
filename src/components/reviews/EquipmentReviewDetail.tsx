@@ -13,7 +13,7 @@ const EquipmentReviewDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: review, isLoading } = useQuery({
+  const { data: review, isLoading, error } = useQuery({
     queryKey: ['equipment-review', id],
     queryFn: async () => {
       console.log('Fetching equipment review:', id);
@@ -32,6 +32,7 @@ const EquipmentReviewDetail = () => {
         throw new Error('Review not found');
       }
 
+      console.log('Fetched review data:', data);
       return data as ReviewData;
     },
   });
@@ -40,7 +41,7 @@ const EquipmentReviewDetail = () => {
     return <ReviewLoading />;
   }
 
-  if (!review) {
+  if (error || !review) {
     return <ReviewError />;
   }
 

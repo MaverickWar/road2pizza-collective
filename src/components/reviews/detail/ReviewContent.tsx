@@ -1,127 +1,120 @@
-import { Star } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import type { ReviewData } from '@/types/review';
+import { Card } from "@/components/ui/card";
+import { ReviewData } from "@/types/review";
+import { format } from "date-fns";
 
 interface ReviewContentProps {
   review: ReviewData;
 }
 
 export const ReviewContent = ({ review }: ReviewContentProps) => {
-  const prosArray = Array.isArray(review.pros) ? review.pros as string[] : [];
-  const consArray = Array.isArray(review.cons) ? review.cons as string[] : [];
-
   return (
-    <Card className="max-w-4xl mx-auto">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">{review.title}</h1>
+        <div className="flex items-center gap-4 text-muted-foreground">
+          <span>By {review.author}</span>
+          <span>•</span>
+          <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
+        </div>
+      </div>
+
+      {/* Main Image */}
       {review.image_url && (
-        <div className="relative h-[400px] overflow-hidden rounded-t-lg">
+        <div className="relative aspect-video w-full overflow-hidden rounded-lg">
           <img
             src={review.image_url}
             alt={review.title}
-            className="w-full h-full object-cover"
+            className="object-cover w-full h-full"
           />
         </div>
       )}
 
-      <CardHeader className="space-y-4">
-        <div className="flex justify-between items-start">
+      {/* Rating Overview */}
+      <Card className="p-6">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <h1 className="text-3xl font-bold">{review.title}</h1>
-            <p className="text-muted-foreground">by {review.author}</p>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-            <span className="text-xl font-semibold">{review.rating}/5</span>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{review.category}</Badge>
-          <Badge variant="outline">{review.brand}</Badge>
-          {review.model && (
-            <Badge variant="outline">Model: {review.model}</Badge>
-          )}
-          {review.price_range && (
-            <Badge variant="outline">Price: {review.price_range}</Badge>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-8">
-        {review.content && (
-          <div className="prose dark:prose-invert max-w-none">
-            <p>{review.content}</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {review.durability_rating && (
-            <div className="p-4 bg-secondary rounded-lg">
-              <p className="text-sm text-muted-foreground">Durability</p>
-              <div className="flex items-center mt-1">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                <span className="ml-1 font-medium">
-                  {review.durability_rating}/5
-                </span>
-              </div>
-            </div>
-          )}
-
-          {review.value_rating && (
-            <div className="p-4 bg-secondary rounded-lg">
-              <p className="text-sm text-muted-foreground">Value</p>
-              <div className="flex items-center mt-1">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                <span className="ml-1 font-medium">
-                  {review.value_rating}/5
-                </span>
-              </div>
-            </div>
-          )}
-
-          {review.ease_of_use_rating && (
-            <div className="p-4 bg-secondary rounded-lg">
-              <p className="text-sm text-muted-foreground">Ease of Use</p>
-              <div className="flex items-center mt-1">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                <span className="ml-1 font-medium">
-                  {review.ease_of_use_rating}/5
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {(prosArray.length > 0 || consArray.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {prosArray.length > 0 && (
+            <h3 className="font-semibold mb-2">Product Details</h3>
+            <dl className="space-y-2">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Pros</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {prosArray.map((pro: string, index: number) => (
-                    <li key={index} className="text-green-500">
-                      <span className="text-foreground">{pro}</span>
-                    </li>
-                  ))}
-                </ul>
+                <dt className="text-muted-foreground">Brand</dt>
+                <dd>{review.brand}</dd>
               </div>
-            )}
-
-            {consArray.length > 0 && (
+              {review.model && (
+                <div>
+                  <dt className="text-muted-foreground">Model</dt>
+                  <dd>{review.model}</dd>
+                </div>
+              )}
               <div>
-                <h3 className="text-lg font-semibold mb-2">Cons</h3>
-                <ul className="list-disc list-inside space-y-1">
-                  {consArray.map((con: string, index: number) => (
-                    <li key={index} className="text-red-500">
-                      <span className="text-foreground">{con}</span>
-                    </li>
-                  ))}
-                </ul>
+                <dt className="text-muted-foreground">Category</dt>
+                <dd>{review.category}</dd>
               </div>
-            )}
+              {review.price_range && (
+                <div>
+                  <dt className="text-muted-foreground">Price Range</dt>
+                  <dd>{review.price_range}</dd>
+                </div>
+              )}
+            </dl>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div>
+            <h3 className="font-semibold mb-2">Ratings</h3>
+            <dl className="space-y-2">
+              <div>
+                <dt className="text-muted-foreground">Overall Rating</dt>
+                <dd>{review.rating}/5</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Durability</dt>
+                <dd>{review.durability_rating}/5</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Value</dt>
+                <dd>{review.value_rating}/5</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Ease of Use</dt>
+                <dd>{review.ease_of_use_rating}/5</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </Card>
+
+      {/* Review Content */}
+      {review.content && (
+        <div className="prose max-w-none">
+          <h2 className="text-2xl font-bold mb-4">Review</h2>
+          <div className="whitespace-pre-wrap">{review.content}</div>
+        </div>
+      )}
+
+      {/* Pros & Cons */}
+      {(review.pros || review.cons) && (
+        <div className="grid gap-6 md:grid-cols-2">
+          {review.pros && Array.isArray(review.pros) && review.pros.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-xl font-bold mb-4 text-green-600">Pros</h3>
+              <ul className="list-disc pl-4 space-y-2">
+                {review.pros.map((pro, index) => (
+                  <li key={index}>{pro}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+          {review.cons && Array.isArray(review.cons) && review.cons.length > 0 && (
+            <Card className="p-6">
+              <h3 className="text-xl font-bold mb-4 text-red-600">Cons</h3>
+              <ul className="list-disc pl-4 space-y-2">
+                {review.cons.map((con, index) => (
+                  <li key={index}>{con}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
   );
 };

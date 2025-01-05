@@ -30,19 +30,21 @@ export default function Login() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Login attempt with email:', values.email);
+      console.log('Starting login process...');
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
+      console.log('Attempting login with email:', values.email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
-      console.log('Login response:', { data, error });
+      console.log('Supabase auth response:', { data, error });
 
       if (error) {
         console.error('Login error:', error);
+        setIsLoading(false);
         
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password');
@@ -59,9 +61,12 @@ export default function Login() {
       }
 
       if (data.user) {
-        console.log('Login successful, redirecting to dashboard');
+        console.log('Login successful, user:', data.user);
         toast.success('Login successful');
         navigate('/dashboard');
+      } else {
+        console.error('No user data received after successful login');
+        toast.error('Login failed - please try again');
       }
       
     } catch (error) {
@@ -100,6 +105,7 @@ export default function Login() {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input 
+                      type="email"
                       placeholder="Enter your email" 
                       className="bg-background border-input focus:border-accent" 
                       {...field} 

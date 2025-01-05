@@ -60,7 +60,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             isSidebarOpen && !isMobile ? "md:ml-64" : ""
           )}>
             <div className="max-w-7xl mx-auto p-6 space-y-6">
-              <div className="flex items-center gap-4 pt-4 md:pt-0">
+              <div className="flex items-center gap-4 pt-8 md:pt-0">
                 <Button
                   variant="ghost"
                   size="icon"

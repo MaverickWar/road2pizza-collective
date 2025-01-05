@@ -31,8 +31,9 @@ export type ReviewData = {
   value_rating: number;
   ease_of_use_rating: number;
   created_by?: string;
+  created_at: string;
   image_url?: string;
   is_featured?: boolean;
-  cons?: Json;
-  pros?: Json;
+  cons?: string[];
+  pros?: string[];
 };

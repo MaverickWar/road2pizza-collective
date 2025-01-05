@@ -93,7 +93,7 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
       {/* Pros & Cons */}
       {(review.pros || review.cons) && (
         <div className="grid gap-6 md:grid-cols-2">
-          {review.pros && Array.isArray(review.pros) && review.pros.length > 0 && (
+          {review.pros && review.pros.length > 0 && (
             <Card className="p-6">
               <h3 className="text-xl font-bold mb-4 text-green-600">Pros</h3>
               <ul className="list-disc pl-4 space-y-2">
@@ -103,7 +103,7 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
               </ul>
             </Card>
           )}
-          {review.cons && Array.isArray(review.cons) && review.cons.length > 0 && (
+          {review.cons && review.cons.length > 0 && (
             <Card className="p-6">
               <h3 className="text-xl font-bold mb-4 text-red-600">Cons</h3>
               <ul className="list-disc pl-4 space-y-2">

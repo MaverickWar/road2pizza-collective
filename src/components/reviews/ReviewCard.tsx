@@ -19,17 +19,31 @@ interface ReviewCardProps {
 const ReviewCard = ({ review }: ReviewCardProps) => {
   return (
     <Link to={`/reviews/${review.id}`}>
-      <Card className="hover:bg-muted/50 transition-colors">
-        <CardContent className="p-4">
-          <h3 className="text-lg font-semibold mb-2">{review.title}</h3>
-          <div className="text-sm text-muted-foreground mb-2">
-            <span>By {review.profiles?.username || review.author}</span>
-            <span className="mx-2">•</span>
-            <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
-          </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{review.content}</p>
-          <div className="mt-2 text-sm">
-            Rating: {review.rating}/5
+      <Card className="transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg bg-gradient-to-br from-secondary to-secondary-hover border-none">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-xl font-bold text-textLight mb-1 line-clamp-2">
+                {review.title}
+              </h3>
+              <div className="flex items-center text-sm text-textLight/80 space-x-2">
+                <span className="font-medium">
+                  {review.profiles?.username || review.author}
+                </span>
+                <span>•</span>
+                <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
+              </div>
+            </div>
+            
+            <p className="text-textLight/90 line-clamp-3 text-sm">
+              {review.content}
+            </p>
+            
+            <div className="flex items-center space-x-2">
+              <div className="px-3 py-1 bg-highlight rounded-full text-sm font-medium">
+                Rating: {review.rating}/5
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

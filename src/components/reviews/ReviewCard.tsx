@@ -41,7 +41,7 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up bg-card hover:bg-card-hover border-none shadow-md">
       <CardContent className="p-4">
         <div className="flex gap-4">
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 min-w-0 space-y-2">
             <Link
               to={`/reviews/${review.id}`}
               className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1"
@@ -55,46 +55,39 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
 
             <p className="text-sm line-clamp-2">{review.content}</p>
 
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center space-x-2">
               <Button
                 variant="ghost"
                 size="sm"
-                className="hover:text-accent"
+                className="hover:text-accent text-xs px-2"
                 onClick={() => {
                   setIsLiked(!isLiked);
                   setLikes(isLiked ? likes - 1 : likes + 1);
                 }}
               >
                 <ThumbsUp
-                  className={`w-4 h-4 mr-1 ${
+                  className={`w-3 h-3 mr-1 ${
                     isLiked ? "fill-accent text-accent" : ""
                   }`}
                 />
                 {likes}
               </Button>
 
-              <div className="flex items-center gap-2">
-                {isOwner && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={togglePublishState}
-                  >
-                    {isPublished ? (
-                      <EyeOff className="w-4 h-4 mr-1" />
-                    ) : (
-                      <Eye className="w-4 h-4 mr-1" />
-                    )}
-                    {isPublished ? 'Unpublish' : 'Publish'}
-                  </Button>
-                )}
-                <Link
-                  to={`/reviews/${review.id}`}
-                  className="text-sm text-accent hover:text-accent/80 font-medium"
+              {isOwner && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={togglePublishState}
+                  className="text-xs px-2"
                 >
-                  Read more →
-                </Link>
-              </div>
+                  {isPublished ? (
+                    <EyeOff className="w-3 h-3 mr-1" />
+                  ) : (
+                    <Eye className="w-3 h-3 mr-1" />
+                  )}
+                  {isPublished ? 'Unpublish' : 'Publish'}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -114,6 +107,15 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             </div>
             <Rating value={review.rating} />
           </div>
+        </div>
+        
+        <div className="mt-3 text-right">
+          <Link
+            to={`/reviews/${review.id}`}
+            className="text-xs text-accent hover:text-accent/80 font-medium"
+          >
+            Read more →
+          </Link>
         </div>
       </CardContent>
     </Card>

@@ -80,15 +80,15 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   const unpinnedThreads = sortedThreads.filter(thread => !thread.is_pinned);
 
   // Calculate pagination
-  const totalPages = Math.max(1, Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE));
-  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
-  const endIndex = startIndex + THREADS_PER_PAGE;
+  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE);
   
   // Get current page threads
-  const currentThreads = [
-    ...pinnedThreads,
-    ...unpinnedThreads.slice(startIndex, endIndex)
-  ];
+  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
+  const endIndex = startIndex + THREADS_PER_PAGE;
+  const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
+  
+  // Combine pinned threads with current page threads
+  const displayThreads = [...pinnedThreads, ...currentUnpinnedThreads];
 
   return (
     <Card className="overflow-hidden">
@@ -147,7 +147,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
         </div>
       </div>
       <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
-        {currentThreads.map((thread) => (
+        {displayThreads.map((thread) => (
           <ThreadItem 
             key={thread.id} 
             thread={thread}
@@ -155,7 +155,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             onThreadUpdated={onThreadCreated}
           />
         ))}
-        {category.forum_threads?.length === 0 && (
+        {category.forum_threads.length === 0 && (
           <p className="text-center py-8 text-gray-500 dark:text-gray-400">
             No threads yet. Be the first to start a discussion!
           </p>

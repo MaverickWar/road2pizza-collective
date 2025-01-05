@@ -172,6 +172,7 @@ export type Database = {
           ease_of_use_rating: number | null
           id: string
           image_url: string | null
+          images: Json[] | null
           is_featured: boolean | null
           model: string | null
           price_range: string | null
@@ -192,6 +193,7 @@ export type Database = {
           ease_of_use_rating?: number | null
           id?: string
           image_url?: string | null
+          images?: Json[] | null
           is_featured?: boolean | null
           model?: string | null
           price_range?: string | null
@@ -212,6 +214,7 @@ export type Database = {
           ease_of_use_rating?: number | null
           id?: string
           image_url?: string | null
+          images?: Json[] | null
           is_featured?: boolean | null
           model?: string | null
           price_range?: string | null

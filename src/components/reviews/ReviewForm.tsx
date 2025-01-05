@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import BasicInfoSection from "./form/BasicInfoSection";
 import MediaSection from "./form/MediaSection";
 import RatingSection from "./form/RatingSection";
 import ProsCons from "./form/ProsCons";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
+import FormNavigation from "./form/FormNavigation";
+import FormActions from "./form/FormActions";
 
 interface ReviewFormProps {
   isOpen: boolean;
@@ -121,82 +122,52 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogHeader className="px-6 pt-6">
           <DialogTitle>Create New Review</DialogTitle>
         </DialogHeader>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-4 bg-background p-1 gap-1 rounded-lg mb-6">
-            <TabsTrigger 
-              value="basic"
-              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
-            >
-              Basic Info
-            </TabsTrigger>
-            <TabsTrigger 
-              value="media"
-              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
-            >
-              Media
-            </TabsTrigger>
-            <TabsTrigger 
-              value="proscons"
-              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium whitespace-nowrap"
-            >
-              Pros & Cons
-            </TabsTrigger>
-            <TabsTrigger 
-              value="ratings"
-              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
-            >
-              Ratings
-            </TabsTrigger>
-          </TabsList>
+        <div className="overflow-y-auto flex-1">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
+            <FormNavigation activeTab={activeTab} />
 
-          <div className="mt-4 space-y-6">
-            <TabsContent value="basic">
-              <BasicInfoSection 
-                formData={formData} 
-                setFormData={setFormData} 
-              />
-            </TabsContent>
+            <div className="space-y-6 pb-6">
+              <TabsContent value="basic">
+                <BasicInfoSection 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+              </TabsContent>
 
-            <TabsContent value="media">
-              <MediaSection 
-                formData={formData} 
-                setFormData={setFormData} 
-              />
-            </TabsContent>
+              <TabsContent value="media">
+                <MediaSection 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+              </TabsContent>
 
-            <TabsContent value="proscons">
-              <ProsCons 
-                formData={formData} 
-                setFormData={setFormData} 
-              />
-            </TabsContent>
+              <TabsContent value="proscons">
+                <ProsCons 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+              </TabsContent>
 
-            <TabsContent value="ratings">
-              <RatingSection 
-                formData={formData} 
-                setFormData={setFormData} 
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
-
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isSubmitting}
-            className="bg-accent hover:bg-accent-hover text-accent-foreground"
-          >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
-          </Button>
+              <TabsContent value="ratings">
+                <RatingSection 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
         </div>
+
+        <FormActions 
+          onClose={onClose}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+        />
       </DialogContent>
     </Dialog>
   );

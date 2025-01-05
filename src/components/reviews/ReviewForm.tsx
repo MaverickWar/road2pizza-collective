@@ -85,6 +85,7 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+      console.log("Submitting review with data:", formData);
       
       const { error } = await supabase.from("equipment_reviews").insert({
         title: formData.title,
@@ -95,9 +96,9 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         pros: formData.pros.filter(Boolean),
         cons: formData.cons.filter(Boolean),
         rating: calculateOverallRating(),
-        durability_rating: formData.ratings.reliability,
-        value_rating: formData.ratings.valueForMoney,
-        ease_of_use_rating: formData.ratings.easeOfUse,
+        durability_rating: Math.round(formData.ratings.reliability),
+        value_rating: Math.round(formData.ratings.valueForMoney),
+        ease_of_use_rating: Math.round(formData.ratings.easeOfUse),
         created_by: user?.id,
         author: user?.username || "Anonymous"
       });

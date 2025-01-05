@@ -28,6 +28,8 @@ export default function Login() {
     },
   });
 
+  console.log('Form errors:', form.formState.errors);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       console.log('Starting login process...');
@@ -36,7 +38,7 @@ export default function Login() {
       
       console.log('Attempting login with email:', values.email);
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: values.email,
+        email: values.email.toLowerCase().trim(), // Normalize email
         password: values.password,
       });
 
@@ -109,6 +111,10 @@ export default function Login() {
                       placeholder="Enter your email" 
                       className="bg-background border-input focus:border-accent" 
                       {...field} 
+                      onChange={(e) => {
+                        console.log('Email input changed:', e.target.value);
+                        field.onChange(e);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

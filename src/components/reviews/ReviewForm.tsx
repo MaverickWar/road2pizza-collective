@@ -127,11 +127,11 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <DialogTitle>Create New Review</DialogTitle>
         </DialogHeader>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
           <FormNavigation activeTab={activeTab} />
 
-          <div className="flex-1 overflow-y-auto px-6">
-            <div className="space-y-6 pb-6">
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6 pb-24">
               <TabsContent value="basic" className="mt-0 space-y-6">
                 <BasicInfoSection 
                   formData={formData} 
@@ -162,11 +162,13 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
             </div>
           </div>
 
-          <FormActions 
-            onClose={onClose}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-          />
+          <div className="absolute bottom-0 left-0 right-0 bg-card border-t p-4 flex justify-end gap-2">
+            <FormActions 
+              onClose={onClose}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+            />
+          </div>
         </Tabs>
       </DialogContent>
     </Dialog>

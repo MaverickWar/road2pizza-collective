@@ -22,10 +22,30 @@ export function MenuItemDialog({
   const { toast } = useToast();
 
   const handleSubmit = async (data: Partial<MenuItem>) => {
+    // Ensure required fields are present
+    if (!data.label || !data.path) {
+      toast({
+        title: "Error",
+        description: "Label and path are required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const submitData = {
       menu_group_id: menuGroupId,
-      ...data,
+      label: data.label,
+      path: data.path,
+      icon: data.icon || null,
+      description: data.description || null,
+      parent_id: data.parent_id || null,
+      requires_admin: data.requires_admin || false,
+      requires_staff: data.requires_staff || false,
+      display_order: data.display_order || 0,
+      is_visible: data.is_visible ?? true,
     };
+
+    console.log('Submitting menu item data:', submitData);
 
     const { error } = itemToEdit
       ? await supabase

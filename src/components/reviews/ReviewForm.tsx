@@ -122,52 +122,52 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0">
-        <DialogHeader className="px-6 pt-6">
+      <DialogContent className="flex flex-col max-w-4xl h-[90vh] p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle>Create New Review</DialogTitle>
         </DialogHeader>
         
-        <div className="overflow-y-auto flex-1">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
-            <FormNavigation activeTab={activeTab} />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <FormNavigation activeTab={activeTab} />
 
+          <div className="flex-1 overflow-y-auto px-6">
             <div className="space-y-6 pb-6">
-              <TabsContent value="basic">
+              <TabsContent value="basic" className="mt-0 space-y-6">
                 <BasicInfoSection 
                   formData={formData} 
                   setFormData={setFormData} 
                 />
               </TabsContent>
 
-              <TabsContent value="media">
+              <TabsContent value="media" className="mt-0 space-y-6">
                 <MediaSection 
                   formData={formData} 
                   setFormData={setFormData} 
                 />
               </TabsContent>
 
-              <TabsContent value="proscons">
+              <TabsContent value="proscons" className="mt-0 space-y-6">
                 <ProsCons 
                   formData={formData} 
                   setFormData={setFormData} 
                 />
               </TabsContent>
 
-              <TabsContent value="ratings">
+              <TabsContent value="ratings" className="mt-0 space-y-6">
                 <RatingSection 
                   formData={formData} 
                   setFormData={setFormData} 
                 />
               </TabsContent>
             </div>
-          </Tabs>
-        </div>
+          </div>
 
-        <FormActions 
-          onClose={onClose}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-        />
+          <FormActions 
+            onClose={onClose}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

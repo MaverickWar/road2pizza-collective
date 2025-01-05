@@ -8,7 +8,7 @@ interface FormActionsProps {
 
 const FormActions = ({ onClose, onSubmit, isSubmitting }: FormActionsProps) => {
   return (
-    <div className="flex justify-end gap-2 mt-4 sticky bottom-0 bg-card p-4 border-t">
+    <div className="sticky bottom-0 bg-card border-t p-4 mt-auto flex justify-end gap-2">
       <Button variant="outline" onClick={onClose}>
         Cancel
       </Button>

@@ -58,10 +58,10 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-8 px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-          <p className="text-sm text-muted-foreground">
+      <div className="w-full max-w-md space-y-8 px-8 py-12 bg-card rounded-xl shadow-lg animate-fade-up">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-accent">Welcome back</h1>
+          <p className="text-sm text-textLight/60">
             Sign in to your account to continue
           </p>
         </div>
@@ -73,11 +73,15 @@ export default function Login() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-textLight">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your email" {...field} />
+                    <Input 
+                      placeholder="Enter your email" 
+                      className="bg-background-secondary border-accent/20 focus:border-accent" 
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-accent" />
                 </FormItem>
               )}
             />
@@ -87,23 +91,36 @@ export default function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-textLight">Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Enter your password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="Enter your password" 
+                      className="bg-background-secondary border-accent/20 focus:border-accent"
+                      {...field} 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-accent" />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-accent hover:bg-accent-hover text-accent-foreground transition-colors"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
         </Form>
 
-        <div className="text-center text-sm">
-          <Button variant="link" onClick={() => navigate('/signup')} className="text-accent">
+        <div className="text-center space-y-4">
+          <Button 
+            variant="link" 
+            onClick={() => navigate('/signup')} 
+            className="text-accent hover:text-accent-hover"
+          >
             Don't have an account? Sign up
           </Button>
         </div>

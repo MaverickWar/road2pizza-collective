@@ -13,13 +13,11 @@ const EquipmentReviewDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  console.log('Review ID from params:', id);
+  console.log('Fetching review with ID:', id);
 
   const { data: review, isLoading, error } = useQuery({
     queryKey: ['equipment-review', id],
     queryFn: async () => {
-      console.log('Starting to fetch equipment review with ID:', id);
-      
       const { data, error } = await supabase
         .from('equipment_reviews')
         .select(`
@@ -47,7 +45,7 @@ const EquipmentReviewDetail = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching equipment review:', error);
+        console.error('Error fetching review:', error);
         throw error;
       }
 
@@ -56,13 +54,11 @@ const EquipmentReviewDetail = () => {
         throw new Error('Review not found');
       }
 
-      console.log('Successfully fetched review data:', data);
+      console.log('Successfully fetched review:', data);
       return data as ReviewData;
     },
     enabled: !!id,
   });
-
-  console.log('Query state:', { isLoading, error, review });
 
   if (isLoading) {
     return <ReviewLoading />;

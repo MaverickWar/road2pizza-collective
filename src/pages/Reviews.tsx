@@ -81,7 +81,7 @@ const Reviews = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <ChefHat className="w-8 h-8 text-accent" />
-                  <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">Pizza Oven Reviews</h1>
+                  <h1 className="text-2xl font-bold tracking-tight whitespace-nowrap">Pizza Oven Reviews</h1>
                 </div>
                 <p className="text-gray-500">
                   Expert reviews and community insights on the best pizza ovens

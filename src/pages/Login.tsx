@@ -32,30 +32,31 @@ export default function Login() {
     try {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
-      console.log('Attempting login with email:', values.email);
-
-      const { error } = await supabase.auth.signInWithPassword({
+      
+      // Create a fresh auth request
+      const response = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
 
-      if (error) {
-        console.error('Login error:', error);
+      if (response.error) {
+        console.error('Login error:', response.error);
         
-        if (error.message.includes('Invalid login credentials')) {
+        if (response.error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password');
           return;
         }
         
-        if (error.message.includes('Email not confirmed')) {
+        if (response.error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
           return;
         }
 
-        toast.error(error.message);
+        toast.error(response.error.message);
         return;
       }
 
+      // If login is successful, navigate to dashboard
       navigate('/dashboard');
       
     } catch (error) {

@@ -40,63 +40,77 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up bg-card hover:bg-card-hover border-none shadow-md">
       <CardContent className="p-4">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
+        <div className="flex gap-4">
+          <div className="flex-1 space-y-2">
             <Link
               to={`/reviews/${review.id}`}
               className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1"
             >
               {review.title}
             </Link>
-            <Rating value={review.rating} />
+
+            <p className="text-sm text-gray-500">
+              by {review.author}
+            </p>
+
+            <p className="text-sm line-clamp-2">{review.content}</p>
+
+            <div className="flex items-center justify-between pt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover:text-accent"
+                onClick={() => {
+                  setIsLiked(!isLiked);
+                  setLikes(isLiked ? likes - 1 : likes + 1);
+                }}
+              >
+                <ThumbsUp
+                  className={`w-4 h-4 mr-1 ${
+                    isLiked ? "fill-accent text-accent" : ""
+                  }`}
+                />
+                {likes}
+              </Button>
+
+              <div className="flex items-center gap-2">
+                {isOwner && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={togglePublishState}
+                  >
+                    {isPublished ? (
+                      <EyeOff className="w-4 h-4 mr-1" />
+                    ) : (
+                      <Eye className="w-4 h-4 mr-1" />
+                    )}
+                    {isPublished ? 'Unpublish' : 'Publish'}
+                  </Button>
+                )}
+                <Link
+                  to={`/reviews/${review.id}`}
+                  className="text-sm text-accent hover:text-accent/80 font-medium"
+                >
+                  Read more →
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <p className="text-sm text-gray-500">
-            by {review.author}
-          </p>
-
-          <p className="text-sm line-clamp-2">{review.content}</p>
-
-          <div className="flex items-center justify-between pt-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hover:text-accent"
-              onClick={() => {
-                setIsLiked(!isLiked);
-                setLikes(isLiked ? likes - 1 : likes + 1);
-              }}
-            >
-              <ThumbsUp
-                className={`w-4 h-4 mr-1 ${
-                  isLiked ? "fill-accent text-accent" : ""
-                }`}
+          <div className="flex flex-col items-center gap-2 min-w-[120px]">
+            {review.image_url ? (
+              <img
+                src={review.image_url}
+                alt={review.title}
+                className="w-[120px] h-[120px] object-cover rounded-lg"
               />
-              {likes}
-            </Button>
-
-            <div className="flex items-center gap-2">
-              {isOwner && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={togglePublishState}
-                >
-                  {isPublished ? (
-                    <EyeOff className="w-4 h-4 mr-1" />
-                  ) : (
-                    <Eye className="w-4 h-4 mr-1" />
-                  )}
-                  {isPublished ? 'Unpublish' : 'Publish'}
-                </Button>
-              )}
-              <Link
-                to={`/reviews/${review.id}`}
-                className="text-sm text-accent hover:text-accent/80 font-medium"
-              >
-                Read more →
-              </Link>
-            </div>
+            ) : (
+              <div className="w-[120px] h-[120px] bg-secondary rounded-lg flex items-center justify-center text-secondary-foreground">
+                No image
+              </div>
+            )}
+            <Rating value={review.rating} />
           </div>
         </div>
       </CardContent>

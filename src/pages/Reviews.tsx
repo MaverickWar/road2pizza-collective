@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
@@ -6,8 +7,12 @@ import ReviewStats from "@/components/reviews/ReviewStats";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChefHat } from "lucide-react";
 import { Link } from "react-router-dom";
+import NewReviewButton from "@/components/reviews/NewReviewButton";
+import ReviewForm from "@/components/reviews/ReviewForm";
 
 const Reviews = () => {
+  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  
   const { data: reviews, isLoading: loadingReviews } = useQuery({
     queryKey: ["recipe-reviews"],
     queryFn: async () => {
@@ -87,10 +92,12 @@ const Reviews = () => {
                   Expert reviews and community insights on the best pizza ovens
                 </p>
               </div>
-              <ReviewStats reviews={reviews || []} />
+              <div className="flex items-center gap-4">
+                <ReviewStats reviews={reviews || []} />
+                <NewReviewButton onClick={() => setIsReviewFormOpen(true)} />
+              </div>
             </div>
 
-            {/* Featured Review */}
             {featuredReview && (
               <Card className="bg-orange-100 dark:bg-orange-900/20 border-none shadow-lg hover:shadow-xl transition-all duration-300">
                 <CardContent className="p-6">
@@ -126,7 +133,6 @@ const Reviews = () => {
               </Card>
             )}
 
-            {/* Top Rated Pizza Ovens */}
             <Card className="border-none shadow-lg">
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6 text-left">Top Rated Pizza Ovens</h2>
@@ -159,7 +165,6 @@ const Reviews = () => {
               </CardContent>
             </Card>
 
-            {/* Latest Reviews */}
             <Card className="border-none shadow-lg">
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold mb-6 text-left">Latest Reviews</h2>
@@ -173,6 +178,11 @@ const Reviews = () => {
           </div>
         </div>
       </main>
+
+      <ReviewForm 
+        isOpen={isReviewFormOpen}
+        onClose={() => setIsReviewFormOpen(false)}
+      />
     </div>
   );
 };

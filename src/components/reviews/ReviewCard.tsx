@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ThumbsUp, Edit, Eye, EyeOff } from "lucide-react";
+import { ThumbsUp, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Rating } from "@/components/Rating";
@@ -10,7 +10,6 @@ import { useAuth } from "@/components/AuthProvider";
 
 interface ReviewCardProps {
   review: any;
-  onEdit?: (review: any) => void;
 }
 
 const ReviewCard = ({ review }: ReviewCardProps) => {
@@ -78,20 +77,18 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
 
             <div className="flex items-center gap-2">
               {isOwner && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={togglePublishState}
-                  >
-                    {isPublished ? (
-                      <EyeOff className="w-4 h-4 mr-1" />
-                    ) : (
-                      <Eye className="w-4 h-4 mr-1" />
-                    )}
-                    {isPublished ? 'Unpublish' : 'Publish'}
-                  </Button>
-                </>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={togglePublishState}
+                >
+                  {isPublished ? (
+                    <EyeOff className="w-4 h-4 mr-1" />
+                  ) : (
+                    <Eye className="w-4 h-4 mr-1" />
+                  )}
+                  {isPublished ? 'Unpublish' : 'Publish'}
+                </Button>
               )}
               <Link
                 to={`/reviews/${review.id}`}

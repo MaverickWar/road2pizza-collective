@@ -22,19 +22,6 @@ const ReviewContent = ({
 }: ReviewContentProps) => {
   const isElementVisible = (elementId: string) => !hiddenElements.includes(elementId);
 
-  const { data: userReviews } = useQuery({
-    queryKey: ['user-reviews'],
-    queryFn: async () => {
-      const { data: reviews, error } = await supabase
-        .from('equipment_reviews')
-        .select('*')
-        .eq('created_by', (await supabase.auth.getUser()).data.user?.id);
-
-      if (error) throw error;
-      return reviews;
-    }
-  });
-
   // Get top 10 reviews by rating
   const topReviews = [...reviews]
     .sort((a, b) => b.rating - a.rating)
@@ -54,23 +41,6 @@ const ReviewContent = ({
         >
           <ReviewStats reviews={reviews} onNewReview={onNewReview} />
         </div>
-      )}
-
-      {userReviews && userReviews.length > 0 && (
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-4 md:p-6">
-            <h2 className="text-xl md:text-2xl font-bold mb-6">My Reviews</h2>
-            <div className="grid gap-6">
-              {userReviews.map((review) => (
-                <ReviewCard 
-                  key={review.id} 
-                  review={review} 
-                  showManagement={true}
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       )}
 
       {isElementVisible('featured-reviews') && featuredReviews.length > 0 && (

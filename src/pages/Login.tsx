@@ -28,47 +28,17 @@ export default function Login() {
     },
   });
 
-  console.log('Form state:', {
-    isDirty: form.formState.isDirty,
-    isSubmitting: form.formState.isSubmitting,
-    errors: form.formState.errors
-  });
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Starting login process...');
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      const normalizedEmail = values.email.toLowerCase().trim();
-      console.log('Login attempt details:', {
-        normalizedEmail,
-        passwordLength: values.password.length,
-        timestamp: new Date().toISOString()
-      });
-      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
+        email: values.email.toLowerCase().trim(),
         password: values.password,
       });
 
-      console.log('Supabase auth response:', { 
-        hasData: !!data,
-        hasUser: !!data?.user,
-        errorMessage: error?.message,
-        errorStatus: error?.status,
-        timestamp: new Date().toISOString()
-      });
-
       if (error) {
-        console.error('Login error details:', {
-          message: error.message,
-          status: error.status,
-          name: error.name,
-          stack: error.stack
-        });
-        setIsLoading(false);
-        
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password');
           return;
@@ -83,22 +53,10 @@ export default function Login() {
         return;
       }
 
-      if (data.user) {
-        console.log('Login successful, user details:', {
-          id: data.user.id,
-          email: data.user.email,
-          lastSignIn: data.user.last_sign_in_at,
-          emailConfirmed: data.user.email_confirmed_at,
-          userMetadata: data.user.user_metadata,
-          timestamp: new Date().toISOString()
-        });
+      if (data?.user) {
         toast.success('Login successful');
         navigate('/dashboard');
-      } else {
-        console.error('No user data received after successful login');
-        toast.error('Login failed - please try again');
       }
-      
     } catch (error) {
       console.error('Unexpected login error:', error);
       toast.error('An unexpected error occurred. Please try again.');
@@ -139,10 +97,6 @@ export default function Login() {
                       placeholder="Enter your email" 
                       className="bg-background border-input focus:border-accent" 
                       {...field} 
-                      onChange={(e) => {
-                        console.log('Email input changed:', e.target.value);
-                        field.onChange(e);
-                      }}
                     />
                   </FormControl>
                   <FormMessage />

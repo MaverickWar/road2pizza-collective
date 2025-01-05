@@ -8,7 +8,7 @@ interface ReviewContentProps {
   isEditMode: boolean;
   hiddenElements: string[];
   onToggleVisibility: (elementId: string) => void;
-  onNewReview?: () => void;
+  onNewReview: () => void;
 }
 
 const ReviewContent = ({ 

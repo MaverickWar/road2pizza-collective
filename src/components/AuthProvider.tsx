@@ -43,11 +43,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     showUsernamePrompt
   });
 
-  // Remove the loading screen and just render nothing while loading
+  // Return null while loading to prevent flash of content
   if (loading) {
     return null;
   }
 
+  // Show suspension notice if user is suspended
   if (isSuspended && user) {
     return (
       <div className="min-h-screen bg-background">

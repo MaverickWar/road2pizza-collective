@@ -44,6 +44,7 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
     }
   }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate]);
 
+  // Return null instead of redirecting to prevent flash of content
   if (!user) return null;
 
   return <>{children}</>;

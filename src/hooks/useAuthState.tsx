@@ -72,7 +72,7 @@ export const useAuthState = () => {
       console.log("Checking roles for user:", userId);
       const { data, error } = await supabase
         .from("profiles")
-        .select("is_admin, is_staff, email")
+        .select("is_admin, is_staff")
         .eq("id", userId)
         .single();
 

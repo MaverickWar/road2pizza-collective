@@ -9,9 +9,8 @@ import ReplyForm from "./ReplyForm";
 import { ThreadActions } from "./ThreadActions";
 import { Button } from "../ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import PasswordProtectedDialog from "./components/PasswordProtectedDialog";
 
 interface ThreadViewProps {
   threadId?: string;
@@ -24,7 +23,6 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
   const [thread, setThread] = useState<Thread | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
-  const [password, setPassword] = useState("");
   const [hasAccess, setHasAccess] = useState(false);
 
   const fetchThread = async () => {
@@ -105,15 +103,15 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
     if (id) fetchThread();
   }, [id]);
 
-  const handlePasswordSubmit = () => {
+  const handlePasswordSubmit = (password: string) => {
     if (!thread) return;
     
     if (password === thread.password) {
       setHasAccess(true);
       setIsPasswordDialogOpen(false);
-      toast.success("Access granted");
+      toast.success("Access granted! You can now view the thread.");
     } else {
-      toast.error("Incorrect password");
+      toast.error("Incorrect password. Please try again.");
     }
   };
 
@@ -137,28 +135,11 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
           </Link>
         </div>
 
-        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Protected Thread</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <p>This thread is password protected. Please enter the password to view it.</p>
-              <Input
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handlePasswordSubmit();
-                  }
-                }}
-              />
-              <Button onClick={handlePasswordSubmit}>Submit</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <PasswordProtectedDialog
+          isOpen={isPasswordDialogOpen}
+          onOpenChange={setIsPasswordDialogOpen}
+          onSubmit={handlePasswordSubmit}
+        />
       </div>
     );
   }

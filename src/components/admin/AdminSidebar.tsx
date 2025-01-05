@@ -10,7 +10,8 @@ import {
   Bell,
   Settings,
   Palette,
-  Image
+  Image,
+  Menu
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
@@ -18,6 +19,7 @@ import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
+  { icon: Menu, label: "Menu", path: "/dashboard/admin/menus" },
   { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
   { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
   { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },

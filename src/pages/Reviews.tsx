@@ -52,6 +52,10 @@ const Reviews = () => {
     );
   };
 
+  const handleNewReview = () => {
+    setIsReviewFormOpen(true);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -70,6 +74,7 @@ const Reviews = () => {
           isEditMode={isEditMode}
           hiddenElements={hiddenElements}
           onToggleVisibility={toggleElementVisibility}
+          onNewReview={handleNewReview}
         />
       </main>
 

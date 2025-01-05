@@ -54,41 +54,6 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             </p>
 
             <p className="text-sm line-clamp-2">{review.content}</p>
-
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hover:text-accent text-xs px-2"
-                onClick={() => {
-                  setIsLiked(!isLiked);
-                  setLikes(isLiked ? likes - 1 : likes + 1);
-                }}
-              >
-                <ThumbsUp
-                  className={`w-3 h-3 mr-1 ${
-                    isLiked ? "fill-accent text-accent" : ""
-                  }`}
-                />
-                {likes}
-              </Button>
-
-              {isOwner && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={togglePublishState}
-                  className="text-xs px-2"
-                >
-                  {isPublished ? (
-                    <EyeOff className="w-3 h-3 mr-1" />
-                  ) : (
-                    <Eye className="w-3 h-3 mr-1" />
-                  )}
-                  {isPublished ? 'Unpublish' : 'Publish'}
-                </Button>
-              )}
-            </div>
           </div>
 
           <div className="flex flex-col items-center gap-2">
@@ -109,7 +74,41 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
           </div>
         </div>
         
-        <div className="mt-3 text-right">
+        <div className="mt-3 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hover:text-accent text-xs px-2"
+              onClick={() => {
+                setIsLiked(!isLiked);
+                setLikes(isLiked ? likes - 1 : likes + 1);
+              }}
+            >
+              <ThumbsUp
+                className={`w-3 h-3 mr-1 ${
+                  isLiked ? "fill-accent text-accent" : ""
+                }`}
+              />
+              {likes}
+            </Button>
+
+            {isOwner && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={togglePublishState}
+                className="text-xs px-2"
+              >
+                {isPublished ? (
+                  <EyeOff className="w-3 h-3 mr-1" />
+                ) : (
+                  <Eye className="w-3 h-3 mr-1" />
+                )}
+                {isPublished ? 'Unpublish' : 'Publish'}
+              </Button>
+            )}
+          </div>
           <Link
             to={`/reviews/${review.id}`}
             className="text-xs text-accent hover:text-accent/80 font-medium"

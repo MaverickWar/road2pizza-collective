@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, Plus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "sonner";
+import { toast } from "sonner";
 import type { ReviewFormData } from "../ReviewForm";
 
 interface MediaSectionProps {
@@ -14,7 +14,6 @@ interface MediaSectionProps {
 
 const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
   const [uploading, setUploading] = useState(false);
-  const { toast } = useToast();
 
   const handleMainImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {

@@ -6,7 +6,7 @@ import MediaSection from "./form/MediaSection";
 import RatingSection from "./form/RatingSection";
 import ProsCons from "./form/ProsCons";
 import { Button } from "@/components/ui/button";
-import { useToast } from "sonner";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 
@@ -75,7 +75,6 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
   const [formData, setFormData] = useState<ReviewFormData>(initialFormData);
   const [activeTab, setActiveTab] = useState("basic");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const calculateOverallRating = () => {
@@ -93,9 +92,6 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         category: formData.category,
         content: formData.content,
         image_url: formData.imageUrl,
-        images: formData.additionalImages,
-        video_url: formData.videoUrl,
-        video_provider: formData.videoProvider,
         pros: formData.pros.filter(Boolean),
         cons: formData.cons.filter(Boolean),
         rating: calculateOverallRating(),

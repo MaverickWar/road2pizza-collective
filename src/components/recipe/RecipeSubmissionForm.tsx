@@ -2,13 +2,10 @@ import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import ImageUpload from "./form/ImageUpload";
-import DifficultySelect from "./form/DifficultySelect";
 import { useNavigate } from "react-router-dom";
+import ListEditor from "@/components/article/edit/ListEditor";
+import FormFields from "./form/FormFields";
 
 interface RecipeSubmissionFormProps {
   pizzaTypeId?: string;
@@ -43,19 +40,23 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
 
     try {
       setLoading(true);
-      console.log("Submitting recipe:", formData);
+      console.log("Submitting recipe with data:", formData);
 
-      const { data, error } = await supabase.from("recipes").insert([
-        {
+      const { data, error } = await supabase
+        .from("recipes")
+        .insert([{
           ...formData,
           category_id: pizzaTypeId,
           created_by: user.id,
           author: user.email,
-        },
-      ]).select();
+          status: 'pending',
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
+      console.log("Recipe submitted successfully:", data);
       toast.success("Recipe submitted successfully! It will be reviewed by our team.");
       onSuccess?.();
       
@@ -65,20 +66,16 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
           recipeSubmitted: true 
         } 
       });
-      
     } catch (error) {
       console.error("Error submitting recipe:", error);
-      toast.error("Failed to submit recipe");
+      toast.error("Failed to submit recipe. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleFieldChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleVideoUrlChange = (url: string) => {
@@ -88,114 +85,46 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
     } else if (url.includes('vimeo.com')) {
       provider = 'vimeo';
     }
-    setFormData((prev) => ({ 
+    setFormData(prev => ({ 
       ...prev, 
       video_url: url,
       video_provider: provider 
     }));
   };
 
-  const handleImageUploaded = (imageUrl: string) => {
-    setFormData((prev) => ({ ...prev, image_url: imageUrl }));
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="title">Recipe Title</Label>
-          <Input
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-        </div>
+      <FormFields
+        formData={formData}
+        onChange={handleFieldChange}
+        onImageUploaded={(url) => handleFieldChange('image_url', url)}
+        onVideoUrlChange={handleVideoUrlChange}
+        disabled={loading}
+      />
 
-        <div>
-          <Label htmlFor="image">Recipe Image</Label>
-          <ImageUpload
-            onImageUploaded={handleImageUploaded}
-            currentImageUrl={formData.image_url}
-            disabled={loading}
-          />
-        </div>
+      <ListEditor
+        title="Ingredients"
+        items={formData.ingredients}
+        onChange={(items) => setFormData(prev => ({ ...prev, ingredients: items }))}
+        placeholder="Add ingredient"
+        disabled={loading}
+      />
 
-        <div>
-          <Label htmlFor="video_url">Video URL (YouTube or Vimeo)</Label>
-          <Input
-            id="video_url"
-            name="video_url"
-            value={formData.video_url}
-            onChange={(e) => handleVideoUrlChange(e.target.value)}
-            placeholder="e.g., https://youtube.com/watch?v=..."
-            disabled={loading}
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            Supports YouTube and Vimeo URLs
-          </p>
-        </div>
+      <ListEditor
+        title="Instructions"
+        items={formData.instructions}
+        onChange={(items) => setFormData(prev => ({ ...prev, instructions: items }))}
+        placeholder="Add instruction"
+        disabled={loading}
+      />
 
-        <div>
-          <Label htmlFor="content">Description</Label>
-          <Textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            rows={4}
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="difficulty">Difficulty</Label>
-          <DifficultySelect
-            value={formData.difficulty}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, difficulty: value }))}
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="prep_time">Prep Time</Label>
-          <Input
-            id="prep_time"
-            name="prep_time"
-            value={formData.prep_time}
-            onChange={handleChange}
-            placeholder="e.g., 30 minutes"
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="cook_time">Cook Time</Label>
-          <Input
-            id="cook_time"
-            name="cook_time"
-            value={formData.cook_time}
-            onChange={handleChange}
-            placeholder="e.g., 15 minutes"
-            disabled={loading}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="servings">Servings</Label>
-          <Input
-            id="servings"
-            name="servings"
-            value={formData.servings}
-            onChange={handleChange}
-            placeholder="e.g., 4"
-            disabled={loading}
-          />
-        </div>
-      </div>
+      <ListEditor
+        title="Pro Tips"
+        items={formData.tips}
+        onChange={(items) => setFormData(prev => ({ ...prev, tips: items }))}
+        placeholder="Add tip"
+        disabled={loading}
+      />
 
       <Button type="submit" disabled={loading}>
         {loading ? "Submitting..." : "Submit Recipe"}

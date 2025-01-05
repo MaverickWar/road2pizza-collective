@@ -111,19 +111,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (session?.user) {
           const profile = await fetchUserProfile(session.user.id);
-          if (profile) {
-            setUser({ ...session.user, ...profile });
-            
-            const suspended = await checkSuspensionStatus(session.user.id);
-            console.log("User suspension status:", suspended);
-            setIsSuspended(suspended);
-            
-            if (!suspended) {
-              await checkUserRoles(session.user.id);
-            } else {
-              setIsAdmin(false);
-              setIsStaff(false);
-            }
+          setUser(profile ? { ...session.user, ...profile } : session.user);
+          
+          const suspended = await checkSuspensionStatus(session.user.id);
+          console.log("User suspension status:", suspended);
+          setIsSuspended(suspended);
+          
+          if (!suspended) {
+            await checkUserRoles(session.user.id);
+          } else {
+            setIsAdmin(false);
+            setIsStaff(false);
           }
         }
 
@@ -132,18 +130,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             console.log("Auth state changed:", session);
             if (session?.user) {
               const profile = await fetchUserProfile(session.user.id);
-              if (profile) {
-                setUser({ ...session.user, ...profile });
-                
-                const suspended = await checkSuspensionStatus(session.user.id);
-                setIsSuspended(suspended);
-                
-                if (!suspended) {
-                  await checkUserRoles(session.user.id);
-                } else {
-                  setIsAdmin(false);
-                  setIsStaff(false);
-                }
+              setUser(profile ? { ...session.user, ...profile } : session.user);
+              
+              const suspended = await checkSuspensionStatus(session.user.id);
+              setIsSuspended(suspended);
+              
+              if (!suspended) {
+                await checkUserRoles(session.user.id);
+              } else {
+                setIsAdmin(false);
+                setIsStaff(false);
               }
             } else {
               setUser(null);

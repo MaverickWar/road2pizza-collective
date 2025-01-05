@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Reviews from "@/pages/Reviews";
 import ReviewDetail from "@/pages/ReviewDetail";
 import NotFound from "@/pages/NotFound";
+import Pizza from "@/pages/Pizza";
+import PizzaStyle from "@/pages/PizzaStyle";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -24,6 +26,8 @@ function App() {
           <Routes>
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/reviews/:id" element={<ReviewDetail />} />
+            <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza/:style" element={<PizzaStyle />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/profile";
 import SuspensionNotice from "./SuspensionNotice";
+import EmailPromptDialog from "./EmailPromptDialog";
 
 type AuthContextType = {
   user: (User & Partial<Profile>) | null;
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isStaff, setIsStaff] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSuspended, setIsSuspended] = useState(false);
+  const [showEmailPrompt, setShowEmailPrompt] = useState(false);
 
   const checkSuspensionStatus = async (userId: string) => {
     try {
@@ -62,6 +64,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       console.log("Fetched profile:", profile);
+
+      // Check if email is missing
+      if (!profile.email) {
+        console.log("Email missing for user, showing prompt");
+        setShowEmailPrompt(true);
+      }
+
       return profile;
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -100,6 +109,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Error checking user roles:", error);
       setIsAdmin(false);
       setIsStaff(false);
+    }
+  };
+
+  const handleEmailSet = async () => {
+    if (user) {
+      const profile = await fetchUserProfile(user.id);
+      setUser(profile ? { ...user, ...profile } : user);
+      setShowEmailPrompt(false);
     }
   };
 
@@ -178,6 +195,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, isAdmin, isStaff }}>
+      {showEmailPrompt && user ? (
+        <EmailPromptDialog
+          open={showEmailPrompt}
+          userId={user.id}
+          onEmailSet={handleEmailSet}
+        />
+      ) : null}
       {children}
     </AuthContext.Provider>
   );

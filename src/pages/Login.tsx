@@ -19,6 +19,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailConfirmAlert, setShowEmailConfirmAlert] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -27,6 +28,28 @@ export default function Login() {
       password: '',
     },
   });
+
+  const handleForgotPassword = async (email: string) => {
+    try {
+      setIsSendingReset(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        toast.error('Failed to send reset email. Please try again.');
+        return;
+      }
+
+      toast.success('Password reset email sent! Please check your inbox.');
+    } catch (error) {
+      console.error('Unexpected error during password reset:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -193,6 +216,23 @@ export default function Login() {
           >
             Don't have an account? Sign up
           </Button>
+          <div>
+            <Button
+              variant="link"
+              onClick={() => {
+                const email = form.getValues('email');
+                if (!email) {
+                  toast.error('Please enter your email address first');
+                  return;
+                }
+                handleForgotPassword(email);
+              }}
+              className="text-accent hover:text-accent/90"
+              disabled={isSendingReset || isLoading}
+            >
+              {isSendingReset ? 'Sending reset email...' : 'Forgot your password?'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-import { PizzaTypeGrid } from "@/components/pizza/PizzaTypeGrid";
+import PizzaTypeGrid from "@/components/pizza/PizzaTypeGrid";
 
 const Pizza = () => {
   const { data: pizzaTypes, isLoading } = useQuery({
@@ -48,7 +48,7 @@ const Pizza = () => {
       <Navigation />
       <div className="container mx-auto px-4 pt-24 pb-12">
         <h1 className="text-4xl font-bold mb-8">Pizza Styles</h1>
-        <PizzaTypeGrid pizzaTypes={pizzaTypes || []} />
+        <PizzaTypeGrid />
       </div>
     </>
   );

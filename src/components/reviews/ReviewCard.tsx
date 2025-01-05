@@ -98,18 +98,20 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-2 min-w-[120px]">
-            {review.image_url ? (
-              <img
-                src={review.image_url}
-                alt={review.title}
-                className="w-[120px] h-[120px] object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-[120px] h-[120px] bg-secondary rounded-lg flex items-center justify-center text-secondary-foreground">
-                No image
-              </div>
-            )}
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-[80px] h-[80px] flex-shrink-0">
+              {review.image_url ? (
+                <img
+                  src={review.image_url}
+                  alt={review.title}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <div className="w-full h-full bg-secondary rounded-lg flex items-center justify-center text-secondary-foreground text-xs">
+                  No image
+                </div>
+              )}
+            </div>
             <Rating value={review.rating} />
           </div>
         </div>

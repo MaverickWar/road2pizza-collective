@@ -174,6 +174,7 @@ export type Database = {
           image_url: string | null
           images: Json[] | null
           is_featured: boolean | null
+          is_published: boolean | null
           model: string | null
           price_range: string | null
           pros: Json | null
@@ -197,6 +198,7 @@ export type Database = {
           image_url?: string | null
           images?: Json[] | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           model?: string | null
           price_range?: string | null
           pros?: Json | null
@@ -220,6 +222,7 @@ export type Database = {
           image_url?: string | null
           images?: Json[] | null
           is_featured?: boolean | null
+          is_published?: boolean | null
           model?: string | null
           price_range?: string | null
           pros?: Json | null

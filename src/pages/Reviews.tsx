@@ -11,6 +11,7 @@ const Reviews = () => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [hiddenElements, setHiddenElements] = useState<string[]>([]);
+  const [editingReview, setEditingReview] = useState<any>(null);
   
   const { data: reviews, isLoading } = useQuery({
     queryKey: ["pizza-oven-reviews"],
@@ -53,6 +54,12 @@ const Reviews = () => {
   };
 
   const handleNewReview = () => {
+    setEditingReview(null);
+    setIsReviewFormOpen(true);
+  };
+
+  const handleEditReview = (review: any) => {
+    setEditingReview(review);
     setIsReviewFormOpen(true);
   };
 
@@ -80,7 +87,11 @@ const Reviews = () => {
 
       <ReviewForm 
         isOpen={isReviewFormOpen}
-        onClose={() => setIsReviewFormOpen(false)}
+        onClose={() => {
+          setIsReviewFormOpen(false);
+          setEditingReview(null);
+        }}
+        editingReview={editingReview}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navigation from "@/components/Navigation";
 import { ReviewContent } from "@/components/reviews/detail/ReviewContent";
 import { ReviewError } from "@/components/reviews/detail/ReviewError";
+import { ReviewData } from "@/types/review";
 
 const ReviewDetail = () => {
   const { id } = useParams();
@@ -27,7 +28,15 @@ const ReviewDetail = () => {
       }
 
       console.log("Fetched review data:", data);
-      return data;
+      
+      // Cast the data to match ReviewData type
+      const reviewData: ReviewData = {
+        ...data,
+        pros: Array.isArray(data.pros) ? data.pros : [],
+        cons: Array.isArray(data.cons) ? data.cons : [],
+      };
+
+      return reviewData;
     },
   });
 

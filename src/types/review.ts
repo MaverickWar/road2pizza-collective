@@ -33,8 +33,8 @@ export type ReviewData = {
   created_at: string;
   image_url?: string;
   is_featured?: boolean;
-  cons?: string[];
-  pros?: string[];
+  cons: string[];
+  pros: string[];
   profiles?: {
     username: string;
   };

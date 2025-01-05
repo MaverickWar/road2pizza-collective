@@ -42,21 +42,20 @@ export const PasswordManagement = ({ user, onSuccess }: PasswordManagementProps)
       if (error) {
         console.error('Error changing password:', error);
         
-        // Parse the error body if it exists
-        try {
-          const errorBody = JSON.parse(error.message);
-          if (errorBody.code === 'same_password') {
-            toast.error("New password must be different from your current password");
-            return;
-          }
-        } catch {
-          // If parsing fails, handle the error message directly
-          if (error.message.includes('same_password')) {
-            toast.error("New password must be different from your current password");
-            return;
+        // Check if the error response contains a JSON string
+        if (typeof error.message === 'string' && error.message.startsWith('{')) {
+          try {
+            const parsedError = JSON.parse(error.message);
+            if (parsedError.code === 'same_password') {
+              toast.error("New password must be different from your current password");
+              return;
+            }
+          } catch (parseError) {
+            console.error('Error parsing error message:', parseError);
           }
         }
         
+        // If we couldn't parse the error or it's a different error
         toast.error(error.message || "Failed to update password");
         return;
       }

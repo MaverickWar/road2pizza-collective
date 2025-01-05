@@ -30,6 +30,35 @@ const ReviewContent = ({
   // Get featured reviews
   const featuredReviews = reviews.filter(review => review.is_featured);
 
+  // Get latest admin reviews
+  const { data: adminReviews } = useQuery({
+    queryKey: ['admin-reviews'],
+    queryFn: async () => {
+      console.log("Fetching admin reviews");
+      const { data: adminProfiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('is_admin', true);
+
+      if (profileError) throw profileError;
+
+      const adminIds = adminProfiles.map(profile => profile.id);
+      
+      const { data: reviews, error } = await supabase
+        .from('equipment_reviews')
+        .select(`
+          *,
+          profiles:created_by (username)
+        `)
+        .in('created_by', adminIds)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      console.log("Fetched admin reviews:", reviews);
+      return reviews;
+    }
+  });
+
   return (
     <div className="space-y-6 max-w-4xl mx-auto px-4">
       {isElementVisible('stats') && (
@@ -94,7 +123,7 @@ const ReviewContent = ({
             <CardContent className="p-4 md:p-6">
               <h2 className="text-xl md:text-2xl font-bold mb-6">Latest Reviews</h2>
               <div className="grid gap-6">
-                {reviews?.map((review) => (
+                {adminReviews?.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}
               </div>

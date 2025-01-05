@@ -5,12 +5,16 @@ import Navigation from "@/components/Navigation";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import ReviewStats from "@/components/reviews/ReviewStats";
 import { Card, CardContent } from "@/components/ui/card";
-import { Flame } from "lucide-react";
+import { Flame, Edit2, Save } from "lucide-react";
 import { Link } from "react-router-dom";
 import ReviewForm from "@/components/reviews/ReviewForm";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Reviews = () => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hiddenElements, setHiddenElements] = useState<string[]>([]);
   
   const { data: reviews, isLoading: loadingReviews } = useQuery({
     queryKey: ["pizza-oven-reviews"],
@@ -55,68 +59,135 @@ const Reviews = () => {
     },
   });
 
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    if (!isEditMode) {
+      toast.info("Edit mode enabled. Click elements to show/hide them.");
+    } else {
+      toast.success("Layout saved!");
+    }
+  };
+
+  const toggleElementVisibility = (elementId: string) => {
+    if (!isEditMode) return;
+    
+    setHiddenElements(prev => 
+      prev.includes(elementId) 
+        ? prev.filter(id => id !== elementId)
+        : [...prev, elementId]
+    );
+  };
+
+  const isElementVisible = (elementId: string) => !hiddenElements.includes(elementId);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="pt-20 md:pt-24 pb-12">
         <div className="container mx-auto px-4">
           <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Flame className="w-8 h-8 text-accent" />
                 <h1 className="text-2xl font-bold tracking-tight">Pizza Oven Reviews</h1>
               </div>
-              <p className="text-gray-500">
-                Expert reviews and insights on the best pizza ovens
-              </p>
-              <ReviewStats reviews={reviews || []} onNewReview={() => setIsReviewFormOpen(true)} />
+              <Button
+                variant={isEditMode ? "destructive" : "outline"}
+                size="sm"
+                onClick={toggleEditMode}
+                className="flex items-center gap-2"
+              >
+                {isEditMode ? (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save Layout
+                  </>
+                ) : (
+                  <>
+                    <Edit2 className="w-4 h-4" />
+                    Edit Layout
+                  </>
+                )}
+              </Button>
             </div>
 
-            {featuredReview && (
-              <Card className="bg-orange-100 dark:bg-orange-900/20 border-none shadow-lg">
-                <CardContent className="p-4 md:p-6">
-                  <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                    {featuredReview.image_url && (
-                      <div className="w-full md:w-1/3">
-                        <img
-                          src={featuredReview.image_url}
-                          alt={featuredReview.title}
-                          className="w-full aspect-video md:aspect-square object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
-                    <div className="flex-1 space-y-4">
-                      <div className="space-y-2">
-                        <div className="inline-block px-3 py-1 bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 rounded-full text-sm font-medium">
-                          Featured Review
-                        </div>
-                        <h2 className="text-xl md:text-2xl font-bold">{featuredReview.title}</h2>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
-                        {featuredReview.content}
-                      </p>
-                      <Link
-                        to={`/reviews/${featuredReview.id}`}
-                        className="inline-block text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
-                      >
-                        Read full review →
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {isElementVisible('description') && (
+              <div 
+                onClick={() => toggleElementVisibility('description')}
+                className={`cursor-pointer ${isEditMode ? 'hover:opacity-50' : ''}`}
+              >
+                <p className="text-gray-500">
+                  Expert reviews and insights on the best pizza ovens
+                </p>
+              </div>
             )}
 
-            <Card className="border-none shadow-lg">
-              <CardContent className="p-4 md:p-6">
-                <h2 className="text-xl md:text-2xl font-bold mb-6">Latest Reviews</h2>
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-                  {reviews?.map((review) => (
-                    <ReviewCard key={review.id} review={review} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {isElementVisible('stats') && (
+              <div 
+                onClick={() => toggleElementVisibility('stats')}
+                className={`cursor-pointer ${isEditMode ? 'hover:opacity-50' : ''}`}
+              >
+                <ReviewStats reviews={reviews || []} onNewReview={() => setIsReviewFormOpen(true)} />
+              </div>
+            )}
+
+            {isElementVisible('featured') && featuredReview && (
+              <div 
+                onClick={() => toggleElementVisibility('featured')}
+                className={`cursor-pointer ${isEditMode ? 'hover:opacity-50' : ''}`}
+              >
+                <Card className="bg-orange-100 dark:bg-orange-900/20 border-none shadow-lg">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                      {featuredReview.image_url && (
+                        <div className="w-full md:w-1/3">
+                          <img
+                            src={featuredReview.image_url}
+                            alt={featuredReview.title}
+                            className="w-full aspect-video md:aspect-square object-cover rounded-lg"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 space-y-4">
+                        <div className="space-y-2">
+                          <div className="inline-block px-3 py-1 bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 rounded-full text-sm font-medium">
+                            Featured Review
+                          </div>
+                          <h2 className="text-xl md:text-2xl font-bold">{featuredReview.title}</h2>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+                          {featuredReview.content}
+                        </p>
+                        <Link
+                          to={`/reviews/${featuredReview.id}`}
+                          className="inline-block text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium"
+                        >
+                          Read full review →
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {isElementVisible('latest-reviews') && (
+              <div 
+                onClick={() => toggleElementVisibility('latest-reviews')}
+                className={`cursor-pointer ${isEditMode ? 'hover:opacity-50' : ''}`}
+              >
+                <Card className="border-none shadow-lg">
+                  <CardContent className="p-4 md:p-6">
+                    <h2 className="text-xl md:text-2xl font-bold mb-6">Latest Reviews</h2>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+                      {reviews?.map((review) => (
+                        <ReviewCard key={review.id} review={review} />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </main>

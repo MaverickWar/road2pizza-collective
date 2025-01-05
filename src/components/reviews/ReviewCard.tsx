@@ -86,11 +86,11 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
               }}
             >
               <ThumbsUp
-                className={`w-3 h-3 mr-1 ${
+                className={`w-3 h-3 ${
                   isLiked ? "fill-accent text-accent" : ""
                 }`}
               />
-              {likes}
+              <span className="ml-0.5">{likes}</span>
             </Button>
 
             {isOwner && (

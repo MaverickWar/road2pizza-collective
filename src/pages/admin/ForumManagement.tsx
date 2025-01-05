@@ -1,7 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CategoryManagement from "@/components/forum/CategoryManagement";
-import ForumSettings from "@/components/forum/ForumSettings";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 
 const ForumManagement = () => {
@@ -28,7 +27,12 @@ const ForumManagement = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <ForumSettings />
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-4">Forum Settings</h2>
+              <p className="text-muted-foreground">
+                Forum settings management will be implemented here.
+              </p>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

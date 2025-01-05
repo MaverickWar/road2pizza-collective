@@ -13,7 +13,7 @@ const EquipmentReviewDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  console.log('Review ID from params:', id); // Debug log
+  console.log('Review ID from params:', id);
 
   const { data: review, isLoading, error } = useQuery({
     queryKey: ['equipment-review', id],
@@ -23,7 +23,24 @@ const EquipmentReviewDetail = () => {
       const { data, error } = await supabase
         .from('equipment_reviews')
         .select(`
-          *,
+          id,
+          title,
+          author,
+          brand,
+          model,
+          category,
+          price_range,
+          content,
+          rating,
+          durability_rating,
+          value_rating,
+          ease_of_use_rating,
+          created_at,
+          image_url,
+          is_featured,
+          pros,
+          cons,
+          created_by,
           profiles:created_by (username)
         `)
         .eq('id', id)
@@ -45,7 +62,7 @@ const EquipmentReviewDetail = () => {
     enabled: !!id,
   });
 
-  console.log('Query state:', { isLoading, error, review }); // Debug log
+  console.log('Query state:', { isLoading, error, review });
 
   if (isLoading) {
     return <ReviewLoading />;

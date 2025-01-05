@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { Json } from "@/integrations/supabase/types";
 
-// Schema matches required fields from Supabase table
 export const reviewSchema = z.object({
   title: z.string().min(1, "Title is required"),
   brand: z.string().min(1, "Brand is required"),

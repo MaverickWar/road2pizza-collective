@@ -7,7 +7,7 @@ interface ReviewContentProps {
 }
 
 export const ReviewContent = ({ review }: ReviewContentProps) => {
-  console.log('Rendering ReviewContent with data:', review); // Debug log
+  console.log('Rendering ReviewContent with data:', review);
 
   return (
     <div className="space-y-8">
@@ -15,7 +15,7 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
       <div className="space-y-4">
         <h1 className="text-3xl font-bold">{review.title}</h1>
         <div className="flex items-center gap-4 text-muted-foreground">
-          <span>By {review.author}</span>
+          <span>By {review.profiles?.username || review.author}</span>
           <span>•</span>
           <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
         </div>

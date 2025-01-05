@@ -127,28 +127,28 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-4 bg-background p-1 rounded-lg mb-6">
+          <TabsList className="w-full grid grid-cols-4 bg-background p-1 gap-1 rounded-lg mb-6">
             <TabsTrigger 
               value="basic"
-              className="px-3 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
             >
               Basic Info
             </TabsTrigger>
             <TabsTrigger 
               value="media"
-              className="px-3 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
             >
               Media
             </TabsTrigger>
             <TabsTrigger 
               value="proscons"
-              className="px-3 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium whitespace-nowrap"
+              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium whitespace-nowrap"
             >
               Pros & Cons
             </TabsTrigger>
             <TabsTrigger 
               value="ratings"
-              className="px-3 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+              className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
             >
               Ratings
             </TabsTrigger>

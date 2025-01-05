@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { LoginFormValues } from '@/types/auth';
-import type { User } from '@supabase/supabase-js';
 
 export const useLogin = () => {
   const navigate = useNavigate();
@@ -43,24 +42,7 @@ export const useLogin = () => {
       
       console.log('Starting login attempt...', { email });
 
-      // First check if the user exists
-      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers();
-      
-      if (getUserError) {
-        console.error('Error checking user:', getUserError);
-        toast.error('An error occurred while verifying your account');
-        return;
-      }
-
-      const userExists = users?.some((user: User) => user.email === email);
-      
-      if (!userExists) {
-        console.log('User not found:', email);
-        toast.error('No account found with this email address');
-        return;
-      }
-
-      // Attempt login
+      // Attempt login directly
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -80,13 +62,7 @@ export const useLogin = () => {
         }
 
         if (signInError.message.includes('Invalid login credentials')) {
-          toast.error('Incorrect password. Please try again.');
-          return;
-        }
-
-        if (signInError.message.includes('Body is disturbed')) {
-          console.error('Body disturbed error:', signInError);
-          toast.error('Connection error. Please try again.');
+          toast.error('Invalid email or password. Please try again.');
           return;
         }
 

@@ -49,12 +49,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, redirecting to login');
-        navigate('/login');
-      }
-
-      // Handle session end events
-      if (event === 'SIGNED_OUT') {
-        console.log('Session ended, clearing local storage');
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
 import { Pizza } from "lucide-react";
 import { toast } from "sonner";
-import { AuthError, AuthResponse, Session, User } from "@supabase/supabase-js";
+import { AuthError, AuthResponse, Session, User, AuthChangeEvent } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Login = () => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       console.log("Auth state changed - Event:", event);
       console.log("Auth state changed - Session:", session);
 

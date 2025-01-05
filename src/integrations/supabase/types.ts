@@ -230,6 +230,48 @@ export type Database = {
           },
         ]
       }
+      featured_reviews: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_featured: boolean | null
+          review_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order: number
+          id?: string
+          is_featured?: boolean | null
+          review_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_featured?: boolean | null
+          review_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_reviews_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_reviews_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "equipment_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forum_categories: {
         Row: {
           created_at: string

@@ -9,22 +9,40 @@ import { Pizza } from "lucide-react";
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const navigate = useNavigate();
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
     try {
       setLoading(true);
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword,
+      console.log("Attempting to update password...");
+
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPassword
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Password update error:", error);
+        toast.error(error.message || "Failed to update password");
+        return;
+      }
 
-      toast.success("Password updated successfully!");
+      console.log("Password updated successfully:", data);
+      toast.success("Password updated successfully! Please log in with your new password.");
+      
+      // Sign out the user after successful password reset
+      await supabase.auth.signOut();
       navigate("/login");
     } catch (error: any) {
-      toast.error(error.message || "Error updating password");
+      console.error("Unexpected error during password update:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -33,14 +51,36 @@ const ResetPassword = () => {
   // Check if we're in a valid reset password context
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Invalid or expired reset link");
+      try {
+        console.log("Checking session...");
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          console.log("No valid session found");
+          toast.error("Invalid or expired reset link. Please request a new password reset.");
+          navigate("/login");
+          return;
+        }
+        
+        console.log("Valid session found");
+        setSessionChecked(true);
+      } catch (error) {
+        console.error("Session check error:", error);
+        toast.error("Failed to verify reset session");
         navigate("/login");
       }
     };
+
     checkSession();
   }, [navigate]);
+
+  if (!sessionChecked) {
+    return (
+      <div className="min-h-screen bg-background dark:bg-background-dark flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background dark:bg-background-dark flex flex-col items-center justify-center p-4">
@@ -66,6 +106,7 @@ const ResetPassword = () => {
                 required
                 minLength={6}
                 className="w-full"
+                disabled={loading}
               />
             </div>
             <Button

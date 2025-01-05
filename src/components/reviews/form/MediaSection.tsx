@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,8 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
   const [uploading, setUploading] = useState(false);
   
   // Create refs for file inputs
-  const mainImageInputRef = React.useRef<HTMLInputElement>(null);
-  const additionalImageInputRef = React.useRef<HTMLInputElement>(null);
+  const mainImageInputRef = useRef<HTMLInputElement>(null);
+  const additionalImageInputRef = useRef<HTMLInputElement>(null);
 
   const handleMainImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {

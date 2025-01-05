@@ -52,8 +52,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         navigate('/login');
       }
 
-      // Handle refresh token errors
-      if (event === 'USER_DELETED' || event === 'SIGNED_OUT') {
+      // Handle session end events
+      if (event === 'SIGNED_OUT') {
         console.log('Session ended, clearing local storage');
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');

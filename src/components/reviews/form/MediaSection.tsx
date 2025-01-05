@@ -21,6 +21,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      console.log("Starting main image upload");
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -34,6 +35,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
         .from('recipe-images')
         .getPublicUrl(filePath);
 
+      console.log("Image uploaded successfully:", publicUrl);
       setFormData({ ...formData, imageUrl: publicUrl });
       toast.success('Image uploaded successfully');
     } catch (error) {
@@ -50,6 +52,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      console.log("Starting additional image upload");
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
@@ -63,6 +66,7 @@ const MediaSection = ({ formData, setFormData }: MediaSectionProps) => {
         .from('recipe-images')
         .getPublicUrl(filePath);
 
+      console.log("Additional image uploaded successfully:", publicUrl);
       setFormData({
         ...formData,
         additionalImages: [...formData.additionalImages, publicUrl]

@@ -1,79 +1,62 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { AuthChangeEvent, Session } from '@supabase/supabase-js';
-import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 
-const Login = () => {
+export default function Login() {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      console.log('Auth state changed:', event);
+    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+      console.log('Auth state changed:', event, session);
       
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile?.is_suspended) {
-          toast({
-            title: "Account Suspended",
-            description: "Your account has been suspended. Please contact support.",
-            variant: "destructive",
-          });
-          await supabase.auth.signOut();
-          return;
-        }
-
-        navigate('/dashboard');
-      }
-
       switch (event) {
         case 'SIGNED_IN':
-          console.log('User signed in');
+          console.log('User signed in:', session?.user);
+          navigate('/dashboard');
           break;
         case 'SIGNED_OUT':
           console.log('User signed out');
           navigate('/login');
           break;
-        case 'USER_UPDATED':
-          console.log('User updated');
-          break;
         case 'USER_DELETED':
-          console.log('User deleted');
+          console.log('User was deleted');
           navigate('/login');
           break;
-        default:
+        case 'USER_UPDATED':
+          console.log('User was updated:', session?.user);
           break;
+        default:
+          console.log('Unhandled auth event:', event);
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg shadow-lg">
-        <h1 className="text-2xl font-semibold text-center">Welcome Back</h1>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="w-full max-w-md space-y-8 px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+          <p className="text-sm text-muted-foreground">
+            Sign in to your account to continue
+          </p>
+        </div>
+        
         <Auth
           supabaseClient={supabase}
           appearance={{ theme: ThemeSupa }}
-          providers={[]}
-          theme="dark"
+          providers={['google']}
+          redirectTo={`${window.location.origin}/auth/callback`}
         />
       </div>
     </div>
   );
-};
-
-export default Login;
+}

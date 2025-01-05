@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, Settings, Users, FileText } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,14 @@ interface MenuItem {
   icon: string;
   display_order: number;
 }
+
+// Map of icon names to components
+const iconMap = {
+  LayoutDashboard,
+  Settings,
+  Users,
+  FileText
+};
 
 const AdminSideMenu = ({ className }: AdminSideMenuProps) => {
   const location = useLocation();
@@ -71,8 +79,8 @@ const AdminSideMenu = ({ className }: AdminSideMenuProps) => {
   return (
     <nav className={cn("space-y-2", className)}>
       {menuItems.map((item) => {
-        // Dynamically import icon from lucide-react
-        const IconComponent = require('lucide-react')[item.icon];
+        // Get icon component from our map
+        const IconComponent = iconMap[item.icon as keyof typeof iconMap] || LayoutDashboard;
         
         return (
           <Button
@@ -82,7 +90,7 @@ const AdminSideMenu = ({ className }: AdminSideMenuProps) => {
             className="w-full justify-start"
           >
             <Link to={item.path}>
-              {IconComponent && <IconComponent className="h-4 w-4 mr-2" />}
+              <IconComponent className="h-4 w-4 mr-2" />
               <span>{item.label}</span>
             </Link>
           </Button>

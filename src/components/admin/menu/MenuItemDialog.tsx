@@ -43,7 +43,7 @@ export function MenuItemDialog({
       requires_staff: data.requires_staff || false,
       display_order: data.display_order || 0,
       is_visible: data.is_visible ?? true,
-    };
+    } as const; // Use const assertion to ensure type safety
 
     console.log('Submitting menu item data:', submitData);
 

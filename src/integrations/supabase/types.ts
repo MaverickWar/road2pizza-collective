@@ -180,6 +180,8 @@ export type Database = {
           rating: number | null
           title: string
           value_rating: number | null
+          video_provider: string | null
+          video_url: string | null
         }
         Insert: {
           author: string
@@ -201,6 +203,8 @@ export type Database = {
           rating?: number | null
           title: string
           value_rating?: number | null
+          video_provider?: string | null
+          video_url?: string | null
         }
         Update: {
           author?: string
@@ -222,6 +226,8 @@ export type Database = {
           rating?: number | null
           title?: string
           value_rating?: number | null
+          video_provider?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {

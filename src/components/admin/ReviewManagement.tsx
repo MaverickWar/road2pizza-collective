@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,12 +12,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ReviewForm from "./ReviewForm";
 import { toast } from "sonner";
 
 const ReviewManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const queryClient = useQueryClient();
 
   const { data: reviews, isLoading } = useQuery({
@@ -63,13 +73,50 @@ const ReviewManagement = () => {
     setIsDialogOpen(true);
   };
 
+  const filteredReviews = reviews?.filter((review) => {
+    const matchesSearch = 
+      review.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      review.brand.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || review.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  const categories = [...new Set(reviews?.map(review => review.category) || [])];
+
   if (isLoading) {
     return <div>Loading reviews...</div>;
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="flex flex-1 gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search reviews..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Select
+            value={categoryFilter}
+            onValueChange={setCategoryFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setEditingReview(null)}>
@@ -105,7 +152,7 @@ const ReviewManagement = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {reviews?.map((review) => (
+          {filteredReviews?.map((review) => (
             <TableRow key={review.id}>
               <TableCell>{review.title}</TableCell>
               <TableCell>{review.brand}</TableCell>

@@ -32,16 +32,11 @@ const Reviews = () => {
       <Navigation />
       <main className="pt-[5rem]">
         <ReviewHeader 
-          isEditMode={isEditMode}
-          onEditModeChange={toggleEditMode}
+          
         />
         
         <ReviewContent
           reviews={[]}
-          isEditMode={isEditMode}
-          hiddenElements={hiddenElements}
-          onToggleVisibility={toggleElementVisibility}
-          onNewReview={handleNewReview}
         />
       </main>
 

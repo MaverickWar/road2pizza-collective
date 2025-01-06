@@ -26,20 +26,6 @@ const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="author"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Author</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}

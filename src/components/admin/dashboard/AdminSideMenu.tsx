@@ -2,62 +2,85 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
+  Settings, 
   Users, 
-  BookOpen, 
-  Star, 
-  Award,
   FileText,
-  Bell,
-  Settings,
-  Palette,
-  Image
+  Menu,
+  Star,
+  MessageSquare,
+  Award
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
-  { icon: Users, label: "Users", path: "/dashboard/admin/users" },
-  { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
-  { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
-  { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
-  { icon: FileText, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
-  { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },
-  { icon: Settings, label: "Settings", path: "/dashboard/admin/settings" },
-  { icon: Palette, label: "Theme", path: "/dashboard/admin/theme" },
-  { icon: Image, label: "Media", path: "/dashboard/admin/media" }
-];
+interface AdminSideMenuProps {
+  className?: string;
+}
 
-const AdminSideMenu = () => {
+const AdminSideMenu = ({ className }: AdminSideMenuProps) => {
   const location = useLocation();
-  
+
+  const menuItems = [
+    {
+      path: "/dashboard/admin",
+      label: "Overview",
+      icon: LayoutDashboard
+    },
+    {
+      path: "/dashboard/admin/users",
+      label: "Users",
+      icon: Users
+    },
+    {
+      path: "/dashboard/admin/recipes",
+      label: "Recipes",
+      icon: FileText
+    },
+    {
+      path: "/dashboard/admin/menus",
+      label: "Menu Management",
+      icon: Menu
+    },
+    {
+      path: "/dashboard/admin/reviews",
+      label: "Reviews",
+      icon: Star
+    },
+    {
+      path: "/dashboard/admin/forum",
+      label: "Forum",
+      icon: MessageSquare
+    },
+    {
+      path: "/dashboard/admin/rewards",
+      label: "Rewards",
+      icon: Award
+    },
+    {
+      path: "/dashboard/admin/settings",
+      label: "Settings",
+      icon: Settings
+    }
+  ];
+
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold px-2">Admin Dashboard</h2>
-      </div>
-      <nav className="space-y-1.5">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Button
-              key={item.path}
-              asChild
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start font-medium transition-colors",
-                "hover:bg-secondary/80",
-                isActive && "bg-secondary hover:bg-secondary"
-              )}
-            >
-              <Link to={item.path} className="flex items-center gap-3">
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </Link>
-            </Button>
-          );
-        })}
-      </nav>
-    </div>
+    <nav className={cn("space-y-2", className)}>
+      {menuItems.map((item) => (
+        <Button
+          key={item.path}
+          asChild
+          variant={location.pathname === item.path ? "secondary" : "ghost"}
+          className="w-full justify-start"
+        >
+          <Link to={item.path}>
+            <item.icon className="h-4 w-4 mr-2" />
+            <span>{item.label}</span>
+          </Link>
+        </Button>
+      ))}
+    </nav>
   );
 };
 

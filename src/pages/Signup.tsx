@@ -30,13 +30,13 @@ export default function Signup() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background">
-        <div className="w-full max-w-md space-y-8 px-8 py-12 bg-card rounded-xl shadow-lg animate-fade-up">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-accent">Join Road2Pizza</h1>
-            <p className="text-sm text-muted-foreground">
-              Create your account to get started
-            </p>
+  <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-background pt-[5rem]">
+    <div className="w-full max-w-md space-y-8 px-8 py-12 bg-card rounded-xl shadow-lg animate-fade-up z-10">
+      <div className="text-center space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-accent">Join Road2Pizza</h1>
+        <p className="text-sm text-muted-foreground">
+          Create your account to get started
+        </p>
           </div>
 
           {showEmailConfirmAlert && (

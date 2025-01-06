@@ -94,7 +94,7 @@ const Community = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <div className="pt-36 md:pt-32">
+      <main className="pt-36 md:pt-32">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-textLight mb-8">Pizza Community</h1>
           
@@ -112,7 +112,7 @@ const Community = () => {
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -12,6 +12,7 @@ export const reviewSchema = z.object({
   durability_rating: z.coerce.number().min(1).max(5),
   value_rating: z.coerce.number().min(1).max(5),
   ease_of_use_rating: z.coerce.number().min(1).max(5),
+  is_featured: z.boolean().optional(),
 });
 
 export type ReviewFormData = z.infer<typeof reviewSchema>;

@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { reviewSchema, type ReviewData, type ReviewFormData } from "@/types/review";
 import ReviewBasicFields from "./ReviewBasicFields";
 import ReviewRatingFields from "./ReviewRatingFields";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ReviewFormProps {
   review?: ReviewData;
@@ -30,6 +32,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       durability_rating: review?.durability_rating || 5,
       value_rating: review?.value_rating || 5,
       ease_of_use_rating: review?.ease_of_use_rating || 5,
+      is_featured: review?.is_featured || false,
     },
   });
 
@@ -48,6 +51,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
         durability_rating: values.durability_rating,
         value_rating: values.value_rating,
         ease_of_use_rating: values.ease_of_use_rating,
+        is_featured: values.is_featured,
       };
 
       if (review?.id) {
@@ -83,6 +87,15 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <ReviewBasicFields form={form} />
         <ReviewRatingFields form={form} />
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is_featured"
+            checked={form.watch("is_featured")}
+            onCheckedChange={(checked) => form.setValue("is_featured", checked)}
+          />
+          <Label htmlFor="is_featured">Feature in Top Reviews</Label>
+        </div>
         
         <div className="flex justify-end space-x-2">
           <Button type="submit" disabled={mutation.isPending}>

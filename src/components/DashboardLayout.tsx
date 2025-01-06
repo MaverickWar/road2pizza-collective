@@ -74,12 +74,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         )}>
           <div className="max-w-[1600px] mx-auto space-y-6">
             {isAdmin && user && (
-              <div className="flex items-center gap-4 md:gap-6">
+              <div className="flex items-center gap-4 md:gap-6 mb-6">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={toggleSidebar}
-                  className="flex md:hidden"
+                  className="md:hidden"
+                  aria-label="Toggle menu"
                 >
                   {isSidebarOpen ? (
                     <X className="h-5 w-5" />

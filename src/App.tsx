@@ -44,6 +44,8 @@ function App() {
             <Route path="/community" element={<Community />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
+            {/* Update the equipment review route pattern */}
+            <Route path="/equipment-reviews/:id" element={<EquipmentReviewDetail />} />
             <Route path="/review/:id" element={<EquipmentReviewDetail />} />
             
             {/* Protected routes */}

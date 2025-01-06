@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TopNav from './TopNav';
 import MainNav from './MainNav';
 
+// Create a new QueryClient instance outside the component
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

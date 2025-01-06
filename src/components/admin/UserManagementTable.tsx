@@ -60,6 +60,66 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
     }
   };
 
+  // Function to update specific user's username
+  const updateSpecificUsername = async () => {
+    try {
+      console.log("Attempting to update username for meanmachine01@hotmail.com");
+      
+      // First get the user's ID
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', 'meanmachine01@hotmail.com')
+        .single();
+
+      if (userError) {
+        console.error("Error finding user:", userError);
+        throw userError;
+      }
+
+      if (!userData) {
+        toast.error("User not found");
+        return;
+      }
+
+      // Check if username is already taken
+      const { data: existingUser, error: checkError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', 'MeanMachine')
+        .neq('id', userData.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingUser) {
+        toast.error("Username MeanMachine is already taken");
+        return;
+      }
+
+      // Update the username
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ username: 'MeanMachine' })
+        .eq('id', userData.id);
+
+      if (updateError) throw updateError;
+      
+      toast.success("Username updated to MeanMachine successfully");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error updating username:", error);
+      toast.error("Failed to update username");
+    }
+  };
+
+  // Call the function immediately when component mounts
+  React.useEffect(() => {
+    updateSpecificUsername();
+  }, []);
+
   if (isMobile) {
     return (
       <div className="space-y-6">

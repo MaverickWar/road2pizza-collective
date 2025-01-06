@@ -96,19 +96,13 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     ? [...pinnedThreads, ...currentUnpinnedThreads]
     : currentUnpinnedThreads;
 
-  console.log('Total threads:', category.forum_threads.length);
-  console.log('Pinned threads:', pinnedThreads.length);
-  console.log('Remaining slots:', remainingSlots);
-  console.log('Current page:', currentPage);
-  console.log('Display threads:', displayThreads.length);
-
   return (
     <Card className="overflow-hidden">
-      <div className="p-6 bg-gradient-to-r from-orange-100 to-orange-50 dark:from-[#221F26]/20 dark:to-[#1A1F2C]/20 border-b border-orange-100 dark:border-[#221F26]">
+      <div className="p-6 bg-card border-b border-border">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-orange-900 dark:text-orange-100">
+              <h3 className="text-xl font-semibold text-foreground">
                 {category.name}
               </h3>
               {isAdmin && (
@@ -121,14 +115,14 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
               )}
             </div>
             {category.description && (
-              <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {category.description}
               </p>
             )}
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" className="bg-orange-100 hover:bg-orange-200 text-orange-900 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C] dark:text-white">
+              <Button variant="secondary" className="bg-secondary hover:bg-secondary-hover text-secondary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 <span className="sm:inline hidden">New Thread</span>
                 <span className="sm:hidden inline">New</span>
@@ -150,7 +144,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                     onChange={(content) => setNewThread({ ...newThread, content })}
                   />
                 </div>
-                <Button onClick={handleCreateThread} className="w-full bg-orange-500 hover:bg-orange-600 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C]">
+                <Button onClick={handleCreateThread} className="w-full">
                   Create Thread
                 </Button>
               </div>

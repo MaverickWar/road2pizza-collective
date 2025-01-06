@@ -17,14 +17,14 @@ interface ThreadListProps {
 const ThreadList = ({ threads, showAdminControls, onThreadUpdated }: ThreadListProps) => {
   if (threads.length === 0) {
     return (
-      <p className="text-center py-8 text-gray-500 dark:text-gray-400">
+      <p className="text-center py-8 text-muted-foreground">
         No threads yet. Be the first to start a discussion!
       </p>
     );
   }
 
   return (
-    <div className="divide-y divide-orange-100 dark:divide-[#221F26]">
+    <div className="divide-y divide-border">
       {threads.map((thread) => (
         <ThreadItem 
           key={thread.id} 

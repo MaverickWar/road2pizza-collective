@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import UserTableHeader from "./users/UserTableHeader";
 import UserTableContent from "./users/UserTableContent";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserManagementTableProps {
   users: any[];
@@ -23,6 +24,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
   const [statsDialogOpen, setStatsDialogOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const queryClient = useQueryClient();
 
   const handleDeleteUser = async (userId: string) => {
     try {
@@ -35,7 +37,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
       if (error) throw error;
       
       toast.success("User deleted successfully");
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user");
@@ -53,11 +55,16 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
       if (error) throw error;
       
       toast.success("User verified successfully");
-      window.location.reload();
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     } catch (error) {
       console.error("Error verifying user:", error);
       toast.error("Failed to verify user");
     }
+  };
+
+  const handleProfileUpdateSuccess = () => {
+    setSelectedUser(null);
+    queryClient.invalidateQueries({ queryKey: ["admin-users"] });
   };
 
   // Show loading state if users is undefined
@@ -114,10 +121,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
               user={selectedUser}
               open={profileDialogOpen}
               onOpenChange={setProfileDialogOpen}
-              onSuccess={() => {
-                setSelectedUser(null);
-                window.location.reload();
-              }}
+              onSuccess={handleProfileUpdateSuccess}
             />
           </>
         )}
@@ -162,10 +166,7 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
             user={selectedUser}
             open={profileDialogOpen}
             onOpenChange={setProfileDialogOpen}
-            onSuccess={() => {
-              setSelectedUser(null);
-              window.location.reload();
-            }}
+            onSuccess={handleProfileUpdateSuccess}
           />
         </>
       )}

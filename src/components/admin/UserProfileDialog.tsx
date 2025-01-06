@@ -26,6 +26,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
 
   useEffect(() => {
     if (user) {
+      console.log("Setting form data with user:", user);
       setFormData({
         username: user.username || '',
         email: user.email || '',
@@ -55,11 +56,21 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating profile:", error);
+        toast.error("Failed to update profile");
+        return;
+      }
 
+      console.log("Profile updated successfully");
       toast.success("Profile updated successfully");
-      onSuccess?.();
+      
+      // Call onSuccess without reloading the page
+      if (onSuccess) {
+        onSuccess();
+      }
       onOpenChange(false);
+      
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Failed to update profile");

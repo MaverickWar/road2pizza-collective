@@ -6,27 +6,48 @@ import ReviewContent from "@/components/reviews/ReviewContent";
 
 const Reviews = () => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hiddenElements, setHiddenElements] = useState<string[]>([]);
+
+  const toggleEditMode = (mode: boolean) => {
+    setIsEditMode(mode);
+  };
+
+  const toggleElementVisibility = (elementId: string) => {
+    if (!isEditMode) return;
+    
+    setHiddenElements(prev => 
+      prev.includes(elementId) 
+        ? prev.filter(id => id !== elementId)
+        : [...prev, elementId]
+    );
+  };
 
   const handleNewReview = () => {
     setIsReviewFormOpen(true);
   };
 
-
-   return (
+  return (
     <div className="min-h-screen bg-background">
       <Navigation />
       <main className="pt-[5rem]">
-        <ReviewHeader />
+        <ReviewHeader 
+          isEditMode={isEditMode}
+          onEditModeChange={toggleEditMode}
+        />
         
         <ReviewContent
           reviews={[]}
+          isEditMode={isEditMode}
+          hiddenElements={hiddenElements}
+          onToggleVisibility={toggleElementVisibility}
           onNewReview={handleNewReview}
         />
       </main>
 
       <ReviewForm 
         isOpen={isReviewFormOpen}
-        onClose={() => setIsReviewFormOpen(true)}
+        onClose={() => setIsReviewFormOpen(false)}
       />
     </div>
   );

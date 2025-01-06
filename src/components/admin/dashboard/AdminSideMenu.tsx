@@ -7,6 +7,12 @@ import {
   MessageSquare,
   Settings,
   FileText,
+  BookOpen,
+  Award,
+  Pizza,
+  Bell,
+  Palette,
+  Image
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -18,6 +24,12 @@ const menuItems = [
   { icon: MessageSquare, label: "Forum Threads", path: "/dashboard/admin/forum/threads" },
   { icon: Settings, label: "Forum Settings", path: "/dashboard/admin/forum/settings" },
   { icon: FileText, label: "Review Management", path: "/dashboard/admin/review-management" },
+  { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
+  { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
+  { icon: Pizza, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
+  { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },
+  { icon: Palette, label: "Theme", path: "/dashboard/admin/theme" },
+  { icon: Image, label: "Media", path: "/dashboard/admin/media" },
 ];
 
 const AdminSideMenu = () => {

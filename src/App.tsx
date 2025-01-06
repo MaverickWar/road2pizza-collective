@@ -26,6 +26,12 @@ import ThreadManagement from "./components/forum/ThreadManagement";
 import ForumSettings from "./components/forum/ForumSettings";
 import EquipmentReviewDetail from "./components/reviews/EquipmentReviewDetail";
 import ReviewManagement from "./components/admin/ReviewManagement";
+import RecipeManagement from "./pages/admin/RecipeManagement";
+import RewardsManagement from "./pages/admin/RewardsManagement";
+import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
+import NotificationManagement from "./pages/admin/NotificationManagement";
+import ThemeSettings from "./pages/admin/ThemeSettings";
+import MediaGallery from "./pages/admin/MediaGallery";
 
 const queryClient = new QueryClient();
 
@@ -112,42 +118,50 @@ function App() {
               }
             />
             <Route
-              path="/dashboard/admin/reviews"
+              path="/dashboard/admin/recipes"
               element={
                 <ProtectedRoute requireAdmin>
-                  <ReviewsDashboard />
+                  <RecipeManagement />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/admin/review-management"
+              path="/dashboard/admin/rewards"
               element={
                 <ProtectedRoute requireAdmin>
-                  <ReviewManagement />
+                  <RewardsManagement />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/admin/forum/categories"
+              path="/dashboard/admin/pizza-types"
               element={
                 <ProtectedRoute requireAdmin>
-                  <CategoryManagement />
+                  <PizzaTypeManagement />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/admin/forum/threads"
+              path="/dashboard/admin/notifications"
               element={
                 <ProtectedRoute requireAdmin>
-                  <ThreadManagement />
+                  <NotificationManagement />
                 </ProtectedRoute>
               }
             />
             <Route
-              path="/dashboard/admin/forum/settings"
+              path="/dashboard/admin/theme"
               element={
                 <ProtectedRoute requireAdmin>
-                  <ForumSettings />
+                  <ThemeSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/media"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MediaGallery />
                 </ProtectedRoute>
               }
             />

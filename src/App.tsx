@@ -21,6 +21,8 @@ import ReviewsDashboard from "./pages/ReviewsDashboard";
 import ForumManagement from "./pages/admin/ForumManagement";
 import RewardsManagement from "./pages/admin/RewardsManagement";
 import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
+import Community from "./pages/Community";
+import Reviews from "./pages/Reviews";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ function App() {
             <Route path="/pizza" element={<Pizza />} />
             <Route path="/pizza/:style" element={<PizzaStyle />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/reviews" element={<Reviews />} />
 
             {/* Protected routes */}
             <Route

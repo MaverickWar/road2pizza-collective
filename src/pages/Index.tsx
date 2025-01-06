@@ -16,6 +16,8 @@ const LoadingFallback = () => (
 );
 
 const Index = () => {
+  console.log('Rendering Index page'); // Added for debugging
+
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <Navigation />

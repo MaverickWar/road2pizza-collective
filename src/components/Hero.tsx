@@ -4,6 +4,7 @@ import { Pizza, ChefHat, Users, Star } from 'lucide-react';
 import { Button } from './ui/button';
 
 const Hero = () => {
+  console.log('Rendering Hero component'); // Added for debugging
   const navigate = useNavigate();
 
   const stats = React.useMemo(() => [

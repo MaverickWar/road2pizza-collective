@@ -7,7 +7,7 @@ import { toast } from "sonner";
 const UserManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading } = useQuery({
+  const { data: users = [], isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
       console.log("Fetching users...");
@@ -29,6 +29,7 @@ const UserManagement = () => {
 
   const handleToggleUserRole = async (userId: string, role: 'admin' | 'staff', currentStatus: boolean) => {
     try {
+      console.log(`Toggling ${role} role for user:`, userId);
       const updateField = role === 'admin' ? 'is_admin' : 'is_staff';
       const { error } = await supabase
         .from("profiles")
@@ -47,6 +48,7 @@ const UserManagement = () => {
 
   const handleToggleSuspend = async (userId: string, currentStatus: boolean) => {
     try {
+      console.log("Toggling suspension for user:", userId);
       const { error } = await supabase
         .from("profiles")
         .update({ is_suspended: !currentStatus })
@@ -61,6 +63,19 @@ const UserManagement = () => {
       toast.error("Failed to update user suspension status");
     }
   };
+
+  if (error) {
+    console.error("Error in UserManagement:", error);
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto p-4 md:p-6">
+          <div className="text-center py-8">
+            <p className="text-red-500">Error loading users. Please try again later.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (isLoading) {
     return (

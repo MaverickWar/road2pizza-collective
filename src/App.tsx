@@ -12,11 +12,14 @@ import PizzaStyle from "./pages/PizzaStyle";
 import ArticleDetail from "./components/article/ArticleDetail";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import MenuManagement from "./pages/admin/MenuManagement";
 import UserManagement from "./pages/UserManagement";
 import RecipeManagementPage from "./pages/admin/RecipeManagement";
 import ReviewsDashboard from "./pages/ReviewsDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ForumManagement from "./pages/admin/ForumManagement";
+import RewardsManagement from "./pages/admin/RewardsManagement";
+import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +29,7 @@ function App() {
       <Router>
         <AuthProvider>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -33,11 +37,33 @@ function App() {
             <Route path="/pizza" element={<Pizza />} />
             <Route path="/pizza/:style" element={<PizzaStyle />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* User dashboard */}
             <Route
               path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/dashboard/admin"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />
@@ -74,13 +100,31 @@ function App() {
               }
             />
             <Route
-              path="/profile"
+              path="/dashboard/admin/forum"
               element={
-                <ProtectedRoute>
-                  <Profile />
+                <ProtectedRoute requireAdmin>
+                  <ForumManagement />
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/dashboard/admin/rewards"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RewardsManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/pizza-types"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <PizzaTypeManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />

@@ -26,6 +26,7 @@ import Community from "./pages/Community";
 import Reviews from "./pages/Reviews";
 import ThreadManagement from "./components/forum/ThreadManagement";
 import ForumSettings from "./components/forum/ForumSettings";
+import EquipmentReviewDetail from "./components/reviews/EquipmentReviewDetail";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/article/:id" element={<ArticleDetail />} />
             <Route path="/community" element={<Community />} />
             <Route path="/reviews" element={<Reviews />} />
+            <Route path="/equipment-reviews/:id" element={<EquipmentReviewDetail />} />
 
             {/* Protected routes */}
             <Route

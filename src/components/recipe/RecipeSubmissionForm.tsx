@@ -41,7 +41,13 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
 
     try {
       setLoading(true);
-      console.log("Submitting recipe with data:", formData);
+      console.log("Starting recipe submission...");
+
+      // Validate required fields
+      if (!formData.title || !formData.content || !formData.image_url) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
 
       // Submit recipe with optimistic update
       const { data, error } = await supabase
@@ -128,11 +134,15 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         disabled={loading}
       />
 
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button 
+        type="submit" 
+        disabled={loading} 
+        className="w-full bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold text-lg py-6"
+      >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Submitting...
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            Submitting Recipe...
           </>
         ) : (
           "Submit Recipe"

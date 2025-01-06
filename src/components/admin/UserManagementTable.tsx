@@ -60,8 +60,18 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
     }
   };
 
+  // Show loading state if users is undefined
   if (!users) {
     console.log("No users data available");
+    return (
+      <div className="text-center p-4">
+        <p className="text-muted-foreground">Loading users...</p>
+      </div>
+    );
+  }
+
+  // Show empty state if users array is empty
+  if (users.length === 0) {
     return (
       <div className="text-center p-4">
         <p className="text-muted-foreground">No users found</p>

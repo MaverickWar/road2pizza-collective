@@ -7,7 +7,7 @@ import { toast } from "sonner";
 const UserManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: users = [], isLoading, error } = useQuery({
+  const { data: users, isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
       console.log("Fetching users...");

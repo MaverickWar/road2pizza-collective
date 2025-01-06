@@ -138,7 +138,7 @@ const ForumCategories = () => {
             placeholder="Search threads..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 bg-background dark:bg-[#1A1F2C]"
           />
         </div>
         <div className="flex gap-2">
@@ -149,7 +149,7 @@ const ForumCategories = () => {
                 Filter
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent className="bg-card dark:bg-[#221F26]">
               <DropdownMenuItem onClick={() => setFilterPinned(!filterPinned)}>
                 {filterPinned ? '✓ ' : ''} Show Pinned Only
               </DropdownMenuItem>

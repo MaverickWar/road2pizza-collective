@@ -49,7 +49,7 @@ const Hero = () => {
             <Button 
               size="lg"
               variant="outline"
-              onClick={() => navigate('/community')}
+              onClick={() => navigate('/signup')}
               className="border-2 border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white font-semibold"
             >
               <Users className="mr-2 h-5 w-5" />

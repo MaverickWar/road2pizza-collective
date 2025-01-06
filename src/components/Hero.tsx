@@ -8,13 +8,13 @@ const Hero = () => {
 
   const stats = [
     { icon: ChefHat, label: 'Expert Guidance', value: '10 Pizza Experts' },
-    { icon: Pizza, label: 'Pizza Styles', value: '8 Styles' },
+    { icon: Pizza, label: 'Pizza Styles', value: '6 Styles' },
     { icon: Users, label: 'Community', value: '12k+ Members' },
     { icon: Star, label: 'Rating', value: '4.5/5' },
   ];
 
   return (
-    <div className="relative min-h-screen w-full pt-22 md:pt-40">
+    <div className="relative min-h-screen w-full pt-20 md:pt-28">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{

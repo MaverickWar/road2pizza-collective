@@ -118,6 +118,46 @@ function App() {
               }
             />
             <Route
+              path="/dashboard/admin/reviews"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ReviewsDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/review-management"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ReviewManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/categories"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CategoryManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/threads"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ThreadManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/settings"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ForumSettings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/dashboard/admin/recipes"
               element={
                 <ProtectedRoute requireAdmin>

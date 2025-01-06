@@ -53,9 +53,11 @@ function App() {
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
             
-            {/* Forum routes */}
+            {/* Forum routes - support both with and without /community prefix */}
             <Route path="/forum/thread/:id" element={<ForumThreadDetail />} />
+            <Route path="/community/forum/thread/:id" element={<ForumThreadDetail />} />
             <Route path="/forum/category/:categoryId/thread/:threadId" element={<ForumThreadDetail />} />
+            <Route path="/community/forum/category/:categoryId/thread/:threadId" element={<ForumThreadDetail />} />
             
             {/* Review routes */}
             <Route path="/equipment-reviews/:id" element={<EquipmentReviewDetail />} />

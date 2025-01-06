@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "./components/AuthProvider";
+import { Toaster } from "@/components/ui/sonner";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -22,64 +24,67 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/pizza" element={<Pizza />} />
-          <Route path="/pizza/:style" element={<PizzaStyle />} />
-          <Route path="/article/:id" element={<ArticleDetail />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/menu"
-            element={
-              <ProtectedRoute requireAdmin>
-                <MenuManagement />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/users"
-            element={
-              <ProtectedRoute requireAdmin>
-                <UserManagement />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/recipes"
-            element={
-              <ProtectedRoute requireAdmin>
-                <RecipeManagementPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/reviews"
-            element={
-              <ProtectedRoute requireAdmin>
-                <ReviewsDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/pizza" element={<Pizza />} />
+            <Route path="/pizza/:style" element={<PizzaStyle />} />
+            <Route path="/article/:id" element={<ArticleDetail />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/menu"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MenuManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/users"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/recipes"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RecipeManagementPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ReviewsDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </AuthProvider>
       </Router>
     </QueryClientProvider>
   );

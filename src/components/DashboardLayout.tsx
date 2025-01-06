@@ -69,13 +69,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <main className={cn(
           "flex-1 transition-all duration-300 min-h-screen",
           "px-4 md:px-8 lg:px-12",
-          "py-6 md:py-8 lg:py-10",
+          "py-4 md:py-6 lg:py-8",
           "w-full max-w-full"
         )}>
-          <div className="max-w-[1600px] mx-auto space-y-6">
+          <div className="max-w-[1600px] mx-auto space-y-4">
             {isAdmin && user && (
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="icon"

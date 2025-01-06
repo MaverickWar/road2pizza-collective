@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { reviewSchema, type ReviewData, type ReviewFormData } from "@/types/review";
 import ReviewBasicFields from "./ReviewBasicFields";
 import ReviewRatingFields from "./ReviewRatingFields";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 
 interface ReviewFormProps {
   review?: ReviewData;
@@ -39,10 +37,9 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   const mutation = useMutation({
     mutationFn: async (values: ReviewFormData) => {
       console.log("Saving review data:", values);
-      // Ensure all required fields are present
       const reviewData = {
         ...values,
-        author: "Admin", // You might want to get this from the current user
+        author: "Admin",
         title: values.title,
         brand: values.brand,
         category: values.category,
@@ -84,21 +81,16 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <ReviewBasicFields form={form} />
         <ReviewRatingFields form={form} />
         
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="is_featured"
-            checked={form.watch("is_featured")}
-            onCheckedChange={(checked) => form.setValue("is_featured", checked)}
-          />
-          <Label htmlFor="is_featured">Feature in Top Reviews</Label>
-        </div>
-        
         <div className="flex justify-end space-x-2">
-          <Button type="submit" disabled={mutation.isPending}>
+          <Button 
+            type="submit" 
+            disabled={mutation.isPending}
+            className="bg-highlight hover:bg-highlight/90"
+          >
             {mutation.isPending ? "Saving..." : review ? "Update Review" : "Create Review"}
           </Button>
         </div>

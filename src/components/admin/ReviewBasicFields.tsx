@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { ReviewFormData } from "@/types/review";
+import { Switch } from "@/components/ui/switch";
 
 interface ReviewBasicFieldsProps {
   form: UseFormReturn<ReviewFormData>;
@@ -95,6 +96,25 @@ const ReviewBasicFields = ({ form }: ReviewBasicFieldsProps) => {
               <Textarea {...field} rows={5} />
             </FormControl>
             <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="is_featured"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <div className="space-y-0.5">
+              <FormLabel className="text-base">Feature Review</FormLabel>
+              <FormMessage />
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
           </FormItem>
         )}
       />

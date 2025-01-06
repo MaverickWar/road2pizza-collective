@@ -1,20 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const Signup = () => {
+export default function Signup() {
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Sign up functionality coming soon...</p>
-          <Button>Sign Up</Button>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold">Sign Up</h1>
     </div>
   );
-};
-
-export default Signup;
+}

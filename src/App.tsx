@@ -11,6 +11,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import MenuManagement from "./pages/admin/MenuManagement";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/menus"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MenuManagement />
                 </ProtectedRoute>
               }
             />

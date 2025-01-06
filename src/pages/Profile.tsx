@@ -1,18 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const Profile = () => {
+export default function Profile() {
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Profile page coming soon...</p>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold">Profile</h1>
     </div>
   );
-};
-
-export default Profile;
+}

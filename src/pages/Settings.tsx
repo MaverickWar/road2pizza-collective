@@ -1,18 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const Settings = () => {
+export default function Settings() {
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Settings page coming soon...</p>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto p-6">
+      <h1 className="text-2xl font-bold">Settings</h1>
     </div>
   );
-};
-
-export default Settings;
+}

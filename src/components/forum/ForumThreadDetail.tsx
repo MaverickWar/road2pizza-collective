@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import ThreadView from './ThreadView';
-import DashboardLayout from '@/components/DashboardLayout';
+import MainLayout from '@/components/MainLayout';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -41,7 +41,7 @@ const ForumThreadDetail = () => {
   });
 
   return (
-    <DashboardLayout>
+    <MainLayout>
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
           <Card className="p-4">
@@ -58,7 +58,7 @@ const ForumThreadDetail = () => {
           <ThreadView threadId={thread.id} />
         )}
       </div>
-    </DashboardLayout>
+    </MainLayout>
   );
 };
 

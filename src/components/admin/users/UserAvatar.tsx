@@ -6,6 +6,11 @@ interface UserAvatarProps {
 }
 
 const UserAvatar = ({ user }: UserAvatarProps) => {
+  if (!user) {
+    console.log("UserAvatar: No user data provided");
+    return null;
+  }
+
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
@@ -40,6 +45,9 @@ const UserAvatar = ({ user }: UserAvatarProps) => {
           </div>
           {user.bio && (
             <p className="text-sm text-muted-foreground border-t pt-2">{user.bio}</p>
+          )}
+          {user.email && (
+            <p className="text-sm text-muted-foreground">{user.email}</p>
           )}
         </div>
       </HoverCardContent>

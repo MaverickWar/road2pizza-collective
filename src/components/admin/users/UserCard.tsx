@@ -7,6 +7,11 @@ interface UserCardProps {
 }
 
 const UserCard = ({ user, children }: UserCardProps) => {
+  if (!user) {
+    console.log("UserCard: No user data provided");
+    return null;
+  }
+
   return (
     <div className="bg-card rounded-lg shadow-sm p-4 space-y-4 w-full">
       <div className="flex flex-col space-y-4">

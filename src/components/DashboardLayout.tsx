@@ -75,20 +75,20 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="max-w-[1600px] mx-auto space-y-6">
             {isAdmin && user && (
               <div className="flex items-center gap-4 md:gap-6 mb-6">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleSidebar}
-                  className="md:hidden fixed top-[4.5rem] left-4 z-50 bg-background"
-                  aria-label="Toggle menu"
-                >
-                  {isSidebarOpen ? (
-                    <X className="h-5 w-5" />
-                  ) : (
-                    <Menu className="h-5 w-5" />
-                  )}
-                </Button>
-                <div className="flex items-center gap-4 pl-14 md:pl-0">
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleSidebar}
+                    className="md:hidden"
+                    aria-label="Toggle menu"
+                  >
+                    {isSidebarOpen ? (
+                      <X className="h-5 w-5" />
+                    ) : (
+                      <Menu className="h-5 w-5" />
+                    )}
+                  </Button>
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Admin Dashboard</h1>
                 </div>
               </div>

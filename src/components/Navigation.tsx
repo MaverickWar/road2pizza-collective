@@ -2,15 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TopNav from './TopNav';
 import MainNav from './MainNav';
 
-// Create a new QueryClient instance outside the component
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const Navigation = () => {
   console.log('Rendering Navigation component');

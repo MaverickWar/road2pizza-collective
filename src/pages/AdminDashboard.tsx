@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6 flex items-center justify-center min-h-[400px]">
+        <div className="container mx-auto p-6 pt-[5rem] flex items-center justify-center min-h-[400px]">
           <LoaderCircle className="w-8 h-8 animate-spin text-primary" />
         </div>
       </DashboardLayout>
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     console.error("Error loading admin stats:", error);
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-6 pt-[5rem]">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-6 pt-[5rem] space-y-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">

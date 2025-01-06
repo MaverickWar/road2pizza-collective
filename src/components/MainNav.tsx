@@ -44,7 +44,8 @@ const MainNav = () => {
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-  
+
+  // Define the default navigation links with explicit paths
   const defaultNavLinks = [
     { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
     { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
@@ -54,9 +55,9 @@ const MainNav = () => {
 
   // Only add custom nav links if they were successfully fetched
   const customNavLinks = (navigationItems || []).map(item => ({
-    href: `/page/${item.pages?.slug}`,
-    label: item.pages?.title,
-    description: `View ${item.pages?.title}`,
+    href: item.pages?.slug ? `/page/${item.pages.slug}` : '#',
+    label: item.pages?.title || 'Untitled Page',
+    description: `View ${item.pages?.title || 'page'}`,
     icon: MessageSquare
   }));
 

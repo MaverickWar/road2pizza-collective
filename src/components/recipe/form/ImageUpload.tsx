@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/components/AuthProvider";
+import ImageUploadTab from "./image-upload/ImageUploadTab";
+import ImageUrlTab from "./image-upload/ImageUrlTab";
+import { optimizeImage } from "./image-upload/ImageOptimizer";
 
 interface ImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -31,63 +31,17 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
       setUploading(true);
       console.log('Starting upload with auth:', !!user);
 
-      // Optimize file size before upload if it's an image
-      if (file.type.startsWith('image/')) {
-        const optimizedFile = await optimizeImage(file);
-        await uploadFile(optimizedFile || file);
-      } else {
-        await uploadFile(file);
-      }
+      const optimizedFile = file.type.startsWith('image/') 
+        ? await optimizeImage(file)
+        : file;
+
+      await uploadFile(optimizedFile || file);
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Error uploading image. Please try again.');
     } finally {
       setUploading(false);
       if (event.target) event.target.value = '';
-    }
-  };
-
-  const optimizeImage = async (file: File): Promise<File | null> => {
-    try {
-      // Only optimize if file is larger than 1MB
-      if (file.size <= 1024 * 1024) return file;
-
-      const img = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
-      await new Promise((resolve) => {
-        img.onload = resolve;
-        img.src = URL.createObjectURL(file);
-      });
-
-      // Calculate new dimensions while maintaining aspect ratio
-      let { width, height } = img;
-      const maxDimension = 1920;
-
-      if (width > maxDimension || height > maxDimension) {
-        if (width > height) {
-          height = (height / width) * maxDimension;
-          width = maxDimension;
-        } else {
-          width = (width / height) * maxDimension;
-          height = maxDimension;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx?.drawImage(img, 0, 0, width, height);
-
-      // Convert to blob with reduced quality
-      const blob = await new Promise<Blob>((resolve) => 
-        canvas.toBlob((b) => resolve(b!), 'image/jpeg', 0.8)
-      );
-
-      return new File([blob], file.name, { type: 'image/jpeg' });
-    } catch (error) {
-      console.error('Error optimizing image:', error);
-      return null;
     }
   };
 
@@ -144,56 +98,21 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
         </TabsList>
         
         <TabsContent value="upload">
-          <div className="flex items-center gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={disabled || uploading || !user}
-              className="relative"
-              onClick={() => document.getElementById('image-upload')?.click()}
-            >
-              {uploading ? (
-                "Uploading..."
-              ) : currentImageUrl ? (
-                <>
-                  <ImageIcon className="w-4 h-4 mr-2" />
-                  Change Image
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Image
-                </>
-              )}
-            </Button>
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleUpload}
-              className="hidden"
-              disabled={disabled || !user}
-            />
-          </div>
+          <ImageUploadTab
+            onFileSelect={handleUpload}
+            uploading={uploading}
+            currentImageUrl={currentImageUrl}
+            disabled={disabled}
+          />
         </TabsContent>
         
         <TabsContent value="url">
-          <div className="flex gap-2">
-            <Input
-              type="url"
-              placeholder="Enter image URL"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              disabled={disabled || !user}
-            />
-            <Button 
-              type="button"
-              onClick={handleUrlSubmit}
-              disabled={disabled || !imageUrl.trim() || !user}
-            >
-              Add URL
-            </Button>
-          </div>
+          <ImageUrlTab
+            imageUrl={imageUrl}
+            onImageUrlChange={setImageUrl}
+            onUrlSubmit={handleUrlSubmit}
+            disabled={disabled}
+          />
         </TabsContent>
       </Tabs>
       {!user && (

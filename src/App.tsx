@@ -1,51 +1,42 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Toaster } from "sonner";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import AuthProvider from "./components/AuthProvider";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Login from "./pages/Login";
+import { AuthProvider } from "./components/AuthProvider";
+import { Toaster } from "@/components/ui/sonner";
 import Index from "./pages/Index";
-import AdminDashboard from "./pages/AdminDashboard";
-import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import MenuManagement from "./pages/admin/MenuManagement";
 import UserManagement from "./pages/UserManagement";
+import RecipeManagementPage from "./pages/admin/RecipeManagement";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <BrowserRouter>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/admin"
-              element={
-                <ProtectedRoute requireAdmin>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/dashboard/admin/menus"
               element={
                 <ProtectedRoute requireAdmin>
                   <MenuManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/recipes"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <RecipeManagementPage />
                 </ProtectedRoute>
               }
             />
@@ -77,7 +68,7 @@ function App() {
           </Routes>
           <Toaster />
         </AuthProvider>
-      </Router>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

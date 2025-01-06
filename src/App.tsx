@@ -24,6 +24,8 @@ import RewardsManagement from "./pages/admin/RewardsManagement";
 import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
 import Community from "./pages/Community";
 import Reviews from "./pages/Reviews";
+import ThreadManagement from "./components/forum/ThreadManagement";
+import ForumSettings from "./components/forum/ForumSettings";
 
 const queryClient = new QueryClient();
 
@@ -142,6 +144,22 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <PizzaTypeManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/threads"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ThreadManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/settings"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ForumSettings />
                 </ProtectedRoute>
               }
             />

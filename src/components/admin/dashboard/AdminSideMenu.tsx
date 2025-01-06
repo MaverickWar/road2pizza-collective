@@ -1,19 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Star,
-  MessageSquare,
-  Settings,
-  FileText,
-  BookOpen,
-  Award,
-  Pizza,
-  Bell,
-  Palette,
-  Image
-} from 'lucide-react';
+import { LayoutDashboard, Users, Star, MessageSquare, Settings, FileText, BookOpen, Award, Pizza, Bell, Palette, Image } from "lucide-react";
+import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const menuItems = [
@@ -33,36 +19,25 @@ const menuItems = [
 ];
 
 const AdminSideMenu = () => {
-  const location = useLocation();
-  
   return (
-    <div className="flex flex-col h-full space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold px-2">Admin Dashboard</h2>
-      </div>
-      <nav className="space-y-1.5">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Button
-              key={item.path}
-              asChild
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start font-medium transition-colors",
-                "hover:bg-secondary/80",
-                isActive && "bg-secondary hover:bg-secondary"
-              )}
-            >
-              <Link to={item.path} className="flex items-center gap-3">
-                <item.icon className="h-4 w-4" />
-                <span>{item.label}</span>
-              </Link>
-            </Button>
-          );
-        })}
-      </nav>
-    </div>
+    <nav className="space-y-2">
+      {menuItems.map((item) => (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50",
+              "hover:bg-gray-100 dark:hover:bg-gray-800",
+              isActive && "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50"
+            )
+          }
+        >
+          <item.icon className="h-4 w-4" />
+          <span>{item.label}</span>
+        </NavLink>
+      ))}
+    </nav>
   );
 };
 

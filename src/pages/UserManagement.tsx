@@ -72,10 +72,8 @@ const UserManagement = () => {
     console.error("Error in UserManagement:", error);
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-4 md:p-6">
-          <div className="text-center py-8">
-            <p className="text-red-500">Error loading users. Please try again later.</p>
-          </div>
+        <div className="text-center py-8">
+          <p className="text-red-500">Error loading users. Please try again later.</p>
         </div>
       </DashboardLayout>
     );
@@ -83,30 +81,19 @@ const UserManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-4 md:p-6">
-        <div className="space-y-4 md:space-y-6">
-          <div className="flex flex-col space-y-2">
-            <h1 className="text-2xl md:text-3xl font-bold">User Management</h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Manage users, roles, and permissions
-            </p>
+      <div className="space-y-4 md:space-y-6">
+        {isLoading ? (
+          <div className="space-y-4 md:space-y-6 animate-pulse">
+            <div className="h-20 bg-secondary/50 rounded-lg" />
+            <div className="h-[400px] bg-secondary/50 rounded-lg" />
           </div>
-
-          <div className="overflow-hidden">
-            {isLoading ? (
-              <div className="space-y-4 md:space-y-6 animate-pulse">
-                <div className="h-20 bg-secondary/50 rounded-lg" />
-                <div className="h-[400px] bg-secondary/50 rounded-lg" />
-              </div>
-            ) : (
-              <UserManagementTable
-                users={users || []}
-                onToggleUserRole={handleToggleUserRole}
-                onToggleSuspend={handleToggleSuspend}
-              />
-            )}
-          </div>
-        </div>
+        ) : (
+          <UserManagementTable
+            users={users || []}
+            onToggleUserRole={handleToggleUserRole}
+            onToggleSuspend={handleToggleSuspend}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

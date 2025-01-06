@@ -86,21 +86,26 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
         setThread(data as Thread);
         
         // Check if thread is password protected
-        if (data.password_protected && !hasAccess) {
+        if (data.password_protected) {
           setIsPasswordDialogOpen(true);
+          setHasAccess(false);
         } else {
           setHasAccess(true);
         }
       }
     } catch (error) {
       console.error("Error fetching thread:", error);
+      toast.error("Error loading thread");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (id) fetchThread();
+    if (id) {
+      setHasAccess(false); // Reset access state when thread ID changes
+      fetchThread();
+    }
   }, [id]);
 
   const handlePasswordSubmit = (password: string) => {

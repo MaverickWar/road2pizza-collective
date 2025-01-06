@@ -95,8 +95,8 @@ const ReviewManagement = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-4 md:p-6 space-y-6">
-        <div className="flex flex-col space-y-2">
+      <div className="container mx-auto p-4 md:p-6 space-y-8">
+        <div className="flex flex-col space-y-2 pt-4">
           <h1 className="text-3xl font-bold tracking-tight">Pizza Oven Reviews</h1>
           <p className="text-muted-foreground">
             Manage and monitor pizza oven reviews

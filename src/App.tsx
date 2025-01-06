@@ -19,6 +19,7 @@ import UserManagement from "./pages/UserManagement";
 import RecipeManagementPage from "./pages/admin/RecipeManagement";
 import ReviewsDashboard from "./pages/ReviewsDashboard";
 import ForumManagement from "./pages/admin/ForumManagement";
+import CategoryManagement from "./components/forum/CategoryManagement";
 import RewardsManagement from "./pages/admin/RewardsManagement";
 import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
 import Community from "./pages/Community";
@@ -117,6 +118,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <ForumManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/forum/categories"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <CategoryManagement />
                 </ProtectedRoute>
               }
             />

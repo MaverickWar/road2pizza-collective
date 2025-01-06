@@ -11,19 +11,23 @@ const UserManagement = () => {
     queryKey: ["admin-users"],
     queryFn: async () => {
       console.log("Fetching users...");
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Failed to load users");
+        if (error) {
+          console.error("Error fetching users:", error);
+          throw error;
+        }
+
+        console.log("Fetched users:", data);
+        return data || [];
+      } catch (error) {
+        console.error("Error in query function:", error);
         throw error;
       }
-
-      console.log("Fetched users:", data);
-      return data || [];
     },
   });
 

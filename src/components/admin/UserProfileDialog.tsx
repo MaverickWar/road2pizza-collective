@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,10 +19,20 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: user?.username || '',
-    email: user?.email || '',
-    bio: user?.bio || ''
+    username: '',
+    email: '',
+    bio: ''
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username || '',
+        email: user.email || '',
+        bio: user.bio || ''
+      });
+    }
+  }, [user]);
 
   if (!user) {
     console.log("UserProfileDialog: No user data provided");

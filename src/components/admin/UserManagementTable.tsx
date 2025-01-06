@@ -99,24 +99,28 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
           isMobile={true}
         />
 
-        <UserStatsDialog
-          user={selectedUser}
-          open={statsDialogOpen}
-          onOpenChange={setStatsDialogOpen}
-          onSuccess={() => {
-            setSelectedUser(null);
-          }}
-        />
+        {selectedUser && (
+          <>
+            <UserStatsDialog
+              user={selectedUser}
+              open={statsDialogOpen}
+              onOpenChange={setStatsDialogOpen}
+              onSuccess={() => {
+                setSelectedUser(null);
+              }}
+            />
 
-        <UserProfileDialog
-          user={selectedUser}
-          open={profileDialogOpen}
-          onOpenChange={setProfileDialogOpen}
-          onSuccess={() => {
-            setSelectedUser(null);
-            window.location.reload();
-          }}
-        />
+            <UserProfileDialog
+              user={selectedUser}
+              open={profileDialogOpen}
+              onOpenChange={setProfileDialogOpen}
+              onSuccess={() => {
+                setSelectedUser(null);
+                window.location.reload();
+              }}
+            />
+          </>
+        )}
       </div>
     );
   }
@@ -143,24 +147,28 @@ const UserManagementTable = ({ users, onToggleUserRole, onToggleSuspend }: UserM
         />
       </Table>
 
-      <UserStatsDialog
-        user={selectedUser}
-        open={statsDialogOpen}
-        onOpenChange={setStatsDialogOpen}
-        onSuccess={() => {
-          setSelectedUser(null);
-        }}
-      />
+      {selectedUser && (
+        <>
+          <UserStatsDialog
+            user={selectedUser}
+            open={statsDialogOpen}
+            onOpenChange={setStatsDialogOpen}
+            onSuccess={() => {
+              setSelectedUser(null);
+            }}
+          />
 
-      <UserProfileDialog
-        user={selectedUser}
-        open={profileDialogOpen}
-        onOpenChange={setProfileDialogOpen}
-        onSuccess={() => {
-          setSelectedUser(null);
-          window.location.reload();
-        }}
-      />
+          <UserProfileDialog
+            user={selectedUser}
+            open={profileDialogOpen}
+            onOpenChange={setProfileDialogOpen}
+            onSuccess={() => {
+              setSelectedUser(null);
+              window.location.reload();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

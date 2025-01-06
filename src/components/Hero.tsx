@@ -14,7 +14,7 @@ const Hero = () => {
   ];
 
   return (
-    <div className="relative min-h-screen w-full pt-32 md:pt-40">
+    <div className="relative min-h-screen w-full pt-22 md:pt-40">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{

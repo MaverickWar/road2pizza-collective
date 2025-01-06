@@ -3,7 +3,7 @@ import { ReviewData } from "@/types/review";
 import { format } from "date-fns";
 import { Rating } from "@/components/Rating";
 import { Badge } from "@/components/ui/badge";
-import { Star, Award, Package, DollarSign, Tool } from "lucide-react";
+import { Star, Award, Package, DollarSign, Wrench } from "lucide-react";
 import MediaGallery from "@/components/article/MediaGallery";
 
 interface ReviewContentProps {
@@ -15,7 +15,7 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
 
   const ratingCategories = [
     { label: "Overall", value: review.rating, icon: Star },
-    { label: "Durability", value: review.durability_rating, icon: Tool },
+    { label: "Durability", value: review.durability_rating, icon: Wrench },
     { label: "Value", value: review.value_rating, icon: DollarSign },
     { label: "Ease of Use", value: review.ease_of_use_rating, icon: Package },
   ];

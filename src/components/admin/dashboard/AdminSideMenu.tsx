@@ -3,28 +3,20 @@ import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Users, 
-  BookOpen, 
-  Star, 
-  Award,
-  FileText,
-  Bell,
+  Star,
+  MessageSquare,
   Settings,
-  Palette,
-  Image
+  FileText,
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
-  { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
-  { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
-  { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
-  { icon: FileText, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
-  { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },
-  { icon: Settings, label: "Settings", path: "/dashboard/admin/settings" },
-  { icon: Palette, label: "Theme", path: "/dashboard/admin/theme" },
-  { icon: Image, label: "Media", path: "/dashboard/admin/media" }
+  { icon: Star, label: "Reviews", path: "/dashboard/admin/reviews" },
+  { icon: MessageSquare, label: "Forum", path: "/dashboard/admin/forum/categories" },
+  { icon: FileText, label: "Review Management", path: "/dashboard/admin/review-management" },
+  { icon: Settings, label: "Forum Settings", path: "/dashboard/admin/forum/settings" },
 ];
 
 const AdminSideMenu = () => {

@@ -8,7 +8,7 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -39,19 +39,31 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <Navigation />
       
       <div className="flex flex-col md:flex-row pt-16">
-        {/* Sidebar */}
-        <div
-          className={cn(
-            "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out",
-            "top-[4rem] h-[calc(100vh-4rem)]",
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-            "md:relative md:translate-x-0 md:h-[calc(100vh-4rem)] md:min-h-screen"
-          )}
-        >
-          <div className="p-4 h-full overflow-y-auto">
-            <AdminSideMenu />
-          </div>
-        </div>
+        {/* Only render sidebar for admin users */}
+        {isAdmin && user && (
+          <>
+            <div
+              className={cn(
+                "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out",
+                "top-[4rem] h-[calc(100vh-4rem)]",
+                isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+                "md:relative md:translate-x-0 md:h-[calc(100vh-4rem)] md:min-h-screen"
+              )}
+            >
+              <div className="p-4 h-full overflow-y-auto">
+                <AdminSideMenu />
+              </div>
+            </div>
+
+            {/* Mobile overlay */}
+            {isMobile && isSidebarOpen && (
+              <div 
+                className="fixed inset-0 bg-black/50 z-40 top-[4rem]"
+                onClick={() => setIsSidebarOpen(false)}
+              />
+            )}
+          </>
+        )}
 
         {/* Main content */}
         <main className={cn(
@@ -61,36 +73,30 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           "w-full max-w-full"
         )}>
           <div className="max-w-[1600px] mx-auto space-y-6">
-            <div className="flex items-center gap-4 md:gap-6">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleSidebar}
-                className="flex md:hidden"
-              >
-                {isSidebarOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </Button>
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Admin Dashboard</h1>
+            {isAdmin && user && (
+              <div className="flex items-center gap-4 md:gap-6">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="flex md:hidden"
+                >
+                  {isSidebarOpen ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
+                </Button>
+                <div className="flex items-center gap-4">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Admin Dashboard</h1>
+                </div>
               </div>
-            </div>
+            )}
             <div className="grid gap-6">
               {children}
             </div>
           </div>
         </main>
-
-        {/* Mobile overlay */}
-        {isMobile && isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/50 z-40 top-[4rem]"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
       </div>
     </div>
   );

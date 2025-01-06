@@ -30,7 +30,7 @@ const Reviews = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-16">
+      <main className="pt-[5rem]">
         <ReviewHeader 
           isEditMode={isEditMode}
           onEditModeChange={toggleEditMode}

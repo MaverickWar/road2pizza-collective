@@ -11,7 +11,7 @@ const Index = () => {
       <Navigation />
       <main>
         <Hero />
-        <div className="mt-8 md:mt-12">
+        <div className="mt-4 md:mt-6">
           <FeaturedPosts />
         </div>
       </main>

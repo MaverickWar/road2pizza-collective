@@ -43,17 +43,22 @@ const StatsCards = ({ stats }: StatsCardsProps) => {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title} className="relative overflow-hidden transition-all duration-200 hover:shadow-lg">
+        <Card 
+          key={card.title} 
+          className="relative overflow-hidden transition-all duration-200 hover:shadow-lg"
+        >
           <CardContent className="p-6">
             <div className={`bg-gradient-to-br ${card.gradient} absolute inset-0 opacity-50`} />
             <div className="relative space-y-2">
-              <card.icon className={`w-8 h-8 ${card.color}`} />
+              <div className="flex items-center justify-between">
+                <card.icon className={`w-8 h-8 ${card.color}`} />
+                <p className="text-3xl font-bold">{card.value}</p>
+              </div>
               <p className="text-sm font-medium text-muted-foreground">
                 {card.title}
               </p>
-              <p className="text-3xl font-bold">{card.value}</p>
             </div>
           </CardContent>
         </Card>

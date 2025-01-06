@@ -16,18 +16,16 @@ const LoadingFallback = () => (
 );
 
 const Index = () => {
-  console.log('Rendering Index page'); // Added for debugging
+  console.log('Rendering Index page');
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <main className="flex flex-col w-full">
         <Suspense fallback={<LoadingFallback />}>
-          <div className="animate-fade-up">
-            <Hero />
-            <div className="mt-8 md:mt-12 animate-fade-up [animation-delay:200ms]">
-              <FeaturedPosts />
-            </div>
+          <Hero />
+          <div className="mt-8 md:mt-12">
+            <FeaturedPosts />
           </div>
         </Suspense>
       </main>

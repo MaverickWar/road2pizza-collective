@@ -22,16 +22,62 @@ const ReviewContent = ({
 }: ReviewContentProps) => {
   const isElementVisible = (elementId: string) => !hiddenElements.includes(elementId);
 
-  // Get top 10 reviews by rating
-  const topReviews = [...reviews]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 10);
-
   // Get featured reviews
-  const featuredReviews = reviews.filter(review => review.is_featured);
+  const { data: featuredReviews = [] } = useQuery({
+    queryKey: ['featured-reviews'],
+    queryFn: async () => {
+      console.log("Fetching featured reviews");
+      const { data, error } = await supabase
+        .from('equipment_reviews')
+        .select(`
+          *,
+          profiles:created_by (username)
+        `)
+        .eq('is_featured', true)
+        .eq('is_published', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching featured reviews:", error);
+        throw error;
+      }
+
+      console.log("Fetched featured reviews:", data);
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Get top 10 reviews by rating
+  const { data: topReviews = [] } = useQuery({
+    queryKey: ['top-reviews'],
+    queryFn: async () => {
+      console.log("Fetching top reviews");
+      const { data, error } = await supabase
+        .from('equipment_reviews')
+        .select(`
+          *,
+          profiles:created_by (username)
+        `)
+        .eq('is_published', true)
+        .order('rating', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error("Error fetching top reviews:", error);
+        throw error;
+      }
+
+      console.log("Fetched top reviews:", data);
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 
   // Get latest admin reviews
-  const { data: adminReviews } = useQuery({
+  const { data: adminReviews = [] } = useQuery({
     queryKey: ['admin-reviews'],
     queryFn: async () => {
       console.log("Fetching admin reviews");
@@ -51,12 +97,15 @@ const ReviewContent = ({
           profiles:created_by (username)
         `)
         .in('created_by', adminIds)
+        .eq('is_published', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       console.log("Fetched admin reviews:", reviews);
-      return reviews;
-    }
+      return reviews || [];
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   return (
@@ -92,7 +141,7 @@ const ReviewContent = ({
         </div>
       )}
 
-      {isElementVisible('top-reviews') && (
+      {isElementVisible('top-reviews') && topReviews.length > 0 && (
         <div 
           onClick={() => isEditMode && onToggleVisibility('top-reviews')}
           className={cn(
@@ -112,7 +161,7 @@ const ReviewContent = ({
         </div>
       )}
 
-      {isElementVisible('latest-reviews') && (
+      {isElementVisible('latest-reviews') && adminReviews.length > 0 && (
         <div 
           onClick={() => isEditMode && onToggleVisibility('latest-reviews')}
           className={cn(
@@ -123,7 +172,7 @@ const ReviewContent = ({
             <CardContent className="p-4 md:p-6">
               <h2 className="text-xl md:text-2xl font-bold mb-6">Latest Reviews</h2>
               <div className="grid gap-6">
-                {adminReviews?.map((review) => (
+                {adminReviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}
               </div>

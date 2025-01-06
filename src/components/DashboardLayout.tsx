@@ -79,7 +79,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   variant="ghost"
                   size="icon"
                   onClick={toggleSidebar}
-                  className="md:hidden"
+                  className="md:hidden fixed top-[4.5rem] left-4 z-50 bg-background"
                   aria-label="Toggle menu"
                 >
                   {isSidebarOpen ? (
@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     <Menu className="h-5 w-5" />
                   )}
                 </Button>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 pl-14 md:pl-0">
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">Admin Dashboard</h1>
                 </div>
               </div>

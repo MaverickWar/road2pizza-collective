@@ -34,12 +34,16 @@ const RecipeTableRow = ({
 
   const handleDelete = async () => {
     try {
+      console.log("Deleting recipe:", recipe.id);
       const { error } = await supabase
         .from("recipes")
         .delete()
         .eq("id", recipe.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error deleting recipe:", error);
+        throw error;
+      }
 
       await queryClient.invalidateQueries({ queryKey: ["recipes-with-reviews"] });
       toast.success("Recipe deleted successfully");

@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import MenuManagement from "./pages/admin/MenuManagement";
 import UserManagement from "./pages/UserManagement";
 import RecipeManagementPage from "./pages/admin/RecipeManagement";
+import ReviewsDashboard from "./pages/ReviewsDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,14 @@ function App() {
               element={
                 <ProtectedRoute requireAdmin>
                   <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ReviewsDashboard />
                 </ProtectedRoute>
               }
             />

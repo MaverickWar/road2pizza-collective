@@ -32,6 +32,7 @@ import PizzaTypeManagement from "./pages/admin/PizzaTypeManagement";
 import NotificationManagement from "./pages/admin/NotificationManagement";
 import ThemeSettings from "./pages/admin/ThemeSettings";
 import MediaGallery from "./pages/admin/MediaGallery";
+import ForumThreadDetail from "./components/forum/ForumThreadDetail";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function App() {
       <Router>
         <AuthProvider>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
@@ -50,6 +52,10 @@ function App() {
             <Route path="/community" element={<Community />} />
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/article/:id" element={<ArticleDetail />} />
+            
+            {/* Forum routes */}
+            <Route path="/forum/thread/:id" element={<ForumThreadDetail />} />
+            <Route path="/forum/category/:categoryId/thread/:threadId" element={<ForumThreadDetail />} />
             
             {/* Review routes */}
             <Route path="/equipment-reviews/:id" element={<EquipmentReviewDetail />} />

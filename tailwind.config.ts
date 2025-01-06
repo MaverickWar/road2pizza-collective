@@ -48,6 +48,10 @@ export default {
           DEFAULT: "#FFFFFF",
           hover: "#F8F8F8",
         },
+        switch: {
+          DEFAULT: "#E2E2E2",
+          active: "#FEB088",
+        },
       },
       keyframes: {
         "fade-up": {

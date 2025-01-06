@@ -7,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
+import { PizzaStyleHeader } from '@/components/pizza/PizzaStyleHeader';
+import { PizzaStyleContent } from '@/components/pizza/PizzaStyleContent';
+import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -103,7 +106,12 @@ const PizzaStyle = () => {
   const handleSubmitRecipe = async () => {
     if (!user) {
       toast.error("Please login to submit a recipe");
-      navigate("/login");
+      navigate("/login", { 
+        state: { 
+          returnTo: `/pizza/${style}`,
+          message: "Please login to submit a recipe" 
+        } 
+      });
       return;
     }
 
@@ -119,19 +127,13 @@ const PizzaStyle = () => {
         state: { 
           showRecipeForm: true,
           categoryId: category.id,
-          categoryName: pizzaStyle?.title 
+          categoryName: pizzaStyle?.title,
+          returnTo: `/pizza/${style}`
         } 
       });
     } else {
       toast.error("Unable to find category. Please try again later.");
     }
-  };
-
-  const getImageUrl = (url: string) => {
-    if (url.startsWith('data:') || url.startsWith('http')) {
-      return url;
-    }
-    return new URL(url, window.location.origin).href;
   };
 
   if (!pizzaStyle) {
@@ -155,71 +157,18 @@ const PizzaStyle = () => {
           Back to Pizza Styles
         </Link>
         
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-textLight mb-4">{pizzaStyle.title}</h1>
-            <p className="text-xl text-textLight">{pizzaStyle.description}</p>
-          </div>
-          <Button 
-            onClick={handleSubmitRecipe}
-            className="bg-accent hover:bg-accent-hover text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Submit Recipe
-          </Button>
-        </div>
+        <PizzaStyleHeader 
+          title={pizzaStyle.title}
+          description={pizzaStyle.description}
+          onSubmitRecipe={handleSubmitRecipe}
+        />
         
-        <div className="bg-secondary rounded-lg p-6 mb-12">
-          <h2 className="text-2xl font-bold text-textLight mb-4">History</h2>
-          <p className="text-textLight">{pizzaStyle.history}</p>
-        </div>
-
-        <h2 className="text-2xl font-bold text-textLight mb-6">Recipes</h2>
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-secondary rounded-lg p-4 animate-pulse">
-                <div className="aspect-video bg-muted rounded mb-4" />
-                <div className="h-6 bg-muted rounded w-3/4 mb-2" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-              </div>
-            ))}
-          </div>
-        ) : recipes && recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recipes.map((recipe) => (
-              <Link
-                key={recipe.id}
-                to={`/article/${recipe.id}`}
-                className="bg-secondary rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
-              >
-                <div className="aspect-video relative">
-                  <img
-                    src={recipe.image_url ? getImageUrl(recipe.image_url) : '/placeholder.svg'}
-                    alt={recipe.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/placeholder.svg';
-                    }}
-                  />
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-bold text-textLight mb-2">{recipe.title}</h3>
-                  <p className="text-textLight mb-4">
-                    {recipe.content?.substring(0, 100)}...
-                  </p>
-                  <div className="flex justify-between text-sm text-textLight">
-                    <span>Difficulty: {recipe.difficulty}</span>
-                    <span>Prep: {recipe.prep_time}</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="text-textLight">No recipes available for this style yet.</p>
-        )}
+        <PizzaStyleContent history={pizzaStyle.history} />
+        
+        <PizzaStyleRecipes 
+          recipes={recipes || []}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );

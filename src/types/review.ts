@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const reviewSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  author: z.string().min(1, "Author is required"),
   brand: z.string().min(1, "Brand is required"),
   model: z.string().optional(),
   category: z.string().min(1, "Category is required"),
@@ -25,6 +26,7 @@ export type ReviewFormData = z.infer<typeof reviewSchema>;
 export interface ReviewData {
   id: string;
   title: string;
+  author: string;
   brand: string;
   model?: string;
   category: string;
@@ -43,4 +45,7 @@ export interface ReviewData {
   cons?: string[];
   created_at: string;
   created_by?: string;
+  profiles?: {
+    username: string;
+  };
 }

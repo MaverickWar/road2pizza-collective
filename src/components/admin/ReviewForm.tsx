@@ -12,6 +12,7 @@ import BasicInfoSection from "./reviews/form/BasicInfoSection";
 import MediaSection from "./reviews/form/MediaSection";
 import RatingSection from "./reviews/form/RatingSection";
 import ProsCons from "./reviews/form/ProsCons";
+import { useAuth } from "@/components/AuthProvider";
 
 interface ReviewFormProps {
   review?: ReviewData;
@@ -21,11 +22,13 @@ interface ReviewFormProps {
 const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
   const [activeTab, setActiveTab] = useState("basic");
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
       title: review?.title || "",
+      author: review?.author || user?.username || "Anonymous",
       brand: review?.brand || "",
       model: review?.model || "",
       category: review?.category || "",
@@ -50,6 +53,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
       console.log("Saving review data:", values);
       const reviewData = {
         title: values.title,
+        author: values.author,
         brand: values.brand,
         category: values.category,
         model: values.model,

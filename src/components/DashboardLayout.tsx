@@ -1,6 +1,6 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Edit2, Save } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Navigation from "./Navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,6 @@ import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Set initial sidebar state based on screen size
@@ -33,10 +32,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const toggleSidebar = () => {
     console.log('Toggling sidebar. Current state:', isSidebarOpen);
     setIsSidebarOpen(prev => !prev);
-  };
-
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
   };
 
   return (
@@ -80,24 +75,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 </Button>
                 <div className="flex items-center gap-4">
                   <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                  <Button
-                    variant={isEditMode ? "destructive" : "outline"}
-                    size="sm"
-                    onClick={toggleEditMode}
-                    className="flex items-center gap-2"
-                  >
-                    {isEditMode ? (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Save Layout
-                      </>
-                    ) : (
-                      <>
-                        <Edit2 className="w-4 h-4" />
-                        Edit Layout
-                      </>
-                    )}
-                  </Button>
                 </div>
               </div>
               {children}

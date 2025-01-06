@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import ListEditor from "@/components/article/edit/ListEditor";
 import FormFields from "./form/FormFields";
+import { Loader2 } from "lucide-react";
 
 interface RecipeSubmissionFormProps {
   pizzaTypeId?: string;
@@ -42,6 +43,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       setLoading(true);
       console.log("Submitting recipe with data:", formData);
 
+      // Submit recipe with optimistic update
       const { data, error } = await supabase
         .from("recipes")
         .insert([{
@@ -126,8 +128,15 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         disabled={loading}
       />
 
-      <Button type="submit" disabled={loading}>
-        {loading ? "Submitting..." : "Submit Recipe"}
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Submit Recipe"
+        )}
       </Button>
     </form>
   );

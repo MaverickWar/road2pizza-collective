@@ -16,6 +16,7 @@ interface UserProfileDialogProps {
 
 const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileDialogProps) => {
   const [username, setUsername] = useState(user?.username || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,7 +26,7 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
       setIsSubmitting(true);
       console.log("Updating profile for user:", userId);
       
-      // Check if trying to change admin's username
+      // Check if trying to change admin's details
       if (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk') {
         toast.error("Admin account details cannot be modified");
         return;
@@ -48,6 +49,23 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
         return;
       }
 
+      // Check if email is being changed
+      if (email !== user.email) {
+        // Create a profile change request for email change
+        const { error: requestError } = await supabase
+          .from('profile_change_requests')
+          .insert({
+            user_id: userId,
+            requested_email: email,
+            status: 'pending'
+          });
+
+        if (requestError) throw requestError;
+        
+        toast.success("Email change request submitted for admin approval");
+      }
+
+      // Update other profile fields
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -87,6 +105,22 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
               placeholder="Enter username"
               disabled={isSubmitting || (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk')}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email"
+              disabled={isSubmitting || (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk')}
+            />
+            {email !== user.email && (
+              <p className="text-sm text-muted-foreground">
+                Email changes require admin approval
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>

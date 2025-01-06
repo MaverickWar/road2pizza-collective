@@ -97,12 +97,12 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     : currentUnpinnedThreads;
 
   return (
-    <Card className="overflow-hidden bg-card dark:bg-[#221F26] hover:bg-card/80 dark:hover:bg-[#221F26]/80 transition-colors">
-      <div className="p-6 bg-background-secondary dark:bg-[#1A1F2C] border-b border-border">
+    <Card className="overflow-hidden bg-card hover:bg-card/80 transition-colors">
+      <div className="p-6 bg-background-secondary border-b border-border">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-textLight dark:text-white">
+              <h3 className="text-xl font-semibold text-textLight">
                 {category.name}
               </h3>
               {isAdmin && (
@@ -115,20 +115,20 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
               )}
             </div>
             {category.description && (
-              <p className="text-sm text-muted-foreground dark:text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 {category.description}
               </p>
             )}
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" className="bg-secondary hover:bg-secondary-hover text-secondary-foreground dark:bg-[#1A1F2C] dark:hover:bg-[#2A2F3C] dark:text-white">
+              <Button variant="secondary" className="bg-secondary hover:bg-secondary-hover text-secondary-foreground">
                 <Plus className="w-4 h-4 mr-2" />
                 <span className="sm:inline hidden">New Thread</span>
                 <span className="sm:hidden inline">New</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] bg-card dark:bg-[#221F26]">
+            <DialogContent className="sm:max-w-[600px] bg-card">
               <DialogHeader>
                 <DialogTitle>Create New Thread</DialogTitle>
               </DialogHeader>
@@ -137,7 +137,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                   placeholder="Thread Title"
                   value={newThread.title}
                   onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
-                  className="bg-background dark:bg-[#1A1F2C]"
+                  className="bg-background"
                 />
                 <div className="min-h-[200px]">
                   <Editor
@@ -145,7 +145,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                     onChange={(content) => setNewThread({ ...newThread, content })}
                   />
                 </div>
-                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover text-accent-foreground dark:bg-[#6E59A5] dark:hover:bg-[#5E499F]">
+                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover text-accent-foreground">
                   Create Thread
                 </Button>
               </div>

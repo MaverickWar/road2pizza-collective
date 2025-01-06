@@ -113,9 +113,9 @@ const ForumCategories = () => {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="h-20 bg-orange-100/50 dark:bg-[#221F26]/50 animate-pulse rounded-lg"></div>
-        <div className="h-20 bg-orange-100/50 dark:bg-[#221F26]/50 animate-pulse rounded-lg"></div>
-        <div className="h-20 bg-orange-100/50 dark:bg-[#221F26]/50 animate-pulse rounded-lg"></div>
+        <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
+        <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
+        <div className="h-20 bg-secondary/50 animate-pulse rounded-lg"></div>
       </div>
     );
   }
@@ -125,7 +125,7 @@ const ForumCategories = () => {
       <ForumBreadcrumbs />
       
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-bold text-orange-900 dark:text-orange-100">
+        <h2 className="text-2xl font-bold text-textLight">
           Forum Categories
         </h2>
         <CategoryManager onCategoryAdded={fetchCategories} />
@@ -133,23 +133,23 @@ const ForumCategories = () => {
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-orange-500 dark:text-orange-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />
           <Input
             placeholder="Search threads..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background dark:bg-[#1A1F2C]"
+            className="pl-9 bg-background"
           />
         </div>
         <div className="flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="bg-orange-50 hover:bg-orange-100 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C]">
+              <Button variant="outline" className="bg-background hover:bg-background-secondary">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-card dark:bg-[#221F26]">
+            <DropdownMenuContent className="bg-card">
               <DropdownMenuItem onClick={() => setFilterPinned(!filterPinned)}>
                 {filterPinned ? '✓ ' : ''} Show Pinned Only
               </DropdownMenuItem>
@@ -158,7 +158,7 @@ const ForumCategories = () => {
           <Button
             variant="outline"
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="bg-orange-50 hover:bg-orange-100 dark:bg-[#221F26] dark:hover:bg-[#1A1F2C]"
+            className="bg-background hover:bg-background-secondary"
           >
             {sortOrder === 'asc' ? (
               <SortAsc className="h-4 w-4 mr-2" />
@@ -171,7 +171,7 @@ const ForumCategories = () => {
       </div>
 
       {filteredCategories.length === 0 ? (
-        <div className="text-center py-8 text-gray-600 bg-orange-50 dark:bg-[#221F26] dark:text-gray-300 rounded-lg border border-orange-100 dark:border-[#1A1F2C]">
+        <div className="text-center py-8 text-muted-foreground bg-background rounded-lg border border-border">
           No categories available yet.
         </div>
       ) : (

@@ -27,6 +27,7 @@ import Reviews from "./pages/Reviews";
 import ThreadManagement from "./components/forum/ThreadManagement";
 import ForumSettings from "./components/forum/ForumSettings";
 import EquipmentReviewDetail from "./components/reviews/EquipmentReviewDetail";
+import ReviewManagement from "./components/admin/ReviewManagement";
 
 const queryClient = new QueryClient();
 
@@ -113,7 +114,15 @@ function App() {
               path="/dashboard/admin/reviews"
               element={
                 <ProtectedRoute requireAdmin>
-                  <ReviewsDashboard />
+                  <ReviewManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/reviews"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <ReviewManagement />
                 </ProtectedRoute>
               }
             />

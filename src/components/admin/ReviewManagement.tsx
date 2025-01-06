@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -77,83 +76,77 @@ const ReviewManagement = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="container mx-auto p-4 md:p-6">
-          <div className="space-y-4 animate-pulse">
-            <div className="h-20 bg-secondary rounded-lg" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-secondary rounded-lg" />
-              ))}
-            </div>
-            <div className="h-96 bg-secondary rounded-lg" />
-          </div>
+      <div className="space-y-4 animate-pulse">
+        <div className="h-20 bg-secondary rounded-lg" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-secondary rounded-lg" />
+          ))}
         </div>
-      </DashboardLayout>
+        <div className="h-96 bg-secondary rounded-lg" />
+      </div>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="container mx-auto p-4 md:p-6 space-y-8">
-        <div className="flex flex-col space-y-2 pt-4">
-          <h1 className="text-3xl font-bold tracking-tight">Pizza Oven Reviews</h1>
-          <p className="text-muted-foreground">
-            Manage and monitor pizza oven reviews
-          </p>
-        </div>
-
-        <ReviewStats
-          totalReviews={totalReviews}
-          averageRating={averageRating}
-          featuredReviews={featuredReviews}
-        />
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <ReviewFilters
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  categoryFilter={categoryFilter}
-                  onCategoryChange={setCategoryFilter}
-                  categories={categories}
-                />
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setEditingReview(null)} className="w-full sm:w-auto">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Review
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {editingReview ? "Edit Review" : "Add New Review"}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <ReviewForm
-                      review={editingReview}
-                      onSuccess={() => {
-                        setIsDialogOpen(false);
-                        setEditingReview(null);
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              <ReviewTable
-                reviews={filteredReviews}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            </div>
-          </CardContent>
-        </Card>
+    <div className="container mx-auto p-4 md:p-6 space-y-8">
+      <div className="flex flex-col space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Pizza Oven Reviews</h1>
+        <p className="text-muted-foreground">
+          Manage and monitor pizza oven reviews
+        </p>
       </div>
-    </DashboardLayout>
+
+      <ReviewStats
+        totalReviews={totalReviews}
+        averageRating={averageRating}
+        featuredReviews={featuredReviews}
+      />
+
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <ReviewFilters
+                searchTerm={searchTerm}
+                onSearchChange={setSearchTerm}
+                categoryFilter={categoryFilter}
+                onCategoryChange={setCategoryFilter}
+                categories={categories}
+              />
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => setEditingReview(null)} className="w-full sm:w-auto">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Review
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingReview ? "Edit Review" : "Add New Review"}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <ReviewForm
+                    review={editingReview}
+                    onSuccess={() => {
+                      setIsDialogOpen(false);
+                      setEditingReview(null);
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <ReviewTable
+              reviews={filteredReviews}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

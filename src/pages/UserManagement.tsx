@@ -77,19 +77,6 @@ const UserManagement = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="container mx-auto p-4 md:p-6">
-          <div className="space-y-4 md:space-y-6 animate-pulse">
-            <div className="h-20 bg-secondary/50 rounded-lg" />
-            <div className="h-[400px] bg-secondary/50 rounded-lg" />
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4 md:p-6">
@@ -102,11 +89,18 @@ const UserManagement = () => {
           </div>
 
           <div className="overflow-hidden">
-            <UserManagementTable
-              users={users}
-              onToggleUserRole={handleToggleUserRole}
-              onToggleSuspend={handleToggleSuspend}
-            />
+            {isLoading ? (
+              <div className="space-y-4 md:space-y-6 animate-pulse">
+                <div className="h-20 bg-secondary/50 rounded-lg" />
+                <div className="h-[400px] bg-secondary/50 rounded-lg" />
+              </div>
+            ) : (
+              <UserManagementTable
+                users={users || []}
+                onToggleUserRole={handleToggleUserRole}
+                onToggleSuspend={handleToggleSuspend}
+              />
+            )}
           </div>
         </div>
       </div>

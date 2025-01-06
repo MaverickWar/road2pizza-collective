@@ -1,10 +1,8 @@
+import DashboardLayout from "@/components/DashboardLayout";
+import UserManagementTable from "@/components/admin/UserManagementTable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardLayout from "@/components/DashboardLayout";
-import UserTabs from "@/components/admin/users/UserTabs";
-import UserStatsCards from "@/components/admin/users/UserStatsCards";
 import { toast } from "sonner";
-import type { ProfileChangeRequest } from "@/types/profile";
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -26,34 +24,6 @@ const UserManagement = () => {
 
       console.log("Fetched users:", data);
       return data || [];
-    },
-  });
-
-  const { data: changeRequests = [], isLoading: loadingRequests } = useQuery({
-    queryKey: ["profile-change-requests"],
-    queryFn: async () => {
-      console.log("Fetching change requests...");
-      const { data, error } = await supabase
-        .from("profile_change_requests")
-        .select(`
-          *,
-          profiles!profile_change_requests_user_id_fkey (
-            username
-          )
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching change requests:", error);
-        toast.error("Failed to load change requests");
-        throw error;
-      }
-
-      console.log("Fetched change requests:", data);
-      return (data || []).map(request => ({
-        ...request,
-        status: request.status as "pending" | "approved" | "rejected"
-      })) as ProfileChangeRequest[];
     },
   });
 
@@ -92,11 +62,6 @@ const UserManagement = () => {
     }
   };
 
-  const activeUsers = users.filter(user => !user.is_suspended);
-  const staffUsers = users.filter(user => user.is_staff || user.is_admin);
-  const suspendedUsers = users.filter(user => user.is_suspended);
-  const pendingRequests = changeRequests.filter(req => req.status === 'pending');
-
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -121,30 +86,11 @@ const UserManagement = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:gap-6">
-            <UserStatsCards
-              totalUsers={users.length}
-              staffCount={staffUsers.length}
-              suspendedCount={suspendedUsers.length}
-              pendingRequestsCount={pendingRequests.length}
-            />
-          </div>
-
           <div className="overflow-hidden">
-            <UserTabs
+            <UserManagementTable
               users={users}
-              activeUsers={activeUsers}
-              staffUsers={staffUsers}
-              suspendedUsers={suspendedUsers}
-              changeRequests={changeRequests}
-              pendingRequestsCount={pendingRequests.length}
               onToggleUserRole={handleToggleUserRole}
               onToggleSuspend={handleToggleSuspend}
-              loadingRequests={loadingRequests}
-              onRequestStatusUpdate={() => {
-                queryClient.invalidateQueries({ queryKey: ["profile-change-requests"] });
-                queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-              }}
             />
           </div>
         </div>

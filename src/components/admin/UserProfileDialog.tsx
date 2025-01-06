@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -11,80 +11,50 @@ interface UserProfileDialogProps {
   user: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileDialogProps) => {
-  const [username, setUsername] = useState(user?.username || "");
-  const [email, setEmail] = useState(user?.email || "");
-  const [bio, setBio] = useState(user?.bio || "");
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || "");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  console.log("UserProfileDialog rendering with user:", user);
 
-  const handleUpdateProfile = async (userId: string) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    bio: user?.bio || ''
+  });
+
+  if (!user) {
+    console.log("UserProfileDialog: No user data provided");
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
-      setIsSubmitting(true);
-      console.log("Updating profile for user:", userId);
-      
-      // Check if trying to change admin's details
-      if (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk') {
-        toast.error("Admin account details cannot be modified");
-        return;
-      }
+      setIsLoading(true);
+      console.log("Updating user profile:", formData);
 
-      // First check if username is already taken
-      const { data: existingUser, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', username)
-        .neq('id', userId)
-        .single();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        throw checkError;
-      }
-
-      if (existingUser) {
-        toast.error("Username is already taken");
-        return;
-      }
-
-      // Check if email is being changed
-      if (email !== user.email) {
-        // Create a profile change request for email change
-        const { error: requestError } = await supabase
-          .from('profile_change_requests')
-          .insert({
-            user_id: userId,
-            requested_email: email,
-            status: 'pending'
-          });
-
-        if (requestError) throw requestError;
-        
-        toast.success("Email change request submitted for admin approval");
-      }
-
-      // Update other profile fields
       const { error } = await supabase
         .from('profiles')
         .update({
-          username,
-          bio,
-          avatar_url: avatarUrl,
+          username: formData.username,
+          email: formData.email,
+          bio: formData.bio
         })
-        .eq('id', userId);
+        .eq('id', user.id);
 
       if (error) throw error;
-      
-      toast.success("User profile updated successfully");
-      onSuccess();
+
+      toast.success("Profile updated successfully");
+      onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      console.error("Error updating user profile:", error);
-      toast.error("Failed to update user profile");
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -92,18 +62,16 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit User Profile</DialogTitle>
+          <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <Input
               id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
               placeholder="Enter username"
-              disabled={isSubmitting || (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk')}
             />
           </div>
           <div className="space-y-2">
@@ -111,46 +79,34 @@ const UserProfileDialog = ({ user, open, onOpenChange, onSuccess }: UserProfileD
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               placeholder="Enter email"
-              disabled={isSubmitting || (user?.is_admin && user?.email === 'richgiles@hotmail.co.uk')}
             />
-            {email !== user.email && (
-              <p className="text-sm text-muted-foreground">
-                Email changes require admin approval
-              </p>
-            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="Enter user bio"
-              disabled={isSubmitting}
+              value={formData.bio}
+              onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+              placeholder="Enter bio"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Avatar URL</Label>
-            <Input
-              id="avatarUrl"
-              type="url"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="Enter avatar URL"
-              disabled={isSubmitting}
-            />
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
-          <Button
-            className="w-full"
-            onClick={() => handleUpdateProfile(user.id)}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Updating..." : "Update Profile"}
-          </Button>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

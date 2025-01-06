@@ -45,7 +45,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <div
               className={cn(
                 "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out",
-                "top-[4rem] h-[calc(100vh-4rem)]",
+                "top-[7rem] md:top-[4rem] h-[calc(100vh-7rem)] md:h-[calc(100vh-4rem)]",
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full",
                 "md:relative md:translate-x-0 md:h-[calc(100vh-4rem)] md:min-h-screen"
               )}
@@ -58,7 +58,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {/* Mobile overlay */}
             {isMobile && isSidebarOpen && (
               <div 
-                className="fixed inset-0 bg-black/50 z-40 top-[4rem]"
+                className="fixed inset-0 bg-black/50 z-40 top-[7rem] md:top-[4rem]"
                 onClick={() => setIsSidebarOpen(false)}
               />
             )}
@@ -74,7 +74,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         )}>
           <div className="max-w-[1600px] mx-auto space-y-4">
             {isAdmin && user && (
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 mt-3 md:mt-0">
                 <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"

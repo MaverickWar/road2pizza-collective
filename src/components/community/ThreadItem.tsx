@@ -30,7 +30,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
             )}
             <Link
               to={`/community/forum/thread/${thread.id}`}
-              className="font-medium text-foreground hover:text-accent transition-colors truncate"
+              className="font-medium text-textLight hover:text-accent transition-colors truncate"
             >
               {thread.title}
             </Link>

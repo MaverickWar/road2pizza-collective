@@ -97,12 +97,12 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     : currentUnpinnedThreads;
 
   return (
-    <Card className="overflow-hidden">
-      <div className="p-6 bg-card border-b border-border">
+    <Card className="overflow-hidden bg-card hover:bg-card/80 transition-colors">
+      <div className="p-6 bg-background-secondary border-b border-border">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-foreground">
+              <h3 className="text-xl font-semibold text-textLight">
                 {category.name}
               </h3>
               {isAdmin && (
@@ -128,7 +128,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                 <span className="sm:hidden inline">New</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] bg-card">
               <DialogHeader>
                 <DialogTitle>Create New Thread</DialogTitle>
               </DialogHeader>
@@ -137,6 +137,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                   placeholder="Thread Title"
                   value={newThread.title}
                   onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
+                  className="bg-background"
                 />
                 <div className="min-h-[200px]">
                   <Editor
@@ -144,7 +145,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                     onChange={(content) => setNewThread({ ...newThread, content })}
                   />
                 </div>
-                <Button onClick={handleCreateThread} className="w-full">
+                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover text-accent-foreground">
                   Create Thread
                 </Button>
               </div>

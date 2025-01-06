@@ -1,6 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Settings, Users, FileText } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Settings, 
+  Users, 
+  FileText,
+  Menu,
+  Star,
+  MessageSquare,
+  Award
+} from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,92 +19,67 @@ interface AdminSideMenuProps {
   className?: string;
 }
 
-interface MenuItem {
-  id: string;
-  label: string;
-  path: string;
-  icon: string;
-  display_order: number;
-}
-
-// Map of icon names to components
-const iconMap = {
-  LayoutDashboard,
-  Settings,
-  Users,
-  FileText
-};
-
 const AdminSideMenu = ({ className }: AdminSideMenuProps) => {
   const location = useLocation();
-  
-  const { data: menuItems, isLoading } = useQuery({
-    queryKey: ['admin-menu-items'],
-    queryFn: async () => {
-      console.log('Fetching admin menu items...');
-      const { data, error } = await supabase
-        .from('menu_items')
-        .select('*')
-        .eq('requires_admin', true)
-        .order('display_order');
-      
-      if (error) {
-        console.error('Error fetching menu items:', error);
-        throw error;
-      }
-      
-      return data as MenuItem[];
+
+  const menuItems = [
+    {
+      path: "/dashboard/admin",
+      label: "Overview",
+      icon: LayoutDashboard
+    },
+    {
+      path: "/dashboard/admin/users",
+      label: "Users",
+      icon: Users
+    },
+    {
+      path: "/dashboard/admin/recipes",
+      label: "Recipes",
+      icon: FileText
+    },
+    {
+      path: "/dashboard/admin/menus",
+      label: "Menu Management",
+      icon: Menu
+    },
+    {
+      path: "/dashboard/admin/reviews",
+      label: "Reviews",
+      icon: Star
+    },
+    {
+      path: "/dashboard/admin/forum",
+      label: "Forum",
+      icon: MessageSquare
+    },
+    {
+      path: "/dashboard/admin/rewards",
+      label: "Rewards",
+      icon: Award
+    },
+    {
+      path: "/dashboard/admin/settings",
+      label: "Settings",
+      icon: Settings
     }
-  });
-
-  if (isLoading) {
-    return (
-      <div className="space-y-2">
-        {[...Array(8)].map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
-      </div>
-    );
-  }
-
-  // Fallback to overview if no menu items
-  if (!menuItems?.length) {
-    return (
-      <nav className={cn("space-y-2", className)}>
-        <Button
-          asChild
-          variant={location.pathname === "/dashboard/admin" ? "secondary" : "ghost"}
-          className="w-full justify-start"
-        >
-          <Link to="/dashboard/admin">
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            <span>Overview</span>
-          </Link>
-        </Button>
-      </nav>
-    );
-  }
+  ];
 
   return (
     <nav className={cn("space-y-2", className)}>
-      {menuItems.map((item) => {
-        // Get icon component from our map
-        const IconComponent = iconMap[item.icon as keyof typeof iconMap] || LayoutDashboard;
-        
-        return (
-          <Button
-            key={item.id}
-            asChild
-            variant={location.pathname === item.path ? "secondary" : "ghost"}
-            className="w-full justify-start"
-          >
-            <Link to={item.path}>
-              <IconComponent className="h-4 w-4 mr-2" />
-              <span>{item.label}</span>
-            </Link>
-          </Button>
-        );
-      })}
+      {menuItems.map((item) => (
+        <Button
+          key={item.path}
+          asChild
+          variant={location.pathname === item.path ? "secondary" : "ghost"}
+          className="w-full justify-start"
+        >
+          <Link to={item.path}>
+            <item.icon className="h-4 w-4 mr-2" />
+            <span>{item.label}</span>
+          </Link>
+        </Button>
+      ))}
     </nav>
   );
 };

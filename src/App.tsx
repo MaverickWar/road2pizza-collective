@@ -69,7 +69,7 @@ function App() {
               }
             />
             <Route
-              path="/dashboard/menu"
+              path="/dashboard/admin/menu"
               element={
                 <ProtectedRoute requireAdmin>
                   <MenuManagement />
@@ -77,7 +77,15 @@ function App() {
               }
             />
             <Route
-              path="/dashboard/users"
+              path="/dashboard/admin/menus"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <MenuManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/users"
               element={
                 <ProtectedRoute requireAdmin>
                   <UserManagement />
@@ -85,7 +93,7 @@ function App() {
               }
             />
             <Route
-              path="/dashboard/recipes"
+              path="/dashboard/admin/recipes"
               element={
                 <ProtectedRoute requireAdmin>
                   <RecipeManagementPage />
@@ -93,7 +101,7 @@ function App() {
               }
             />
             <Route
-              path="/dashboard/reviews"
+              path="/dashboard/admin/reviews"
               element={
                 <ProtectedRoute requireAdmin>
                   <ReviewsDashboard />

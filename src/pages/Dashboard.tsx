@@ -6,11 +6,7 @@ import RecipeSubmissionForm from "@/components/recipe/RecipeSubmissionForm";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import {
-  ChefHat,
-  Settings,
-  Star,
-} from 'lucide-react';
+import { ChefHat } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isAdmin, isStaff } = useAuth();
@@ -20,7 +16,7 @@ const Dashboard = () => {
     showRecipeForm?: boolean;
     categoryId?: string;
     categoryName?: string;
-    recipeSubmitted?: boolean;
+    returnTo?: string;
   };
 
   useEffect(() => {
@@ -30,25 +26,36 @@ const Dashboard = () => {
       return;
     }
 
-    // Redirect admins to admin dashboard and staff to staff dashboard
-    if (isAdmin) {
-      navigate("/dashboard/admin");
-      return;
+    // Only redirect admins/staff if they're not trying to submit a recipe
+    if (!state?.showRecipeForm) {
+      if (isAdmin) {
+        navigate("/dashboard/admin");
+        return;
+      }
+      if (isStaff) {
+        navigate("/dashboard/staff");
+        return;
+      }
     }
-    if (isStaff) {
-      navigate("/dashboard/staff");
-      return;
-    }
-  }, [user, isAdmin, isStaff, navigate]);
+  }, [user, isAdmin, isStaff, navigate, state?.showRecipeForm]);
 
   if (!user) return null;
+
+  const handleRecipeSubmitted = () => {
+    if (state?.returnTo) {
+      navigate(state.returnTo);
+    }
+  };
 
   if (state?.showRecipeForm) {
     return (
       <DashboardLayout>
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">Submit Recipe for {state.categoryName}</h1>
-          <RecipeSubmissionForm pizzaTypeId={state.categoryId} />
+          <RecipeSubmissionForm 
+            pizzaTypeId={state.categoryId} 
+            onSuccess={handleRecipeSubmitted}
+          />
         </div>
       </DashboardLayout>
     );

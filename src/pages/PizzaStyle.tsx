@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
 import { PizzaStyleHeader } from '@/components/pizza/PizzaStyleHeader';
@@ -123,6 +122,7 @@ const PizzaStyle = () => {
       .maybeSingle();
 
     if (category) {
+      // Navigate to the recipe submission form with the category information
       navigate('/dashboard', { 
         state: { 
           showRecipeForm: true,

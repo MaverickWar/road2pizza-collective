@@ -63,6 +63,8 @@ const MainNav = () => {
 
   const allNavLinks = [...defaultNavLinks, ...customNavLinks];
 
+  console.log('Current navigation links:', allNavLinks);
+
   return (
     <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
       <div className="container mx-auto px-4 py-4">

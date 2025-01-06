@@ -14,9 +14,10 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
   { icon: Star, label: "Reviews", path: "/dashboard/admin/reviews" },
-  { icon: MessageSquare, label: "Forum", path: "/dashboard/admin/forum/categories" },
-  { icon: FileText, label: "Review Management", path: "/dashboard/admin/review-management" },
+  { icon: MessageSquare, label: "Forum Categories", path: "/dashboard/admin/forum/categories" },
+  { icon: MessageSquare, label: "Forum Threads", path: "/dashboard/admin/forum/threads" },
   { icon: Settings, label: "Forum Settings", path: "/dashboard/admin/forum/settings" },
+  { icon: FileText, label: "Review Management", path: "/dashboard/admin/review-management" },
 ];
 
 const AdminSideMenu = () => {

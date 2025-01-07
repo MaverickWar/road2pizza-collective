@@ -24,27 +24,66 @@ const Pizza = () => {
   const handleAddPizzaType = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase
+      // First check if pizza type exists (including hidden ones)
+      const { data: existingPizza, error: checkError } = await supabase
         .from('pizza_types')
-        .insert([{
-          ...newType,
-          slug: newType.name.toLowerCase().replace(/\s+/g, '-'),
-        }]);
+        .select('*')
+        .ilike('name', newType.name)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (checkError) throw checkError;
 
-      toast({
-        title: "Success",
-        description: "Pizza type added successfully",
-      });
+      if (existingPizza) {
+        // If pizza exists but is hidden, update it
+        if (existingPizza.is_hidden) {
+          const { error: updateError } = await supabase
+            .from('pizza_types')
+            .update({
+              description: newType.description || existingPizza.description,
+              image_url: newType.image_url || existingPizza.image_url,
+              is_hidden: false,
+            })
+            .eq('id', existingPizza.id);
+
+          if (updateError) throw updateError;
+
+          toast({
+            title: "Success",
+            description: "Pizza type restored and updated successfully",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "This pizza type already exists",
+            variant: "destructive",
+          });
+          return;
+        }
+      } else {
+        // Create new pizza type
+        const { error: insertError } = await supabase
+          .from('pizza_types')
+          .insert([{
+            ...newType,
+            slug: newType.name.toLowerCase().replace(/\s+/g, '-'),
+          }]);
+
+        if (insertError) throw insertError;
+
+        toast({
+          title: "Success",
+          description: "Pizza type added successfully",
+        });
+      }
+
       setIsAddDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['pizzaTypes'] });
       setNewType({ name: '', description: '', image_url: '', slug: '' });
     } catch (error) {
-      console.error('Error adding pizza type:', error);
+      console.error('Error managing pizza type:', error);
       toast({
         title: "Error",
-        description: "Failed to add pizza type",
+        description: "Failed to manage pizza type",
         variant: "destructive",
       });
     }

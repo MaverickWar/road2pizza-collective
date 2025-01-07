@@ -38,6 +38,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   } = useAuthState();
 
   useEffect(() => {
+    let refreshTimer: NodeJS.Timeout;
+
+    const setupSessionRefresh = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Calculate time until token needs refresh (5 minutes before expiry)
+        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+        
+        if (expiresIn > 0) {
+          refreshTimer = setTimeout(async () => {
+            const { data, error } = await supabase.auth.refreshSession();
+            if (error) {
+              console.error('Session refresh failed:', error);
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+            } else {
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              setupSessionRefresh(); // Setup next refresh
+            }
+          }, expiresIn);
+        }
+      }
+    };
+
+    setupSessionRefresh();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -45,10 +72,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
+        setupSessionRefresh(); // Setup next refresh after token refresh
       }
       
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, redirecting to login');
+        clearTimeout(refreshTimer);
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
@@ -67,6 +96,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       subscription.unsubscribe();
+      clearTimeout(refreshTimer);
     };
   }, [navigate]);
 
@@ -80,12 +110,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     showUsernamePrompt
   });
 
-  // Return null while loading to prevent flash of content
   if (loading) {
     return null;
   }
 
-  // Show suspension notice if user is suspended
   if (isSuspended && user) {
     return (
       <div className="min-h-screen bg-background">

@@ -2,12 +2,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import TopNav from './TopNav';
 import MainNav from './MainNav';
 
-// Create a new QueryClient instance
+// Create a new QueryClient instance with proper configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 1
+      retry: (failureCount, error: any) => {
+        // Don't retry on 404s
+        if (error?.status === 404) return false;
+        // Retry up to 2 times on other errors
+        return failureCount < 2;
+      },
+      refetchOnWindowFocus: false,
     },
   },
 });

@@ -38,11 +38,17 @@ const MainNav = () => {
         return data || [];
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load navigation menu. Please try again later.",
+          variant: "destructive",
+        });
         return [];
       }
     },
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   // Define the default navigation links with explicit paths

@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CategoryForm } from './components/CategoryForm';
 import { CategoryItem } from './components/CategoryItem';
 import { Category, CategoryFormData } from './types/category';
+import DashboardLayout from '@/components/DashboardLayout';
 
 const CategoryManagement = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -102,28 +103,38 @@ const CategoryManagement = () => {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-      </div>
+      <DashboardLayout>
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <CategoryForm onSubmit={handleCreate} />
-      <div className="space-y-4">
-        {categories.map((category) => (
-          <CategoryItem
-            key={category.id}
-            category={category}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-          />
-        ))}
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Forum Categories</h1>
+          <p className="text-muted-foreground">
+            Manage your forum categories here
+          </p>
+        </div>
+        <CategoryForm onSubmit={handleCreate} />
+        <div className="space-y-4">
+          {categories.map((category) => (
+            <CategoryItem
+              key={category.id}
+              category={category}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

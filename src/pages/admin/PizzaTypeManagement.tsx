@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const PizzaTypeManagement = () => {
   const [newPizzaType, setNewPizzaType] = useState({ name: "", description: "" });
@@ -93,20 +94,8 @@ const PizzaTypeManagement = () => {
     createMutation.mutate(newPizzaType);
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="h-20 bg-secondary/50 rounded-lg animate-pulse" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6 p-6">
+  const content = (
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -182,6 +171,8 @@ const PizzaTypeManagement = () => {
       </div>
     </div>
   );
+
+  return <DashboardLayout>{content}</DashboardLayout>;
 };
 
 export default PizzaTypeManagement;

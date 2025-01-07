@@ -25,11 +25,17 @@ const PizzaTypeGrid = () => {
     queryKey: ['pizzaTypes'],
     queryFn: async () => {
       console.log('Fetching pizza types...');
-      const { data, error } = await supabase
+      const query = supabase
         .from('pizza_types')
         .select('*')
-        .eq('is_hidden', false)
         .order('display_order');
+
+      // Only filter out hidden items for non-admin/staff users
+      if (!isAdmin && !isStaff) {
+        query.eq('is_hidden', false);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching pizza types:', error);

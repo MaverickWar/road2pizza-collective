@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pizza, Plus, Pencil, Trash2 } from "lucide-react";
+import { Pizza, Plus } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,15 +14,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import DashboardLayout from "@/components/DashboardLayout";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import Editor from "@/components/Editor";
+
+interface PizzaType {
+  id: string;
+  name: string;
+  description: string;
+  image_url?: string;
+  slug: string;
+}
 
 const PizzaTypeManagement = () => {
   const [newPizzaType, setNewPizzaType] = useState({ name: "", description: "" });
+  const [editingType, setEditingType] = useState<PizzaType | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: pizzaTypes, isLoading } = useQuery({
-    queryKey: ["pizza-types"],
+    queryKey: ["pizza-types-admin"],
     queryFn: async () => {
-      console.log("Fetching pizza types...");
+      console.log("Fetching pizza types for admin...");
       const { data, error } = await supabase
         .from("pizza_types")
         .select("*")
@@ -34,12 +46,38 @@ const PizzaTypeManagement = () => {
       }
 
       console.log("Fetched pizza types:", data);
-      return data;
+      return data as PizzaType[];
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (newType: typeof newPizzaType) => {
+      // First check if pizza type exists (including hidden ones)
+      const { data: existingPizza, error: checkError } = await supabase
+        .from("pizza_types")
+        .select("*")
+        .ilike("name", newType.name)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingPizza) {
+        if (existingPizza.is_hidden) {
+          const { error: updateError } = await supabase
+            .from("pizza_types")
+            .update({
+              description: newType.description || existingPizza.description,
+              is_hidden: false,
+            })
+            .eq("id", existingPizza.id);
+
+          if (updateError) throw updateError;
+          return existingPizza;
+        } else {
+          throw new Error("This pizza type already exists");
+        }
+      }
+
       const { data, error } = await supabase
         .from("pizza_types")
         .insert([
@@ -56,13 +94,39 @@ const PizzaTypeManagement = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pizza-types"] });
+      queryClient.invalidateQueries({ queryKey: ["pizza-types-admin"] });
       setNewPizzaType({ name: "", description: "" });
       toast.success("Pizza type created successfully");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Error creating pizza type:", error);
-      toast.error("Failed to create pizza type");
+      toast.error(error.message || "Failed to create pizza type");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (type: PizzaType) => {
+      const { error } = await supabase
+        .from("pizza_types")
+        .update({
+          name: type.name,
+          description: type.description,
+          image_url: type.image_url,
+          slug: type.name.toLowerCase().replace(/\s+/g, "-"),
+        })
+        .eq("id", type.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pizza-types-admin"] });
+      setIsEditDialogOpen(false);
+      setEditingType(null);
+      toast.success("Pizza type updated successfully");
+    },
+    onError: (error) => {
+      console.error("Error updating pizza type:", error);
+      toast.error("Failed to update pizza type");
     },
   });
 
@@ -70,13 +134,13 @@ const PizzaTypeManagement = () => {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("pizza_types")
-        .delete()
+        .update({ is_hidden: true })
         .eq("id", id);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pizza-types"] });
+      queryClient.invalidateQueries({ queryKey: ["pizza-types-admin"] });
       toast.success("Pizza type deleted successfully");
     },
     onError: (error) => {
@@ -92,6 +156,16 @@ const PizzaTypeManagement = () => {
       return;
     }
     createMutation.mutate(newPizzaType);
+  };
+
+  const handleEdit = (type: PizzaType) => {
+    setEditingType(type);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdate = () => {
+    if (!editingType) return;
+    updateMutation.mutate(editingType);
   };
 
   const content = (
@@ -136,27 +210,24 @@ const PizzaTypeManagement = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">{type.name}</h3>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2">
                   <Button 
                     variant="ghost" 
-                    size="icon"
-                    onClick={() => {
-                      // TODO: Implement edit functionality
-                      toast.info("Edit functionality coming soon");
-                    }}
+                    size="sm"
+                    onClick={() => handleEdit(type)}
                   >
-                    <Pencil className="w-4 h-4" />
+                    Edit
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => {
                       if (window.confirm("Are you sure you want to delete this pizza type?")) {
                         deleteMutation.mutate(type.id);
                       }
                     }}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -169,6 +240,54 @@ const PizzaTypeManagement = () => {
           </Card>
         ))}
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Pizza Type</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Input
+                placeholder="Name"
+                value={editingType?.name || ""}
+                onChange={(e) =>
+                  setEditingType(
+                    editingType ? { ...editingType, name: e.target.value } : null
+                  )
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Editor
+                content={editingType?.description || ""}
+                onChange={(content) =>
+                  setEditingType(
+                    editingType ? { ...editingType, description: content } : null
+                  )
+                }
+              />
+            </div>
+            <div className="grid gap-2">
+              <Input
+                placeholder="Image URL"
+                value={editingType?.image_url || ""}
+                onChange={(e) =>
+                  setEditingType(
+                    editingType ? { ...editingType, image_url: e.target.value } : null
+                  )
+                }
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate}>Save Changes</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 

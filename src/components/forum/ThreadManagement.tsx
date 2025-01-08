@@ -24,7 +24,16 @@ const ThreadManagement = () => {
               name
             )
           ),
-          author:profiles(username),
+          author:profiles(
+            username,
+            avatar_url,
+            created_at,
+            points,
+            badge_title,
+            badge_color,
+            is_admin,
+            is_staff
+          ),
           posts:forum_posts(count)
         `)
         .order('created_at', { ascending: false });
@@ -35,7 +44,15 @@ const ThreadManagement = () => {
         throw error;
       }
 
-      return (data || []) as Thread[];
+      // Transform the data to match the Thread interface
+      const transformedData = data?.map(thread => ({
+        ...thread,
+        author: thread.author || undefined,
+        forum: thread.forum || undefined,
+        posts: thread.posts || []
+      })) as Thread[];
+
+      return transformedData;
     }
   });
 

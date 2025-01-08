@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMediaQuery } from "@/hooks/use-mobile";
 import { SidebarContext, SidebarProviderProps } from "./types";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
@@ -29,7 +29,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
     },
     ref
   ) => {
-    const { isMobile } = useIsMobile();
+    const isMobile = useMediaQuery("(max-width: 768px)");
     const [openMobile, setOpenMobile] = React.useState(false);
     const [_open, _setOpen] = React.useState(defaultOpen);
 

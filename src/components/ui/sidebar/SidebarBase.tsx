@@ -46,16 +46,16 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       >
         <div
           className={cn(
-            "fixed inset-y-0 z-40 flex h-screen transition-all duration-300 ease-in-out",
+            "fixed inset-y-0 z-40 flex h-screen transition-all duration-300 ease-in-out",  // Ensure sidebar z-index is behind the nav bar
             side === "left" ? "left-0" : "right-0",
-            state === "expanded" 
-              ? "w-[var(--sidebar-width)]" 
+            state === "expanded"
+              ? "w-[var(--sidebar-width)]"
               : "w-[var(--sidebar-width-collapsed)]",
             variant === "floating" && "m-4",
             variant === "floating" && "rounded-xl border shadow-lg"
           )}
         >
-          <div className="flex h-full w-full flex-col bg-card">
+          <div className="flex h-full w-full flex-col bg-card overflow-auto">
             {children}
           </div>
         </div>

@@ -1,5 +1,15 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+
 const MainNav = () => {
-  // ... existing code ...
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -42,3 +52,5 @@ const MainNav = () => {
     </nav>
   );
 };
+
+export default MainNav;

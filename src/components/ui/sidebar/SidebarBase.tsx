@@ -46,7 +46,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       >
         <div
           className={cn(
-            "fixed inset-y-0 z-30 flex h-screen transition-all duration-300 ease-in-out",
+            "fixed inset-y-0 z-40 flex h-screen transition-all duration-300 ease-in-out",
             side === "left" ? "left-0" : "right-0",
             state === "expanded" 
               ? "w-[var(--sidebar-width)]" 

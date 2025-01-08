@@ -8,19 +8,8 @@ export type SidebarContext = {
   toggleSidebar: () => void;
 };
 
-export type SidebarProviderProps = {
+export interface SidebarProviderProps extends React.ComponentProps<"div"> {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  className?: string;
-  style?: React.CSSProperties;
-  children: React.ReactNode;
-};
-
-export type SidebarProps = {
-  side?: "left" | "right";
-  variant?: "sidebar" | "floating" | "inset";
-  collapsible?: "offcanvas" | "icon" | "none";
-  className?: string;
-  children: React.ReactNode;
-};
+}

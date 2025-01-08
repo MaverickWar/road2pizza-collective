@@ -9,7 +9,9 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
-      'Cache-Control': 'no-store',
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
     },
   },
   preview: {

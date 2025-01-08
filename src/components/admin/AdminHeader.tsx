@@ -5,7 +5,7 @@ const AdminHeader = () => {
   const { user } = useAuth();
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-secondary/50 p-6 rounded-lg backdrop-blur-sm animate-fade-up relative z-10">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-secondary/50 p-6 rounded-lg backdrop-blur-sm animate-fade-up">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <p className="text-muted-foreground">

@@ -53,10 +53,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
 
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (
-          event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-          (event.metaKey || event.ctrlKey)
-        ) {
+        if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
           event.preventDefault();
           toggleSidebar();
         }
@@ -84,10 +81,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
       <SidebarContextImpl.Provider value={contextValue}>
         <div
           ref={ref}
-          className={cn(
-            className,
-            "relative z-40" // Ensure SidebarProvider container is always above menu
-          )}
+          className={className}
           style={{
             "--sidebar-width": "16rem",
             "--sidebar-width-collapsed": "4rem",
@@ -101,4 +95,5 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
     );
   }
 );
+
 SidebarProvider.displayName = "SidebarProvider";

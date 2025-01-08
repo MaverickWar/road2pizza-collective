@@ -1,176 +1,116 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from 'sonner';
-import type { Thread } from './types';
-import { Lock, Unlock, Pin, PinOff } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import ThreadManagementActions from "./ThreadManagementActions";
 
 const ThreadManagement = () => {
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    loadThreads();
-  }, []);
-
-  const loadThreads = async () => {
-    try {
-      console.log('Fetching threads...');
+  const { data: threads, isLoading, refetch } = useQuery({
+    queryKey: ['forum-threads'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('forum_threads')
         .select(`
           *,
-          forum:forums(
-            id,
-            title,
-            description
-          ),
-          author:profiles!forum_threads_created_by_fkey(
-            username,
-            avatar_url
-          )
+          forum:forum_categories(id, name),
+          author:profiles(username),
+          posts:forum_posts(count)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      console.log('Fetched threads:', data);
-      setThreads(data as Thread[]);
-    } catch (error) {
-      console.error('Error loading threads:', error);
-      toast.error('Failed to load threads');
-    } finally {
-      setIsLoading(false);
+      return data;
     }
-  };
+  });
 
-  const toggleThreadLock = async (threadId: string, currentStatus: boolean) => {
+  const handleTogglePinned = async (threadId: string, currentState: boolean) => {
     try {
       const { error } = await supabase
         .from('forum_threads')
-        .update({ is_locked: !currentStatus })
+        .update({ is_pinned: !currentState })
         .eq('id', threadId);
 
       if (error) throw error;
-
-      setThreads(threads.map(thread => 
-        thread.id === threadId 
-          ? { ...thread, is_locked: !currentStatus }
-          : thread
-      ));
-
-      toast.success(`Thread ${currentStatus ? 'unlocked' : 'locked'} successfully`);
+      
+      toast.success(`Thread ${currentState ? 'unpinned' : 'pinned'} successfully`);
+      refetch();
     } catch (error) {
-      console.error('Error toggling thread lock:', error);
+      console.error('Error toggling pin status:', error);
       toast.error('Failed to update thread status');
     }
   };
 
-  const toggleThreadPin = async (threadId: string, currentStatus: boolean) => {
+  const handleToggleLocked = async (threadId: string, currentState: boolean) => {
     try {
       const { error } = await supabase
         .from('forum_threads')
-        .update({ is_pinned: !currentStatus })
+        .update({ is_locked: !currentState })
         .eq('id', threadId);
 
       if (error) throw error;
-
-      setThreads(threads.map(thread => 
-        thread.id === threadId 
-          ? { ...thread, is_pinned: !currentStatus }
-          : thread
-      ));
-
-      toast.success(`Thread ${currentStatus ? 'unpinned' : 'pinned'} successfully`);
+      
+      toast.success(`Thread ${currentState ? 'unlocked' : 'locked'} successfully`);
+      refetch();
     } catch (error) {
-      console.error('Error toggling thread pin:', error);
+      console.error('Error toggling lock status:', error);
       toast.error('Failed to update thread status');
     }
   };
-
-  const filteredThreads = threads.filter(thread =>
-    thread.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <div className="flex-1">
-          <Label htmlFor="search">Search Threads</Label>
-          <Input
-            id="search"
-            placeholder="Search by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <MessageSquare className="w-6 h-6" />
+            Thread Management
+          </h1>
         </div>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Forum Threads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-4">Loading threads...</div>
+            ) : threads?.length === 0 ? (
+              <div className="text-center py-4">No threads found</div>
+            ) : (
+              <div className="space-y-4">
+                {threads?.map((thread) => (
+                  <div
+                    key={thread.id}
+                    className="p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <div>
+                        <h3 className="font-semibold">{thread.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Posted in {thread.forum?.name} by {thread.author?.username}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {thread.posts?.length || 0} replies
+                        </p>
+                      </div>
+                      <ThreadManagementActions
+                        thread={thread}
+                        onThreadUpdated={refetch}
+                        onTogglePinned={handleTogglePinned}
+                        onToggleLocked={handleToggleLocked}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Forum</TableHead>
-            <TableHead>Author</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredThreads.map((thread) => (
-            <TableRow key={thread.id}>
-              <TableCell>{thread.title}</TableCell>
-              <TableCell>{thread.forum?.title}</TableCell>
-              <TableCell>{thread.author?.username}</TableCell>
-              <TableCell>{new Date(thread.created_at).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleThreadLock(thread.id, thread.is_locked || false)}
-                    title={thread.is_locked ? "Unlock thread" : "Lock thread"}
-                  >
-                    {thread.is_locked ? (
-                      <Lock className="h-4 w-4" />
-                    ) : (
-                      <Unlock className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleThreadPin(thread.id, thread.is_pinned || false)}
-                    title={thread.is_pinned ? "Unpin thread" : "Pin thread"}
-                  >
-                    {thread.is_pinned ? (
-                      <PinOff className="h-4 w-4" />
-                    ) : (
-                      <Pin className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    </DashboardLayout>
   );
 };
 

@@ -1,10 +1,18 @@
 // DashboardLayout.tsx - Updated z-index hierarchy
+
+import React from 'react';
+
+const DashboardLayout = () => {
 return (
   <div className="min-h-screen flex flex-col bg-background">
     {/* Change Navigation z-index to be higher than sidebar */}
     <div className="relative z-[60]"> {/* Add this wrapper */}
       <Navigation />
     </div>
+      );
+};
+
+export default DashboardLayout;
     
     <div className="flex-1 flex flex-col md:flex-row pt-16">
       {isAdmin && user && (

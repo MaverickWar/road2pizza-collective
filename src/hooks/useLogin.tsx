@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { LoginFormValues } from '@/types/auth';
+import { AuthError } from '@supabase/supabase-js';
 
 export const useLogin = () => {
   const navigate = useNavigate();
@@ -32,6 +33,16 @@ export const useLogin = () => {
     }
   };
 
+  const getErrorMessage = (error: AuthError) => {
+    if (error.message.includes('Invalid login credentials')) {
+      return 'Invalid email or password. Please try again.';
+    }
+    if (error.message.includes('Email not confirmed')) {
+      return 'Please check your email to confirm your account before logging in.';
+    }
+    return 'Login failed. Please try again.';
+  };
+
   const handleLogin = async (values: LoginFormValues) => {
     try {
       setIsLoading(true);
@@ -49,18 +60,12 @@ export const useLogin = () => {
 
       if (error) {
         console.error('Login error:', error);
-
+        toast.error(getErrorMessage(error));
+        
         if (error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
-          return;
         }
-
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please try again.');
-          return;
-        }
-
-        toast.error('Login failed. Please try again.');
+        
         return;
       }
 
@@ -73,9 +78,6 @@ export const useLogin = () => {
         
         toast.success('Login successful');
         navigate('/dashboard');
-      } else {
-        console.error('No user data received from successful login');
-        toast.error('Login failed - please try again');
       }
     } catch (error) {
       console.error('Unexpected error during login:', error);

@@ -16,18 +16,29 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const { isMobile, state, openMobile, setOpenMobile, toggleSidebar } = useSidebar();
 
     if (isMobile) {
       return (
-        <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-          <SheetContent
-            side={side}
-            className="w-[var(--sidebar-width)] bg-card p-0 [&>button]:hidden"
+        <>
+          {/* Mobile Sidebar Toggle Button */}
+          <button
+            onClick={toggleSidebar}
+            className="fixed top-4 left-4 z-40 bg-gray-800 text-white p-2 rounded-full shadow-lg focus:outline-none"
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet>
+            ☰
+          </button>
+
+          {/* Mobile Sidebar */}
+          <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+            <SheetContent
+              side={side}
+              className="w-[var(--sidebar-width)] bg-card p-0 [&>button]:hidden"
+            >
+              <div className="flex h-full w-full flex-col">{children}</div>
+            </SheetContent>
+          </Sheet>
+        </>
       );
     }
 

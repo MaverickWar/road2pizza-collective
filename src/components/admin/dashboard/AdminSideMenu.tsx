@@ -19,8 +19,7 @@ import { cn } from "@/lib/utils";
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
-  { icon: Star, label: "Reviews", path: "/dashboard/admin/reviews" },
-  { icon: FileText, label: "Review Management", path: "/dashboard/admin/review-management" },
+  { icon: Star, label: "Review Management", path: "/dashboard/admin/review-management" },
   { icon: MessageSquare, label: "Forum Categories", path: "/dashboard/admin/forum/categories" },
   { icon: MessageSquare, label: "Forum Threads", path: "/dashboard/admin/forum/threads" },
   { icon: Settings, label: "Forum Settings", path: "/dashboard/admin/forum/settings" },

@@ -6,18 +6,17 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
+import AdminFooter from "./admin/AdminFooter";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Set initial sidebar state based on screen size
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
   }, [isMobile]);
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       if (!isMobile) {
@@ -29,7 +28,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isMobile]);
 
-  // Force revalidation of auth state on mount
   useEffect(() => {
     console.log("DashboardLayout mounted, validating auth state");
   }, []);
@@ -40,11 +38,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Navigation />
       
-      <div className="flex flex-col md:flex-row pt-16">
-        {/* Only render sidebar for admin users */}
+      <div className="flex-1 flex flex-col md:flex-row pt-16">
         {isAdmin && user && (
           <>
             <div
@@ -60,7 +57,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
 
-            {/* Mobile overlay */}
             {isMobile && isSidebarOpen && (
               <div 
                 className="fixed inset-0 bg-black/50 z-40 top-[7rem] md:top-[4rem]"
@@ -70,14 +66,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </>
         )}
 
-        {/* Main content */}
         <main className={cn(
-          "flex-1 transition-all duration-300 min-h-screen",
+          "flex-1 transition-all duration-300 min-h-screen flex flex-col",
           "px-4 md:px-8 lg:px-12",
           "py-4 md:py-6 lg:py-8",
           "w-full max-w-full"
         )}>
-          <div className="max-w-[1600px] mx-auto space-y-4">
+          <div className="max-w-[1600px] mx-auto space-y-4 flex-1">
             {isAdmin && user && (
               <div className="flex items-center justify-between mb-4 mt-3 md:mt-0">
                 <div className="flex items-center gap-1">
@@ -102,6 +97,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               {children}
             </div>
           </div>
+          <AdminFooter />
         </main>
       </div>
     </div>

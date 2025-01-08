@@ -32,7 +32,7 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
     const isMobile = useMediaQuery("(max-width: 768px)");
     const [openMobile, setOpenMobile] = React.useState(false);
     const [_open, _setOpen] = React.useState(defaultOpen);
-    
+
     const open = openProp ?? _open;
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -53,7 +53,10 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
 
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
+        if (
+          event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+          (event.metaKey || event.ctrlKey)
+        ) {
           event.preventDefault();
           toggleSidebar();
         }
@@ -81,7 +84,10 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
       <SidebarContextImpl.Provider value={contextValue}>
         <div
           ref={ref}
-          className={className}
+          className={cn(
+            className,
+            "relative z-40" // Ensure SidebarProvider container is always above menu
+          )}
           style={{
             "--sidebar-width": "16rem",
             "--sidebar-width-collapsed": "4rem",
@@ -95,5 +101,4 @@ export const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderP
     );
   }
 );
-
 SidebarProvider.displayName = "SidebarProvider";

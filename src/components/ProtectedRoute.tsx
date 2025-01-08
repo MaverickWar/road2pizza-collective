@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -12,6 +13,28 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRouteProps) => {
   const { user, isAdmin, isStaff } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Session check error:", error);
+        toast.error("Session expired. Please login again.");
+        navigate("/login");
+        return;
+      }
+
+      if (!session) {
+        console.log("No active session found");
+        toast.error("Please login to access this page");
+        navigate("/login");
+        return;
+      }
+    };
+
+    checkSession();
+  }, [navigate]);
 
   useEffect(() => {
     console.log("Protected Route Check:", {
@@ -44,7 +67,6 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
     }
   }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate]);
 
-  // Return null instead of redirecting to prevent flash of content
   if (!user) return null;
 
   return <>{children}</>;

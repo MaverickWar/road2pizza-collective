@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import ThreadManagementActions from "./ThreadManagementActions";
+import { Thread } from "./types";
 
 const ThreadManagement = () => {
   const { data: threads, isLoading, refetch } = useQuery({
@@ -15,14 +15,27 @@ const ThreadManagement = () => {
         .from('forum_threads')
         .select(`
           *,
-          forum:forum_categories(id, name),
+          forum:forums(
+            id,
+            title,
+            description,
+            category:forum_categories(
+              id,
+              name
+            )
+          ),
           author:profiles(username),
           posts:forum_posts(count)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching threads:', error);
+        toast.error('Failed to load threads');
+        throw error;
+      }
+
+      return (data || []) as Thread[];
     }
   });
 
@@ -90,7 +103,7 @@ const ThreadManagement = () => {
                       <div>
                         <h3 className="font-semibold">{thread.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          Posted in {thread.forum?.name} by {thread.author?.username}
+                          Posted in {thread.forum?.title} by {thread.author?.username}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {thread.posts?.length || 0} replies

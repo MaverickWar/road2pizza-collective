@@ -13,7 +13,7 @@ import {
   Image
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
+import { SidebarBase } from "@/components/ui/sidebar";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
@@ -32,7 +32,7 @@ export function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="w-64 border-r bg-background fixed inset-y-0 left-0 z-20 transition-transform transform -translate-x-full lg:translate-x-0">
+    <SidebarBase className="w-64 border-r bg-background fixed inset-y-0 left-0 z-20 transition-transform transform -translate-x-full lg:translate-x-0">
       <div className="flex flex-col h-full p-4 space-y-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Admin Dashboard</h2>
@@ -53,6 +53,6 @@ export function AdminSidebar() {
           ))}
         </nav>
       </div>
-    </Sidebar>
+    </SidebarBase>
   );
 }

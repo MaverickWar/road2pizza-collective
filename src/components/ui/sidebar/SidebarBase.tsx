@@ -23,7 +23,10 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
           <SheetContent
             side={side}
-            className="w-[var(--sidebar-width)] bg-card p-0 [&>button]:hidden"
+            className={cn(
+              "w-[var(--sidebar-width)] bg-card p-0 z-40 [&>button]:hidden",
+              className
+            )} // Ensure sidebar stays above navigation menu
           >
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
@@ -35,7 +38,7 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <div
         ref={ref}
         className={cn(
-          "group peer hidden md:block",
+          "group peer hidden md:block z-30", // Added z-index to avoid overlap
           "transition-all duration-300 ease-in-out",
           className
         )}
@@ -46,22 +49,18 @@ export const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       >
         <div
           className={cn(
-            "fixed inset-y-0 z-30 flex h-screen transition-all duration-300 ease-in-out",
+            "fixed inset-y-0 flex h-screen transition-all duration-300 ease-in-out",
             side === "left" ? "left-0" : "right-0",
             state === "expanded"
               ? "w-[var(--sidebar-width)]"
               : "w-[var(--sidebar-width-collapsed)]",
-            variant === "floating" && "m-4",
-            variant === "floating" && "rounded-xl border shadow-lg"
+            variant === "floating" && "m-4 rounded-xl border shadow-lg"
           )}
         >
-          <div className="flex h-full w-full flex-col bg-card overflow-auto">
-            {children}
-          </div>
+          <div className="flex h-full w-full flex-col bg-card">{children}</div>
         </div>
       </div>
     );
   }
 );
-
 Sidebar.displayName = "Sidebar";

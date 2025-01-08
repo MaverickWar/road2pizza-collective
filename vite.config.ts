@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     middlewareMode: false,
+    headers: {
+      'Cache-Control': 'no-store',
+    },
   },
   preview: {
     host: "::",
@@ -16,12 +19,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`,
       },
     },
     sourcemap: true,
+    // Ensure proper cache busting
+    assetsDir: '_assets',
+    modulePreload: {
+      polyfill: true,
+    },
   },
   plugins: [
     react(),

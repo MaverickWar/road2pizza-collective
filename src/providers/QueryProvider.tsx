@@ -4,8 +4,8 @@ import { ReactNode } from "react";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-      gcTime: 10 * 60 * 1000, // Keep unused data for 10 minutes
+      staleTime: 0, // Data is always considered stale
+      gcTime: 30 * 1000, // Keep unused data for 30 seconds
       retry: (failureCount, error: any) => {
         // Don't retry on 404s or auth errors
         if (error?.status === 404 || error?.status === 401) return false;

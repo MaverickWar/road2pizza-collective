@@ -35,7 +35,6 @@ const AdminDashboard = () => {
       if (reviewsCountResponse.error) throw reviewsCountResponse.error;
       if (avgRatingResponse.error) throw avgRatingResponse.error;
 
-      // Calculate average rating manually from the raw ratings
       const ratings = avgRatingResponse.data.map(r => r.rating || 0);
       const averageRating = ratings.length > 0 
         ? ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length 
@@ -47,7 +46,11 @@ const AdminDashboard = () => {
         reviews: reviewsCountResponse.data[0]?.count || 0,
         averageRating: averageRating
       };
-    }
+    },
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache at all
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   if (isLoading) {

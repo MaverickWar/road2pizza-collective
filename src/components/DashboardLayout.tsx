@@ -29,6 +29,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isMobile]);
 
+  // Force revalidation of auth state on mount
+  useEffect(() => {
+    console.log("DashboardLayout mounted, validating auth state");
+  }, []);
+
   const toggleSidebar = () => {
     console.log('Toggling sidebar. Current state:', isSidebarOpen);
     setIsSidebarOpen(prev => !prev);

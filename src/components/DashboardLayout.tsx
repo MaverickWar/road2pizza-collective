@@ -1,13 +1,12 @@
-// DashboardLayout.tsx - Updated z-index hierarchy
 import React from 'react';
 import Navigation from './Navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from './AuthProvider';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-const DashboardLayout = () => {
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuth();
-  const { isMobile, isSidebarOpen, setIsSidebarOpen } = useMobile();
+  const { isMobile, isSidebarOpen, setIsSidebarOpen } = useIsMobile();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -37,7 +36,9 @@ const DashboardLayout = () => {
             )}
           </>
         )}
-        {/* Rest of the layout */}
+        <div className="flex-1 p-6">
+          {children}
+        </div>
       </div>
     </div>
   );

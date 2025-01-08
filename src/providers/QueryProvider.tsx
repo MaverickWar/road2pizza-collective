@@ -5,11 +5,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 0, // Data is always considered stale
-      gcTime: 30 * 1000, // Keep unused data for 30 seconds
+      gcTime: 0, // Don't keep unused data in cache
       retry: (failureCount, error: any) => {
         // Don't retry on 404s or auth errors
         if (error?.status === 404 || error?.status === 401) return false;
-        return failureCount < 2;
+        return failureCount < 3;
       },
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,

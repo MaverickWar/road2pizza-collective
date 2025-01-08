@@ -51,6 +51,7 @@ const AdminDashboard = () => {
     gcTime: 0, // Don't cache at all
     refetchOnMount: true, // Refetch when component mounts
     refetchOnWindowFocus: true, // Refetch when window gains focus
+    retry: 3, // Retry failed requests 3 times
   });
 
   if (isLoading) {

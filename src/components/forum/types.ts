@@ -34,6 +34,7 @@ export interface Post extends DBPost {
     avatar_url?: string;
   };
   is_pinned?: boolean;
+  count?: number; // Added this property for post counts
 }
 
 export interface Forum extends DBForum {

@@ -45,12 +45,23 @@ const ThreadManagement = () => {
       }
 
       // Transform the data to match the Thread interface
-      const transformedData = data?.map(thread => ({
-        ...thread,
-        author: thread.author || undefined,
-        forum: thread.forum || undefined,
-        posts: thread.posts || []
-      })) as Thread[];
+      const transformedData = data?.map(thread => {
+        const postsCount = thread.posts?.[0]?.count || 0;
+        return {
+          ...thread,
+          author: thread.author || undefined,
+          forum: thread.forum || undefined,
+          posts: [{
+            id: '', // We only need the count for display
+            thread_id: thread.id,
+            content: '',
+            created_at: new Date().toISOString(),
+            created_by: '',
+            updated_at: new Date().toISOString(),
+            count: postsCount
+          }]
+        };
+      }) as Thread[];
 
       return transformedData;
     }
@@ -123,7 +134,7 @@ const ThreadManagement = () => {
                           Posted in {thread.forum?.title} by {thread.author?.username}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {thread.posts?.length || 0} replies
+                          {thread.posts?.[0]?.count || 0} replies
                         </p>
                       </div>
                       <ThreadManagementActions

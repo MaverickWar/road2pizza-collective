@@ -11,141 +11,84 @@
   body {
     @apply bg-background text-textLight min-h-screen;
   }
+}
 
-  /* Improved form elements with better contrast */
-  input, select, textarea {
-    @apply px-4 py-2 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200;
+@layer components {
+  /* Admin Dashboard Specific Styles */
+  .admin-layout {
+    @apply min-h-screen bg-admin-background;
   }
 
-  /* Better touch targets on mobile */
-  button, a {
-    @apply transition-all duration-200;
+  .admin-sidebar {
+    @apply fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-admin-border transition-all duration-300 ease-in-out;
   }
 
-  /* Button variants with improved contrast */
-  .button-primary {
-    @apply bg-primary text-white hover:bg-primary-hover;
+  .admin-header {
+    @apply fixed top-0 right-0 left-64 z-40 h-16 bg-white border-b border-admin-border transition-all duration-300;
   }
 
-  .button-secondary {
-    @apply bg-secondary text-textLight hover:bg-secondary-hover;
+  .admin-content {
+    @apply pt-16 pl-64 min-h-screen bg-admin-background transition-all duration-300;
   }
 
-  .button-ghost {
-    @apply text-textLight hover:bg-background-secondary;
+  .admin-card {
+    @apply bg-white rounded-lg shadow-admin hover:shadow-admin-hover transition-all duration-300;
   }
 
-  .button-outline {
-    @apply border-2 border-primary text-textLight hover:bg-primary hover:text-white;
+  .admin-stats-card {
+    @apply bg-gradient-to-br from-admin/10 to-admin/5 rounded-xl p-6;
   }
-}
 
-/* Custom scrollbar with improved contrast */
-::-webkit-scrollbar {
-  @apply w-2;
-}
+  .admin-nav-item {
+    @apply flex items-center gap-3 px-4 py-2 rounded-lg text-admin-foreground hover:bg-admin/10 hover:text-admin transition-all duration-200;
+  }
 
-::-webkit-scrollbar-track {
-  @apply bg-background;
-}
+  .admin-nav-item.active {
+    @apply bg-admin/10 text-admin;
+  }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-primary/70 rounded-full hover:bg-primary transition-colors;
-}
+  .admin-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
 
-/* Card styles with better contrast */
-.card {
-  @apply bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden;
-}
+  .admin-button-primary {
+    @apply bg-admin text-white hover:bg-admin-hover;
+  }
 
-/* Form container for better mobile experience */
-.form-container {
-  @apply max-w-3xl mx-auto p-4 sm:p-6 md:p-8 bg-card rounded-xl shadow-sm;
-}
+  .admin-button-secondary {
+    @apply bg-admin-secondary text-admin-foreground hover:bg-admin-hover-secondary;
+  }
 
-/* Responsive grid layouts */
-.grid-responsive {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
-}
+  .admin-input {
+    @apply px-4 py-2 rounded-lg border border-admin-border focus:border-admin focus:ring-2 focus:ring-admin/20 outline-none transition-all duration-200;
+  }
 
-/* Mobile-friendly buttons */
-.button-touch {
-  @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
-}
+  .admin-table {
+    @apply w-full border-collapse;
+  }
 
-/* Safe area padding for modern mobile devices */
-.safe-padding {
-  @apply pt-safe-top pb-safe-bottom;
-}
+  .admin-table th {
+    @apply px-4 py-2 text-left bg-admin-background text-admin-muted font-medium;
+  }
 
-/* Glass effect for overlays with improved contrast */
-.glass {
-  @apply backdrop-blur-md bg-white/90;
-}
+  .admin-table td {
+    @apply px-4 py-2 border-t border-admin-border;
+  }
 
-/* Mobile-optimized editor with better contrast */
-.editor-container {
-  @apply min-h-[200px] p-4 rounded-lg border border-gray-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20;
-}
+  .admin-table tr:hover {
+    @apply bg-admin-background/50;
+  }
 
-/* Responsive table containers with improved contrast */
-.table-container {
-  @apply w-full overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm;
-}
+  /* Responsive Admin Layout */
+  .admin-layout.collapsed .admin-sidebar {
+    @apply -translate-x-full md:translate-x-0 md:w-20;
+  }
 
-/* Better mobile form groups */
-.form-group {
-  @apply space-y-2 mb-4;
-}
+  .admin-layout.collapsed .admin-header {
+    @apply left-0 md:left-20;
+  }
 
-.form-label {
-  @apply block text-sm font-medium text-gray-700;
-}
-
-/* Improved mobile dialogs */
-.dialog-content {
-  @apply p-4 sm:p-6 md:p-8 max-w-[90vw] sm:max-w-[85vw] md:max-w-[80vw] lg:max-w-3xl mx-auto;
-}
-
-/* Mobile-friendly tabs with better contrast */
-.tabs-container {
-  @apply overflow-x-auto pb-2;
-}
-
-.tab-list {
-  @apply flex whitespace-nowrap gap-2 p-1 bg-background-secondary rounded-lg;
-}
-
-/* Responsive images */
-.img-responsive {
-  @apply w-full h-full object-cover;
-}
-
-/* Admin dashboard specific styles */
-.admin-sidebar {
-  @apply bg-white border-r border-gray-200;
-}
-
-.admin-header {
-  @apply bg-white border-b border-gray-200;
-}
-
-.admin-content {
-  @apply bg-background;
-}
-
-.admin-card {
-  @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
-}
-
-.admin-stats-card {
-  @apply bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6;
-}
-
-.admin-nav-item {
-  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-200;
-}
-
-.admin-nav-item.active {
-  @apply bg-primary/10 text-primary;
+  .admin-layout.collapsed .admin-content {
+    @apply pl-0 md:pl-20;
+  }
 }

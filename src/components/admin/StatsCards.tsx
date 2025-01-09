@@ -11,6 +11,8 @@ interface StatsCardsProps {
 }
 
 const StatsCards = ({ stats }: StatsCardsProps) => {
+  console.log("Rendering StatsCards with stats:", stats);
+  
   const cards = [
     {
       title: "Total Users",

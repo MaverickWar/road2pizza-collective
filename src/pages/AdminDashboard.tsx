@@ -20,8 +20,7 @@ const AdminDashboard = () => {
       const [
         usersResponse, 
         recipesResponse, 
-        reviewsResponse, 
-        avgRatingResponse
+        reviewsResponse
       ] = await Promise.all([
         // Get total users count
         supabase.from('profiles').select('count'),
@@ -33,12 +32,7 @@ const AdminDashboard = () => {
           .eq('status', 'published')
           .eq('approval_status', 'approved'),
         
-        // Get total reviews count
-        supabase
-          .from('reviews')
-          .select('count'),
-        
-        // Get average rating from reviews
+        // Get reviews with ratings
         supabase
           .from('reviews')
           .select('rating')
@@ -48,33 +42,27 @@ const AdminDashboard = () => {
       console.log("Stats responses:", {
         users: usersResponse,
         recipes: recipesResponse,
-        reviews: reviewsResponse,
-        ratings: avgRatingResponse
+        reviews: reviewsResponse
       });
 
       if (usersResponse.error) throw usersResponse.error;
       if (recipesResponse.error) throw recipesResponse.error;
       if (reviewsResponse.error) throw reviewsResponse.error;
-      if (avgRatingResponse.error) throw avgRatingResponse.error;
 
-      // Calculate average rating
-      const ratings = avgRatingResponse.data.map(r => r.rating || 0);
-      const averageRating = ratings.length > 0 
-        ? ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length 
+      // Calculate total reviews and average rating
+      const reviews = reviewsResponse.data || [];
+      const totalReviews = reviews.length;
+      const averageRating = totalReviews > 0
+        ? reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / totalReviews
         : 0;
 
       return {
         users: usersResponse.data[0]?.count || 0,
         recipes: recipesResponse.data[0]?.count || 0,
-        reviews: reviewsResponse.data[0]?.count || 0,
+        reviews: totalReviews,
         averageRating: averageRating
       };
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    retry: 3,
   });
 
   if (isLoading) {
@@ -105,7 +93,7 @@ const AdminDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto space-y-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">

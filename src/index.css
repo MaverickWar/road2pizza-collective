@@ -20,15 +20,49 @@
   }
 
   .admin-sidebar {
-    @apply fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-admin-border transition-all duration-300 ease-in-out;
+    @apply fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-admin-border shadow-admin;
   }
 
   .admin-header {
-    @apply fixed top-0 right-0 left-64 z-40 h-16 bg-white border-b border-admin-border transition-all duration-300;
+    @apply fixed top-0 right-0 left-64 z-30 h-16 bg-white border-b border-admin-border;
   }
 
   .admin-content {
-    @apply pt-16 pl-64 min-h-screen bg-admin-background transition-all duration-300;
+    @apply pt-16 pl-64 min-h-screen bg-admin-background;
+  }
+
+  /* Responsive Admin Layout */
+  @media (max-width: 768px) {
+    .admin-sidebar {
+      @apply transform transition-transform duration-300 ease-in-out;
+    }
+
+    .admin-header {
+      @apply left-0;
+    }
+
+    .admin-content {
+      @apply pl-0;
+    }
+
+    .admin-layout.collapsed .admin-sidebar {
+      @apply -translate-x-full;
+    }
+  }
+
+  /* Desktop Collapsed State */
+  @media (min-width: 769px) {
+    .admin-layout.collapsed .admin-sidebar {
+      @apply w-20;
+    }
+
+    .admin-layout.collapsed .admin-header {
+      @apply left-20;
+    }
+
+    .admin-layout.collapsed .admin-content {
+      @apply pl-20;
+    }
   }
 
   .admin-card {
@@ -77,18 +111,5 @@
 
   .admin-table tr:hover {
     @apply bg-admin-background/50;
-  }
-
-  /* Responsive Admin Layout */
-  .admin-layout.collapsed .admin-sidebar {
-    @apply -translate-x-full md:translate-x-0 md:w-20;
-  }
-
-  .admin-layout.collapsed .admin-header {
-    @apply left-0 md:left-20;
-  }
-
-  .admin-layout.collapsed .admin-content {
-    @apply pl-0 md:pl-20;
   }
 }

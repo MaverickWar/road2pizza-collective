@@ -28,10 +28,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isMobile]);
 
-  useEffect(() => {
-    console.log("DashboardLayout mounted, validating auth state");
-  }, []);
-
   const toggleSidebar = () => {
     console.log('Toggling sidebar. Current state:', isSidebarOpen);
     setIsSidebarOpen(prev => !prev);
@@ -46,10 +42,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <>
             <div
               className={cn(
-                "fixed inset-y-0 left-0 z-50 w-64 bg-background border-r transform transition-transform duration-300 ease-in-out",
-                "top-[7rem] md:top-[4rem] h-[calc(100vh-7rem)] md:h-[calc(100vh-4rem)]",
+                "fixed inset-y-0 left-0 z-50 w-64 admin-sidebar transform transition-transform duration-300 ease-in-out",
+                "top-[4rem] h-[calc(100vh-4rem)]",
                 isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-                "md:relative md:translate-x-0 md:h-[calc(100vh-4rem)] md:min-h-screen"
+                "md:relative md:translate-x-0"
               )}
             >
               <div className="p-4 h-full overflow-y-auto">
@@ -59,7 +55,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
             {isMobile && isSidebarOpen && (
               <div 
-                className="fixed inset-0 bg-black/50 z-40 top-[7rem] md:top-[4rem]"
+                className="fixed inset-0 bg-black/50 z-40 top-[4rem]"
                 onClick={() => setIsSidebarOpen(false)}
               />
             )}
@@ -67,20 +63,20 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         )}
 
         <main className={cn(
-          "flex-1 transition-all duration-300 min-h-screen flex flex-col",
+          "flex-1 transition-all duration-300 min-h-screen flex flex-col admin-content",
           "px-4 md:px-8 lg:px-12",
           "py-4 md:py-6 lg:py-8",
           "w-full max-w-full"
         )}>
           <div className="max-w-[1600px] mx-auto space-y-4 flex-1">
             {isAdmin && user && (
-              <div className="flex items-center justify-between mb-4 mt-3 md:mt-0">
-                <div className="flex items-center gap-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={toggleSidebar}
-                    className="md:hidden hover:bg-accent/10"
+                    className="md:hidden hover:bg-primary/10"
                     aria-label="Toggle menu"
                   >
                     {isSidebarOpen ? (

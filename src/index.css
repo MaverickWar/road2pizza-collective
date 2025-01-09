@@ -14,7 +14,7 @@
 
   /* Improved form elements with better contrast */
   input, select, textarea {
-    @apply px-4 py-2 rounded-lg border border-gray-300 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none transition-all duration-200;
+    @apply px-4 py-2 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200;
   }
 
   /* Better touch targets on mobile */
@@ -24,7 +24,7 @@
 
   /* Button variants with improved contrast */
   .button-primary {
-    @apply bg-accent text-textLight hover:bg-accent-hover hover:text-white;
+    @apply bg-primary text-white hover:bg-primary-hover;
   }
 
   .button-secondary {
@@ -36,7 +36,7 @@
   }
 
   .button-outline {
-    @apply border-2 border-accent text-textLight hover:bg-accent hover:text-white;
+    @apply border-2 border-primary text-textLight hover:bg-primary hover:text-white;
   }
 }
 
@@ -50,7 +50,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-accent/70 rounded-full hover:bg-accent transition-colors;
+  @apply bg-primary/70 rounded-full hover:bg-primary transition-colors;
 }
 
 /* Card styles with better contrast */
@@ -85,7 +85,7 @@
 
 /* Mobile-optimized editor with better contrast */
 .editor-container {
-  @apply min-h-[200px] p-4 rounded-lg border border-gray-300 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20;
+  @apply min-h-[200px] p-4 rounded-lg border border-gray-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20;
 }
 
 /* Responsive table containers with improved contrast */
@@ -119,4 +119,33 @@
 /* Responsive images */
 .img-responsive {
   @apply w-full h-full object-cover;
+}
+
+/* Admin dashboard specific styles */
+.admin-sidebar {
+  @apply bg-white border-r border-gray-200;
+}
+
+.admin-header {
+  @apply bg-white border-b border-gray-200;
+}
+
+.admin-content {
+  @apply bg-background;
+}
+
+.admin-card {
+  @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300;
+}
+
+.admin-stats-card {
+  @apply bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6;
+}
+
+.admin-nav-item {
+  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-primary/10 hover:text-primary transition-all duration-200;
+}
+
+.admin-nav-item.active {
+  @apply bg-primary/10 text-primary;
 }

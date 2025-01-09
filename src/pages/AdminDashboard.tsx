@@ -16,25 +16,48 @@ const AdminDashboard = () => {
     queryFn: async () => {
       console.log("Fetching admin stats...");
       
-      const [usersResponse, recipesResponse, reviewsCountResponse, avgRatingResponse] = await Promise.all([
+      // Fetch all stats in parallel for better performance
+      const [
+        usersResponse, 
+        recipesResponse, 
+        reviewsResponse, 
+        avgRatingResponse
+      ] = await Promise.all([
+        // Get total users count
         supabase.from('profiles').select('count'),
-        supabase.from('recipes').select('count'),
-        supabase.from('reviews').select('count'),
-        supabase.from('reviews').select('rating').not('rating', 'is', null)
+        
+        // Get published and approved recipes count
+        supabase
+          .from('recipes')
+          .select('count')
+          .eq('status', 'published')
+          .eq('approval_status', 'approved'),
+        
+        // Get total reviews count
+        supabase
+          .from('reviews')
+          .select('count'),
+        
+        // Get average rating from reviews
+        supabase
+          .from('reviews')
+          .select('rating')
+          .not('rating', 'is', null)
       ]);
 
       console.log("Stats responses:", {
         users: usersResponse,
         recipes: recipesResponse,
-        reviews: reviewsCountResponse,
+        reviews: reviewsResponse,
         ratings: avgRatingResponse
       });
 
       if (usersResponse.error) throw usersResponse.error;
       if (recipesResponse.error) throw recipesResponse.error;
-      if (reviewsCountResponse.error) throw reviewsCountResponse.error;
+      if (reviewsResponse.error) throw reviewsResponse.error;
       if (avgRatingResponse.error) throw avgRatingResponse.error;
 
+      // Calculate average rating
       const ratings = avgRatingResponse.data.map(r => r.rating || 0);
       const averageRating = ratings.length > 0 
         ? ratings.reduce((acc, rating) => acc + rating, 0) / ratings.length 
@@ -43,15 +66,15 @@ const AdminDashboard = () => {
       return {
         users: usersResponse.data[0]?.count || 0,
         recipes: recipesResponse.data[0]?.count || 0,
-        reviews: reviewsCountResponse.data[0]?.count || 0,
+        reviews: reviewsResponse.data[0]?.count || 0,
         averageRating: averageRating
       };
     },
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Don't cache at all
-    refetchOnMount: true, // Refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    retry: 3, // Retry failed requests 3 times
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    retry: 3,
   });
 
   if (isLoading) {
@@ -82,7 +105,7 @@ const AdminDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto p-6 pt-[5rem] space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">

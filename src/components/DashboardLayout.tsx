@@ -54,17 +54,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
 
-          {/* Sidebar */}
+          {/* Sidebar - Non-collapsible on desktop */}
           <div className={cn(
-            "admin-sidebar",
-            !isSidebarOpen && "translate-x-[-100%] md:translate-x-0 md:w-20",
-            "transition-all duration-300 ease-in-out"
+            "admin-sidebar fixed top-0 left-0 h-full w-64 bg-white border-r border-admin-border z-40",
+            "transition-transform duration-300 ease-in-out",
+            !isSidebarOpen && "md:translate-x-0",
+            !isSidebarOpen && isMobile && "-translate-x-full"
           )}>
             <div className="p-4 h-16 flex items-center justify-between border-b border-admin-border">
-              <h1 className={cn(
-                "text-xl font-bold text-admin transition-opacity duration-300",
-                !isSidebarOpen && "md:opacity-0"
-              )}>
+              <h1 className="text-xl font-bold text-admin">
                 Road2Pizza Admin
               </h1>
             </div>
@@ -73,43 +71,20 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
-          {/* Header */}
-          <header className={cn(
-            "admin-header",
-            !isSidebarOpen && "md:left-20",
-            "transition-all duration-300 ease-in-out"
+          {/* Main Content */}
+          <main className={cn(
+            "admin-content transition-all duration-300 ease-in-out",
+            "md:ml-64", // Always offset content on desktop
+            isMobile && !isSidebarOpen && "ml-0" // No offset on mobile when menu is closed
           )}>
-            <div className="px-4 h-full flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {/* Desktop Menu Toggle */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleSidebar}
-                  className="hidden md:flex hover:bg-admin/10"
-                  aria-label="Toggle menu"
-                >
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-4">
-                {/* Add header actions here */}
+            <div className="min-h-screen bg-gray-50">
+              <div className="p-6">
+                {children}
               </div>
             </div>
-          </header>
+          </main>
         </>
       )}
-
-      {/* Main Content */}
-      <main className={cn(
-        "admin-content",
-        !isSidebarOpen && "md:pl-20",
-        "transition-all duration-300 ease-in-out"
-      )}>
-        <div className="container p-6 mx-auto">
-          {children}
-        </div>
-      </main>
     </div>
   );
 };

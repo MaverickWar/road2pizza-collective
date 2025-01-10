@@ -11,12 +11,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  // Set initial sidebar state based on screen size
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
   }, [isMobile]);
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       if (!isMobile) {
@@ -40,7 +38,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     )}>
       {isAdmin && user && (
         <>
-          {/* Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -54,10 +51,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
 
-          {/* Sidebar - Non-collapsible on desktop */}
           <div className={cn(
-            "admin-sidebar fixed top-0 left-0 h-full w-64 bg-white border-r border-admin-border z-40",
-            "transition-transform duration-300 ease-in-out",
+            "admin-sidebar",
             !isSidebarOpen && "md:translate-x-0",
             !isSidebarOpen && isMobile && "-translate-x-full"
           )}>
@@ -71,17 +66,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
-          {/* Main Content */}
           <main className={cn(
-            "admin-content transition-all duration-300 ease-in-out",
+            "transition-all duration-300 ease-in-out p-4 md:p-6",
             "md:ml-64", // Always offset content on desktop
             isMobile && !isSidebarOpen && "ml-0" // No offset on mobile when menu is closed
           )}>
-            <div className="min-h-screen bg-gray-50">
-              <div className="p-6">
-                {children}
-              </div>
-            </div>
+            {children}
           </main>
         </>
       )}

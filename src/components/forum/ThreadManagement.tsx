@@ -44,7 +44,6 @@ const ThreadManagement = () => {
         throw error;
       }
 
-      // Transform the data to match the Thread interface
       const transformedData = data?.map(thread => {
         const postsCount = thread.posts?.[0]?.count || 0;
         return {
@@ -52,7 +51,7 @@ const ThreadManagement = () => {
           author: thread.author || undefined,
           forum: thread.forum || undefined,
           posts: [{
-            id: '', // We only need the count for display
+            id: '',
             thread_id: thread.id,
             content: '',
             created_at: new Date().toISOString(),
@@ -66,40 +65,6 @@ const ThreadManagement = () => {
       return transformedData;
     }
   });
-
-  const handleTogglePinned = async (threadId: string, currentState: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('forum_threads')
-        .update({ is_pinned: !currentState })
-        .eq('id', threadId);
-
-      if (error) throw error;
-      
-      toast.success(`Thread ${currentState ? 'unpinned' : 'pinned'} successfully`);
-      refetch();
-    } catch (error) {
-      console.error('Error toggling pin status:', error);
-      toast.error('Failed to update thread status');
-    }
-  };
-
-  const handleToggleLocked = async (threadId: string, currentState: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('forum_threads')
-        .update({ is_locked: !currentState })
-        .eq('id', threadId);
-
-      if (error) throw error;
-      
-      toast.success(`Thread ${currentState ? 'unlocked' : 'locked'} successfully`);
-      refetch();
-    } catch (error) {
-      console.error('Error toggling lock status:', error);
-      toast.error('Failed to update thread status');
-    }
-  };
 
   return (
     <DashboardLayout>
@@ -127,9 +92,9 @@ const ThreadManagement = () => {
                     key={thread.id}
                     className="p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors"
                   >
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <h3 className="font-semibold">{thread.title}</h3>
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold truncate">{thread.title}</h3>
                         <p className="text-sm text-muted-foreground">
                           Posted in {thread.forum?.title} by {thread.author?.username}
                         </p>
@@ -137,12 +102,44 @@ const ThreadManagement = () => {
                           {thread.posts?.[0]?.count || 0} replies
                         </p>
                       </div>
-                      <ThreadManagementActions
-                        thread={thread}
-                        onThreadUpdated={refetch}
-                        onTogglePinned={handleTogglePinned}
-                        onToggleLocked={handleToggleLocked}
-                      />
+                      <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                        <ThreadManagementActions
+                          thread={thread}
+                          onThreadUpdated={refetch}
+                          onTogglePinned={async (threadId, currentState) => {
+                            try {
+                              const { error } = await supabase
+                                .from('forum_threads')
+                                .update({ is_pinned: !currentState })
+                                .eq('id', threadId);
+
+                              if (error) throw error;
+                              
+                              toast.success(`Thread ${currentState ? 'unpinned' : 'pinned'} successfully`);
+                              refetch();
+                            } catch (error) {
+                              console.error('Error toggling pin status:', error);
+                              toast.error('Failed to update thread status');
+                            }
+                          }}
+                          onToggleLocked={async (threadId, currentState) => {
+                            try {
+                              const { error } = await supabase
+                                .from('forum_threads')
+                                .update({ is_locked: !currentState })
+                                .eq('id', threadId);
+
+                              if (error) throw error;
+                              
+                              toast.success(`Thread ${currentState ? 'unlocked' : 'locked'} successfully`);
+                              refetch();
+                            } catch (error) {
+                              console.error('Error toggling lock status:', error);
+                              toast.error('Failed to update thread status');
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -32,11 +32,12 @@ const AdminDashboard = () => {
           .eq('status', 'published')
           .eq('approval_status', 'approved'),
         
-        // Get reviews with ratings
+        // Get all published reviews with ratings
         supabase
           .from('reviews')
-          .select('rating')
+          .select('rating, recipe_id')
           .not('rating', 'is', null)
+          .eq('recipe_id', supabase.from('recipes').select('id').eq('status', 'published').eq('approval_status', 'approved'))
       ]);
 
       console.log("Stats responses:", {
@@ -68,7 +69,7 @@ const AdminDashboard = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6 flex items-center justify-center min-h-[400px]">
+        <div className="container mx-auto p-4 flex items-center justify-center min-h-[400px]">
           <LoaderCircle className="w-8 h-8 animate-spin text-primary" />
         </div>
       </DashboardLayout>
@@ -79,7 +80,7 @@ const AdminDashboard = () => {
     console.error("Error loading admin stats:", error);
     return (
       <DashboardLayout>
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4">
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
@@ -93,8 +94,8 @@ const AdminDashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto space-y-6">
-        <div className="flex flex-col space-y-2">
+      <div className="container mx-auto p-4">
+        <div className="flex flex-col space-y-2 mb-6">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">
             Welcome back, {user?.username || user?.email}

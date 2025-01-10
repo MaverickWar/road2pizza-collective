@@ -45,7 +45,7 @@ const StatsCards = ({ stats }: StatsCardsProps) => {
   ];
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-4 lg:grid-cols-4">
       {cards.map((card) => (
         <Card 
           key={card.title} 

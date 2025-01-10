@@ -24,13 +24,15 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
       // Refetch on reconnect after data becomes stale
       refetchOnReconnect: true,
-      // Handle errors globally
-      onError: (error: any) => {
-        console.error("Query error:", error);
-        if (error?.message) {
-          toast.error(error.message);
+      meta: {
+        // Handle errors globally through meta options
+        onError: (error: any) => {
+          console.error("Query error:", error);
+          if (error?.message) {
+            toast.error(error.message);
+          }
         }
-      },
+      }
     },
   },
 });

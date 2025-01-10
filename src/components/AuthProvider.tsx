@@ -52,7 +52,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         if (session && mounted) {
-          // Calculate time until token needs refresh (5 minutes before expiry)
           const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
           
           if (expiresIn > 0) {
@@ -68,12 +67,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 console.error("Session refresh failed:", error);
                 toast.error("Your session has expired. Please sign in again.");
                 await supabase.auth.signOut();
-                queryClient.clear(); // Clear React Query cache
+                queryClient.clear();
                 navigate('/login');
               }
             }, expiresIn);
           } else {
-            // Token is already expired or close to expiry
             console.log("Token needs immediate refresh");
             const { error } = await supabase.auth.refreshSession();
             if (error) throw error;
@@ -110,14 +108,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         navigate('/login');
       }
 
-      // Handle session recovery
       if (event === 'SIGNED_IN') {
         console.log('User signed in, setting up session');
         if (mounted) setupSessionRefresh();
       }
     });
 
-    // Handle refresh token errors globally
     window.addEventListener('supabase.auth.error', (event: any) => {
       if (event.detail?.error?.message?.includes('refresh_token_not_found')) {
         console.log('Invalid refresh token, signing out user');

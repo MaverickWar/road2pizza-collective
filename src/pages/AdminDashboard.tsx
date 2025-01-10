@@ -32,12 +32,20 @@ const AdminDashboard = () => {
           .eq('status', 'published')
           .eq('approval_status', 'approved'),
         
-        // Get all published reviews with ratings
+        // Get all published reviews with ratings for approved recipes
         supabase
           .from('reviews')
-          .select('rating, recipe_id')
+          .select(`
+            rating,
+            recipes!inner (
+              id,
+              status,
+              approval_status
+            )
+          `)
           .not('rating', 'is', null)
-          .eq('recipe_id', supabase.from('recipes').select('id').eq('status', 'published').eq('approval_status', 'approved'))
+          .eq('recipes.status', 'published')
+          .eq('recipes.approval_status', 'approved')
       ]);
 
       console.log("Stats responses:", {

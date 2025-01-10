@@ -8,7 +8,6 @@ import SuspensionNotice from "./SuspensionNotice";
 import EmailPromptDialog from "./EmailPromptDialog";
 import UsernamePromptDialog from "./UsernamePromptDialog";
 import { useAuthState } from "@/hooks/useAuthState";
-import { queryClient } from "@/config/queryClient";
 
 type AuthContextType = {
   user: (User & Partial<Profile>) | null;
@@ -40,50 +39,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let refreshTimer: NodeJS.Timeout;
-    let mounted = true;
 
     const setupSessionRefresh = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Calculate time until token needs refresh (5 minutes before expiry)
+        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
         
-        if (sessionError) {
-          console.error("Session fetch error:", sessionError);
-          throw sessionError;
-        }
-
-        if (session && mounted) {
-          const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
-          
-          if (expiresIn > 0) {
-            console.log("Setting up session refresh timer for:", new Date(Date.now() + expiresIn));
-            refreshTimer = setTimeout(async () => {
-              try {
-                const { data, error } = await supabase.auth.refreshSession();
-                if (error) throw error;
-                
-                console.log("Session refreshed successfully:", data.session?.expires_at);
-                if (mounted) setupSessionRefresh(); // Setup next refresh
-              } catch (error) {
-                console.error("Session refresh failed:", error);
-                toast.error("Your session has expired. Please sign in again.");
-                await supabase.auth.signOut();
-                queryClient.clear();
-                navigate('/login');
-              }
-            }, expiresIn);
-          } else {
-            console.log("Token needs immediate refresh");
-            const { error } = await supabase.auth.refreshSession();
-            if (error) throw error;
-          }
-        }
-      } catch (error) {
-        console.error("Session setup error:", error);
-        if (mounted) {
-          toast.error("Session error. Please sign in again.");
-          await supabase.auth.signOut();
-          queryClient.clear();
-          navigate('/login');
+        if (expiresIn > 0) {
+          refreshTimer = setTimeout(async () => {
+            const { data, error } = await supabase.auth.refreshSession();
+            if (error) {
+              console.error('Session refresh failed:', error);
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+            } else {
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              setupSessionRefresh(); // Setup next refresh
+            }
+          }, expiresIn);
         }
       }
     };
@@ -97,36 +72,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
-        if (mounted) setupSessionRefresh();
+        setupSessionRefresh(); // Setup next refresh after token refresh
       }
       
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, redirecting to login');
         clearTimeout(refreshTimer);
-        queryClient.clear();
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
-
-      if (event === 'SIGNED_IN') {
-        console.log('User signed in, setting up session');
-        if (mounted) setupSessionRefresh();
-      }
     });
 
+    // Handle refresh token errors globally
     window.addEventListener('supabase.auth.error', (event: any) => {
       if (event.detail?.error?.message?.includes('refresh_token_not_found')) {
         console.log('Invalid refresh token, signing out user');
         toast.error("Your session has expired. Please sign in again.");
         supabase.auth.signOut().then(() => {
-          queryClient.clear();
           navigate('/login');
         });
       }
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
       clearTimeout(refreshTimer);
     };

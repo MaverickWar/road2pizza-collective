@@ -49,33 +49,27 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 bg-white border border-gray-200 shadow-lg" 
+        className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg" 
         align="end"
         sideOffset={5}
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none text-gray-900">
+            <p className="text-sm font-medium leading-none">
               {user.username || 'User'}
             </p>
-            <p className="text-xs leading-none text-gray-500">
+            <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <ProfileDialog user={user} isAdmin={isAdmin} />
-        <DropdownMenuItem 
-          className="text-gray-700 hover:bg-gray-100"
-          onSelect={() => navigate(isAdmin ? '/dashboard/admin' : '/dashboard')}
-        >
+        <DropdownMenuItem onSelect={() => navigate('/dashboard')}>
           {isAdmin ? 'Admin' : 'Member'} Dashboard
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          className="text-gray-700 hover:bg-gray-100"
-          onSelect={handleLogout}
-        >
+        <DropdownMenuItem onSelect={handleLogout}>
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

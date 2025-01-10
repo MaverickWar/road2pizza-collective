@@ -5,11 +5,25 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
+import { useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const location = useLocation();
+  const queryClient = useQueryClient();
+
+  // Reset relevant queries on route change
+  useEffect(() => {
+    console.log("Route changed in DashboardLayout:", location.pathname);
+    // Remove stale data for admin-related queries
+    queryClient.removeQueries({ queryKey: ["admin-users"] });
+    queryClient.removeQueries({ queryKey: ["admin-reviews"] });
+    queryClient.removeQueries({ queryKey: ["admin-recipes"] });
+    queryClient.removeQueries({ queryKey: ["admin-stats"] });
+  }, [location.pathname, queryClient]);
 
   useEffect(() => {
     setIsSidebarOpen(!isMobile);
@@ -52,7 +66,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </Button>
 
           <div className={cn(
-            "admin-sidebar",
+            "admin-sidebar fixed top-0 left-0 h-full w-64 bg-background border-r border-admin-border transition-transform duration-300 ease-in-out z-40",
             !isSidebarOpen && "md:translate-x-0",
             !isSidebarOpen && isMobile && "-translate-x-full"
           )}>
@@ -67,9 +81,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <main className={cn(
-            "transition-all duration-300 ease-in-out p-4 md:p-6",
+            "transition-all duration-300 ease-in-out",
+            "min-h-screen bg-background",
+            "p-4 md:p-6",
             "md:ml-64", // Always offset content on desktop
-            isMobile && !isSidebarOpen && "ml-0" // No offset on mobile when menu is closed
+            isMobile && !isSidebarOpen && "ml-0", // No offset on mobile when menu is closed
+            "flex flex-col"
           )}>
             {children}
           </main>

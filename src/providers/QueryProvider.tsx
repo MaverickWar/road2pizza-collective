@@ -1,3 +1,5 @@
+// src/providers/QueryProvider.tsx
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useEffect } from "react";
 
@@ -22,9 +24,9 @@ const queryClient = new QueryClient({
 // Custom query provider with cache clearing on refresh
 export function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    // Check if the page is reloaded and clear cache if true
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-      queryClient.clear(); // Clear the React Query cache on page refresh
+    // Check if the page was just reloaded and clear cache
+    if (window.performance && window.performance.navigation.type === 1) {
+      queryClient.clear(); // Clear the React Query cache on page reload
     }
   }, []);
 

@@ -1,5 +1,6 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { toast } from "sonner";
+import { monitoringService } from "@/services/MonitoringService";
 
 interface Props {
   children: ReactNode;
@@ -20,7 +21,22 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
-    toast.error("An unexpected error occurred. Please try refreshing the page.");
+    
+    // Log the error and show toast notification
+    const errorMessage = `An unexpected error occurred: ${error.message}`;
+    console.error(errorMessage, errorInfo);
+    
+    toast.error(errorMessage, {
+      duration: 5000,
+      description: "Please try refreshing the page. If the problem persists, contact support."
+    });
+
+    // Add a monitoring check for this specific error
+    monitoringService.addCheck({
+      id: `error-${Date.now()}`,
+      check: () => false, // This will trigger an immediate alert
+      message: `Critical error detected: ${error.message}`
+    });
   }
 
   public render() {

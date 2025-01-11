@@ -4,8 +4,17 @@ import { QueryProvider } from "./providers/QueryProvider";
 import AuthProvider from "./components/AuthProvider";
 import AppRoutes from "./routes/AppRoutes";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { useEffect } from "react";
+import { monitoringService } from "./services/MonitoringService";
 
 function App() {
+  useEffect(() => {
+    // Cleanup monitoring service on unmount
+    return () => {
+      monitoringService.cleanup();
+    };
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryProvider>

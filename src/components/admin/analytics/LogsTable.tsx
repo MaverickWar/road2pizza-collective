@@ -1,13 +1,7 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 interface Log {
   id: string;
@@ -24,6 +18,14 @@ interface LogsTableProps {
 }
 
 const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'critical':
@@ -41,54 +43,52 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'open':
-        return 'bg-red-500';
-      case 'investigating':
-        return 'bg-yellow-500';
       case 'resolved':
         return 'bg-green-500';
+      case 'investigating':
+        return 'bg-yellow-500';
+      case 'open':
+        return 'bg-red-500';
       default:
         return 'bg-gray-500';
     }
   };
 
-  if (isLoading) {
-    return <div>Loading logs...</div>;
-  }
-
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Time</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Message</TableHead>
-          <TableHead>Severity</TableHead>
-          <TableHead>Status</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {logs.map((log) => (
-          <TableRow key={log.id}>
-            <TableCell>
-              {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm')}
-            </TableCell>
-            <TableCell>{log.type}</TableCell>
-            <TableCell>{log.message}</TableCell>
-            <TableCell>
-              <Badge className={getSeverityColor(log.severity)}>
-                {log.severity}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <Badge className={getStatusColor(log.status)}>
-                {log.status}
-              </Badge>
-            </TableCell>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Time</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Message</TableHead>
+            <TableHead>Severity</TableHead>
+            <TableHead>Status</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {logs.map((log) => (
+            <TableRow key={log.id}>
+              <TableCell>
+                {format(new Date(log.created_at), 'MMM d, yyyy HH:mm')}
+              </TableCell>
+              <TableCell className="capitalize">{log.type}</TableCell>
+              <TableCell>{log.message}</TableCell>
+              <TableCell>
+                <Badge className={`${getSeverityColor(log.severity)} text-white`}>
+                  {log.severity}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Badge className={`${getStatusColor(log.status)} text-white`}>
+                  {log.status}
+                </Badge>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

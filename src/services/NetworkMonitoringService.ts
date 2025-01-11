@@ -1,4 +1,6 @@
+// src/services/NetworkMonitoringService.ts
 import { toast } from "sonner";
+import { supabase } from "../supabaseClient"; // Assuming you've set up Supabase client
 
 type NetworkRequest = {
   url: string;
@@ -79,14 +81,17 @@ class NetworkMonitoringService {
     } catch (error) {
       clearTimeout(timeoutId);
       
+      // Log timeout and other errors
       if (error.name === 'AbortError') {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         toast.error(`Request to ${url} timed out`);
+        this.logErrorToSupabase(url, 'timeout', error);
       } else {
         console.error(`❌ Request to ${url} failed:`, error);
         toast.error(`Network request failed: ${error.message}`);
+        this.logErrorToSupabase(url, 'network_error', error);
       }
-      
+
       throw error;
     } finally {
       this.activeRequests.delete(id);
@@ -106,6 +111,25 @@ class NetworkMonitoringService {
     });
 
     toast.error(`Request failed: ${reason}`);
+  }
+
+  private async logErrorToSupabase(url: string, errorType: string, errorDetails: any) {
+    const { data, error } = await supabase
+      .from('error_logs')  // Assuming you have an 'error_logs' table in Supabase
+      .insert([
+        {
+          message: `Network request failed: ${errorType}`,
+          details: {
+            url,
+            errorDetails,
+          },
+          timestamp: new Date(),
+        },
+      ]);
+
+    if (error) {
+      console.error('Error logging to Supabase:', error);
+    }
   }
 
   getActiveRequests() {

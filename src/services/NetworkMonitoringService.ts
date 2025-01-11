@@ -31,7 +31,12 @@ class NetworkMonitoringService {
     const id = Math.random().toString(36).substring(7);
     const startTime = performance.now();
     
-    const url = typeof input === 'string' ? input : input.url;
+    // Handle different input types to get the URL string
+    const url = input instanceof URL 
+      ? input.href 
+      : input instanceof Request 
+        ? input.url 
+        : input;
     const method = init?.method || 'GET';
 
     // Track request start

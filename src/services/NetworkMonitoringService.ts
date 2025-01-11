@@ -1,12 +1,6 @@
 // src/services/NetworkMonitoringService.ts
 import { toast } from "sonner";
-import { supabase } from "../supabaseClient"; // Assuming you've set up Supabase client
-
-type NetworkRequest = {
-  url: string;
-  startTime: number;
-  method: string;
-};
+import { supabase } from "@/integrations/supabase/client";
 
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
@@ -23,6 +17,42 @@ class NetworkMonitoringService {
       NetworkMonitoringService.instance = new NetworkMonitoringService();
     }
     return NetworkMonitoringService.instance;
+  }
+
+  private logFailure(requestId: string, reason: string) {
+    const request = this.activeRequests.get(requestId);
+    if (!request) return;
+
+    const duration = performance.now() - request.startTime;
+    
+    console.error(`❌ ${request.method} request to ${request.url} failed:`, {
+      reason,
+      duration: `${duration.toFixed(0)}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
+    toast.error(`Request failed: ${reason}`);
+  }
+
+  private async logErrorToSupabase(url: string, errorType: string, errorDetails: any) {
+    const { error } = await supabase
+      .from('analytics_logs')
+      .insert([
+        {
+          type: 'error',
+          message: `Network request failed: ${errorType}`,
+          details: {
+            url,
+            errorDetails
+          },
+          severity: 'high',
+          status: 'open'
+        },
+      ]);
+
+    if (error) {
+      console.error('Error logging to Supabase:', error);
+    }
   }
 
   monitorFetch = async (
@@ -78,7 +108,7 @@ class NetworkMonitoringService {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       clearTimeout(timeoutId);
       
       // Log timeout and other errors
@@ -98,43 +128,15 @@ class NetworkMonitoringService {
     }
   };
 
-  private logFailure(requestId: string, reason: string) {
-    const request = this.activeRequests.get(requestId);
-    if (!request) return;
-
-    const duration = performance.now() - request.startTime;
-    
-    console.error(`❌ ${request.method} request to ${request.url} failed:`, {
-      reason,
-      duration: `${duration.toFixed(0)}ms`,
-      timestamp: new Date().toISOString(),
-    });
-
-    toast.error(`Request failed: ${reason}`);
-  }
-
-  private async logErrorToSupabase(url: string, errorType: string, errorDetails: any) {
-    const { data, error } = await supabase
-      .from('error_logs')  // Assuming you have an 'error_logs' table in Supabase
-      .insert([
-        {
-          message: `Network request failed: ${errorType}`,
-          details: {
-            url,
-            errorDetails,
-          },
-          timestamp: new Date(),
-        },
-      ]);
-
-    if (error) {
-      console.error('Error logging to Supabase:', error);
-    }
-  }
-
   getActiveRequests() {
     return Array.from(this.activeRequests.values());
   }
 }
+
+type NetworkRequest = {
+  url: string;
+  startTime: number;
+  method: string;
+};
 
 export const networkMonitor = NetworkMonitoringService.getInstance();

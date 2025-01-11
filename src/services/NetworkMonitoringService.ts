@@ -1,6 +1,10 @@
-// src/services/NetworkMonitoringService.ts
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+
+type NetworkRequest = {
+  url: string;
+  startTime: number;
+  method: string;
+};
 
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
@@ -17,42 +21,6 @@ class NetworkMonitoringService {
       NetworkMonitoringService.instance = new NetworkMonitoringService();
     }
     return NetworkMonitoringService.instance;
-  }
-
-  private logFailure(requestId: string, reason: string) {
-    const request = this.activeRequests.get(requestId);
-    if (!request) return;
-
-    const duration = performance.now() - request.startTime;
-    
-    console.error(`❌ ${request.method} request to ${request.url} failed:`, {
-      reason,
-      duration: `${duration.toFixed(0)}ms`,
-      timestamp: new Date().toISOString(),
-    });
-
-    toast.error(`Request failed: ${reason}`);
-  }
-
-  private async logErrorToSupabase(url: string, errorType: string, errorDetails: any) {
-    const { error } = await supabase
-      .from('analytics_logs')
-      .insert([
-        {
-          type: 'error',
-          message: `Network request failed: ${errorType}`,
-          details: {
-            url,
-            errorDetails
-          },
-          severity: 'high',
-          status: 'open'
-        },
-      ]);
-
-    if (error) {
-      console.error('Error logging to Supabase:', error);
-    }
   }
 
   monitorFetch = async (
@@ -108,35 +76,58 @@ class NetworkMonitoringService {
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
       
-      // Log timeout and other errors
       if (error.name === 'AbortError') {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         toast.error(`Request to ${url} timed out`);
-        this.logErrorToSupabase(url, 'timeout', error);
       } else {
         console.error(`❌ Request to ${url} failed:`, error);
         toast.error(`Network request failed: ${error.message}`);
-        this.logErrorToSupabase(url, 'network_error', error);
       }
-
+      
       throw error;
     } finally {
       this.activeRequests.delete(id);
     }
   };
 
+  private logFailure(requestId: string, reason: string) {
+    const request = this.activeRequests.get(requestId);
+    if (!request) return;
+
+    const duration = performance.now() - request.startTime;
+    
+    console.error(`❌ ${request.method} request to ${request.url} failed:`, {
+      reason,
+      duration: `${duration.toFixed(0)}ms`,
+      timestamp: new Date().toISOString(),
+    });
+
+    toast.error(`Request failed: ${reason}`);
+
+    // Log the failure to analytics backend
+    fetch('/api/log-analytics', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'network_failure',
+        requestId,
+        reason,
+        duration: duration.toFixed(0),
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch(error => {
+      console.error('Error logging network failure event:', error);
+    });
+  }
+
   getActiveRequests() {
     return Array.from(this.activeRequests.values());
   }
 }
-
-type NetworkRequest = {
-  url: string;
-  startTime: number;
-  method: string;
-};
 
 export const networkMonitor = NetworkMonitoringService.getInstance();

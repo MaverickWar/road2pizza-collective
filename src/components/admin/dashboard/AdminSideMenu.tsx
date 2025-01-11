@@ -12,12 +12,14 @@ import {
   Pizza,
   Bell,
   Palette,
-  Image
+  Image,
+  LineChart
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
+  { icon: LineChart, label: "Site Analytics", path: "/dashboard/admin/analytics" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
   { icon: Star, label: "Review Management", path: "/dashboard/admin/review-management" },
   { icon: MessageSquare, label: "Forum Categories", path: "/dashboard/admin/forum/categories" },

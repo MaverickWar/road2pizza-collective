@@ -30,6 +30,7 @@ import NotificationManagement from "../pages/admin/NotificationManagement";
 import ThemeSettings from "../pages/admin/ThemeSettings";
 import MediaGallery from "../pages/admin/MediaGallery";
 import ForumThreadDetail from "../components/forum/ForumThreadDetail";
+import Analytics from "../pages/admin/Analytics";
 
 function AppRoutes() {
   return (
@@ -67,6 +68,7 @@ function AppRoutes() {
       
       {/* Admin routes */}
       <Route path="/dashboard/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/admin/analytics" element={<ProtectedRoute requireAdmin><Analytics /></ProtectedRoute>} />
       <Route path="/dashboard/admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
       <Route path="/dashboard/admin/reviews" element={<ProtectedRoute requireAdmin><ReviewsDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/admin/review-management" element={<ProtectedRoute requireAdmin><ReviewManagement /></ProtectedRoute>} />

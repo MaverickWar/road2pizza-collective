@@ -17,6 +17,8 @@ class MonitoringService {
   private checks: ValidationCheck[] = [];
   private intensiveMonitoringTimeout: NodeJS.Timeout | null = null;
   private regularMonitoringInterval: NodeJS.Timeout | null = null;
+  private lastNotificationTime: number = 0;
+  private notificationDebounceInterval: number = 60000; // 1 minute
 
   private constructor() {
     // Initialize default checks
@@ -49,7 +51,7 @@ class MonitoringService {
       id: "data-integrity",
       check: async () => {
         try {
-          const response = await fetch("/api/health");
+          const response = await this.fetchWithRetry("/api/health");
           return response.ok;
         } catch (error) {
           console.error("Data integrity check failed:", error);
@@ -78,7 +80,7 @@ class MonitoringService {
     // Add dashboard stats check
     this.addCheck({
       id: "dashboard-stats",
-      check: this.fetchDashboardData,
+      check: this.fetchDashboardData.bind(this),
       message: "Failed to fetch dashboard statistics",
     });
   }
@@ -126,13 +128,18 @@ class MonitoringService {
   }
 
   private handleFailedCheck(check: ValidationCheck) {
-    const errorMessage = `Monitoring Alert: ${check.message}`;
-    console.error(errorMessage);
+    const currentTime = Date.now();
+    if (currentTime - this.lastNotificationTime > this.notificationDebounceInterval) {
+      const errorMessage = `Monitoring Alert: ${check.message}`;
+      console.error(errorMessage);
 
-    // Show toast notification
-    toast.error(errorMessage, {
-      duration: 5000,
-    });
+      // Show toast notification
+      toast.error(errorMessage, {
+        duration: 5000,
+      });
+
+      this.lastNotificationTime = currentTime;
+    }
   }
 
   public addCheck(check: ValidationCheck) {
@@ -155,7 +162,7 @@ class MonitoringService {
    */
   private async fetchDashboardData(): Promise<boolean> {
     try {
-      const response = await fetch("/api/dashboard");
+      const response = await this.fetchWithRetry("/api/dashboard");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -177,6 +184,71 @@ class MonitoringService {
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       return false;
+    }
+  }
+
+  /**
+   * Fetch with retry logic, including handling 401 errors
+   */
+  private async fetchWithRetry(url: string, retries: number = 3): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${this.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.status === 401) {
+          console.error('Unauthorized access. Attempting to refresh token...');
+          await this.refreshToken();
+          continue; // Retry with a new token
+        }
+
+        return response;
+      } catch (error) {
+        console.error(`Fetch attempt ${i + 1} failed:`, error);
+        if (i === retries - 1) {
+          throw error;
+        }
+      }
+    }
+    throw new Error('All fetch attempts failed');
+  }
+
+  /**
+   * Retrieve the token from localStorage or other secure storage
+   */
+  private getToken(): string {
+    return localStorage.getItem('auth_token') || '';
+  }
+
+  /**
+   * Refresh the token by making an appropriate API call
+   */
+  private async refreshToken(): Promise<void> {
+    try {
+      const response = await fetch('/api/refresh-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          refresh_token: localStorage.getItem('refresh_token')
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh token');
+      }
+
+      const data = await response.json();
+      localStorage.setItem('auth_token', data.auth_token);
+      console.log('Token refreshed successfully');
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      throw error;
     }
   }
 }

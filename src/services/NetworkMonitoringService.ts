@@ -10,7 +10,7 @@ type NetworkRequest = {
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   private activeRequests: Map<string, NetworkRequest>;
-  private readonly TIMEOUT_MS = 5000;
+  private readonly TIMEOUT_MS = 5000; // Timeout threshold for requests
 
   private constructor() {
     this.activeRequests = new Map();
@@ -29,13 +29,14 @@ class NetworkMonitoringService {
     init?: RequestInit
   ): Promise<Response> => {
     const controller = new AbortController();
-    const id = Math.random().toString(36).substring(7);
+    const id = Math.random().toString(36).substring(7); // Unique request ID
     const startTime = performance.now();
 
-    const url = input instanceof URL 
-      ? input.href 
-      : input instanceof Request 
-        ? input.url 
+    const url =
+      input instanceof URL
+        ? input.href
+        : input instanceof Request
+        ? input.url
         : input;
 
     const method = init?.method || "GET";
@@ -60,9 +61,15 @@ class NetworkMonitoringService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Handle slow requests
       if (duration > 2000) {
         console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
-        this.logToAnalytics("slow_request", "Request took longer than 2000ms", url, duration);
+        this.logToAnalytics(
+          "slow_request",
+          "Request took longer than 2000ms",
+          url,
+          duration
+        );
       } else {
         console.log(`✅ ${method} request to ${url} completed in ${duration.toFixed(0)}ms`);
       }
@@ -71,6 +78,7 @@ class NetworkMonitoringService {
     } catch (error) {
       clearTimeout(timeoutId);
 
+      // Timeout handling
       if (error.name === "AbortError") {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         toast.error(`Request to ${url} timed out`);
@@ -102,19 +110,28 @@ class NetworkMonitoringService {
   }
 
   private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
-    const { error } = await supabase.from("analytics_logs").insert({
-      type,
-      message,
-      url,
-      duration: duration || 0,
-      severity: type === "timeout" || type === "network_error" ? "high" : "low",
-    });
+    try {
+      const { error } = await supabase.from("analytics_logs").insert({
+        type,
+        message,
+        url,
+        duration: duration || 0,
+        severity: type === "timeout" || type === "network_error" ? "high" : "low",
+      });
 
-    if (error) console.error("Error logging to analytics:", error);
+      if (error) console.error("Error logging to analytics:", error);
+    } catch (err) {
+      console.error("Unexpected error logging to analytics:", err);
+    }
   }
 
   getActiveRequests() {
     return Array.from(this.activeRequests.values());
+  }
+
+  public cleanup() {
+    console.log("Cleaning up active network requests...");
+    this.activeRequests.clear();
   }
 }
 

@@ -1,97 +1,50 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { monitoringService } from "@/services/MonitoringService";
+import { ReactNode, useEffect } from "react";
 
-// Configure React Query client with optimized settings
+// Configure React Query client with custom settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
-      gcTime: 1000 * 60 * 10,   // Keep unused data in cache for 10 minutes
+      staleTime: 1000 * 60 * 2, // Data stays fresh for 2 minutes
+      gcTime: 1000 * 60 * 5,    // Keep unused data in cache for 5 minutes
       retry: (failureCount, error: any) => {
         // Don't retry on 404s or auth errors
         if (error?.status === 404 || error?.status === 401) return false;
-        // Retry up to 3 times with exponential backoff
-        return failureCount < 3;
+        return failureCount < 2;
       },
-      refetchOnWindowFocus: false, // Prevent unnecessary refetches
-      refetchOnReconnect: true,    // Refetch on reconnection
-      refetchOnMount: true,        // Ensure fresh data on mount
+      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnReconnect: true,
+      refetchOnMount: true,
     },
-    mutations: {
-      retry: 2,
-      meta: {
-        onError: (error: Error) => {
-          console.error('Mutation error:', error);
-          monitoringService.addCheck({
-            id: `mutation-error-${Date.now()}`,
-            check: () => false,
-            message: `Mutation failed: ${error.message}`
-          });
-        }
-      }
-    }
-  }
+  },
 });
 
-// Add global error handler using the correct event subscription
-queryClient.getQueryCache().subscribe({
-  onError: (error) => {
-    console.error('Query cache error:', error);
-    monitoringService.addCheck({
-      id: `query-cache-error-${Date.now()}`,
-      check: () => false,
-      message: `Query cache error: ${error.message}`
-    });
-  }
-});
-
+// Custom query provider with cache clearing on refresh
 export function QueryProvider({ children }: { children: ReactNode }) {
-  const [toastShown, setToastShown] = useState(false); // Track toast state to prevent spamming
-
   useEffect(() => {
-    const logAnalytics = async () => {
-      try {
-        console.log('Logging page load analytics...');
-        const { error } = await supabase
-          .from('analytics_metrics')
-          .insert({
-            metric_name: 'page_load',
-            metric_value: 1,
-            metadata: {
-              timestamp: new Date().toISOString(),
-              user_agent: navigator.userAgent,
-              url: window.location.href,
-              performance_metrics: {
-                loadTime: performance.now(),
-                memory: (performance as any).memory?.usedJSHeapSize || 0
-              }
-            }
-          });
+    // Check if the page is reloaded and clear cache if true
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+      queryClient.clear();
+      
+      // Log cache clearing event to analytics backend
+      fetch('/api/log-analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'cache_clear',
+          timestamp: new Date().toISOString(),
+        }),
+      }).catch(error => {
+        console.error('Error logging cache clearing event:', error);
+      });
+    }
+  }, []);
 
-        if (error) {
-          console.error('Error logging analytics event:', error);
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('is_admin')
-            .eq('id', (await supabase.auth.getUser()).data.user?.id)
-            .single();
-
-          // Only show error toast for admins and limit frequency of toasts
-          if (profile?.is_admin && !toastShown) {
-            toast.error('Failed to log analytics event');
-            setToastShown(true);
-          }
-        } else {
-          console.log('Successfully logged page load event');
-        }
-      } catch (error) {
-        console.error('Unexpected error logging analytics:', error);
-      }
-    };
-
-    logAnalytics();
-
-    // Set up global error boundary
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+}

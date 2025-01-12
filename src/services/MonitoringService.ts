@@ -1,5 +1,4 @@
 import { toast } from "sonner";
-import { queryClient } from "@/config/queryClient";
 
 type ValidationCheck = {
   id: string;
@@ -18,11 +17,14 @@ class MonitoringService {
   private checks: ValidationCheck[] = [];
   private intensiveMonitoringTimeout: NodeJS.Timeout | null = null;
   private regularMonitoringInterval: NodeJS.Timeout | null = null;
-  private lastErrors: Map<string, { count: number; timestamp: number }> = new Map();
 
   private constructor() {
+    // Initialize default checks
     this.initializeDefaultChecks();
+
+    // Start monitoring cycles
     this.startMonitoringCycles();
+
     console.log("Monitoring service initialized");
   }
 
@@ -44,46 +46,47 @@ class MonitoringService {
     });
 
     this.addCheck({
-      id: "query-cache-health",
-      check: () => {
-        const queries = queryClient.getQueryCache().getAll();
-        return queries.every(query => !query.state.error);
-      },
-      message: "Query cache contains errors",
-    });
-
-    this.addCheck({
-      id: "data-consistency",
+      id: "data-integrity",
       check: async () => {
         try {
-          const queries = queryClient.getQueryCache().getAll();
-          const now = Date.now();
-          const staleThreshold = 5 * 60 * 1000; // 5 minutes
-          
-          const staleQueries = queries.filter(query => 
-            query.state.dataUpdatedAt && 
-            (now - query.state.dataUpdatedAt) > staleThreshold
-          );
-          
-          // If more than 50% of queries are stale, trigger a refresh
-          if (staleQueries.length > queries.length / 2) {
-            console.log('Too many stale queries, refreshing...');
-            await queryClient.refetchQueries();
-          }
-          return true;
-        } catch (error) {
-          console.error('Data consistency check failed:', error);
+          const response = await fetch("/api/health");
+          return response.ok;
+        } catch {
           return false;
         }
       },
-      message: "Data consistency check failed",
+      message: "Data integrity check failed",
+    });
+
+    this.addCheck({
+      id: "cache-validation",
+      check: () => {
+        try {
+          const cacheData = localStorage.getItem("app-cache-timestamp");
+          if (!cacheData) return true;
+          const timestamp = parseInt(cacheData, 10);
+          return Date.now() - timestamp < 3600000; // 1 hour
+        } catch {
+          return false;
+        }
+      },
+      message: "Cache validation failed",
+    });
+
+    // Add dashboard stats check
+    this.addCheck({
+      id: "dashboard-stats",
+      check: this.fetchDashboardData,
+      message: "Failed to fetch dashboard statistics",
     });
   }
 
   private startMonitoringCycles() {
+    // Intensive monitoring for the first 5 minutes (check every 30 seconds)
     let checksCount = 0;
     this.intensiveMonitoringTimeout = setInterval(() => {
       if (checksCount >= 10) {
+        // 10 checks * 30 seconds = 5 minutes
         clearInterval(this.intensiveMonitoringTimeout!);
         this.startRegularMonitoring();
         return;
@@ -96,9 +99,10 @@ class MonitoringService {
   }
 
   private startRegularMonitoring() {
+    // Regular monitoring every 30 minutes
     this.regularMonitoringInterval = setInterval(() => {
       this.runValidations();
-    }, 1800000);
+    }, 1800000); // 30 minutes
 
     console.log("Switched to regular monitoring cycle");
   }
@@ -120,32 +124,10 @@ class MonitoringService {
   }
 
   private handleFailedCheck(check: ValidationCheck) {
-    const now = Date.now();
-    const errorRecord = this.lastErrors.get(check.id);
-    
-    // Update error count and timestamp
-    if (errorRecord) {
-      if (now - errorRecord.timestamp < 300000) { // 5 minutes
-        errorRecord.count++;
-        if (errorRecord.count >= 3) {
-          // If same error occurs 3+ times in 5 minutes, refresh queries
-          console.log(`Multiple errors for ${check.id}, refreshing queries...`);
-          queryClient.refetchQueries();
-          this.lastErrors.delete(check.id); // Reset counter
-          return;
-        }
-      } else {
-        // Reset if more than 5 minutes passed
-        errorRecord.count = 1;
-      }
-      errorRecord.timestamp = now;
-    } else {
-      this.lastErrors.set(check.id, { count: 1, timestamp: now });
-    }
-
     const errorMessage = `Monitoring Alert: ${check.message}`;
     console.error(errorMessage);
 
+    // Show toast notification
     toast.error(errorMessage, {
       duration: 5000,
     });
@@ -163,8 +145,37 @@ class MonitoringService {
     if (this.regularMonitoringInterval) {
       clearInterval(this.regularMonitoringInterval);
     }
-    this.lastErrors.clear();
     console.log("Monitoring service cleaned up");
+  }
+
+  /**
+   * Fetch dashboard data and validate it
+   */
+  private async fetchDashboardData(): Promise<boolean> {
+    try {
+      const response = await fetch("/api/dashboard");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: DashboardData = await response.json();
+
+      // Optional: Validate specific fields
+      if (
+        typeof data.alerts === "number" &&
+        typeof data.avgResponseTime === "string" &&
+        Array.isArray(data.systemLogs)
+      ) {
+        console.log("Dashboard data fetched successfully:", data);
+        return true;
+      } else {
+        console.error("Invalid dashboard data format:", data);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      return false;
+    }
   }
 }
 

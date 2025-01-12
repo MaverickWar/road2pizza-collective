@@ -5,16 +5,16 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::", // Listen on all network interfaces
+    host: "::",
     port: 8080,
-    middlewareMode: false, // Ensure normal mode (not middleware)
+    middlewareMode: false,
     headers: {
-      'Cache-Control': 'no-store', // Disable caching during development
+      'Cache-Control': 'no-store',
     },
   },
   preview: {
     host: "::",
-    port: 8080, // Port for preview mode (should be the same for consistency)
+    port: 8080,
   },
   build: {
     rollupOptions: {
@@ -24,19 +24,21 @@ export default defineConfig(({ mode }) => ({
         assetFileNames: `assets/[name]-[hash].[ext]`,
       },
     },
-    sourcemap: true, // Enable sourcemaps for easier debugging
-    assetsDir: '_assets', // Keep assets in a separate directory
+    sourcemap: true,
+    // Ensure proper cache busting
+    assetsDir: '_assets',
     modulePreload: {
-      polyfill: true, // Polyfill module preload for older browsers
+      polyfill: true,
     },
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(), // Activate componentTagger only in development mode
-  ].filter(Boolean), // Remove null/undefined plugins
+    mode === 'development' &&
+    componentTagger(),
+  ].filter(Boolean),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"), // Resolve @ to src directory
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 }));

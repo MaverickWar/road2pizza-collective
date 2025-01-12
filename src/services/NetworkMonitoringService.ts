@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 type NetworkRequest = {
   url: string;
@@ -13,7 +14,7 @@ class NetworkMonitoringService {
 
   private constructor() {
     this.activeRequests = new Map();
-    console.log('Network monitoring service initialized');
+    console.log("Network monitoring service initialized");
   }
 
   static getInstance(): NetworkMonitoringService {
@@ -30,47 +31,38 @@ class NetworkMonitoringService {
     const controller = new AbortController();
     const id = Math.random().toString(36).substring(7);
     const startTime = performance.now();
-    
-    // Handle different input types to get the URL string
+
     const url = input instanceof URL 
       ? input.href 
       : input instanceof Request 
         ? input.url 
         : input;
-    const method = init?.method || 'GET';
 
-    // Track request start
-    this.activeRequests.set(id, {
-      url,
-      startTime,
-      method,
-    });
+    const method = init?.method || "GET";
+    this.activeRequests.set(id, { url, startTime, method });
 
     console.log(`🌐 Starting ${method} request to ${url}`);
 
-    // Set up timeout
     const timeoutId = setTimeout(() => {
       controller.abort();
-      this.logFailure(id, 'timeout');
+      this.logFailure(id, "timeout");
     }, this.TIMEOUT_MS);
 
     try {
-      const response = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
+      const response = await fetch(input, { ...init, signal: controller.signal });
 
       clearTimeout(timeoutId);
       const duration = performance.now() - startTime;
 
       if (!response.ok) {
         this.logFailure(id, `HTTP ${response.status}`);
+        this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Log slow but successful requests
       if (duration > 2000) {
         console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
+        this.logToAnalytics("slow_request", "Request took longer than 2000ms", url, duration);
       } else {
         console.log(`✅ ${method} request to ${url} completed in ${duration.toFixed(0)}ms`);
       }
@@ -78,15 +70,17 @@ class NetworkMonitoringService {
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
-      
-      if (error.name === 'AbortError') {
+
+      if (error.name === "AbortError") {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         toast.error(`Request to ${url} timed out`);
+        this.logToAnalytics("timeout", "Request timed out", url);
       } else {
         console.error(`❌ Request to ${url} failed:`, error);
         toast.error(`Network request failed: ${error.message}`);
+        this.logToAnalytics("network_error", error.message, url);
       }
-      
+
       throw error;
     } finally {
       this.activeRequests.delete(id);
@@ -98,7 +92,6 @@ class NetworkMonitoringService {
     if (!request) return;
 
     const duration = performance.now() - request.startTime;
-    
     console.error(`❌ ${request.method} request to ${request.url} failed:`, {
       reason,
       duration: `${duration.toFixed(0)}ms`,
@@ -106,23 +99,18 @@ class NetworkMonitoringService {
     });
 
     toast.error(`Request failed: ${reason}`);
+  }
 
-    // Log the failure to analytics backend
-    fetch('/api/log-analytics', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        type: 'network_failure',
-        requestId,
-        reason,
-        duration: duration.toFixed(0),
-        timestamp: new Date().toISOString(),
-      }),
-    }).catch(error => {
-      console.error('Error logging network failure event:', error);
+  private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
+    const { error } = await supabase.from("analytics_logs").insert({
+      type,
+      message,
+      url,
+      duration: duration || 0,
+      severity: type === "timeout" || type === "network_error" ? "high" : "low",
     });
+
+    if (error) console.error("Error logging to analytics:", error);
   }
 
   getActiveRequests() {

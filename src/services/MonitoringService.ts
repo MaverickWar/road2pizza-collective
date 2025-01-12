@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 type ValidationCheck = {
   id: string;
-  check: () => boolean | Promise<boolean>;
+  check: () => boolean or Promise<boolean>;
   message: string;
 };
 
@@ -24,10 +24,7 @@ class MonitoringService {
     // Initialize default checks
     this.initializeDefaultChecks();
 
-    // Start monitoring cycles
-    this.startMonitoringCycles();
-
-    console.log("Monitoring service initialized");
+    console.log("Monitoring service initialized but not started");
   }
 
   static getInstance(): MonitoringService {
@@ -83,6 +80,11 @@ class MonitoringService {
       check: this.fetchDashboardData.bind(this),
       message: "Failed to fetch dashboard statistics",
     });
+  }
+
+  public startMonitoring() {
+    // Start monitoring cycles
+    this.startMonitoringCycles();
   }
 
   private startMonitoringCycles() {
@@ -254,3 +256,6 @@ class MonitoringService {
 }
 
 export const monitoringService = MonitoringService.getInstance();
+
+// Example usage to start monitoring if needed
+// monitoringService.startMonitoring();

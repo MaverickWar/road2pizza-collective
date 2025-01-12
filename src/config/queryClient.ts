@@ -11,20 +11,22 @@ export const queryClient = new QueryClient({
       refetchOnMount: true,
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      onError: async (error: any, query) => {
-        const { error: supabaseError } = await supabase
-          .from('analytics_metrics')
-          .insert({
-            metric_name: 'query_error',
-            metric_value: 1,
-            metadata: {
-              error: error.message,
-              query: query?.queryKey?.[0] || "unknown"
-            }
-          });
-
-        if (supabaseError) console.error("Error logging query error:", supabaseError);
-      },
     },
   },
+  mutationCache: {
+    onError: async (error: any, variables: any, context: any, mutation: any) => {
+      const { error: supabaseError } = await supabase
+        .from('analytics_metrics')
+        .insert({
+          metric_name: 'query_error',
+          metric_value: 1,
+          metadata: {
+            error: error.message,
+            query: mutation.options.mutationKey?.[0] || "unknown"
+          }
+        });
+
+      if (supabaseError) console.error("Error logging query error:", supabaseError);
+    },
+  }
 });

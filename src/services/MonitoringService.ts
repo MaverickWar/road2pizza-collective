@@ -51,7 +51,8 @@ class MonitoringService {
         try {
           const response = await fetch("/api/health");
           return response.ok;
-        } catch {
+        } catch (error) {
+          console.error("Data integrity check failed:", error);
           return false;
         }
       },
@@ -66,7 +67,8 @@ class MonitoringService {
           if (!cacheData) return true;
           const timestamp = parseInt(cacheData, 10);
           return Date.now() - timestamp < 3600000; // 1 hour
-        } catch {
+        } catch (error) {
+          console.error("Cache validation failed:", error);
           return false;
         }
       },

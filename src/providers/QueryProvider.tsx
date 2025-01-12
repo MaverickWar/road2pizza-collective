@@ -37,13 +37,13 @@ const queryClient = new QueryClient({
 });
 
 // Add global error handler using the correct event subscription
-queryClient.getQueryCache().subscribe({
-  onError: (error) => {
-    console.error('Query cache error:', error);
+queryClient.getQueryCache().subscribe((event) => {
+  if (event.type === 'error') {
+    console.error('Query cache error:', event.error);
     monitoringService.addCheck({
       id: `query-cache-error-${Date.now()}`,
       check: () => false,
-      message: `Query cache error: ${error.message}`
+      message: `Query cache error: ${event.error.message}`
     });
   }
 });

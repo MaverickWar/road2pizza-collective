@@ -19,7 +19,6 @@ class MonitoringService {
   private intensiveMonitoringTimeout: NodeJS.Timeout | null = null;
   private regularMonitoringInterval: NodeJS.Timeout | null = null;
   private lastErrors: Map<string, { count: number; timestamp: number }> = new Map();
-  private errorDebounceTimers: Map<string, NodeJS.Timeout> = new Map();
 
   private constructor() {
     this.initializeDefaultChecks();
@@ -66,6 +65,7 @@ class MonitoringService {
             (now - query.state.dataUpdatedAt) > staleThreshold
           );
           
+          // If more than 50% of queries are stale, trigger a refresh
           if (staleQueries.length > queries.length / 2) {
             console.log('Too many stale queries, refreshing...');
             await queryClient.refetchQueries();
@@ -98,7 +98,7 @@ class MonitoringService {
   private startRegularMonitoring() {
     this.regularMonitoringInterval = setInterval(() => {
       this.runValidations();
-    }, 1800000); // 30 minutes
+    }, 1800000);
 
     console.log("Switched to regular monitoring cycle");
   }
@@ -123,12 +123,6 @@ class MonitoringService {
     const now = Date.now();
     const errorRecord = this.lastErrors.get(check.id);
     
-    // Clear any existing debounce timer for this check
-    const existingTimer = this.errorDebounceTimers.get(check.id);
-    if (existingTimer) {
-      clearTimeout(existingTimer);
-    }
-
     // Update error count and timestamp
     if (errorRecord) {
       if (now - errorRecord.timestamp < 300000) { // 5 minutes
@@ -152,14 +146,9 @@ class MonitoringService {
     const errorMessage = `Monitoring Alert: ${check.message}`;
     console.error(errorMessage);
 
-    // Debounce toast notifications to prevent spam
-    this.errorDebounceTimers.set(check.id, setTimeout(() => {
-      toast.error(errorMessage, {
-        duration: 5000,
-        id: `monitoring-${check.id}`, // Prevent duplicate toasts
-      });
-      this.errorDebounceTimers.delete(check.id);
-    }, 5000)); // Wait 5 seconds before showing another toast for the same check
+    toast.error(errorMessage, {
+      duration: 5000,
+    });
   }
 
   public addCheck(check: ValidationCheck) {
@@ -175,8 +164,6 @@ class MonitoringService {
       clearInterval(this.regularMonitoringInterval);
     }
     this.lastErrors.clear();
-    this.errorDebounceTimers.forEach(timer => clearTimeout(timer));
-    this.errorDebounceTimers.clear();
     console.log("Monitoring service cleaned up");
   }
 }

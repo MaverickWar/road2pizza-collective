@@ -37,22 +37,19 @@ const queryClient = new QueryClient({
 });
 
 // Add global error handler using the correct event subscription
-queryClient.getQueryCache().subscribe((event) => {
-  if (event.type === 'updated' && event.action.type === 'error') {
-    const error = event.action.error;
+queryClient.getQueryCache().subscribe({
+  onError: (error) => {
     console.error('Query cache error:', error);
     monitoringService.addCheck({
       id: `query-cache-error-${Date.now()}`,
       check: () => false,
-      message: `Query cache error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Query cache error: ${error.message}`
     });
   }
 });
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    let analyticsTimeout: NodeJS.Timeout;
-    
     const logAnalytics = async () => {
       try {
         console.log('Logging page load analytics...');
@@ -74,7 +71,6 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           console.error('Error logging analytics event:', error);
-          // Only show error to admins
           const { data: profile } = await supabase
             .from('profiles')
             .select('is_admin')
@@ -82,9 +78,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             .single();
 
           if (profile?.is_admin) {
-            toast.error('Failed to log analytics event', {
-              id: 'analytics-error', // Prevent duplicate toasts
-            });
+            toast.error('Failed to log analytics event');
           }
         } else {
           console.log('Successfully logged page load event');
@@ -94,9 +88,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Debounce analytics logging
-    clearTimeout(analyticsTimeout);
-    analyticsTimeout = setTimeout(logAnalytics, 1000);
+    logAnalytics();
 
     // Set up global error boundary
     const errorHandler = (event: ErrorEvent) => {
@@ -109,10 +101,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener('error', errorHandler);
-    return () => {
-      window.removeEventListener('error', errorHandler);
-      clearTimeout(analyticsTimeout);
-    };
+    return () => window.removeEventListener('error', errorHandler);
   }, []);
 
   return (

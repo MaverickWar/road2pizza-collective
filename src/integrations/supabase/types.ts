@@ -9,56 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      analytics_logs: {
-        Row: {
-          created_at: string
-          details: Json | null
-          id: string
-          message: string
-          resolution_notes: string | null
-          resolved_at: string | null
-          resolved_by: string | null
-          severity: string
-          status: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          details?: Json | null
-          id?: string
-          message: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity: string
-          status?: string
-          type: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          details?: Json | null
-          id?: string
-          message?: string
-          resolution_notes?: string | null
-          resolved_at?: string | null
-          resolved_by?: string | null
-          severity?: string
-          status?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "analytics_logs_resolved_by_fkey"
-            columns: ["resolved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       analytics_metrics: {
         Row: {
           id: string

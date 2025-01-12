@@ -111,12 +111,15 @@ class NetworkMonitoringService {
 
   private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
     try {
-      const { error } = await supabase.from("analytics_logs").insert({
-        type,
-        message,
-        url,
-        duration: duration || 0,
-        severity: type === "timeout" || type === "network_error" ? "high" : "low",
+      const { error } = await supabase.from("analytics_metrics").insert({
+        metric_name: type,
+        metric_value: duration || 0,
+        metadata: {
+          message,
+          url,
+          severity: type === "timeout" || type === "network_error" ? "high" : "low",
+          status: "open"
+        }
       });
 
       if (error) console.error("Error logging to analytics:", error);

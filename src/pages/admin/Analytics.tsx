@@ -4,21 +4,34 @@ import DashboardLayout from "@/components/DashboardLayout";
 import LogsTable from "@/components/admin/analytics/LogsTable";
 import StatsCards from "@/components/admin/analytics/StatsCards";
 
+interface AnalyticsMetric {
+  id: string;
+  metric_name: string;
+  metric_value: number;
+  metadata: any;
+  timestamp: string;
+}
+
 const Analytics = () => {
-  const { data: logs } = useQuery(["analytics-logs"], async () => {
-    const { data, error } = await supabase
-      .from("analytics_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (error) throw error;
-    return data;
+  const { data: metrics } = useQuery({
+    queryKey: ['analytics-metrics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('analytics_metrics')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data as AnalyticsMetric[];
+    }
   });
 
   const stats = {
-    totalErrors: logs?.filter((log) => log.type === "error").length || 0,
-    resolvedIssues: logs?.filter((log) => log.status === "resolved").length || 0,
-    activeAlerts: logs?.filter((log) => log.status === "open").length || 0,
+    totalErrors: metrics?.filter(m => m.metric_name === 'error').length || 0,
+    resolvedIssues: metrics?.filter(m => m.metadata?.status === 'resolved').length || 0,
+    activeAlerts: metrics?.filter(m => m.metadata?.status === 'active').length || 0,
+    avgResponseTime: metrics?.reduce((acc, m) => m.metric_name === 'response_time' ? acc + m.metric_value : acc, 0) / 
+      (metrics?.filter(m => m.metric_name === 'response_time').length || 1) || 0
   };
 
   return (
@@ -26,7 +39,17 @@ const Analytics = () => {
       <div>
         <h1>Analytics Dashboard</h1>
         <StatsCards stats={stats} />
-        <LogsTable logs={logs || []} />
+        <LogsTable 
+          logs={metrics?.map(m => ({
+            id: m.id,
+            type: m.metric_name,
+            message: m.metadata?.message || '',
+            severity: m.metadata?.severity || 'low',
+            status: m.metadata?.status || 'open',
+            created_at: m.timestamp
+          })) || []} 
+          isLoading={false}
+        />
       </div>
     </DashboardLayout>
   );

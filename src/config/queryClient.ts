@@ -14,18 +14,22 @@ export const queryClient = new QueryClient({
     },
     mutations: {
       onError: async (error: Error, variables: unknown, context: unknown) => {
+        console.error("Mutation error:", error);
         const { error: supabaseError } = await supabase
           .from('analytics_metrics')
           .insert({
-            metric_name: 'query_error',
+            metric_name: 'mutation_error',
             metric_value: 1,
             metadata: {
               error: error.message,
-              query: "unknown"
+              timestamp: new Date().toISOString(),
+              variables: JSON.stringify(variables)
             }
           });
 
-        if (supabaseError) console.error("Error logging query error:", supabaseError);
+        if (supabaseError) {
+          console.error("Error logging mutation error:", supabaseError);
+        }
       },
     }
   }

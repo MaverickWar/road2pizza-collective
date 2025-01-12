@@ -3,68 +3,60 @@ import { ReactNode, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Configure React Query client with custom settings
+// Configure React Query client with optimized settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // Data stays fresh for 2 minutes
-      gcTime: 1000 * 60 * 5,    // Keep unused data in cache for 5 minutes
+      staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
+      gcTime: 1000 * 60 * 10,   // Keep unused data in cache for 10 minutes
       retry: (failureCount, error: any) => {
         // Don't retry on 404s or auth errors
         if (error?.status === 404 || error?.status === 401) return false;
         return failureCount < 2;
       },
-      refetchOnWindowFocus: false, // Don't refetch on window focus
+      refetchOnWindowFocus: true, // Refetch on window focus to ensure data freshness
       refetchOnReconnect: true,
       refetchOnMount: true,
     },
   },
 });
 
-// Custom query provider with cache clearing on refresh
 export function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
-    const logCacheClearing = async () => {
-      // Check if the page is reloaded
-      if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        queryClient.clear();
-        console.log('Cache cleared on page reload');
-        
-        try {
-          const { error } = await supabase
-            .from('analytics_metrics')
-            .insert({
-              metric_name: 'cache_clear',
-              metric_value: 1,
-              metadata: {
-                timestamp: new Date().toISOString(),
-                user_agent: navigator.userAgent,
-                url: window.location.href
-              }
-            });
-
-          if (error) {
-            console.error('Error logging cache clearing event:', error);
-            // Only show error toast to admins
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('is_admin')
-              .eq('id', (await supabase.auth.getUser()).data.user?.id)
-              .single();
-
-            if (profile?.is_admin) {
-              toast.error('Failed to log analytics event');
+    const logAnalytics = async () => {
+      try {
+        const { error } = await supabase
+          .from('analytics_metrics')
+          .insert({
+            metric_name: 'page_load',
+            metric_value: 1,
+            metadata: {
+              timestamp: new Date().toISOString(),
+              user_agent: navigator.userAgent,
+              url: window.location.href
             }
-          } else {
-            console.log('Successfully logged cache clearing event');
+          });
+
+        if (error) {
+          console.error('Error logging analytics event:', error);
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', (await supabase.auth.getUser()).data.user?.id)
+            .single();
+
+          if (profile?.is_admin) {
+            toast.error('Failed to log analytics event');
           }
-        } catch (error) {
-          console.error('Unexpected error logging cache clearing:', error);
+        } else {
+          console.log('Successfully logged page load event');
         }
+      } catch (error) {
+        console.error('Unexpected error logging analytics:', error);
       }
     };
 
-    logCacheClearing();
+    logAnalytics();
   }, []);
 
   return (

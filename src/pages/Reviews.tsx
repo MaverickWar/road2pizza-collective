@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import Navigation from "@/components/Navigation";
+import ReviewForm from "@/components/reviews/ReviewForm";
+import ReviewHeader from "@/components/reviews/ReviewHeader";
+import ReviewContent from "@/components/reviews/ReviewContent";
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

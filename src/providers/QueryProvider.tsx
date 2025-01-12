@@ -22,26 +22,28 @@ const queryClient = new QueryClient({
     },
     mutations: {
       retry: 2,
-      onError: (error: Error) => {
-        console.error('Mutation error:', error);
-        monitoringService.addCheck({
-          id: `mutation-error-${Date.now()}`,
-          check: () => false,
-          message: `Mutation failed: ${error.message}`
-        });
+      meta: {
+        onError: (error: Error) => {
+          console.error('Mutation error:', error);
+          monitoringService.addCheck({
+            id: `mutation-error-${Date.now()}`,
+            check: () => false,
+            message: `Mutation failed: ${error.message}`
+          });
+        }
       }
     }
   }
 });
 
-// Add global error handler
-queryClient.getQueryCache().subscribe(event => {
-  if (event.type === 'error') {
-    console.error('Query cache error:', event.error);
+// Add global error handler using the correct event subscription
+queryClient.getQueryCache().subscribe({
+  onError: (error) => {
+    console.error('Query cache error:', error);
     monitoringService.addCheck({
       id: `query-cache-error-${Date.now()}`,
       check: () => false,
-      message: `Query cache error: ${event.error.message}`
+      message: `Query cache error: ${error.message}`
     });
   }
 });

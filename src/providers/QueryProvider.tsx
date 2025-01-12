@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { monitoringService } from "@/services/MonitoringService";
@@ -49,6 +49,8 @@ queryClient.getQueryCache().subscribe({
 });
 
 export function QueryProvider({ children }: { children: ReactNode }) {
+  const [toastShown, setToastShown] = useState(false); // Track toast state to prevent spamming
+
   useEffect(() => {
     const logAnalytics = async () => {
       try {
@@ -77,8 +79,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             .eq('id', (await supabase.auth.getUser()).data.user?.id)
             .single();
 
-          if (profile?.is_admin) {
+          // Only show error toast for admins and limit frequency of toasts
+          if (profile?.is_admin && !toastShown) {
             toast.error('Failed to log analytics event');
+            setToastShown(true);
           }
         } else {
           console.log('Successfully logged page load event');
@@ -91,22 +95,3 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     logAnalytics();
 
     // Set up global error boundary
-    const errorHandler = (event: ErrorEvent) => {
-      console.error('Global error:', event.error);
-      monitoringService.addCheck({
-        id: `global-error-${Date.now()}`,
-        check: () => false,
-        message: `Unhandled error: ${event.error?.message}`
-      });
-    };
-
-    window.addEventListener('error', errorHandler);
-    return () => window.removeEventListener('error', errorHandler);
-  }, []);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-}

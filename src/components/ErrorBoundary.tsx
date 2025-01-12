@@ -1,28 +1,32 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { toast } from "sonner";
 import { monitoringService } from "@/services/MonitoringService";
+import { Button } from "./ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface Props {
   children: ReactNode;
+  onReset?: () => void;
 }
 
 interface State {
   hasError: boolean;
+  error: Error | null;
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
+    error: null
   };
 
-  public static getDerivedStateFromError(): State {
-    return { hasError: true };
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
     
-    // Log the error and show toast notification
     const errorMessage = `An unexpected error occurred: ${error.message}`;
     console.error(errorMessage, errorInfo);
     
@@ -31,29 +35,43 @@ class ErrorBoundary extends Component<Props, State> {
       description: "Please try refreshing the page. If the problem persists, contact support."
     });
 
-    // Add a monitoring check for this specific error
     monitoringService.addCheck({
       id: `error-${Date.now()}`,
-      check: () => false, // This will trigger an immediate alert
-      message: `Critical error detected: ${error.message}`
+      check: () => false,
+      message: `Critical error detected: ${error.message}`,
     });
   }
+
+  private handleReset = () => {
+    this.setState({ hasError: false, error: null });
+    this.props.onReset?.();
+  };
 
   public render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4 p-6 max-w-md">
             <h1 className="text-2xl font-bold">Something went wrong</h1>
             <p className="text-muted-foreground">
-              Please try refreshing the page or contact support if the problem persists.
+              {this.state.error?.message || "An unexpected error occurred."}
             </p>
-            <button
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
-              onClick={() => window.location.reload()}
-            >
-              Refresh Page
-            </button>
+            <div className="flex flex-col gap-2">
+              <Button
+                className="w-full"
+                onClick={this.handleReset}
+              >
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => window.location.reload()}
+              >
+                Refresh Page
+              </Button>
+            </div>
           </div>
         </div>
       );

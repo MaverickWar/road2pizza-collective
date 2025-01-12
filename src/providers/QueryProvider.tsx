@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { monitoringService } from "@/services/MonitoringService";
 
 // Configure React Query client with optimized settings
 const queryClient = new QueryClient({
@@ -12,19 +13,42 @@ const queryClient = new QueryClient({
       retry: (failureCount, error: any) => {
         // Don't retry on 404s or auth errors
         if (error?.status === 404 || error?.status === 401) return false;
-        return failureCount < 2;
+        // Retry up to 3 times with exponential backoff
+        return failureCount < 3;
       },
-      refetchOnWindowFocus: true, // Refetch on window focus to ensure data freshness
-      refetchOnReconnect: true,
-      refetchOnMount: true,
+      refetchOnWindowFocus: false, // Prevent unnecessary refetches
+      refetchOnReconnect: true,    // Refetch on reconnection
+      refetchOnMount: true,        // Ensure fresh data on mount
     },
+    mutations: {
+      retry: 2,
+      onError: (error: Error) => {
+        console.error('Mutation error:', error);
+        monitoringService.addCheck({
+          id: `mutation-error-${Date.now()}`,
+          check: () => false,
+          message: `Mutation failed: ${error.message}`
+        });
+      }
+    }
   },
+  queryCache: {
+    onError: (error) => {
+      console.error('Query cache error:', error);
+      monitoringService.addCheck({
+        id: `query-cache-error-${Date.now()}`,
+        check: () => false,
+        message: `Query cache error: ${error.message}`
+      });
+    }
+  }
 });
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const logAnalytics = async () => {
       try {
+        console.log('Logging page load analytics...');
         const { error } = await supabase
           .from('analytics_metrics')
           .insert({
@@ -33,7 +57,11 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             metadata: {
               timestamp: new Date().toISOString(),
               user_agent: navigator.userAgent,
-              url: window.location.href
+              url: window.location.href,
+              performance_metrics: {
+                loadTime: performance.now(),
+                memory: (performance as any).memory?.usedJSHeapSize || 0
+              }
             }
           });
 
@@ -57,6 +85,19 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     };
 
     logAnalytics();
+
+    // Set up global error boundary
+    const errorHandler = (event: ErrorEvent) => {
+      console.error('Global error:', event.error);
+      monitoringService.addCheck({
+        id: `global-error-${Date.now()}`,
+        check: () => false,
+        message: `Unhandled error: ${event.error?.message}`
+      });
+    };
+
+    window.addEventListener('error', errorHandler);
+    return () => window.removeEventListener('error', errorHandler);
   }, []);
 
   return (

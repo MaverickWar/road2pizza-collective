@@ -51,6 +51,8 @@ queryClient.getQueryCache().subscribe((event) => {
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
+    let analyticsTimeout: NodeJS.Timeout;
+    
     const logAnalytics = async () => {
       try {
         console.log('Logging page load analytics...');
@@ -72,6 +74,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           console.error('Error logging analytics event:', error);
+          // Only show error to admins
           const { data: profile } = await supabase
             .from('profiles')
             .select('is_admin')
@@ -79,7 +82,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
             .single();
 
           if (profile?.is_admin) {
-            toast.error('Failed to log analytics event');
+            toast.error('Failed to log analytics event', {
+              id: 'analytics-error', // Prevent duplicate toasts
+            });
           }
         } else {
           console.log('Successfully logged page load event');
@@ -89,7 +94,9 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    logAnalytics();
+    // Debounce analytics logging
+    clearTimeout(analyticsTimeout);
+    analyticsTimeout = setTimeout(logAnalytics, 1000);
 
     // Set up global error boundary
     const errorHandler = (event: ErrorEvent) => {
@@ -102,7 +109,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener('error', errorHandler);
-    return () => window.removeEventListener('error', errorHandler);
+    return () => {
+      window.removeEventListener('error', errorHandler);
+      clearTimeout(analyticsTimeout);
+    };
   }, []);
 
   return (

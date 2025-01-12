@@ -31,16 +31,18 @@ const queryClient = new QueryClient({
         });
       }
     }
-  },
-  queryCache: {
-    onError: (error) => {
-      console.error('Query cache error:', error);
-      monitoringService.addCheck({
-        id: `query-cache-error-${Date.now()}`,
-        check: () => false,
-        message: `Query cache error: ${error.message}`
-      });
-    }
+  }
+});
+
+// Add global error handler
+queryClient.getQueryCache().subscribe(event => {
+  if (event.type === 'error') {
+    console.error('Query cache error:', event.error);
+    monitoringService.addCheck({
+      id: `query-cache-error-${Date.now()}`,
+      check: () => false,
+      message: `Query cache error: ${event.error.message}`
+    });
   }
 });
 

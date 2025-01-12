@@ -57,7 +57,9 @@ class MonitoringService {
       check: async () => {
         try {
           const queries = queryClient.getQueryCache().getAll();
-          const staleQueries = queries.filter(query => query.state.isStale);
+          const staleQueries = queries.filter(query => 
+            query.state.dataUpdatedAt < Date.now() - (5 * 60 * 1000) // Check if data is older than 5 minutes
+          );
           
           // If more than 50% of queries are stale, trigger a refresh
           if (staleQueries.length > queries.length / 2) {

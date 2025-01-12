@@ -64,6 +64,18 @@ const ProductReviewDashboard = () => {
   );
 
   return (
+
+    <div className="min-h-screen bg-background">
+
+32-
+
+<Navigation />
+
+33-
+
+<main className="pt-[5rem]">
+
+
     <div className="max-w-7xl mx-auto p-6 space-y-8 bg-gradient-to-b from-orange-50 to-white">
       {/* Header */}
       <div className="space-y-2 text-center">

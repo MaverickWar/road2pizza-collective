@@ -20,20 +20,26 @@ export class ErrorBoundary extends Component<Props, State> {
     error: null
   };
 
+  private toastShown: boolean = false; // Prevent repetitive toasts
+
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
-    
+
     const errorMessage = `An unexpected error occurred: ${error.message}`;
     console.error(errorMessage, errorInfo);
-    
-    toast.error(errorMessage, {
-      duration: 5000,
-      description: "Please try refreshing the page. If the problem persists, contact support."
-    });
+
+    // Only show a toast if it hasn't been shown yet
+    if (!this.toastShown) {
+      toast.error(errorMessage, {
+        duration: 5000,
+        description: "Please try refreshing the page. If the problem persists, contact support.",
+      });
+      this.toastShown = true; // Prevent further toast spam
+    }
 
     monitoringService.addCheck({
       id: `error-${Date.now()}`,
@@ -45,6 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
     this.props.onReset?.();
+    this.toastShown = false; // Reset toast flag after retry
   };
 
   public render() {

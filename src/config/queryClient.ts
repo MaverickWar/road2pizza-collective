@@ -13,7 +13,7 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: true,
     },
     mutations: {
-      onError: async (error: any, variables: any, context: any, mutation: any) => {
+      onError: async (error: Error, variables: unknown, context: unknown) => {
         const { error: supabaseError } = await supabase
           .from('analytics_metrics')
           .insert({
@@ -21,7 +21,7 @@ export const queryClient = new QueryClient({
             metric_value: 1,
             metadata: {
               error: error.message,
-              query: mutation?.options?.mutationKey?.[0] || "unknown"
+              query: "unknown"
             }
           });
 

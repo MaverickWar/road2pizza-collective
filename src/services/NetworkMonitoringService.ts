@@ -14,7 +14,7 @@ class NetworkMonitoringService {
 
   private constructor() {
     this.activeRequests = new Map();
-    console.log("Network monitoring service initialized");
+    console.log("Network monitoring service initialized but not started");
   }
 
   static getInstance(): NetworkMonitoringService {
@@ -22,6 +22,11 @@ class NetworkMonitoringService {
       NetworkMonitoringService.instance = new NetworkMonitoringService();
     }
     return NetworkMonitoringService.instance;
+  }
+
+  public startMonitoring() {
+    console.log("Network monitoring started");
+    // You can add any initialization code here if needed
   }
 
   monitorFetch = async (
@@ -139,3 +144,6 @@ class NetworkMonitoringService {
 }
 
 export const networkMonitor = NetworkMonitoringService.getInstance();
+
+// Example usage to start monitoring if needed
+// networkMonitor.startMonitoring();

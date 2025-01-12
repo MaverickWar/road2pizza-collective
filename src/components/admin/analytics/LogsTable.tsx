@@ -2,6 +2,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase, checkSession } from "@/services/supabaseClient";
 
 interface Log {
   id: string;
@@ -18,10 +20,46 @@ interface LogsTableProps {
 }
 
 const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
+  const [session, setSession] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const userSession = await checkSession();
+        if (!userSession) {
+          setError("Session expired or not found. Please log in again.");
+        } else {
+          setSession(userSession);
+        }
+      } catch (err) {
+        setError("Error checking session: " + err);
+      }
+    };
+
+    fetchSession();
+  }, []);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-500 text-center p-8">
+        {error}
+      </div>
+    );
+  }
+
+  if (!logs || logs.length === 0) {
+    return (
+      <div className="text-gray-500 text-center p-8">
+        No logs available
       </div>
     );
   }

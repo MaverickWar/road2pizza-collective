@@ -9,18 +9,27 @@ import { monitoringService } from "./services/MonitoringService";
 
 function App() {
   useEffect(() => {
+    // Initialize monitoring service if needed
+    console.log("App mounted. Monitoring service initialized.");
+
     // Cleanup monitoring service on unmount
     return () => {
+      console.log("App unmounting. Cleaning up monitoring service...");
       monitoringService.cleanup();
     };
   }, []);
 
   return (
     <ErrorBoundary>
+      {/* React Query Provider to manage API data caching */}
       <QueryProvider>
+        {/* React Router for handling client-side routing */}
         <Router>
+          {/* Authentication Context Provider */}
           <AuthProvider>
+            {/* App Routes */}
             <AppRoutes />
+            {/* Global notification system */}
             <Toaster position="top-right" expand={true} richColors />
           </AuthProvider>
         </Router>

@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { MoreHorizontal, Edit, Trash2, Lock, LockOpen, Pin, Key } from "lucide-react";
 import { useState } from "react";
 import Editor from "@/components/Editor";
+import { cn } from "@/lib/utils";
 
 interface ThreadActionsProps {
   threadId: string;

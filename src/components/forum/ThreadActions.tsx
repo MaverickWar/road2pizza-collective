@@ -25,6 +25,7 @@ interface ThreadActionsProps {
   threadId: string;
   currentTitle: string;
   currentContent: string;
+  currentCategoryId?: string;
   isPinned?: boolean;
   isLocked?: boolean;
   hasPassword?: boolean;
@@ -35,6 +36,7 @@ export const ThreadActions = ({
   threadId, 
   currentTitle, 
   currentContent,
+  currentCategoryId,
   isPinned = false,
   isLocked = false,
   hasPassword = false,

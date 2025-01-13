@@ -38,7 +38,7 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className="relative h-8 w-8 rounded-full hover:bg-white/20 ring-2 ring-white p-0"
+          className="relative h-8 w-8 rounded-full hover:bg-accent/50 ring-2 ring-primary p-0"
         >
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.id}`} />
@@ -49,13 +49,13 @@ export const UserMenu = ({ user, isAdmin }: UserMenuProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg" 
+        className="w-56 bg-card border border-border shadow-lg" 
         align="end"
         sideOffset={5}
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
+            <p className="text-sm font-medium leading-none text-foreground">
               {user.username || 'User'}
             </p>
             <p className="text-xs leading-none text-muted-foreground">

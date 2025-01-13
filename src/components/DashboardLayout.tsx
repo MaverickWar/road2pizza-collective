@@ -7,6 +7,7 @@ import { useMediaQuery } from "@/hooks/use-mobile";
 import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
 import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { UserMenu } from "./UserMenu";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuth();
@@ -17,7 +18,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     console.log("Route changed in DashboardLayout:", location.pathname);
-    // Only remove queries related to the current route
     if (location.pathname.includes('analytics')) {
       queryClient.removeQueries({ queryKey: ["analytics-metrics"] });
     } else if (location.pathname.includes('users')) {
@@ -56,43 +56,48 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     )}>
       {isAdmin && user && (
         <>
-          <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className={cn(
-                "md:hidden",
-                "hover:bg-admin/10"
-              )}
-              aria-label="Toggle menu"
-            >
-              {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              asChild
-              className="bg-white shadow-sm"
-            >
-              <Link to="/">
-                <Home className="h-4 w-4 mr-2" />
-                Back to Site
-              </Link>
-            </Button>
+          {/* Top Navigation Bar */}
+          <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-admin-border z-50 px-4">
+            <div className="flex items-center justify-between h-full max-w-screen-2xl mx-auto">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className={cn(
+                    "md:hidden",
+                    "hover:bg-admin/10"
+                  )}
+                  aria-label="Toggle menu"
+                >
+                  {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="bg-white shadow-sm"
+                >
+                  <Link to="/">
+                    <Home className="h-4 w-4 mr-2" />
+                    Back to Site
+                  </Link>
+                </Button>
+              </div>
+              
+              {/* User Menu */}
+              <div className="flex items-center gap-4">
+                {user && <UserMenu user={user} isAdmin={isAdmin} />}
+              </div>
+            </div>
           </div>
 
           <div className={cn(
-            "admin-sidebar fixed top-0 left-0 h-full w-64 bg-background border-r border-admin-border transition-transform duration-300 ease-in-out z-40",
+            "admin-sidebar fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white border-r border-admin-border transition-transform duration-300 ease-in-out z-40",
             !isSidebarOpen && "md:translate-x-0",
             !isSidebarOpen && isMobile && "-translate-x-full"
           )}>
-            <div className="p-4 h-16 flex items-center justify-between border-b border-admin-border">
-              <h1 className="text-xl font-bold text-admin">
-                Road2Pizza Admin
-              </h1>
-            </div>
-            <div className="p-4 h-[calc(100vh-4rem)] overflow-y-auto">
+            <div className="p-4 h-full overflow-y-auto">
               <AdminSideMenu />
             </div>
           </div>
@@ -101,6 +106,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             "transition-all duration-300 ease-in-out",
             "min-h-screen bg-background",
             "p-4 md:p-6",
+            "pt-20", // Add padding top to account for the fixed header
             "md:ml-64", // Always offset content on desktop
             isMobile && !isSidebarOpen && "ml-0", // No offset on mobile when menu is closed
             "flex flex-col"

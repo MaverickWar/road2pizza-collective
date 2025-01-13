@@ -29,6 +29,7 @@ interface ThreadActionsProps {
   isPinned?: boolean;
   isLocked?: boolean;
   hasPassword?: boolean;
+  isInManagement?: boolean;
   onThreadUpdated: () => void;
 }
 
@@ -40,6 +41,7 @@ export const ThreadActions = ({
   isPinned = false,
   isLocked = false,
   hasPassword = false,
+  isInManagement = false,
   onThreadUpdated,
 }: ThreadActionsProps) => {
   const { isAdmin } = useAuth();

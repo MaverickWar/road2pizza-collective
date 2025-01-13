@@ -1,11 +1,11 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Home } from 'lucide-react';
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-mobile";
 import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -15,14 +15,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  // Reset relevant queries on route change
   useEffect(() => {
     console.log("Route changed in DashboardLayout:", location.pathname);
-    // Remove stale data for admin-related queries
-    queryClient.removeQueries({ queryKey: ["admin-users"] });
-    queryClient.removeQueries({ queryKey: ["admin-reviews"] });
-    queryClient.removeQueries({ queryKey: ["admin-recipes"] });
-    queryClient.removeQueries({ queryKey: ["admin-stats"] });
+    // Only remove queries related to the current route
+    if (location.pathname.includes('analytics')) {
+      queryClient.removeQueries({ queryKey: ["analytics-metrics"] });
+    } else if (location.pathname.includes('users')) {
+      queryClient.removeQueries({ queryKey: ["admin-users"] });
+    } else if (location.pathname.includes('reviews')) {
+      queryClient.removeQueries({ queryKey: ["admin-reviews"] });
+    } else if (location.pathname.includes('recipes')) {
+      queryClient.removeQueries({ queryKey: ["admin-recipes"] });
+    }
   }, [location.pathname, queryClient]);
 
   useEffect(() => {
@@ -52,18 +56,31 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     )}>
       {isAdmin && user && (
         <>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className={cn(
-              "fixed top-4 left-4 z-50 md:hidden",
-              "hover:bg-admin/10"
-            )}
-            aria-label="Toggle menu"
-          >
-            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          <div className="fixed top-4 left-4 z-50 flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className={cn(
+                "md:hidden",
+                "hover:bg-admin/10"
+              )}
+              aria-label="Toggle menu"
+            >
+              {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="bg-white shadow-sm"
+            >
+              <Link to="/">
+                <Home className="h-4 w-4 mr-2" />
+                Back to Site
+              </Link>
+            </Button>
+          </div>
 
           <div className={cn(
             "admin-sidebar fixed top-0 left-0 h-full w-64 bg-background border-r border-admin-border transition-transform duration-300 ease-in-out z-40",

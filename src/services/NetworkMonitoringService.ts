@@ -10,7 +10,11 @@ type NetworkRequest = {
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   private activeRequests: Map<string, NetworkRequest>;
-  private readonly TIMEOUT_MS = 5000; // Timeout threshold for requests
+  private readonly TIMEOUT_MS = 10000; // Increased timeout to 10 seconds
+  private errorCount: number = 0;
+  private lastErrorTime: number = 0;
+  private readonly ERROR_THRESHOLD = 5;
+  private readonly ERROR_RESET_TIME = 60000; // 1 minute
 
   private constructor() {
     this.activeRequests = new Map();
@@ -24,9 +28,19 @@ class NetworkMonitoringService {
     return NetworkMonitoringService.instance;
   }
 
-  public startMonitoring() {
-    console.log("Network monitoring started");
-    // You can add any initialization code here if needed
+  private shouldLogError(): boolean {
+    const now = Date.now();
+    if (now - this.lastErrorTime > this.ERROR_RESET_TIME) {
+      this.errorCount = 0;
+    }
+    
+    if (this.errorCount >= this.ERROR_THRESHOLD) {
+      return false;
+    }
+    
+    this.errorCount++;
+    this.lastErrorTime = now;
+    return true;
   }
 
   monitorFetch = async (
@@ -34,20 +48,18 @@ class NetworkMonitoringService {
     init?: RequestInit
   ): Promise<Response> => {
     const controller = new AbortController();
-    const id = Math.random().toString(36).substring(7); // Unique request ID
+    const id = Math.random().toString(36).substring(7);
     const startTime = performance.now();
 
-    const url =
-      input instanceof URL
-        ? input.href
-        : input instanceof Request
-        ? input.url
-        : input;
-
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method || "GET";
-    this.activeRequests.set(id, { url, startTime, method });
 
-    console.log(`🌐 Starting ${method} request to ${url}`);
+    // Skip monitoring for certain endpoints
+    if (url.includes('analytics_metrics') || url.includes('analytics_logs')) {
+      return fetch(input, init);
+    }
+
+    this.activeRequests.set(id, { url, startTime, method });
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -56,41 +68,36 @@ class NetworkMonitoringService {
 
     try {
       const response = await fetch(input, { ...init, signal: controller.signal });
-
       clearTimeout(timeoutId);
       const duration = performance.now() - startTime;
 
       if (!response.ok) {
-        this.logFailure(id, `HTTP ${response.status}`);
-        this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
+        if (this.shouldLogError()) {
+          this.logFailure(id, `HTTP ${response.status}`);
+          this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Handle slow requests
-      if (duration > 2000) {
+      if (duration > 3000 && this.shouldLogError()) {
         console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
         this.logToAnalytics(
           "slow_request",
-          "Request took longer than 2000ms",
+          "Request took longer than 3000ms",
           url,
           duration
         );
-      } else {
-        console.log(`✅ ${method} request to ${url} completed in ${duration.toFixed(0)}ms`);
       }
 
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
-
-      // Timeout handling
-      if (error.name === "AbortError") {
+      
+      if (error.name === "AbortError" && this.shouldLogError()) {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
-        toast.error(`Request to ${url} timed out`);
         this.logToAnalytics("timeout", "Request timed out", url);
-      } else {
+      } else if (this.shouldLogError()) {
         console.error(`❌ Request to ${url} failed:`, error);
-        toast.error(`Network request failed: ${error.message}`);
         this.logToAnalytics("network_error", error.message, url);
       }
 
@@ -102,7 +109,7 @@ class NetworkMonitoringService {
 
   private logFailure(requestId: string, reason: string) {
     const request = this.activeRequests.get(requestId);
-    if (!request) return;
+    if (!request || !this.shouldLogError()) return;
 
     const duration = performance.now() - request.startTime;
     console.error(`❌ ${request.method} request to ${request.url} failed:`, {
@@ -110,11 +117,11 @@ class NetworkMonitoringService {
       duration: `${duration.toFixed(0)}ms`,
       timestamp: new Date().toISOString(),
     });
-
-    toast.error(`Request failed: ${reason}`);
   }
 
   private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
+    if (!this.shouldLogError()) return;
+    
     try {
       const { error } = await supabase.from("analytics_metrics").insert({
         metric_name: type,
@@ -140,10 +147,8 @@ class NetworkMonitoringService {
   public cleanup() {
     console.log("Cleaning up active network requests...");
     this.activeRequests.clear();
+    this.errorCount = 0;
   }
 }
 
 export const networkMonitor = NetworkMonitoringService.getInstance();
-
-// Example usage to start monitoring if needed
-// networkMonitor.startMonitoring();

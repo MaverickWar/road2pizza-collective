@@ -3,7 +3,8 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { 
   Dialog,
@@ -11,13 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
-import { MoreHorizontal, Edit, Trash2, FolderInput, Lock, Pin, LockOpen } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Lock, LockOpen, Pin, Key } from "lucide-react";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
 import Editor from "@/components/Editor";
 
 interface ThreadActionsProps {
@@ -27,6 +27,7 @@ interface ThreadActionsProps {
   currentCategoryId?: string;
   isPinned?: boolean;
   isLocked?: boolean;
+  hasPassword?: boolean;
   onThreadUpdated: () => void;
   isInManagement?: boolean;
 }
@@ -35,31 +36,17 @@ export const ThreadActions = ({
   threadId, 
   currentTitle, 
   currentContent,
-  currentCategoryId,
   isPinned = false,
   isLocked = false,
+  hasPassword = false,
   onThreadUpdated,
-  isInManagement = false 
 }: ThreadActionsProps) => {
-  const { isAdmin, isStaff } = useAuth();
+  const { isAdmin } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [editedContent, setEditedContent] = useState(currentContent);
-  const [selectedCategory, setSelectedCategory] = useState(currentCategoryId);
+  const [password, setPassword] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const { data: categories } = useQuery({
-    queryKey: ["forum-categories"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("forum_categories")
-        .select("*")
-        .order("display_order");
-      
-      if (error) throw error;
-      return data;
-    }
-  });
 
   const handleDelete = async () => {
     try {
@@ -69,7 +56,6 @@ export const ThreadActions = ({
         .eq("id", threadId);
 
       if (error) throw error;
-
       toast.success("Thread deleted successfully");
       onThreadUpdated();
     } catch (error) {
@@ -86,31 +72,12 @@ export const ThreadActions = ({
         .eq("id", threadId);
 
       if (error) throw error;
-
       toast.success("Thread updated successfully");
       setIsEditDialogOpen(false);
       onThreadUpdated();
     } catch (error) {
       console.error("Error updating thread:", error);
       toast.error("Failed to update thread");
-    }
-  };
-
-  const handleMove = async () => {
-    try {
-      const { error } = await supabase
-        .from("forum_threads")
-        .update({ category_id: selectedCategory })
-        .eq("id", threadId);
-
-      if (error) throw error;
-
-      toast.success("Thread moved successfully");
-      setIsMoveDialogOpen(false);
-      onThreadUpdated();
-    } catch (error) {
-      console.error("Error moving thread:", error);
-      toast.error("Failed to move thread");
     }
   };
 
@@ -122,7 +89,6 @@ export const ThreadActions = ({
         .eq("id", threadId);
 
       if (error) throw error;
-
       toast.success(`Thread ${isPinned ? 'unpinned' : 'pinned'} successfully`);
       onThreadUpdated();
     } catch (error) {
@@ -139,7 +105,6 @@ export const ThreadActions = ({
         .eq("id", threadId);
 
       if (error) throw error;
-
       toast.success(`Thread ${isLocked ? 'unlocked' : 'locked'} successfully`);
       onThreadUpdated();
     } catch (error) {
@@ -148,65 +113,85 @@ export const ThreadActions = ({
     }
   };
 
-  if (!isAdmin && !isStaff && !isInManagement) return null;
+  const handlePasswordUpdate = async () => {
+    try {
+      const { error } = await supabase
+        .from("forum_threads")
+        .update({ 
+          password: password || null,
+          password_protected: Boolean(password)
+        })
+        .eq("id", threadId);
+
+      if (error) throw error;
+      toast.success(password ? "Password updated successfully" : "Password removed successfully");
+      setIsPasswordDialogOpen(false);
+      setPassword("");
+      onThreadUpdated();
+    } catch (error) {
+      console.error("Error updating password:", error);
+      toast.error("Failed to update password");
+    }
+  };
+
+  if (!isAdmin) return null;
 
   return (
-    <>
-      <div className="flex items-center gap-2">
-        {isAdmin && (
-          <>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleTogglePin}
-              className={isPinned ? "bg-accent/10" : ""}
-            >
-              <Pin className={`h-4 w-4 ${isPinned ? "fill-current" : ""}`} />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleToggleLock}
-              className={isLocked ? "bg-accent/10" : ""}
-            >
-              {isLocked ? (
-                <Lock className="h-4 w-4" />
-              ) : (
-                <LockOpen className="h-4 w-4" />
-              )}
-            </Button>
-          </>
-        )}
-        <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => {
-              setIsEditDialogOpen(true);
-              setIsDropdownOpen(false);
-            }}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Thread
-            </DropdownMenuItem>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleTogglePin}
+        className={cn("transition-colors", isPinned && "bg-accent/10")}
+        aria-label={isPinned ? "Unpin thread" : "Pin thread"}
+      >
+        <Pin className={cn("h-4 w-4", isPinned && "fill-current")} />
+      </Button>
 
-            <DropdownMenuItem onClick={() => {
-              setIsMoveDialogOpen(true);
-              setIsDropdownOpen(false);
-            }}>
-              <FolderInput className="w-4 h-4 mr-2" />
-              Move Thread
-            </DropdownMenuItem>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleToggleLock}
+        className={cn("transition-colors", isLocked && "bg-accent/10")}
+        aria-label={isLocked ? "Unlock thread" : "Lock thread"}
+      >
+        {isLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
+      </Button>
 
-            <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Thread
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuItem onClick={() => {
+            setIsEditDialogOpen(true);
+            setIsDropdownOpen(false);
+          }}>
+            <Edit className="w-4 h-4 mr-2" />
+            Edit Thread
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem onClick={() => {
+            setIsPasswordDialogOpen(true);
+            setIsDropdownOpen(false);
+          }}>
+            <Key className="w-4 h-4 mr-2" />
+            {hasPassword ? 'Edit Password' : 'Add Password'}
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem 
+            className="text-red-600"
+            onClick={handleDelete}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Thread
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-4xl">
@@ -220,28 +205,39 @@ export const ThreadActions = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Move Thread</DialogTitle>
+            <DialogTitle>
+              {hasPassword ? 'Edit Thread Password' : 'Add Thread Password'}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleMove}>Move Thread</Button>
+            <Input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="flex justify-between">
+              <Button onClick={handlePasswordUpdate}>
+                {password ? 'Save Password' : 'Remove Password'}
+              </Button>
+              {hasPassword && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    setPassword('');
+                    handlePasswordUpdate();
+                  }}
+                >
+                  Remove Password
+                </Button>
+              )}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };

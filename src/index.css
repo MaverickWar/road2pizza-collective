@@ -38,11 +38,11 @@
   }
 
   .admin-sidebar {
-    @apply fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r border-admin-border shadow-admin;
+    @apply fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-admin-border shadow-admin;
   }
 
   .admin-header {
-    @apply fixed top-0 right-0 left-64 z-30 h-16 bg-white border-b border-admin-border;
+    @apply fixed top-0 right-0 left-64 z-40 h-16 bg-white border-b border-admin-border;
   }
 
   .admin-content {
@@ -84,7 +84,7 @@
   }
 
   .admin-card {
-    @apply bg-white rounded-lg shadow-admin hover:shadow-admin-hover transition-all duration-300;
+    @apply bg-white rounded-lg shadow-admin hover:shadow-admin-hover transition-all duration-300 p-6;
   }
 
   .admin-stats-card {

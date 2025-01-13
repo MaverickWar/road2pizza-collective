@@ -1,10 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SupabaseClient } from '@supabase/supabase-js';
+import { Database } from "@/integrations/supabase/types";
 
 // Function to refresh token using Supabase
 const refreshToken = async (supabaseClient: SupabaseClient) => {
-  const session = supabaseClient.auth.session();
+  const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
     const { error } = await supabaseClient.auth.refreshSession();
     if (error) {
@@ -12,6 +13,8 @@ const refreshToken = async (supabaseClient: SupabaseClient) => {
     }
   }
 };
+
+type TableNames = keyof Database['public']['Tables'];
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,9 +28,12 @@ export const queryClient = new QueryClient({
       refetchOnReconnect: true,
       queryFn: async ({ queryKey }) => {
         try {
+          // Ensure the queryKey[0] is a valid table name
+          const tableName = queryKey[0] as TableNames;
+          
           // Attempt to fetch data
           const { data, error } = await supabase
-            .from(queryKey[0] as string)
+            .from(tableName)
             .select('*');
 
           if (error) {
@@ -35,7 +41,7 @@ export const queryClient = new QueryClient({
           }
 
           return data;
-        } catch (error) {
+        } catch (error: any) {
           // If error is due to token expiration, refresh token and retry
           if (error.status === 401) {
             await refreshToken(supabase);

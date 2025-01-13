@@ -46,7 +46,7 @@
   }
 
   .admin-content {
-    @apply pt-16 pl-64 min-h-screen bg-admin-background;
+    @apply pt-24 pl-64 min-h-screen bg-admin-background;
   }
 
   /* Responsive Admin Layout */

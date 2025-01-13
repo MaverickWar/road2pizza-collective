@@ -2,7 +2,7 @@ import { toast } from "sonner";
 
 type ValidationCheck = {
   id: string;
-  check: () => boolean or Promise<boolean>;
+  check: () => boolean | Promise<boolean>;
   message: string;
 };
 

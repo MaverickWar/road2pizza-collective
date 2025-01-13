@@ -56,8 +56,27 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     )}>
       {isAdmin && user && (
         <>
+          {/* Sidebar with Logo */}
+          <div className={cn(
+            "admin-sidebar fixed top-0 left-0 h-screen w-64 bg-white border-r border-admin-border transition-transform duration-300 ease-in-out z-50",
+            !isSidebarOpen && "md:translate-x-0",
+            !isSidebarOpen && isMobile && "-translate-x-full"
+          )}>
+            <div className="p-4 h-full overflow-y-auto">
+              <div className="flex items-center gap-2 mb-6">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="h-8 w-8"
+                />
+                <span className="font-semibold text-lg">Admin Dashboard</span>
+              </div>
+              <AdminSideMenu />
+            </div>
+          </div>
+
           {/* Top Navigation Bar */}
-          <div className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-admin-border z-40 transition-all duration-300">
+          <div className="fixed top-0 right-0 left-64 h-16 bg-white border-b border-admin-border z-40 transition-all duration-300">
             <div className="flex items-center justify-between h-full px-4">
               <div className="flex items-center gap-4">
                 <Button
@@ -89,21 +108,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
-          <div className={cn(
-            "admin-sidebar fixed top-0 left-0 h-screen w-64 bg-white border-r border-admin-border transition-transform duration-300 ease-in-out z-50",
-            !isSidebarOpen && "md:translate-x-0",
-            !isSidebarOpen && isMobile && "-translate-x-full"
-          )}>
-            <div className="p-4 h-full overflow-y-auto">
-              <AdminSideMenu />
-            </div>
-          </div>
-
           <main className={cn(
             "transition-all duration-300 ease-in-out",
             "min-h-screen bg-background",
             "p-4 md:p-6",
-            "pt-24",
+            "pt-24", // Increased top padding to prevent content from being cut off
             "md:ml-64",
             isMobile && !isSidebarOpen && "ml-0",
             "flex flex-col gap-6"

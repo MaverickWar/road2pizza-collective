@@ -25,12 +25,10 @@ interface ThreadActionsProps {
   threadId: string;
   currentTitle: string;
   currentContent: string;
-  currentCategoryId?: string;
   isPinned?: boolean;
   isLocked?: boolean;
   hasPassword?: boolean;
   onThreadUpdated: () => void;
-  isInManagement?: boolean;
 }
 
 export const ThreadActions = ({ 
@@ -48,6 +46,38 @@ export const ThreadActions = ({
   const [editedContent, setEditedContent] = useState(currentContent);
   const [password, setPassword] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleTogglePin = async () => {
+    try {
+      const { error } = await supabase
+        .from("forum_threads")
+        .update({ is_pinned: !isPinned })
+        .eq("id", threadId);
+
+      if (error) throw error;
+      toast.success(`Thread ${isPinned ? 'unpinned' : 'pinned'} successfully`);
+      onThreadUpdated();
+    } catch (error) {
+      console.error("Error toggling pin status:", error);
+      toast.error("Failed to update pin status");
+    }
+  };
+
+  const handleToggleLock = async () => {
+    try {
+      const { error } = await supabase
+        .from("forum_threads")
+        .update({ is_locked: !isLocked })
+        .eq("id", threadId);
+
+      if (error) throw error;
+      toast.success(`Thread ${isLocked ? 'unlocked' : 'locked'} successfully`);
+      onThreadUpdated();
+    } catch (error) {
+      console.error("Error toggling lock status:", error);
+      toast.error("Failed to update lock status");
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -82,38 +112,6 @@ export const ThreadActions = ({
     }
   };
 
-  const handleTogglePin = async () => {
-    try {
-      const { error } = await supabase
-        .from("forum_threads")
-        .update({ is_pinned: !isPinned })
-        .eq("id", threadId);
-
-      if (error) throw error;
-      toast.success(`Thread ${isPinned ? 'unpinned' : 'pinned'} successfully`);
-      onThreadUpdated();
-    } catch (error) {
-      console.error("Error toggling pin status:", error);
-      toast.error("Failed to update pin status");
-    }
-  };
-
-  const handleToggleLock = async () => {
-    try {
-      const { error } = await supabase
-        .from("forum_threads")
-        .update({ is_locked: !isLocked })
-        .eq("id", threadId);
-
-      if (error) throw error;
-      toast.success(`Thread ${isLocked ? 'unlocked' : 'locked'} successfully`);
-      onThreadUpdated();
-    } catch (error) {
-      console.error("Error toggling lock status:", error);
-      toast.error("Failed to update lock status");
-    }
-  };
-
   const handlePasswordUpdate = async () => {
     try {
       const { error } = await supabase
@@ -135,31 +133,35 @@ export const ThreadActions = ({
     }
   };
 
-  if (!isAdmin) return null;
-
   return (
     <div className="flex items-center gap-2">
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
         onClick={handleTogglePin}
-        className={cn("transition-colors", isPinned && "bg-accent/10")}
+        className={cn(
+          "transition-colors",
+          isPinned && "text-orange-500 hover:text-orange-600"
+        )}
         aria-label={isPinned ? "Unpin thread" : "Pin thread"}
       >
         <Pin className={cn("h-4 w-4", isPinned && "fill-current")} />
       </Button>
 
       <Button
-        variant="outline"
+        variant="ghost"
         size="icon"
         onClick={handleToggleLock}
-        className={cn("transition-colors", isLocked && "bg-accent/10")}
+        className={cn(
+          "transition-colors",
+          isLocked && "text-orange-500 hover:text-orange-600"
+        )}
         aria-label={isLocked ? "Unlock thread" : "Lock thread"}
       >
         {isLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
       </Button>
 
-      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon">
             <MoreHorizontal className="h-4 w-4" />
@@ -179,7 +181,7 @@ export const ThreadActions = ({
             setIsDropdownOpen(false);
           }}>
             <Key className="w-4 h-4 mr-2" />
-            {hasPassword ? 'Edit Password' : 'Add Password'}
+            {hasPassword ? 'Manage Password' : 'Add Password'}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -210,7 +212,7 @@ export const ThreadActions = ({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {hasPassword ? 'Edit Thread Password' : 'Add Thread Password'}
+              {hasPassword ? 'Manage Thread Password' : 'Add Thread Password'}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">

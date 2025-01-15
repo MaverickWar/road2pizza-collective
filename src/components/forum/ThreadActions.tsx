@@ -145,7 +145,7 @@ export const ThreadActions = ({
         onClick={handleTogglePin}
         className={cn(
           "transition-colors",
-          isPinned && "text-orange-500 hover:text-orange-600"
+          isPinned && "text-red-500 hover:text-red-600"
         )}
         aria-label={isPinned ? "Unpin thread" : "Pin thread"}
       >
@@ -162,7 +162,7 @@ export const ThreadActions = ({
         )}
         aria-label={isLocked ? "Unlock thread" : "Lock thread"}
       >
-        {isLocked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
+        {isLocked ? <Lock className="h-4 w-4 fill-current" /> : <LockOpen className="h-4 w-4" />}
       </Button>
 
       <DropdownMenu>

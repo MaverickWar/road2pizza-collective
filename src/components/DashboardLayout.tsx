@@ -18,14 +18,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     console.log("Route changed in DashboardLayout:", location.pathname);
-    if (location.pathname.includes('analytics')) {
-      queryClient.removeQueries({ queryKey: ["analytics-metrics"] });
-    } else if (location.pathname.includes('users')) {
-      queryClient.removeQueries({ queryKey: ["admin-users"] });
-    } else if (location.pathname.includes('reviews')) {
-      queryClient.removeQueries({ queryKey: ["admin-reviews"] });
-    } else if (location.pathname.includes('recipes')) {
-      queryClient.removeQueries({ queryKey: ["admin-recipes"] });
+    // Only invalidate specific queries when navigating away from their routes
+    if (!location.pathname.includes('analytics')) {
+      queryClient.invalidateQueries({ queryKey: ["analytics-metrics"] });
+    }
+    if (!location.pathname.includes('users')) {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    }
+    if (!location.pathname.includes('reviews')) {
+      queryClient.invalidateQueries({ queryKey: ["admin-reviews"] });
+    }
+    if (!location.pathname.includes('recipes')) {
+      queryClient.invalidateQueries({ queryKey: ["admin-recipes"] });
+    }
+    if (!location.pathname.includes('forum')) {
+      queryClient.invalidateQueries({ queryKey: ["forum-threads"] });
     }
   }, [location.pathname, queryClient]);
 

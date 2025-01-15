@@ -20,7 +20,8 @@ const AdminDashboard = () => {
       const [
         usersResponse, 
         recipesResponse, 
-        reviewsResponse
+        reviewsResponse,
+        equipmentReviewsResponse
       ] = await Promise.all([
         // Get total users count
         supabase.from('profiles').select('count'),
@@ -32,38 +33,41 @@ const AdminDashboard = () => {
           .eq('status', 'published')
           .eq('approval_status', 'approved'),
         
-        // Get all published reviews with ratings for approved recipes
+        // Get all recipe reviews
         supabase
           .from('reviews')
-          .select(`
-            rating,
-            recipes!inner (
-              id,
-              status,
-              approval_status
-            )
-          `)
+          .select('rating'),
+
+        // Get all equipment reviews
+        supabase
+          .from('equipment_reviews')
+          .select('rating')
           .not('rating', 'is', null)
-          .eq('recipes.status', 'published')
-          .eq('recipes.approval_status', 'approved')
       ]);
 
       console.log("Stats responses:", {
         users: usersResponse,
         recipes: recipesResponse,
-        reviews: reviewsResponse
+        reviews: reviewsResponse,
+        equipmentReviews: equipmentReviewsResponse
       });
 
       if (usersResponse.error) throw usersResponse.error;
       if (recipesResponse.error) throw recipesResponse.error;
       if (reviewsResponse.error) throw reviewsResponse.error;
+      if (equipmentReviewsResponse.error) throw equipmentReviewsResponse.error;
 
       // Calculate total reviews and average rating
-      const reviews = reviewsResponse.data || [];
-      const totalReviews = reviews.length;
-      const averageRating = totalReviews > 0
-        ? reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / totalReviews
-        : 0;
+      const recipeReviews = reviewsResponse.data || [];
+      const equipmentReviews = equipmentReviewsResponse.data || [];
+      
+      const totalReviews = recipeReviews.length + equipmentReviews.length;
+      
+      // Calculate average rating across both review types
+      const totalRatingSum = recipeReviews.reduce((acc, review) => acc + (review.rating || 0), 0) +
+                            equipmentReviews.reduce((acc, review) => acc + (review.rating || 0), 0);
+      
+      const averageRating = totalReviews > 0 ? totalRatingSum / totalReviews : 0;
 
       return {
         users: usersResponse.data[0]?.count || 0,

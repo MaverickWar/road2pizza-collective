@@ -11,6 +11,7 @@ const ThreadManagement = () => {
   const { data: threads, isLoading, refetch } = useQuery({
     queryKey: ['forum-threads'],
     queryFn: async () => {
+      console.log('Fetching forum threads...');
       const { data, error } = await supabase
         .from('forum_threads')
         .select(`
@@ -44,6 +45,8 @@ const ThreadManagement = () => {
         throw error;
       }
 
+      console.log('Successfully fetched threads:', data);
+      
       const transformedData = data?.map(thread => {
         const postsCount = thread.posts?.[0]?.count || 0;
         return {
@@ -63,7 +66,11 @@ const ThreadManagement = () => {
       }) as Thread[];
 
       return transformedData;
-    }
+    },
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    staleTime: 1000 * 60, // Consider data stale after 1 minute
   });
 
   return (
@@ -108,6 +115,7 @@ const ThreadManagement = () => {
                           onThreadUpdated={refetch}
                           onTogglePinned={async (threadId, currentState) => {
                             try {
+                              console.log('Toggling pin status for thread:', threadId);
                               const { error } = await supabase
                                 .from('forum_threads')
                                 .update({ is_pinned: !currentState })
@@ -124,6 +132,7 @@ const ThreadManagement = () => {
                           }}
                           onToggleLocked={async (threadId, currentState) => {
                             try {
+                              console.log('Toggling lock status for thread:', threadId);
                               const { error } = await supabase
                                 .from('forum_threads')
                                 .update({ is_locked: !currentState })

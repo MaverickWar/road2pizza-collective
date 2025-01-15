@@ -108,13 +108,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
+          {/* Main Content Area */}
           <main className={cn(
             "transition-all duration-300 ease-in-out",
-            "min-h-screen bg-background",
-            "p-4 md:p-6",
-            "pt-24", // Increased top padding to prevent content from being cut off
-            "md:ml-64",
-            isMobile && !isSidebarOpen && "ml-0",
+            "min-h-screen bg-admin-background",
+            "p-6", // Consistent padding
+            "pt-24", // Increased top padding to clear the header
+            isSidebarOpen ? "md:ml-64" : "md:ml-20",
+            !isSidebarOpen && isMobile && "ml-0",
             "flex flex-col gap-6"
           )}>
             {children}

@@ -18,7 +18,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     console.log("Route changed in DashboardLayout:", location.pathname);
-    // Only invalidate specific queries when navigating away from their routes
     if (!location.pathname.includes('analytics')) {
       queryClient.invalidateQueries({ queryKey: ["analytics-metrics"] });
     }
@@ -70,13 +69,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             !isSidebarOpen && isMobile && "-translate-x-full"
           )}>
             <div className="p-4 h-full overflow-y-auto">
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex justify-center mb-6">
                 <img 
                   src="/logo.png" 
                   alt="Logo" 
-                  className="h-8 w-8"
+                  className="h-12 w-12"
                 />
-                <span className="font-semibold text-lg">Admin Dashboard</span>
               </div>
               <AdminSideMenu />
             </div>
@@ -119,8 +117,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           <main className={cn(
             "transition-all duration-300 ease-in-out",
             "min-h-screen bg-admin-background",
-            "p-6", // Consistent padding
-            "pt-24", // Increased top padding to clear the header
+            "p-6",
+            "pt-24",
             isSidebarOpen ? "md:ml-64" : "md:ml-20",
             !isSidebarOpen && isMobile && "ml-0",
             "flex flex-col gap-6"

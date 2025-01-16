@@ -24,13 +24,6 @@ const ThreadManagementActions = ({
       >
         {thread.is_pinned ? "Unpin" : "Pin"}
       </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onToggleLocked(thread.id, thread.is_locked)}
-      >
-        {thread.is_locked ? "Unlock" : "Lock"}
-      </Button>
       <ThreadActions
         threadId={thread.id}
         currentTitle={thread.title}

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ThreadActions } from "./ThreadActions";
 import { Thread } from "./types";
+import { Lock, LockOpen, Pin, PinOff } from "lucide-react";
 
 interface ThreadManagementActionsProps {
   thread: Thread;
@@ -20,9 +21,18 @@ const ThreadManagementActions = ({
       <Button
         variant="outline"
         size="sm"
+        className={thread.is_pinned ? "bg-admin text-white hover:bg-admin-hover" : ""}
         onClick={() => onTogglePinned(thread.id, thread.is_pinned)}
       >
-        {thread.is_pinned ? "Unpin" : "Pin"}
+        {thread.is_pinned ? <Pin className="h-4 w-4" /> : <PinOff className="h-4 w-4" />}
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        className={thread.is_locked ? "bg-admin text-white hover:bg-admin-hover" : ""}
+        onClick={() => onToggleLocked(thread.id, thread.is_locked)}
+      >
+        {thread.is_locked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
       </Button>
       <ThreadActions
         threadId={thread.id}

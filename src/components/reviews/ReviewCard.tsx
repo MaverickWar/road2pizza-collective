@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ThumbsUp, Eye, EyeOff } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ThumbsUp, Star, Award, ExternalLink } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Rating } from "@/components/Rating";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ReviewCardProps {
   review: any;
@@ -38,85 +39,84 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
   };
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up bg-card hover:bg-card-hover border-none shadow-md">
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          <div className="flex-1 min-w-0 space-y-2">
-            <Link
-              to={`/reviews/${review.id}`}
-              className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1"
-            >
-              {review.title}
-            </Link>
-
-            <p className="text-sm text-gray-500">
-              by {review.author}
-            </p>
-
-            <p className="text-sm line-clamp-2">{review.content}</p>
-          </div>
-
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-[80px] h-[80px] flex-shrink-0">
-              {review.image_url ? (
-                <img
-                  src={review.image_url}
-                  alt={review.title}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              ) : (
-                <div className="w-full h-full bg-secondary rounded-lg flex items-center justify-center text-secondary-foreground text-xs">
-                  No image
-                </div>
-              )}
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-up">
+      <div className="grid md:grid-cols-[2fr,1fr] gap-6 p-6">
+        <div className="space-y-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <Link
+                to={`/reviews/${review.id}`}
+                className="text-xl font-semibold hover:text-admin transition-colors line-clamp-1 group-hover:text-admin"
+              >
+                {review.title}
+              </Link>
+              <p className="text-sm text-muted-foreground mt-1">
+                by {review.author} · {review.category}
+              </p>
             </div>
-            <Rating value={review.rating} />
+            {review.is_featured && (
+              <Badge variant="secondary" className="bg-admin/10 text-admin">
+                <Award className="w-3 h-3 mr-1" />
+                Featured
+              </Badge>
+            )}
           </div>
-        </div>
-        
-        <div className="mt-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-yellow-500" />
+              <span className="font-medium">{review.rating}/5</span>
+            </div>
+            {review.price_range && (
+              <Badge variant="outline" className="text-sm">
+                {review.price_range}
+              </Badge>
+            )}
+          </div>
+
+          <p className="text-sm line-clamp-2 text-muted-foreground">{review.content}</p>
+
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="sm"
-              className="hover:text-accent text-xs px-2"
+              className="hover:text-admin text-xs"
               onClick={() => {
                 setIsLiked(!isLiked);
                 setLikes(isLiked ? likes - 1 : likes + 1);
               }}
             >
               <ThumbsUp
-                className={`w-3 h-3 ${
-                  isLiked ? "fill-accent text-accent" : ""
+                className={`w-3 h-3 mr-1 ${
+                  isLiked ? "fill-admin text-admin" : ""
                 }`}
               />
-              <span className="ml-0.5">{likes}</span>
+              {likes}
             </Button>
-
-            {isOwner && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={togglePublishState}
-                className="text-xs px-2"
-              >
-                {isPublished ? (
-                  <EyeOff className="w-3 h-3 mr-1" />
-                ) : (
-                  <Eye className="w-3 h-3 mr-1" />
-                )}
-                {isPublished ? 'Unpublish' : 'Publish'}
-              </Button>
-            )}
+            <Link
+              to={`/reviews/${review.id}`}
+              className="text-xs text-admin hover:text-admin-hover font-medium flex items-center gap-1"
+            >
+              Read full review
+              <ExternalLink className="w-3 h-3" />
+            </Link>
           </div>
-          <Link
-            to={`/equipment-reviews/${review.id}`}
-            className="text-xs text-accent hover:text-accent/80 font-medium"
-          >
-            Read more →
-          </Link>
         </div>
-      </CardContent>
+
+        <div className="relative h-full min-h-[200px] rounded-lg overflow-hidden bg-secondary/10">
+          {review.image_url ? (
+            <img
+              src={review.image_url}
+              alt={review.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              No image available
+            </div>
+          )}
+        </div>
+      </div>
     </Card>
   );
 };

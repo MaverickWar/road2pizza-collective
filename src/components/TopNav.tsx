@@ -7,9 +7,14 @@ const TopNav = () => {
   const { user, isAdmin } = useAuth();
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] py-2">
+    <div className="w-full bg-gradient-to-r from-admin to-admin-secondary py-2">
       <div className="container mx-auto px-4">
-        <div className="flex justify-end items-center">
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="text-2xl font-bold bg-gradient-to-r from-[#F97316] to-[#FFB168] text-transparent bg-clip-text">
+              Road2Pizza
+            </span>
+          </Link>
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
               Welcome, {user?.username || user?.email || 'User'}!

@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import ReviewStats from "./ReviewStats";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Grid2X2, Grid3X3, Columns3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface ReviewContentProps {
   reviews: any[];
@@ -20,6 +23,7 @@ const ReviewContent = ({
   onToggleVisibility,
   onNewReview
 }: ReviewContentProps) => {
+  const [gridLayout, setGridLayout] = useState<'2x2' | '3x3'>('3x3');
   const isElementVisible = (elementId: string) => !hiddenElements.includes(elementId);
 
   // Get featured reviews
@@ -45,8 +49,8 @@ const ReviewContent = ({
       console.log("Fetched featured reviews:", data);
       return data || [];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Get top 10 reviews by rating
@@ -109,7 +113,7 @@ const ReviewContent = ({
   });
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto px-4">
+    <div className="space-y-8">
       {isElementVisible('stats') && (
         <div 
           onClick={() => isEditMode && onToggleVisibility('stats')}
@@ -121,6 +125,31 @@ const ReviewContent = ({
         </div>
       )}
 
+      <div className="flex justify-end gap-2 pb-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setGridLayout('2x2')}
+          className={cn(
+            "w-10 h-10",
+            gridLayout === '2x2' && "bg-admin/10 text-admin"
+          )}
+        >
+          <Grid2X2 className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setGridLayout('3x3')}
+          className={cn(
+            "w-10 h-10",
+            gridLayout === '3x3' && "bg-admin/10 text-admin"
+          )}
+        >
+          <Grid3X3 className="h-5 w-5" />
+        </Button>
+      </div>
+
       {isElementVisible('featured-reviews') && featuredReviews.length > 0 && (
         <div 
           onClick={() => isEditMode && onToggleVisibility('featured-reviews')}
@@ -130,8 +159,14 @@ const ReviewContent = ({
         >
           <Card className="border-none bg-highlight shadow-lg">
             <CardContent className="p-4 md:p-6">
-              <h2 className="text-xl md:text-2xl font-bold mb-6">Featured Reviews</h2>
-              <div className="grid gap-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl md:text-2xl font-bold">Featured Reviews</h2>
+                <Columns3 className="h-5 w-5 text-admin" />
+              </div>
+              <div className={cn(
+                "grid gap-6",
+                gridLayout === '2x2' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              )}>
                 {featuredReviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}
@@ -150,8 +185,14 @@ const ReviewContent = ({
         >
           <Card className="border-none shadow-lg">
             <CardContent className="p-4 md:p-6">
-              <h2 className="text-xl md:text-2xl font-bold mb-6">Top Rated Reviews</h2>
-              <div className="grid gap-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl md:text-2xl font-bold">Top Rated Reviews</h2>
+                <Columns3 className="h-5 w-5 text-admin" />
+              </div>
+              <div className={cn(
+                "grid gap-6",
+                gridLayout === '2x2' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              )}>
                 {topReviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}
@@ -170,8 +211,14 @@ const ReviewContent = ({
         >
           <Card className="border-none shadow-lg">
             <CardContent className="p-4 md:p-6">
-              <h2 className="text-xl md:text-2xl font-bold mb-6">Latest Reviews</h2>
-              <div className="grid gap-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl md:text-2xl font-bold">Latest Reviews</h2>
+                <Columns3 className="h-5 w-5 text-admin" />
+              </div>
+              <div className={cn(
+                "grid gap-6",
+                gridLayout === '2x2' ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              )}>
                 {adminReviews.map((review) => (
                   <ReviewCard key={review.id} review={review} />
                 ))}

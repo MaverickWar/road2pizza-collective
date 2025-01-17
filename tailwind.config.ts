@@ -26,7 +26,7 @@ export default {
       colors: {
         // Admin Dashboard Colors
         admin: {
-          DEFAULT: "#F97316", // Primary orange
+          DEFAULT: "#F97316", // Primary orange - Made more vibrant
           secondary: "#FEC6A1", // Soft orange
           accent: "#FFE4E7", // Light pink
           muted: "#94A3B8", // Slate gray
@@ -38,13 +38,13 @@ export default {
             secondary: "#FEB088", // Darker soft orange
           },
         },
-        // Original Site Colors (preserved)
+        // Original Site Colors (preserved with enhanced vibrancy)
         background: {
           DEFAULT: "#F3F3F3",
           secondary: "#EAEAEA",
         },
         primary: {
-          DEFAULT: "#F97316",
+          DEFAULT: "#F97316", // Made more vibrant to match admin theme
           hover: "#EA580C",
           foreground: "#FFFFFF",
         },

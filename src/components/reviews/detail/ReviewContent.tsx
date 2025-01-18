@@ -20,35 +20,39 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Hero Section */}
-      <div className="space-y-6">
-        <div className="flex items-start justify-between">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              {review.is_featured && (
-                <Badge variant="secondary" className="bg-admin/10 text-admin">
-                  <Award className="w-4 h-4 mr-1" />
-                  Featured Review
-                </Badge>
-              )}
-              <Badge variant="outline">{review.category}</Badge>
-            </div>
-            <h1 className="text-4xl font-bold">{review.title}</h1>
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <span>By {review.profiles?.username || review.author}</span>
-              <span>•</span>
-              <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
-            </div>
-          </div>
-          <div className="text-center bg-admin/10 p-4 rounded-lg">
-            <div className="text-4xl font-bold text-admin mb-1">{review.rating}</div>
-            <Rating value={review.rating} />
-            <div className="text-sm text-muted-foreground mt-2">Overall Rating</div>
-          </div>
+      {/* Title and Meta Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          {review.is_featured && (
+            <Badge variant="secondary" className="bg-admin/10 text-admin">
+              <Award className="w-4 h-4 mr-1" />
+              Featured Review
+            </Badge>
+          )}
+          <Badge variant="outline">{review.category}</Badge>
         </div>
+        <h1 className="text-4xl font-bold">{review.title}</h1>
+        <div className="flex items-center gap-4 text-muted-foreground">
+          <span>By {review.profiles?.username || review.author}</span>
+          <span>•</span>
+          <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
+        </div>
+      </div>
 
-        {/* Key Points */}
-        <div className="grid md:grid-cols-2 gap-6">
+      {/* Media Gallery - Now at the top */}
+      <Card className="overflow-hidden border-none shadow-lg">
+        <MediaGallery 
+          imageUrl={review.image_url} 
+          images={review.images || []}
+          videoUrl={review.video_url}
+          videoProvider={review.video_provider}
+        />
+      </Card>
+
+      {/* Pros/Cons and Ratings Grid */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left Column - Pros and Cons */}
+        <div className="space-y-6">
           <Card className="p-6 bg-secondary/50">
             <h3 className="text-lg font-semibold mb-4 flex items-center text-green-600">
               <ThumbsUp className="w-5 h-5 mr-2" />
@@ -63,6 +67,7 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
               ))}
             </ul>
           </Card>
+
           <Card className="p-6 bg-secondary/50">
             <h3 className="text-lg font-semibold mb-4 flex items-center text-red-600">
               <ThumbsDown className="w-5 h-5 mr-2" />
@@ -78,37 +83,34 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
             </ul>
           </Card>
         </div>
+
+        {/* Right Column - Rating Categories */}
+        <Card className="p-6">
+          <div className="text-center mb-6">
+            <div className="text-4xl font-bold text-admin mb-2">{review.rating}/5</div>
+            <Rating value={review.rating} className="justify-center" />
+          </div>
+          
+          <div className="space-y-6">
+            {ratingCategories.map(({ label, value, icon: Icon }) => (
+              <div key={label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-admin/10 flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-admin" />
+                  </div>
+                  <span className="font-medium">{label}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Rating value={value || 0} />
+                  <span className="font-bold text-admin">{value}/5</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
-      {/* Media Gallery */}
-      <Card className="overflow-hidden border-none shadow-lg">
-        <MediaGallery 
-          imageUrl={review.image_url} 
-          images={review.images || []}
-          videoUrl={review.video_url}
-          videoProvider={review.video_provider}
-        />
-      </Card>
-
-      {/* Detailed Ratings */}
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-6">Detailed Ratings</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {ratingCategories.map(({ label, value, icon: Icon }) => (
-            <div key={label} className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-admin/10">
-                <Icon className="w-6 h-6 text-admin" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{label}</p>
-                <Rating value={value || 0} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Product Details */}
+      {/* Product Information */}
       <Card className="p-6">
         <h2 className="text-2xl font-bold mb-6">Product Information</h2>
         <div className="grid md:grid-cols-2 gap-8">

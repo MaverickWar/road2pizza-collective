@@ -1138,6 +1138,62 @@ export type Database = {
           },
         ]
       }
+      theme_settings: {
+        Row: {
+          animations: Json | null
+          colors: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          images: Json | null
+          is_active: boolean | null
+          layout: Json | null
+          menu_style: Json | null
+          name: string
+          spacing: Json | null
+          typography: Json | null
+          updated_at: string
+        }
+        Insert: {
+          animations?: Json | null
+          colors?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          layout?: Json | null
+          menu_style?: Json | null
+          name: string
+          spacing?: Json | null
+          typography?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          animations?: Json | null
+          colors?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          layout?: Json | null
+          menu_style?: Json | null
+          name?: string
+          spacing?: Json | null
+          typography?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "theme_settings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           badge_id: string

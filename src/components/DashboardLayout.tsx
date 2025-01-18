@@ -70,11 +70,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           )}>
             <div className="p-4 h-full overflow-y-auto">
               <div className="flex justify-center mb-6">
-                <img 
-                  src="/logo.png" 
-                  alt="Logo" 
-                  className="h-12 w-12"
-                />
+                <Link to="/" className="flex items-center justify-center">
+                  <img 
+                    src="/images/logo.png" 
+                    alt="Road2Pizza Logo"
+                    className="h-16 w-auto object-contain"
+                  />
+                </Link>
               </div>
               <AdminSideMenu />
             </div>

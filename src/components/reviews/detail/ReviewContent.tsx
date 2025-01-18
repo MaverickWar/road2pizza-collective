@@ -3,7 +3,7 @@ import { ReviewData } from "@/types/review";
 import { format } from "date-fns";
 import { Rating } from "@/components/Rating";
 import { Badge } from "@/components/ui/badge";
-import { Star, Award, Package, DollarSign, Wrench } from "lucide-react";
+import { Star, Award, Package, DollarSign, Wrench, ThumbsUp, ThumbsDown } from "lucide-react";
 import MediaGallery from "@/components/article/MediaGallery";
 
 interface ReviewContentProps {
@@ -11,8 +11,6 @@ interface ReviewContentProps {
 }
 
 export const ReviewContent = ({ review }: ReviewContentProps) => {
-  console.log('Rendering ReviewContent with data:', review);
-
   const ratingCategories = [
     { label: "Overall", value: review.rating, icon: Star },
     { label: "Durability", value: review.durability_rating, icon: Wrench },
@@ -21,40 +19,85 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
   ];
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      {/* Header Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">{review.title}</h1>
-          {review.is_featured && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Award className="w-4 h-4" />
-              Featured Review
-            </Badge>
-          )}
+    <div className="max-w-4xl mx-auto space-y-8">
+      {/* Hero Section */}
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              {review.is_featured && (
+                <Badge variant="secondary" className="bg-admin/10 text-admin">
+                  <Award className="w-4 h-4 mr-1" />
+                  Featured Review
+                </Badge>
+              )}
+              <Badge variant="outline">{review.category}</Badge>
+            </div>
+            <h1 className="text-4xl font-bold">{review.title}</h1>
+            <div className="flex items-center gap-4 text-muted-foreground">
+              <span>By {review.profiles?.username || review.author}</span>
+              <span>•</span>
+              <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
+            </div>
+          </div>
+          <div className="text-center bg-admin/10 p-4 rounded-lg">
+            <div className="text-4xl font-bold text-admin mb-1">{review.rating}</div>
+            <Rating value={review.rating} />
+            <div className="text-sm text-muted-foreground mt-2">Overall Rating</div>
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-muted-foreground">
-          <span>By {review.profiles?.username || review.author}</span>
-          <span>•</span>
-          <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
+
+        {/* Key Points */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="p-6 bg-secondary/50">
+            <h3 className="text-lg font-semibold mb-4 flex items-center text-green-600">
+              <ThumbsUp className="w-5 h-5 mr-2" />
+              Pros
+            </h3>
+            <ul className="space-y-2">
+              {review.pros?.map((pro, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>{pro}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+          <Card className="p-6 bg-secondary/50">
+            <h3 className="text-lg font-semibold mb-4 flex items-center text-red-600">
+              <ThumbsDown className="w-5 h-5 mr-2" />
+              Cons
+            </h3>
+            <ul className="space-y-2">
+              {review.cons?.map((con, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <span className="text-red-500 mt-1">✗</span>
+                  <span>{con}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
         </div>
       </div>
 
       {/* Media Gallery */}
-      <MediaGallery 
-        imageUrl={review.image_url} 
-        images={review.images || []}
-        videoUrl={review.video_url}
-        videoProvider={review.video_provider}
-      />
+      <Card className="overflow-hidden border-none shadow-lg">
+        <MediaGallery 
+          imageUrl={review.image_url} 
+          images={review.images || []}
+          videoUrl={review.video_url}
+          videoProvider={review.video_provider}
+        />
+      </Card>
 
-      {/* Rating Overview */}
-      <Card className="p-6 bg-card hover:bg-card-hover transition-colors">
+      {/* Detailed Ratings */}
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-6">Detailed Ratings</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {ratingCategories.map(({ label, value, icon: Icon }) => (
             <div key={label} className="text-center space-y-2">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-secondary">
-                <Icon className="w-6 h-6 text-secondary-foreground" />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-admin/10">
+                <Icon className="w-6 h-6 text-admin" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -67,69 +110,33 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
 
       {/* Product Details */}
       <Card className="p-6">
+        <h2 className="text-2xl font-bold mb-6">Product Information</h2>
         <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Product Details</h3>
-            <dl className="space-y-2">
+          <dl className="space-y-2">
+            <div className="flex justify-between py-2 border-b">
+              <dt className="text-muted-foreground">Brand</dt>
+              <dd className="font-medium">{review.brand}</dd>
+            </div>
+            {review.model && (
               <div className="flex justify-between py-2 border-b">
-                <dt className="text-muted-foreground">Brand</dt>
-                <dd className="font-medium">{review.brand}</dd>
-              </div>
-              {review.model && (
-                <div className="flex justify-between py-2 border-b">
-                  <dt className="text-muted-foreground">Model</dt>
-                  <dd className="font-medium">{review.model}</dd>
-                </div>
-              )}
-              <div className="flex justify-between py-2 border-b">
-                <dt className="text-muted-foreground">Category</dt>
-                <dd className="font-medium">{review.category}</dd>
-              </div>
-              {review.price_range && (
-                <div className="flex justify-between py-2 border-b">
-                  <dt className="text-muted-foreground">Price Range</dt>
-                  <dd className="font-medium">{review.price_range}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
-
-          {/* Pros & Cons */}
-          <div className="space-y-6">
-            {review.pros && review.pros.length > 0 && (
-              <div>
-                <h4 className="text-lg font-semibold mb-3 text-green-600">Pros</h4>
-                <ul className="space-y-2">
-                  {review.pros.map((pro, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-green-500">✓</span>
-                      {pro}
-                    </li>
-                  ))}
-                </ul>
+                <dt className="text-muted-foreground">Model</dt>
+                <dd className="font-medium">{review.model}</dd>
               </div>
             )}
-            {review.cons && review.cons.length > 0 && (
-              <div>
-                <h4 className="text-lg font-semibold mb-3 text-red-600">Cons</h4>
-                <ul className="space-y-2">
-                  {review.cons.map((con, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-red-500">✗</span>
-                      {con}
-                    </li>
-                  ))}
-                </ul>
+            {review.price_range && (
+              <div className="flex justify-between py-2 border-b">
+                <dt className="text-muted-foreground">Price Range</dt>
+                <dd className="font-medium">{review.price_range}</dd>
               </div>
             )}
-          </div>
+          </dl>
         </div>
       </Card>
 
       {/* Review Content */}
       {review.content && (
         <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Detailed Review</h3>
+          <h2 className="text-2xl font-bold mb-6">Detailed Review</h2>
           <div className="prose max-w-none">
             <div className="whitespace-pre-wrap">{review.content}</div>
           </div>

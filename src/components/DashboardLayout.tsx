@@ -70,11 +70,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           )}>
             <div className="p-4 h-full overflow-y-auto">
               <div className="flex justify-center mb-6">
-                <Link to="/" className="flex items-center justify-center">
+                <Link to="/" className="flex items-center justify-center w-full">
                   <img 
-                    src="/images/logo.png" 
+                    src="/logo.svg" 
                     alt="Road2Pizza Logo"
                     className="h-16 w-auto object-contain"
+                    onError={(e) => {
+                      console.error('Logo failed to load:', e);
+                      e.currentTarget.src = '/logo.png';
+                    }}
                   />
                 </Link>
               </div>

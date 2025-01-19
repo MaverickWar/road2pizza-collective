@@ -45,7 +45,31 @@ const DEFAULT_THEME = {
   },
   images: {
     defaultStyle: 'rounded',
-    borderRadius: 8
+    borderRadius: 8,
+    logo: '',
+    favicon: ''
+  },
+  admin_colors: {
+    admin: {
+      DEFAULT: '249 115 22',
+      secondary: '234 88 12',
+      accent: '249 115 22',
+      muted: '120 113 108',
+      background: '249 250 251',
+      foreground: '41 37 36',
+      border: '229 231 235',
+      hover: {
+        DEFAULT: '234 88 12',
+        secondary: '217 70 0'
+      }
+    }
+  },
+  admin_menu: {
+    type: 'vertical',
+    position: 'left',
+    itemSpacing: 16,
+    showIcons: true,
+    items: []
   }
 };
 
@@ -96,12 +120,19 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Apply colors
     if (theme.colors) {
       Object.entries(theme.colors).forEach(([key, value]: [string, any]) => {
+        root.style.setProperty(`--${key}`, value as string);
+      });
+    }
+
+    // Apply admin colors if present
+    if (theme.admin_colors?.admin) {
+      Object.entries(theme.admin_colors.admin).forEach(([key, value]: [string, any]) => {
         if (typeof value === 'object') {
           Object.entries(value).forEach(([subKey, subValue]) => {
-            root.style.setProperty(`--${key}-${subKey}`, subValue as string);
+            root.style.setProperty(`--admin-${key}-${subKey}`, subValue as string);
           });
         } else {
-          root.style.setProperty(`--${key}`, value as string);
+          root.style.setProperty(`--admin-${key}`, value as string);
         }
       });
     }
@@ -136,11 +167,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       });
     }
 
-    // Apply image styles
+    // Apply admin menu styles
+    if (theme.admin_menu) {
+      Object.entries(theme.admin_menu).forEach(([key, value]) => {
+        if (key !== 'items') {
+          root.style.setProperty(`--admin-menu-${key}`, value as string);
+        }
+      });
+    }
+
+    // Apply image styles and logos
     if (theme.images) {
       Object.entries(theme.images).forEach(([key, value]) => {
         root.style.setProperty(`--image-${key}`, value as string);
       });
+    }
+
+    // Apply logos
+    if (theme.site_logo_url) {
+      root.style.setProperty('--site-logo', `url(${theme.site_logo_url})`);
+    }
+    if (theme.admin_logo_url) {
+      root.style.setProperty('--admin-logo', `url(${theme.admin_logo_url})`);
     }
   };
 

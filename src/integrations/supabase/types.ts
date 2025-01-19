@@ -1140,7 +1140,9 @@ export type Database = {
       }
       theme_settings: {
         Row: {
+          admin_colors: Json | null
           admin_logo_url: string | null
+          admin_menu: Json | null
           animations: Json | null
           colors: Json | null
           created_at: string
@@ -1158,7 +1160,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          admin_colors?: Json | null
           admin_logo_url?: string | null
+          admin_menu?: Json | null
           animations?: Json | null
           colors?: Json | null
           created_at?: string
@@ -1176,7 +1180,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          admin_colors?: Json | null
           admin_logo_url?: string | null
+          admin_menu?: Json | null
           animations?: Json | null
           colors?: Json | null
           created_at?: string

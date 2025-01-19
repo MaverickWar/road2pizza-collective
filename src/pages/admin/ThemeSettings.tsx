@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Palette, Type, Layout, Image, Menu, Sparkles } from "lucide-react";
+import { Palette, Type, Layout, Image, Menu, Sparkles, Settings } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
 import ColorPicker from "@/components/admin/theme/ColorPicker";
@@ -105,13 +105,11 @@ const ThemeSettings = () => {
 
   const handleActivateTheme = async (themeId: string) => {
     try {
-      // First, deactivate all themes of the same type
       await supabase
         .from("theme_settings")
         .update({ is_active: false })
         .eq("is_admin_theme", showAdminThemes);
 
-      // Then activate the selected theme
       await supabase
         .from("theme_settings")
         .update({ is_active: true })
@@ -206,7 +204,7 @@ const ThemeSettings = () => {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="colors">
-                <TabsList className="grid grid-cols-6 w-full">
+                <TabsList className="grid grid-cols-7 w-full">
                   <TabsTrigger value="colors">
                     <Palette className="w-4 h-4 mr-2" />
                     Colors
@@ -231,6 +229,12 @@ const ThemeSettings = () => {
                     <Sparkles className="w-4 h-4 mr-2" />
                     Animations
                   </TabsTrigger>
+                  {showAdminThemes && (
+                    <TabsTrigger value="admin">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Admin
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="colors">
@@ -304,6 +308,37 @@ const ThemeSettings = () => {
                     }
                   />
                 </TabsContent>
+
+                {showAdminThemes && (
+                  <TabsContent value="admin">
+                    <div className="space-y-8">
+                      <div>
+                        <h3 className="text-lg font-medium mb-4">Admin Colors</h3>
+                        <ColorPicker
+                          theme={{ colors: themes?.find((t) => t.id === activeTheme)?.admin_colors?.admin }}
+                          onUpdate={(colors) =>
+                            updateThemeMutation.mutate({
+                              id: activeTheme,
+                              updates: { admin_colors: { admin: colors } },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-medium mb-4">Admin Menu</h3>
+                        <MenuSettings
+                          theme={{ menu_style: themes?.find((t) => t.id === activeTheme)?.admin_menu }}
+                          onUpdate={(menuStyle) =>
+                            updateThemeMutation.mutate({
+                              id: activeTheme,
+                              updates: { admin_menu: menuStyle },
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+                )}
               </Tabs>
             </CardContent>
           </Card>

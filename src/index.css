@@ -121,7 +121,7 @@
   }
 
   .admin-button-primary {
-    @apply bg-admin text-white hover:bg-admin-hover;
+    @apply bg-admin text-white hover:bg-admin-hover-DEFAULT;
   }
 
   .admin-button-secondary {

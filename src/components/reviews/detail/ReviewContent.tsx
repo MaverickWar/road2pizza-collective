@@ -5,7 +5,7 @@ import { Rating } from "@/components/Rating";
 import { Badge } from "@/components/ui/badge";
 import { Star, Award, Package, DollarSign, Wrench, ThumbsUp, ThumbsDown } from "lucide-react";
 import MediaGallery from "@/components/article/MediaGallery";
-import AuthorBadges from "@/components/shared/AuthorBadges";
+import ReviewAuthorCard from "./ReviewAuthorCard";
 
 interface ReviewContentProps {
   review: ReviewData;
@@ -38,15 +38,16 @@ export const ReviewContent = ({ review }: ReviewContentProps) => {
           <span>•</span>
           <span>{format(new Date(review.created_at), 'MMMM d, yyyy')}</span>
         </div>
-        
-        {/* Author Badges */}
-        {review.created_by && (
-          <AuthorBadges 
-            userId={review.created_by} 
-            className="mt-2"
-          />
-        )}
       </div>
+
+      {/* Author Card */}
+      {review.created_by && (
+        <ReviewAuthorCard 
+          authorId={review.created_by}
+          authorName={review.profiles?.username || review.author}
+          createdAt={review.created_at}
+        />
+      )}
 
       {/* Media Gallery */}
       <Card className="overflow-hidden border-none shadow-lg">

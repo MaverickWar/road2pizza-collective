@@ -1,6 +1,4 @@
-import React from 'react';
-
-const AdminFooter = () => {
+export const AdminFooter = () => {
   return (
     <footer className="bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] py-4 text-white text-center">
       <div className="container mx-auto px-4">
@@ -11,5 +9,3 @@ const AdminFooter = () => {
     </footer>
   );
 };
-
-export default AdminFooter;

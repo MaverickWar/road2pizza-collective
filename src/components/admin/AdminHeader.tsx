@@ -1,7 +1,7 @@
 import { useAuth } from "@/components/AuthProvider";
 import { Shield } from "lucide-react";
 
-const AdminHeader = () => {
+export const AdminHeader = () => {
   const { user } = useAuth();
 
   return (
@@ -21,5 +21,3 @@ const AdminHeader = () => {
     </div>
   );
 };
-
-export default AdminHeader;

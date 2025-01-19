@@ -1,13 +1,13 @@
-import { useAuth } from "@/hooks/useAuthState";
+import { useAuthState } from "@/hooks/useAuthState";
 import AdminHeader from "./admin/AdminHeader";
-import AdminSidebar from "./admin/AdminSidebar";
+import { AdminSidebar } from "./admin/AdminSidebar";
 import AdminFooter from "./admin/AdminFooter";
 import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserMenu } from "./UserMenu";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, user } = useAuthState();
   const location = useLocation();
   const queryClient = useQueryClient();
 

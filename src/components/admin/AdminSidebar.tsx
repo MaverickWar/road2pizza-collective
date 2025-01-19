@@ -32,18 +32,21 @@ export function AdminSidebar() {
   const location = useLocation();
   
   return (
-    <Sidebar className="w-64 border-r bg-background">
+    <Sidebar className="w-64 border-r border-admin-border bg-white shadow-admin">
       <div className="flex flex-col h-full p-4 space-y-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Admin Dashboard</h2>
+          <h2 className="text-lg font-semibold text-admin">Admin Dashboard</h2>
         </div>
         <nav className="space-y-2 flex-1">
           {menuItems.map((item) => (
             <Button
               key={item.path}
               asChild
-              variant={location.pathname === item.path ? "secondary" : "ghost"}
-              className="w-full justify-start"
+              variant="ghost"
+              className={cn(
+                "w-full justify-start hover:bg-admin/10 hover:text-admin",
+                location.pathname === item.path && "bg-admin/10 text-admin"
+              )}
             >
               <Link to={item.path}>
                 <item.icon className="h-4 w-4 mr-2" />

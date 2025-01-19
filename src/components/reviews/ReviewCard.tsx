@@ -8,6 +8,7 @@ import { Rating } from "@/components/Rating";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
+import AuthorBadges from "@/components/shared/AuthorBadges";
 
 interface ReviewCardProps {
   review: any;
@@ -71,6 +72,14 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
           <p className="text-sm text-muted-foreground mt-1">
             by {review.author} · {review.category}
           </p>
+          
+          {/* Author Badges */}
+          {review.created_by && (
+            <AuthorBadges 
+              userId={review.created_by} 
+              className="mt-2"
+            />
+          )}
         </div>
 
         <div className="flex items-center gap-4">

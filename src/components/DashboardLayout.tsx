@@ -5,7 +5,7 @@ import AdminFooter from "./admin/AdminFooter";
 import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserMenu } from "./UserMenu";
-import { SidebarProvider } from "@/components/ui/sidebar/SidebarBase";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuthState();

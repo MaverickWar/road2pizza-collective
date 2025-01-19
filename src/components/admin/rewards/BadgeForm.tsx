@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import BadgeImageUpload from "./BadgeImageUpload";
 import BadgePreview from "./BadgePreview";
+import { Crown, Star } from "lucide-react";
 
 interface BadgeFormData {
   title: string;
@@ -32,20 +34,38 @@ const BadgeForm = ({ onSubmit, initialData }: BadgeFormProps) => {
 
   return (
     <div className="space-y-6">
-      <BadgePreview
-        title={formData.title}
-        color={formData.color}
-        isSpecial={formData.is_special}
-        imageUrl={formData.image_url}
-      />
+      <div className="flex items-center justify-between">
+        <BadgePreview
+          title={formData.title}
+          color={formData.color}
+          isSpecial={formData.is_special}
+          imageUrl={formData.image_url}
+        />
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="is_special"
+            checked={formData.is_special}
+            onCheckedChange={(checked) => setFormData({ ...formData, is_special: checked })}
+          />
+          <Label htmlFor="is_special" className="flex items-center space-x-2">
+            {formData.is_special ? (
+              <Crown className="h-4 w-4 text-primary" />
+            ) : (
+              <Star className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span>Special Badge</span>
+          </Label>
+        </div>
+      </div>
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
           <Input
             id="title"
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            placeholder="Enter badge title"
             className="w-full"
           />
         </div>
@@ -56,6 +76,7 @@ const BadgeForm = ({ onSubmit, initialData }: BadgeFormProps) => {
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="Enter badge description"
             className="w-full"
           />
         </div>
@@ -76,7 +97,7 @@ const BadgeForm = ({ onSubmit, initialData }: BadgeFormProps) => {
               className="w-24"
             />
             <div
-              className="w-10 h-10 rounded-full ring-2 ring-offset-2"
+              className="w-10 h-10 rounded-full ring-2 ring-offset-2 transition-colors"
               style={{ backgroundColor: formData.color, borderColor: formData.color }}
             />
           </div>
@@ -96,20 +117,9 @@ const BadgeForm = ({ onSubmit, initialData }: BadgeFormProps) => {
           />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="is_special"
-            checked={formData.is_special}
-            onChange={(e) => setFormData({ ...formData, is_special: e.target.checked })}
-            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-          />
-          <Label htmlFor="is_special">Special Badge</Label>
-        </div>
-
         <Button
           onClick={() => onSubmit(formData)}
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+          className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
         >
           Save Badge
         </Button>

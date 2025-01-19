@@ -11,6 +11,26 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const DEFAULT_THEME = {
+  colors: {},
+  typography: {
+    primaryFont: 'system-ui, sans-serif',
+    baseFontSize: '16px',
+    lineHeight: '1.5'
+  },
+  spacing: {
+    containerPadding: {
+      sm: '1rem',
+      md: '2rem',
+      lg: '4rem'
+    }
+  },
+  animations: {
+    enabled: true,
+    duration: 200
+  }
+};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [currentTheme, setCurrentTheme] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,21 +41,33 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const loadActiveTheme = async () => {
     try {
+      console.log('Loading active theme...');
       const { data: theme, error } = await supabase
         .from('theme_settings')
         .select('*')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading theme:', error);
+        throw error;
+      }
       
       if (theme) {
+        console.log('Active theme found:', theme);
         setCurrentTheme(theme);
         applyTheme(theme);
+      } else {
+        console.log('No active theme found, using default theme');
+        setCurrentTheme(DEFAULT_THEME);
+        applyTheme(DEFAULT_THEME);
       }
     } catch (error) {
       console.error('Error loading theme:', error);
       toast.error('Failed to load theme settings');
+      // Apply default theme on error
+      setCurrentTheme(DEFAULT_THEME);
+      applyTheme(DEFAULT_THEME);
     } finally {
       setIsLoading(false);
     }
@@ -80,6 +112,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = async (themeId: string) => {
     try {
       setIsLoading(true);
+      console.log('Setting new theme:', themeId);
       
       // Deactivate current theme
       await supabase
@@ -93,13 +126,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .update({ is_active: true })
         .eq('id', themeId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      setCurrentTheme(newTheme);
-      applyTheme(newTheme);
-      toast.success('Theme applied successfully');
+      if (newTheme) {
+        console.log('New theme applied:', newTheme);
+        setCurrentTheme(newTheme);
+        applyTheme(newTheme);
+        toast.success('Theme applied successfully');
+      } else {
+        console.log('Theme not found, using default');
+        setCurrentTheme(DEFAULT_THEME);
+        applyTheme(DEFAULT_THEME);
+        toast.error('Theme not found, using default');
+      }
     } catch (error) {
       console.error('Error setting theme:', error);
       toast.error('Failed to apply theme');
@@ -111,20 +152,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const resetToDefault = async () => {
     try {
       setIsLoading(true);
+      console.log('Resetting to default theme');
       
       const { data: defaultTheme, error } = await supabase
         .from('theme_settings')
         .select('*')
         .eq('name', 'Default Theme')
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
-      await setTheme(defaultTheme.id);
-      toast.success('Reset to default theme');
+      if (defaultTheme) {
+        await setTheme(defaultTheme.id);
+        toast.success('Reset to default theme');
+      } else {
+        console.log('Default theme not found, using fallback');
+        setCurrentTheme(DEFAULT_THEME);
+        applyTheme(DEFAULT_THEME);
+        toast.info('Using system default theme');
+      }
     } catch (error) {
       console.error('Error resetting theme:', error);
       toast.error('Failed to reset theme');
+    } finally {
+      setIsLoading(false);
     }
   };
 

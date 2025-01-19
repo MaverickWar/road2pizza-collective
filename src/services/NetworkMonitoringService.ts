@@ -123,10 +123,10 @@ class NetworkMonitoringService {
     if (!this.shouldLogError()) return;
 
     try {
-      const { data: session } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       
       // Only log analytics if user is authenticated
-      if (session?.access_token) {
+      if (session?.user) {
         const { error } = await supabase.from("analytics_metrics").insert({
           metric_name: type,
           metric_value: duration || 0,

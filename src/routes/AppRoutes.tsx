@@ -31,6 +31,7 @@ import ThemeSettings from "../pages/admin/ThemeSettings";
 import MediaGallery from "../pages/admin/MediaGallery";
 import ForumThreadDetail from "../components/forum/ForumThreadDetail";
 import Analytics from "../pages/admin/Analytics";
+import SiteSettings from "../pages/admin/SiteSettings";
 
 function AppRoutes() {
   return (
@@ -70,7 +71,6 @@ function AppRoutes() {
       <Route path="/dashboard/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/admin/analytics" element={<ProtectedRoute requireAdmin><Analytics /></ProtectedRoute>} />
       <Route path="/dashboard/admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />
-      <Route path="/dashboard/admin/reviews" element={<ProtectedRoute requireAdmin><ReviewsDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/admin/review-management" element={<ProtectedRoute requireAdmin><ReviewManagement /></ProtectedRoute>} />
       <Route path="/dashboard/admin/forum/categories" element={<ProtectedRoute requireAdmin><CategoryManagement /></ProtectedRoute>} />
       <Route path="/dashboard/admin/forum/threads" element={<ProtectedRoute requireAdmin><ThreadManagement /></ProtectedRoute>} />
@@ -79,6 +79,7 @@ function AppRoutes() {
       <Route path="/dashboard/admin/rewards" element={<ProtectedRoute requireAdmin><RewardsManagement /></ProtectedRoute>} />
       <Route path="/dashboard/admin/pizza-types" element={<ProtectedRoute requireAdmin><PizzaTypeManagement /></ProtectedRoute>} />
       <Route path="/dashboard/admin/notifications" element={<ProtectedRoute requireAdmin><NotificationManagement /></ProtectedRoute>} />
+      <Route path="/dashboard/admin/settings" element={<ProtectedRoute requireAdmin><SiteSettings /></ProtectedRoute>} />
       <Route path="/dashboard/admin/theme" element={<ProtectedRoute requireAdmin><ThemeSettings /></ProtectedRoute>} />
       <Route path="/dashboard/admin/media" element={<ProtectedRoute requireAdmin><MediaGallery /></ProtectedRoute>} />
       

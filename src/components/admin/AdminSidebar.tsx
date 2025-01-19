@@ -19,7 +19,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
   { icon: Users, label: "Users", path: "/dashboard/admin/users" },
   { icon: BookOpen, label: "Recipes", path: "/dashboard/admin/recipes" },
-  { icon: Star, label: "Reviews", path: "/dashboard/reviews" },
+  { icon: Star, label: "Reviews", path: "/dashboard/admin/review-management" },
   { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
   { icon: FileText, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
   { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },

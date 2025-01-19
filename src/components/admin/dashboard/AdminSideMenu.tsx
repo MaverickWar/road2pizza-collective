@@ -29,6 +29,7 @@ const menuItems = [
   { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
   { icon: Pizza, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
   { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },
+  { icon: Settings, label: "Settings", path: "/dashboard/admin/settings" },
   { icon: Palette, label: "Theme", path: "/dashboard/admin/theme" },
   { icon: Image, label: "Media", path: "/dashboard/admin/media" },
 ];

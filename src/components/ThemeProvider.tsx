@@ -92,7 +92,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Apply typography
     if (theme.typography) {
       root.style.setProperty('--font-family', theme.typography.primaryFont);
-      root.style.setProperty('--base-font-size', `${theme.typography.baseFontSize}px`);
+      root.style.setProperty('--base-font-size', theme.typography.baseFontSize);
       root.style.setProperty('--line-height', theme.typography.lineHeight);
     }
 

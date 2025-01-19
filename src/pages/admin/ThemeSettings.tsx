@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Palette, Type, Layout, Image, Menu, Sparkles, Settings } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -14,58 +13,9 @@ import ImageSettings from "@/components/admin/theme/ImageSettings";
 import MenuSettings from "@/components/admin/theme/MenuSettings";
 import AnimationSettings from "@/components/admin/theme/AnimationSettings";
 import { useTheme } from "@/components/ThemeProvider";
-import ThemeSwitcher from "@/components/admin/theme/ThemeSwitcher";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-
-interface AdminColors {
-  admin: {
-    DEFAULT: string;
-    secondary: string;
-    accent: string;
-    muted: string;
-    background: string;
-    foreground: string;
-    border: string;
-    hover: {
-      DEFAULT: string;
-      secondary: string;
-    };
-  };
-}
-
-interface ThemeData {
-  id: string;
-  name: string;
-  is_active: boolean;
-  colors: Record<string, string>;
-  typography: Record<string, string>;
-  spacing: Record<string, string>;
-  images: Record<string, string>;
-  menu_style: Record<string, any>;
-  animations: Record<string, any>;
-  admin_colors?: AdminColors;
-  admin_menu?: Record<string, any>;
-  is_admin_theme: boolean;
-}
-
-type RawThemeData = {
-  id: string;
-  name: string;
-  is_active: boolean;
-  colors: Json;
-  typography: Json;
-  spacing: Json;
-  images: Json;
-  menu_style: Json;
-  animations: Json;
-  admin_colors?: Json;
-  admin_menu?: Json;
-  is_admin_theme: boolean;
-  created_at: string;
-  updated_at: string;
-  created_by?: string;
-};
+import { ThemeHeader } from "@/components/admin/theme/ThemeHeader";
+import { ThemeList } from "@/components/admin/theme/ThemeList";
+import { ThemeData, RawThemeData } from "@/types/theme";
 
 const transformThemeData = (raw: RawThemeData): ThemeData => {
   return {
@@ -78,7 +28,7 @@ const transformThemeData = (raw: RawThemeData): ThemeData => {
     images: raw.images as Record<string, string>,
     menu_style: raw.menu_style as Record<string, any>,
     animations: raw.animations as Record<string, any>,
-    admin_colors: raw.admin_colors as AdminColors,
+    admin_colors: raw.admin_colors as ThemeData['admin_colors'],
     admin_menu: raw.admin_menu as Record<string, any>,
     is_admin_theme: raw.is_admin_theme
   };
@@ -190,17 +140,6 @@ const ThemeSettings = () => {
     }
   };
 
-  const handleResetToDefault = async () => {
-    try {
-      await resetToDefault();
-      queryClient.invalidateQueries({ queryKey: ["theme-settings"] });
-      toast.success("Reset to default theme");
-    } catch (error) {
-      console.error("Error resetting theme:", error);
-      toast.error("Failed to reset theme");
-    }
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -208,60 +147,18 @@ const ThemeSettings = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold">Theme Settings</h1>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="theme-type"
-                checked={showAdminThemes}
-                onCheckedChange={setShowAdminThemes}
-              />
-              <Label htmlFor="theme-type">
-                {showAdminThemes ? 'Admin Themes' : 'Site Themes'}
-              </Label>
-            </div>
-            <ThemeSwitcher />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleResetToDefault}>
-              Reset to Default
-            </Button>
-            <Button onClick={handleCreateTheme}>
-              Create New {showAdminThemes ? 'Admin' : 'Site'} Theme
-            </Button>
-          </div>
-        </div>
+        <ThemeHeader 
+          showAdminThemes={showAdminThemes}
+          onToggleAdminThemes={setShowAdminThemes}
+          onCreateTheme={handleCreateTheme}
+          onResetToDefault={resetToDefault}
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {themes?.map((theme) => (
-            <Card key={theme.id} className={theme.is_active ? "border-primary" : ""}>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>{theme.name}</span>
-                  {!theme.is_active && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleActivateTheme(theme.id)}
-                    >
-                      Activate
-                    </Button>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setActiveTheme(theme.id)}
-                >
-                  Edit Theme
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ThemeList 
+          themes={themes || []}
+          onActivate={handleActivateTheme}
+          onEdit={setActiveTheme}
+        />
 
         {activeTheme && (
           <Card className="mt-6">
@@ -411,11 +308,11 @@ const ThemeSettings = () => {
                     </div>
                   </TabsContent>
                 )}
+
               </Tabs>
             </CardContent>
           </Card>
         )}
-
       </div>
     </DashboardLayout>
   );

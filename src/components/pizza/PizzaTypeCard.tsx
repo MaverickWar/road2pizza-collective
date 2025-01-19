@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Editor from '@/components/Editor';
 import SortControls from './controls/SortControls';
 import EditControls from './controls/EditControls';
@@ -70,8 +71,8 @@ const PizzaTypeCard = ({
         .from('pizza_types')
         .update({ 
           is_hidden: true,
-          name: name, // Keep existing name
-          slug: slug  // Keep existing slug
+          name: name,
+          slug: slug
         })
         .eq('id', id);
 
@@ -123,18 +124,18 @@ const PizzaTypeCard = ({
       </Link>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-white">
           <DialogHeader>
             <DialogTitle>Edit Pizza Style</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
-              <input
+              <Input
                 type="text"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                className="w-full"
               />
             </div>
             <div>
@@ -146,11 +147,11 @@ const PizzaTypeCard = ({
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Image URL</label>
-              <input
+              <Input
                 type="url"
                 value={editedImageUrl}
                 onChange={(e) => setEditedImageUrl(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                className="w-full"
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -166,7 +167,7 @@ const PizzaTypeCard = ({
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Delete Pizza Style</DialogTitle>
           </DialogHeader>

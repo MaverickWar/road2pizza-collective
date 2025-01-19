@@ -15,24 +15,7 @@ import AnimationSettings from "@/components/admin/theme/AnimationSettings";
 import { useTheme } from "@/components/ThemeProvider";
 import { ThemeHeader } from "@/components/admin/theme/ThemeHeader";
 import { ThemeList } from "@/components/admin/theme/ThemeList";
-import { ThemeData, RawThemeData } from "@/types/theme";
-
-const transformThemeData = (raw: RawThemeData): ThemeData => {
-  return {
-    id: raw.id,
-    name: raw.name,
-    is_active: raw.is_active,
-    colors: raw.colors as Record<string, string>,
-    typography: raw.typography as Record<string, string>,
-    spacing: raw.spacing as Record<string, string>,
-    images: raw.images as Record<string, string>,
-    menu_style: raw.menu_style as Record<string, any>,
-    animations: raw.animations as Record<string, any>,
-    admin_colors: raw.admin_colors as ThemeData['admin_colors'],
-    admin_menu: raw.admin_menu as Record<string, any>,
-    is_admin_theme: raw.is_admin_theme
-  };
-};
+import { ThemeData, RawThemeData, transformThemeData } from "@/types/theme";
 
 const ThemeSettings = () => {
   const queryClient = useQueryClient();
@@ -160,7 +143,7 @@ const ThemeSettings = () => {
           onEdit={setActiveTheme}
         />
 
-        {activeTheme && (
+        {activeTheme && themes && (
           <Card className="mt-6">
             <CardHeader>
               <CardTitle>Edit Theme</CardTitle>
@@ -308,7 +291,6 @@ const ThemeSettings = () => {
                     </div>
                   </TabsContent>
                 )}
-
               </Tabs>
             </CardContent>
           </Card>

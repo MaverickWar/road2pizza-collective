@@ -1,11 +1,11 @@
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./config/queryClient";
-import { AuthProvider } from "./components/AuthProvider";
-import { ThemeProvider } from "./components/ThemeProvider";
-import AppRoutes from "./routes/AppRoutes";
-import { Toaster } from "./components/ui/toaster";
-import { Toaster as Sonner } from "sonner";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './config/queryClient';
+import { ThemeProvider } from './components/ThemeProvider';
+import { AuthProvider } from './components/AuthProvider';
+import { Toaster } from './components/ui/toaster';
+import AppRoutes from './routes/AppRoutes';
+import './App.css';
 
 function App() {
   return (
@@ -15,7 +15,6 @@ function App() {
           <ThemeProvider>
             <AppRoutes />
             <Toaster />
-            <Sonner />
           </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>

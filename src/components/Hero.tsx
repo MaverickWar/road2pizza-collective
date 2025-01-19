@@ -13,6 +13,11 @@ const Hero = () => {
     { icon: Star, label: 'Rating', value: '4.5/5' },
   ];
 
+  const handleNavigation = (path: string) => {
+    console.log('Navigating to:', path);
+    navigate(path);
+  };
+
   return (
     <div className="relative min-h-screen w-full pt-20 md:pt-28">
       <div 
@@ -39,7 +44,7 @@ const Hero = () => {
           <div className="flex flex-wrap gap-4">
             <Button 
               size="lg"
-              onClick={() => navigate('/pizza')}
+              onClick={() => handleNavigation('/pizza')}
               className="bg-gradient-to-r from-[#FF6B6B] to-[#FFB168] hover:from-[#FF8B8B] hover:to-[#FFCF98] text-white font-semibold"
             >
               <Pizza className="mr-2 h-5 w-5" />
@@ -49,7 +54,7 @@ const Hero = () => {
             <Button 
               size="lg"
               variant="outline"
-              onClick={() => navigate('/signup')}
+              onClick={() => handleNavigation('/signup')}
               className="border-2 border-[#FF6B6B] text-[#FF6B6B] hover:bg-[#FF6B6B] hover:text-white font-semibold"
             >
               <Users className="mr-2 h-5 w-5" />

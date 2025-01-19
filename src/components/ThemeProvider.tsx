@@ -12,22 +12,40 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const DEFAULT_THEME = {
-  colors: {},
+  colors: {
+    primary: '#000000',
+    secondary: '#666666',
+    accent: '#3b82f6',
+    background: '#ffffff',
+    text: '#000000'
+  },
   typography: {
     primaryFont: 'system-ui, sans-serif',
     baseFontSize: '16px',
-    lineHeight: '1.5'
+    lineHeight: '1.5',
+    headingScale: '1.2'
   },
   spacing: {
-    containerPadding: {
-      sm: '1rem',
-      md: '2rem',
-      lg: '4rem'
-    }
+    baseUnit: '4',
+    containerPadding: '16',
+    sectionSpacing: '64',
+    gridGap: '16'
   },
   animations: {
     enabled: true,
-    duration: 200
+    duration: 200,
+    pageTransition: 'fade',
+    hoverEffect: 'scale'
+  },
+  menu_style: {
+    type: 'horizontal',
+    position: 'top',
+    itemSpacing: 16,
+    showIcons: true
+  },
+  images: {
+    defaultStyle: 'rounded',
+    borderRadius: 8
   }
 };
 
@@ -65,7 +83,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error loading theme:', error);
       toast.error('Failed to load theme settings');
-      // Apply default theme on error
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
     } finally {
@@ -94,18 +111,36 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.style.setProperty('--font-family', theme.typography.primaryFont);
       root.style.setProperty('--base-font-size', theme.typography.baseFontSize);
       root.style.setProperty('--line-height', theme.typography.lineHeight);
+      root.style.setProperty('--heading-scale', theme.typography.headingScale);
     }
 
     // Apply spacing
     if (theme.spacing) {
-      Object.entries(theme.spacing.containerPadding).forEach(([key, value]) => {
-        root.style.setProperty(`--container-padding-${key}`, value as string);
+      Object.entries(theme.spacing).forEach(([key, value]) => {
+        root.style.setProperty(`--${key}`, value as string);
       });
     }
 
     // Apply animations
-    if (theme.animations?.enabled) {
+    if (theme.animations) {
+      root.style.setProperty('--animation-enabled', theme.animations.enabled ? '1' : '0');
       root.style.setProperty('--animation-duration', `${theme.animations.duration}ms`);
+      root.style.setProperty('--page-transition', theme.animations.pageTransition);
+      root.style.setProperty('--hover-effect', theme.animations.hoverEffect);
+    }
+
+    // Apply menu styles
+    if (theme.menu_style) {
+      Object.entries(theme.menu_style).forEach(([key, value]) => {
+        root.style.setProperty(`--menu-${key}`, value as string);
+      });
+    }
+
+    // Apply image styles
+    if (theme.images) {
+      Object.entries(theme.images).forEach(([key, value]) => {
+        root.style.setProperty(`--image-${key}`, value as string);
+      });
     }
   };
 

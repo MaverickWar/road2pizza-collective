@@ -13,7 +13,7 @@ export const useLogin = () => {
 
   const getErrorMessage = (error: AuthError) => {
     console.log('Auth error details:', {
-      code: error.message,
+      message: error.message,
       status: error.status,
       name: error.name
     });
@@ -30,7 +30,10 @@ export const useLogin = () => {
           if (error.message.includes('invalid_credentials')) {
             return 'Invalid email or password. Please check your credentials and try again.';
           }
-          return error.message;
+          if (error.message.includes('rate limit')) {
+            return 'Too many login attempts. Please try again later.';
+          }
+          return 'Invalid login attempt. Please check your credentials and try again.';
         case 401:
           return 'Invalid credentials. Please check your email and password.';
         case 422:

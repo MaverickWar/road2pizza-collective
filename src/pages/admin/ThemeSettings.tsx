@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Palette, Type, Layout, Image, Menu, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -15,6 +14,7 @@ import ImageSettings from "@/components/admin/theme/ImageSettings";
 import MenuSettings from "@/components/admin/theme/MenuSettings";
 import AnimationSettings from "@/components/admin/theme/AnimationSettings";
 import { useTheme } from "@/components/ThemeProvider";
+import ThemeSwitcher from "@/components/admin/theme/ThemeSwitcher";
 
 const ThemeSettings = () => {
   const queryClient = useQueryClient();
@@ -109,8 +109,16 @@ const ThemeSettings = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Theme Settings</h1>
-          <Button onClick={handleCreateTheme}>Create New Theme</Button>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">Theme Settings</h1>
+            <ThemeSwitcher />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleResetToDefault}>
+              Reset to Default
+            </Button>
+            <Button onClick={handleCreateTheme}>Create New Theme</Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -18,6 +18,37 @@ import ThemeSwitcher from "@/components/admin/theme/ThemeSwitcher";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
+interface AdminColors {
+  admin: {
+    DEFAULT: string;
+    secondary: string;
+    accent: string;
+    muted: string;
+    background: string;
+    foreground: string;
+    border: string;
+    hover: {
+      DEFAULT: string;
+      secondary: string;
+    };
+  };
+}
+
+interface ThemeData {
+  id: string;
+  name: string;
+  is_active: boolean;
+  colors: Record<string, string>;
+  typography: Record<string, string>;
+  spacing: Record<string, string>;
+  images: Record<string, string>;
+  menu_style: Record<string, any>;
+  animations: Record<string, any>;
+  admin_colors?: AdminColors;
+  admin_menu?: Record<string, any>;
+  is_admin_theme: boolean;
+}
+
 const ThemeSettings = () => {
   const queryClient = useQueryClient();
   const [activeTheme, setActiveTheme] = useState<string | null>(null);
@@ -34,7 +65,7 @@ const ThemeSettings = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as ThemeData[];
     },
   });
 
@@ -315,11 +346,15 @@ const ThemeSettings = () => {
                       <div>
                         <h3 className="text-lg font-medium mb-4">Admin Colors</h3>
                         <ColorPicker
-                          theme={{ colors: themes?.find((t) => t.id === activeTheme)?.admin_colors?.admin }}
+                          theme={{ 
+                            colors: themes?.find((t) => t.id === activeTheme)?.admin_colors?.admin || {} 
+                          }}
                           onUpdate={(colors) =>
                             updateThemeMutation.mutate({
                               id: activeTheme,
-                              updates: { admin_colors: { admin: colors } },
+                              updates: { 
+                                admin_colors: { admin: colors } 
+                              },
                             })
                           }
                         />
@@ -327,7 +362,9 @@ const ThemeSettings = () => {
                       <div>
                         <h3 className="text-lg font-medium mb-4">Admin Menu</h3>
                         <MenuSettings
-                          theme={{ menu_style: themes?.find((t) => t.id === activeTheme)?.admin_menu }}
+                          theme={{ 
+                            menu_style: themes?.find((t) => t.id === activeTheme)?.admin_menu || {} 
+                          }}
                           onUpdate={(menuStyle) =>
                             updateThemeMutation.mutate({
                               id: activeTheme,

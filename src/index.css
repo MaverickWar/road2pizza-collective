@@ -4,6 +4,18 @@
 
 @layer base {
   :root {
+    /* Admin Theme Colors (in RGB format for opacity support) */
+    --admin-DEFAULT: 249 115 22; /* Orange 500 */
+    --admin-secondary: 254 198 161; /* Orange 200 */
+    --admin-accent: 255 228 231; /* Pink 100 */
+    --admin-muted: 148 163 184; /* Slate 400 */
+    --admin-background: 248 250 252; /* Slate 50 */
+    --admin-foreground: 30 41 59; /* Slate 800 */
+    --admin-border: 226 232 240; /* Slate 200 */
+    --admin-hover-DEFAULT: 234 88 12; /* Orange 600 */
+    --admin-hover-secondary: 254 176 136; /* Orange 300 */
+
+    /* Other Theme Variables */
     --background: 0 0% 95%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -24,6 +36,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 24 94% 53%;
     --radius: 0.5rem;
+
+    /* Shadows */
+    --shadow-admin: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-admin-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-admin-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 
   body {

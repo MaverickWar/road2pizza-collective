@@ -8,6 +8,7 @@ import AdminSideMenu from "./admin/dashboard/AdminSideMenu";
 import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserMenu } from "./UserMenu";
+import ThemeSwitcher from "./admin/theme/ThemeSwitcher";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuth();
@@ -83,6 +84,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 </Link>
               </div>
               <AdminSideMenu />
+              <div className="mt-4 border-t border-admin-border pt-4">
+                <ThemeSwitcher />
+              </div>
             </div>
           </div>
 

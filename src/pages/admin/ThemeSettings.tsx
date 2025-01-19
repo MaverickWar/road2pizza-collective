@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Palette, Type, Layout, Image, Menu, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -15,10 +14,12 @@ import SpacingSettings from "@/components/admin/theme/SpacingSettings";
 import ImageSettings from "@/components/admin/theme/ImageSettings";
 import MenuSettings from "@/components/admin/theme/MenuSettings";
 import AnimationSettings from "@/components/admin/theme/AnimationSettings";
+import { useTheme } from "@/components/ThemeProvider";
 
 const ThemeSettings = () => {
   const queryClient = useQueryClient();
   const [activeTheme, setActiveTheme] = useState<string | null>(null);
+  const { setTheme, resetToDefault } = useTheme();
 
   const { data: themes, isLoading } = useQuery({
     queryKey: ["theme-settings"],
@@ -82,23 +83,21 @@ const ThemeSettings = () => {
 
   const handleActivateTheme = async (themeId: string) => {
     try {
-      // First, deactivate all themes
-      await supabase
-        .from("theme_settings")
-        .update({ is_active: false })
-        .neq("id", "placeholder");
-
-      // Then activate the selected theme
-      await supabase
-        .from("theme_settings")
-        .update({ is_active: true })
-        .eq("id", themeId);
-
+      await setTheme(themeId);
       queryClient.invalidateQueries({ queryKey: ["theme-settings"] });
-      toast.success("Theme activated successfully");
     } catch (error) {
       console.error("Error activating theme:", error);
       toast.error("Failed to activate theme");
+    }
+  };
+
+  const handleResetToDefault = async () => {
+    try {
+      await resetToDefault();
+      queryClient.invalidateQueries({ queryKey: ["theme-settings"] });
+    } catch (error) {
+      console.error("Error resetting theme:", error);
+      toast.error("Failed to reset theme");
     }
   };
 

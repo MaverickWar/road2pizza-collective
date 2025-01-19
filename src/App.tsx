@@ -1,31 +1,22 @@
-import { BrowserRouter as Router } from "react-router-dom";
-import { Toaster } from "sonner";
-import { QueryProvider } from "./providers/QueryProvider";
-import AuthProvider from "./components/AuthProvider";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./config/queryClient";
+import { AuthProvider } from "./components/AuthProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
 import AppRoutes from "./routes/AppRoutes";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { useEffect } from "react";
-import { monitoringService } from "./services/MonitoringService";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as Sonner } from "sonner";
 
 function App() {
-  useEffect(() => {
-    // Cleanup monitoring service on unmount
-    return () => {
-      monitoringService.cleanup();
-    };
-  }, []);
-
   return (
-    <ErrorBoundary>
-      <QueryProvider>
-        <Router>
-          <AuthProvider>
-            <AppRoutes />
-            <Toaster position="top-right" expand={true} richColors />
-          </AuthProvider>
-        </Router>
-      </QueryProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <AppRoutes />
+          <Toaster />
+          <Sonner />
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

@@ -15,18 +15,22 @@ import MenuSettings from "@/components/admin/theme/MenuSettings";
 import AnimationSettings from "@/components/admin/theme/AnimationSettings";
 import { useTheme } from "@/components/ThemeProvider";
 import ThemeSwitcher from "@/components/admin/theme/ThemeSwitcher";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const ThemeSettings = () => {
   const queryClient = useQueryClient();
   const [activeTheme, setActiveTheme] = useState<string | null>(null);
+  const [showAdminThemes, setShowAdminThemes] = useState(false);
   const { setTheme, resetToDefault } = useTheme();
 
   const { data: themes, isLoading } = useQuery({
-    queryKey: ["theme-settings"],
+    queryKey: ["theme-settings", showAdminThemes],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("theme_settings")
         .select("*")
+        .eq("is_admin_theme", showAdminThemes)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -38,7 +42,25 @@ const ThemeSettings = () => {
     mutationFn: async (name: string) => {
       const { data, error } = await supabase
         .from("theme_settings")
-        .insert([{ name }])
+        .insert([{ 
+          name,
+          is_admin_theme: showAdminThemes,
+          colors: showAdminThemes ? {
+            admin: {
+              DEFAULT: "249 115 22",
+              secondary: "234 88 12",
+              accent: "249 115 22",
+              muted: "120 113 108",
+              background: "249 250 251",
+              foreground: "41 37 36",
+              border: "229 231 235",
+              hover: {
+                DEFAULT: "234 88 12",
+                secondary: "217 70 0"
+              }
+            }
+          } : {}
+        }])
         .select()
         .single();
 
@@ -75,7 +97,7 @@ const ThemeSettings = () => {
   });
 
   const handleCreateTheme = async () => {
-    const name = prompt("Enter theme name:");
+    const name = prompt(`Enter ${showAdminThemes ? 'admin' : ''} theme name:`);
     if (name) {
       await createThemeMutation.mutateAsync(name);
     }
@@ -83,8 +105,21 @@ const ThemeSettings = () => {
 
   const handleActivateTheme = async (themeId: string) => {
     try {
+      // First, deactivate all themes of the same type
+      await supabase
+        .from("theme_settings")
+        .update({ is_active: false })
+        .eq("is_admin_theme", showAdminThemes);
+
+      // Then activate the selected theme
+      await supabase
+        .from("theme_settings")
+        .update({ is_active: true })
+        .eq("id", themeId);
+
       await setTheme(themeId);
       queryClient.invalidateQueries({ queryKey: ["theme-settings"] });
+      toast.success("Theme activated successfully");
     } catch (error) {
       console.error("Error activating theme:", error);
       toast.error("Failed to activate theme");
@@ -95,6 +130,7 @@ const ThemeSettings = () => {
     try {
       await resetToDefault();
       queryClient.invalidateQueries({ queryKey: ["theme-settings"] });
+      toast.success("Reset to default theme");
     } catch (error) {
       console.error("Error resetting theme:", error);
       toast.error("Failed to reset theme");
@@ -111,13 +147,25 @@ const ThemeSettings = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold">Theme Settings</h1>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="theme-type"
+                checked={showAdminThemes}
+                onCheckedChange={setShowAdminThemes}
+              />
+              <Label htmlFor="theme-type">
+                {showAdminThemes ? 'Admin Themes' : 'Site Themes'}
+              </Label>
+            </div>
             <ThemeSwitcher />
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleResetToDefault}>
               Reset to Default
             </Button>
-            <Button onClick={handleCreateTheme}>Create New Theme</Button>
+            <Button onClick={handleCreateTheme}>
+              Create New {showAdminThemes ? 'Admin' : 'Site'} Theme
+            </Button>
           </div>
         </div>
 

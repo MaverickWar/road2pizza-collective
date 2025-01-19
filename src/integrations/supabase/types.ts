@@ -1140,6 +1140,7 @@ export type Database = {
       }
       theme_settings: {
         Row: {
+          admin_logo_url: string | null
           animations: Json | null
           colors: Json | null
           created_at: string
@@ -1147,14 +1148,17 @@ export type Database = {
           id: string
           images: Json | null
           is_active: boolean | null
+          is_admin_theme: boolean | null
           layout: Json | null
           menu_style: Json | null
           name: string
+          site_logo_url: string | null
           spacing: Json | null
           typography: Json | null
           updated_at: string
         }
         Insert: {
+          admin_logo_url?: string | null
           animations?: Json | null
           colors?: Json | null
           created_at?: string
@@ -1162,14 +1166,17 @@ export type Database = {
           id?: string
           images?: Json | null
           is_active?: boolean | null
+          is_admin_theme?: boolean | null
           layout?: Json | null
           menu_style?: Json | null
           name: string
+          site_logo_url?: string | null
           spacing?: Json | null
           typography?: Json | null
           updated_at?: string
         }
         Update: {
+          admin_logo_url?: string | null
           animations?: Json | null
           colors?: Json | null
           created_at?: string
@@ -1177,9 +1184,11 @@ export type Database = {
           id?: string
           images?: Json | null
           is_active?: boolean | null
+          is_admin_theme?: boolean | null
           layout?: Json | null
           menu_style?: Json | null
           name?: string
+          site_logo_url?: string | null
           spacing?: Json | null
           typography?: Json | null
           updated_at?: string

@@ -49,7 +49,7 @@ export interface RawThemeData {
   created_by?: string;
 }
 
-const isAdminColors = (json: Json): json is AdminColors => {
+const isAdminColors = (json: Json): json is Record<string, any> & AdminColors => {
   if (typeof json !== 'object' || !json || Array.isArray(json)) return false;
   
   const adminData = (json as any).admin;

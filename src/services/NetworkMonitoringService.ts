@@ -18,7 +18,7 @@ class NetworkMonitoringService {
 
   private constructor() {
     this.activeRequests = new Map();
-    console.log("Network monitoring service initialized but not started");
+    console.log("Network monitoring service initialized");
   }
 
   static getInstance(): NetworkMonitoringService {
@@ -121,21 +121,30 @@ class NetworkMonitoringService {
 
   private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
     if (!this.shouldLogError()) return;
-    
-    try {
-      const { error } = await supabase.from("analytics_metrics").insert({
-        metric_name: type,
-        metric_value: duration || 0,
-        metadata: {
-          message,
-          url,
-          severity: type === "timeout" || type === "network_error" ? "high" : "low",
-          status: "open"
-        }
-      });
 
-      if (error) console.error("Error logging to analytics:", error);
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      
+      // Only log analytics if user is authenticated
+      if (session?.access_token) {
+        const { error } = await supabase.from("analytics_metrics").insert({
+          metric_name: type,
+          metric_value: duration || 0,
+          metadata: {
+            message,
+            url,
+            severity: type === "timeout" || type === "network_error" ? "high" : "low",
+            status: "open"
+          }
+        });
+
+        if (error) {
+          // Log error but don't throw - this is non-critical functionality
+          console.error("Error logging to analytics:", error);
+        }
+      }
     } catch (err) {
+      // Log error but don't throw - this is non-critical functionality
       console.error("Unexpected error logging to analytics:", err);
     }
   }

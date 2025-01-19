@@ -12,6 +12,12 @@ export const useLogin = () => {
   const [isSendingReset, setIsSendingReset] = useState(false);
 
   const getErrorMessage = (error: AuthError) => {
+    console.log('Auth error details:', {
+      code: error.message,
+      status: error.status,
+      name: error.name
+    });
+
     if (error instanceof AuthApiError) {
       switch (error.status) {
         case 400:
@@ -21,11 +27,16 @@ export const useLogin = () => {
           if (error.message.includes('Invalid login credentials')) {
             return 'Invalid email or password. Please check your credentials and try again.';
           }
+          if (error.message.includes('invalid_credentials')) {
+            return 'Invalid email or password. Please check your credentials and try again.';
+          }
           return error.message;
         case 401:
           return 'Invalid credentials. Please check your email and password.';
         case 422:
           return 'Invalid email format. Please enter a valid email address.';
+        case 429:
+          return 'Too many login attempts. Please try again later.';
         default:
           return 'An error occurred during login. Please try again.';
       }

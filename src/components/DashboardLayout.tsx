@@ -5,6 +5,7 @@ import AdminFooter from "./admin/AdminFooter";
 import { useLocation, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { UserMenu } from "./UserMenu";
+import { SidebarProvider } from "@/components/ui/sidebar/SidebarBase";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, user } = useAuthState();
@@ -12,16 +13,18 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
 
   return (
-    <div className="min-h-screen bg-admin-background">
-      <AdminHeader />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen bg-admin-background w-full">
+        <AdminHeader />
+        <div className="flex">
+          <AdminSidebar />
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </div>
+        <AdminFooter />
       </div>
-      <AdminFooter />
-    </div>
+    </SidebarProvider>
   );
 };
 

@@ -124,38 +124,51 @@ const PizzaTypeCard = ({
       </Link>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl bg-white">
+        <DialogContent className="bg-background border-0 shadow-lg sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Edit Pizza Style</DialogTitle>
+            <DialogTitle className="text-2xl font-semibold">Edit Pizza Style</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+          <div className="space-y-6 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Name
+              </label>
               <Input
                 type="text"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
                 className="w-full"
+                placeholder="Enter pizza style name"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
-              <Editor 
-                content={editedDescription} 
-                onChange={setEditedDescription}
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Description
+              </label>
+              <div className="min-h-[200px] border rounded-md">
+                <Editor 
+                  content={editedDescription} 
+                  onChange={setEditedDescription}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Image URL</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Image URL
+              </label>
               <Input
                 type="url"
                 value={editedImageUrl}
                 onChange={(e) => setEditedImageUrl(e.target.value)}
                 className="w-full"
+                placeholder="Enter image URL"
               />
             </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button onClick={handleEdit}>
@@ -167,16 +180,24 @@ const PizzaTypeCard = ({
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-white">
+        <DialogContent className="bg-background border-0 shadow-lg">
           <DialogHeader>
-            <DialogTitle>Delete Pizza Style</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-red-600">Delete Pizza Style</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this pizza style? This action cannot be undone.</p>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+          <p className="py-4 text-muted-foreground">
+            Are you sure you want to delete this pizza style? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
               Delete
             </Button>
           </div>

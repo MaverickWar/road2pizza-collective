@@ -3,12 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { LoginFormValues } from '@/types/auth';
+import { AuthError, AuthApiError } from '@supabase/supabase-js';
 
 export const useLogin = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailConfirmAlert, setShowEmailConfirmAlert] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
+
+  const getErrorMessage = (error: AuthError) => {
+    if (error instanceof AuthApiError) {
+      switch (error.status) {
+        case 400:
+          if (error.message.includes('Email not confirmed')) {
+            return 'Please check your email to confirm your account before logging in.';
+          }
+          if (error.message.includes('Invalid login credentials')) {
+            return 'Invalid email or password. Please check your credentials and try again.';
+          }
+          return error.message;
+        case 401:
+          return 'Invalid credentials. Please check your email and password.';
+        case 422:
+          return 'Invalid email format. Please enter a valid email address.';
+        default:
+          return 'An error occurred during login. Please try again.';
+      }
+    }
+    return error.message;
+  };
 
   const handleForgotPassword = async (email: string) => {
     try {
@@ -49,18 +72,12 @@ export const useLogin = () => {
 
       if (error) {
         console.error('Login error:', error);
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
 
         if (error.message.includes('Email not confirmed')) {
           setShowEmailConfirmAlert(true);
-          return;
         }
-
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password. Please try again.');
-          return;
-        }
-
-        toast.error('Login failed. Please try again.');
         return;
       }
 

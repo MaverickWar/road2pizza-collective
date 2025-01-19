@@ -5,17 +5,20 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import AppRoutes from "./routes/AppRoutes";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ThemeProvider>
-          <AppRoutes />
-          <Toaster />
-          <Sonner />
-        </ThemeProvider>
-      </AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ThemeProvider>
+            <AppRoutes />
+            <Toaster />
+            <Sonner />
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

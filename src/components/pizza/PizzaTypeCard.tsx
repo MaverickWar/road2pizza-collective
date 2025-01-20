@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import Editor from '@/components/Editor';
 import SortControls from './controls/SortControls';
 import EditControls from './controls/EditControls';
+import { FormLayout, FormSection, FormActions } from '@/components/ui/form-layout';
+import { Label } from '@/components/ui/label';
 
 interface PizzaTypeCardProps {
   id: string;
@@ -124,47 +126,46 @@ const PizzaTypeCard = ({
       </Link>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-background border-0 shadow-lg sm:max-w-2xl">
+        <DialogContent className="bg-white border-0 shadow-lg sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Edit Pizza Style</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Name
-              </label>
+          <FormLayout>
+            <FormSection>
+              <Label htmlFor="name">Name</Label>
               <Input
+                id="name"
                 type="text"
                 value={editedName}
                 onChange={(e) => setEditedName(e.target.value)}
                 className="w-full"
                 placeholder="Enter pizza style name"
               />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Description
-              </label>
-              <div className="min-h-[200px] border rounded-md">
+            </FormSection>
+
+            <FormSection>
+              <Label htmlFor="description">Description</Label>
+              <div className="min-h-[200px] border rounded-md bg-white">
                 <Editor 
                   content={editedDescription} 
                   onChange={setEditedDescription}
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Image URL
-              </label>
+            </FormSection>
+
+            <FormSection>
+              <Label htmlFor="imageUrl">Image URL</Label>
               <Input
+                id="imageUrl"
                 type="url"
                 value={editedImageUrl}
                 onChange={(e) => setEditedImageUrl(e.target.value)}
                 className="w-full"
                 placeholder="Enter image URL"
               />
-            </div>
-            <div className="flex justify-end gap-3 pt-4">
+            </FormSection>
+
+            <FormActions>
               <Button
                 variant="outline"
                 onClick={() => setIsEditDialogOpen(false)}
@@ -174,33 +175,35 @@ const PizzaTypeCard = ({
               <Button onClick={handleEdit}>
                 Save Changes
               </Button>
-            </div>
-          </div>
+            </FormActions>
+          </FormLayout>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-background border-0 shadow-lg">
+        <DialogContent className="bg-white border-0 shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-red-600">Delete Pizza Style</DialogTitle>
           </DialogHeader>
-          <p className="py-4 text-muted-foreground">
-            Are you sure you want to delete this pizza style? This action cannot be undone.
-          </p>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-          </div>
+          <FormLayout>
+            <p className="text-muted-foreground">
+              Are you sure you want to delete this pizza style? This action cannot be undone.
+            </p>
+            <FormActions>
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            </FormActions>
+          </FormLayout>
         </DialogContent>
       </Dialog>
     </div>

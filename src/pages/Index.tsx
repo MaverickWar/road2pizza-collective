@@ -9,7 +9,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main>
+      <main className="h-[calc(100vh-64px)]">
         <Hero />
         <div className="mt-4 md:mt-6">
           <FeaturedPosts />

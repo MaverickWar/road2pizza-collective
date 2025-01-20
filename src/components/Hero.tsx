@@ -19,7 +19,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative h-full w-full mt-[48px] md:mt-[40px]">
+    <div className="relative h-full w-full">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
@@ -29,7 +29,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
       
-      <div className="relative w-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20 flex flex-col justify-center h-[calc(100vh-88px)]">
+      <div className="relative w-full h-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20 flex flex-col justify-center">
         <div className="max-w-2xl mx-auto space-y-8 md:space-y-10">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
             <span className="text-white">Master the Art of</span>

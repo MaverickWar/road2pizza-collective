@@ -41,6 +41,7 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'critical':
+        return 'bg-red-600';
       case 'high':
         return 'bg-red-500';
       case 'medium':
@@ -80,65 +81,73 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {logs.map((log) => (
-            <TableRow key={log.id}>
-              <TableCell>
-                {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
-              </TableCell>
-              <TableCell className="capitalize">{log.type}</TableCell>
-              <TableCell>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <div className="max-w-[300px] truncate">
-                        {log.message}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{log.message}</p>
-                      {log.error_details && (
-                        <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">
-                          {log.error_details}
-                        </pre>
-                      )}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-              <TableCell>
-                {log.url && (
-                  <div className="flex items-center space-x-1">
-                    <span className="text-sm truncate max-w-[200px]">
-                      {log.endpoint || new URL(log.url).pathname}
-                    </span>
-                    <ExternalLink className="h-3 w-3" />
-                  </div>
-                )}
-              </TableCell>
-              <TableCell>
-                {log.http_status && (
-                  <Badge variant={log.http_status >= 400 ? "destructive" : "secondary"}>
-                    {log.http_status}
-                  </Badge>
-                )}
-                {log.response_time && (
-                  <span className="ml-2 text-sm text-gray-500">
-                    {log.response_time.toFixed(0)}ms
-                  </span>
-                )}
-              </TableCell>
-              <TableCell>
-                <Badge className={`${getSeverityColor(log.severity)} text-white`}>
-                  {log.severity}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge className={`${getStatusColor(log.status)} text-white`}>
-                  {log.status}
-                </Badge>
+          {logs.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                No logs found
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            logs.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell>
+                  {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
+                </TableCell>
+                <TableCell className="capitalize">{log.type}</TableCell>
+                <TableCell>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <div className="max-w-[300px] truncate">
+                          {log.message}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{log.message}</p>
+                        {log.error_details && (
+                          <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">
+                            {log.error_details}
+                          </pre>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+                <TableCell>
+                  {log.url && (
+                    <div className="flex items-center space-x-1">
+                      <span className="text-sm truncate max-w-[200px]">
+                        {log.endpoint || new URL(log.url).pathname}
+                      </span>
+                      <ExternalLink className="h-3 w-3" />
+                    </div>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {log.http_status && (
+                    <Badge variant={log.http_status >= 400 ? "destructive" : "secondary"}>
+                      {log.http_status}
+                    </Badge>
+                  )}
+                  {log.response_time && (
+                    <span className="ml-2 text-sm text-gray-500">
+                      {log.response_time.toFixed(0)}ms
+                    </span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Badge className={`${getSeverityColor(log.severity)} text-white`}>
+                    {log.severity}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={`${getStatusColor(log.status)} text-white`}>
+                    {log.status}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

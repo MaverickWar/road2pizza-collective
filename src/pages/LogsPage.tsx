@@ -25,7 +25,7 @@ const LogsPage = () => {
         .from("analytics_metrics")
         .select("*")
         .order("timestamp", { ascending: false })
-        .limit(100);
+        .limit(500); // Increased limit to show more logs
 
       if (error) {
         console.error("Error fetching logs:", error);
@@ -67,7 +67,14 @@ const LogsPage = () => {
   }
 
   const getMetricsByType = (type: string) => {
-    return logs?.filter(log => log.type === type) || [];
+    return logs?.filter(log => log.type.includes(type)) || [];
+  };
+
+  const calculateAverageResponseTime = () => {
+    if (!logs || logs.length === 0) return 0;
+    const validTimes = logs.filter(log => log.response_time != null);
+    if (validTimes.length === 0) return 0;
+    return validTimes.reduce((acc, log) => acc + (log.response_time || 0), 0) / validTimes.length;
   };
 
   return (
@@ -86,9 +93,9 @@ const LogsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {getMetricsByType('network_error').length + getMetricsByType('http_error').length}
+              {getMetricsByType('error').length}
             </div>
-            <p className="text-sm text-gray-500">Last 100 requests</p>
+            <p className="text-sm text-gray-500">Last 500 requests</p>
           </CardContent>
         </Card>
 
@@ -98,10 +105,7 @@ const LogsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {logs 
-                ? `${(logs.reduce((acc, log) => acc + (log.response_time || 0), 0) / logs.length).toFixed(0)}ms`
-                : '0ms'
-              }
+              {calculateAverageResponseTime().toFixed(0)}ms
             </div>
             <p className="text-sm text-gray-500">Across all requests</p>
           </CardContent>
@@ -113,9 +117,9 @@ const LogsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {logs?.filter(log => log.status === 'open' && log.severity === 'high').length || 0}
+              {logs?.filter(log => log.status === 'open' && (log.severity === 'high' || log.severity === 'critical')).length || 0}
             </div>
-            <p className="text-sm text-gray-500">High severity issues</p>
+            <p className="text-sm text-gray-500">High/Critical severity</p>
           </CardContent>
         </Card>
       </div>
@@ -125,23 +129,20 @@ const LogsPage = () => {
           <TabsTrigger value="all">All Logs</TabsTrigger>
           <TabsTrigger value="errors">Errors</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="network">Network</TabsTrigger>
           <TabsTrigger value="auth">Authentication</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
-          {isLoading ? (
-            <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <LogsTable logs={logs || []} isLoading={isLoading} />
-          )}
+          <LogsTable logs={logs || []} isLoading={isLoading} />
         </TabsContent>
 
         <TabsContent value="errors">
           <LogsTable 
             logs={logs?.filter(log => 
-              log.type.includes('error') || log.severity === 'high'
+              log.type.includes('error') || 
+              log.severity === 'high' || 
+              log.severity === 'critical'
             ) || []} 
             isLoading={isLoading} 
           />
@@ -150,7 +151,19 @@ const LogsPage = () => {
         <TabsContent value="performance">
           <LogsTable 
             logs={logs?.filter(log => 
-              log.type === 'response_time' || log.type === 'slow_request'
+              log.type.includes('performance') || 
+              log.response_time > 1000
+            ) || []} 
+            isLoading={isLoading} 
+          />
+        </TabsContent>
+
+        <TabsContent value="network">
+          <LogsTable 
+            logs={logs?.filter(log => 
+              log.type.includes('network') || 
+              log.type.includes('request') || 
+              log.type.includes('response')
             ) || []} 
             isLoading={isLoading} 
           />

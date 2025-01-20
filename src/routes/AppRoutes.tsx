@@ -15,6 +15,7 @@ import Dashboard from "@/pages/Dashboard";
 import MemberDashboard from "@/pages/MemberDashboard";
 import StaffDashboard from "@/pages/StaffDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
+import LogsPage from "@/pages/LogsPage";
 import Analytics from "@/pages/admin/Analytics";
 import UserManagement from "@/pages/admin/AdminUsersPage";
 import RecipeManagement from "@/pages/admin/RecipeManagement";
@@ -50,6 +51,7 @@ export function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/dashboard/member" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/staff" element={<ProtectedRoute requireStaff><StaffDashboard /></ProtectedRoute>} />
+      <Route path="/logs" element={<ProtectedRoute requireAdmin><LogsPage /></ProtectedRoute>} />
       
       {/* Admin routes - Wrapped in DashboardLayout */}
       <Route path="/dashboard/admin/*" element={

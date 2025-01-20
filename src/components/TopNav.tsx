@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { UserRound } from 'lucide-react';
+import { UserRound, FileText } from 'lucide-react';
 import { UserMenu } from './UserMenu';
 
 const TopNav = () => {
@@ -10,7 +10,15 @@ const TopNav = () => {
     <div className="w-full bg-gradient-to-r from-admin to-admin-secondary py-2">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
-          <div className="w-8" /> {/* Empty div for spacing */}
+          {isAdmin && (
+            <Link 
+              to="/logs" 
+              className="flex items-center space-x-2 text-sm text-white hover:text-white/80"
+            >
+              <FileText className="h-4 w-4" />
+              <span>Logs</span>
+            </Link>
+          )}
           <div className="flex items-center space-x-4">
             <div className="text-white font-bold">
               Welcome, {user?.username || user?.email || 'User'}!

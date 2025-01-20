@@ -32,24 +32,27 @@ const FeaturedPosts = () => {
           .eq('approval_status', 'approved')
           .order('created_at', { ascending: false })
           .limit(3)
-          .throwOnError(); // This will ensure errors are properly caught
+          .throwOnError();
         
         if (error) {
           console.error('Error fetching featured recipes:', error);
           throw error;
         }
         
-        console.log('Fetched featured recipes:', data);
+        console.log('Successfully fetched featured recipes:', data);
         return data || [];
       } catch (error: any) {
         console.error('Failed to fetch featured recipes:', error);
-        toast.error("Failed to load featured recipes. Please try again later.");
+        // Only show one error toast
+        toast.error("Unable to load featured recipes", {
+          id: 'featured-recipes-error',
+        });
         throw error;
       }
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 10 * 60 * 1000,   // Keep unused data for 10 minutes
-    retry: 1, // Only retry once to avoid too many error toasts
+    retry: 1, // Only retry once
   });
 
   // Don't render anything if there's an error or no recipes

@@ -103,7 +103,7 @@ export const useLogin = () => {
         });
         
         toast.success('Login successful');
-        navigate('/dashboard');
+        navigate('/'); // Changed from '/dashboard' to '/'
       } else {
         console.error('No user data received from successful login');
         toast.error('Login failed - please try again');

@@ -9,12 +9,16 @@ if (!SUPABASE_ANON_KEY) {
   console.error('Missing SUPABASE_ANON_KEY environment variable');
 }
 
-// Create Supabase client with custom fetch implementation
+// Create Supabase client with custom fetch implementation and proper headers
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_ANON_KEY,
   {
     global: {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
       fetch: networkMonitor.monitorFetch,
     },
     auth: {

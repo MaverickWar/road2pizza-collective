@@ -47,8 +47,16 @@ class NetworkMonitoringService {
     const startTime = performance.now();
     const url = input instanceof Request ? input.url : input.toString();
     
+    // Add required headers for Supabase requests
+    const headers = {
+      ...init?.headers,
+      'apikey': this.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
+    };
+    
     try {
-      const response = await fetch(input, init);
+      console.log('Making fetch request to:', url);
+      const response = await fetch(input, { ...init, headers });
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
@@ -97,6 +105,7 @@ class NetworkMonitoringService {
     this.isLogging = true;
 
     try {
+      console.log('Logging network event:', event);
       const headers = {
         'apikey': this.SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,

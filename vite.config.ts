@@ -25,17 +25,17 @@ export default defineConfig(({ mode }) => ({
       
       // Security headers
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
+      'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
       
       // Cookie security
       'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
       
       // CSP - More permissive to allow Supabase connections
-      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * ws: wss:; img-src * data: blob:;"
+      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * ws: wss:; img-src * data: blob:; frame-ancestors 'none';"
     },
     cors: {
       origin: mode === 'development' ? '*' : 'https://api.lovable.dev',

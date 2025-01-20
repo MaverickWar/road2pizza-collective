@@ -9,10 +9,12 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
-      // CORS headers
-      'Access-Control-Allow-Origin': mode === 'development' ? '*' : 'https://api.lovable.dev',
+      // CORS headers - More specific origins
+      'Access-Control-Allow-Origin': mode === 'development' 
+        ? 'http://localhost:8080' 
+        : 'https://api.lovable.dev',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      'Access-Control-Allow-Headers': '*',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       'Access-Control-Allow-Credentials': 'true',
       
       // Cache control
@@ -34,13 +36,16 @@ export default defineConfig(({ mode }) => ({
       // Cookie security
       'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
       
-      // CSP - More permissive to allow Supabase connections
-      'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * ws: wss:; img-src * data: blob:; frame-ancestors 'none';"
+      // CSP - Configured for Supabase
+      'Content-Security-Policy': "default-src 'self' https://*.supabase.co https://*.supabase.in; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:* https://api.lovable.dev; img-src 'self' data: blob: https://*.supabase.co; style-src 'self' 'unsafe-inline'; frame-ancestors 'none';"
     },
     cors: {
-      origin: mode === 'development' ? '*' : 'https://api.lovable.dev',
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      credentials: true
+      origin: mode === 'development' 
+        ? 'http://localhost:8080' 
+        : 'https://api.lovable.dev',
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+      credentials: true,
+      allowedHeaders: ['authorization', 'x-client-info', 'apikey', 'content-type']
     }
   },
   preview: {

@@ -15,22 +15,18 @@ function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
-  // If it's an admin route, don't wrap with MainLayout
-  if (isAdminRoute) {
-    return (
-      <Suspense fallback={<LoadingScreen />}>
-        <AppRoutes />
-      </Suspense>
-    );
-  }
-
-  // For all other routes, use MainLayout
   return (
-    <MainLayout>
-      <Suspense fallback={<LoadingScreen />}>
-        <AppRoutes />
-      </Suspense>
-    </MainLayout>
+    <Suspense fallback={<LoadingScreen />}>
+      {isAdminRoute ? (
+        <DashboardLayout>
+          <AppRoutes />
+        </DashboardLayout>
+      ) : (
+        <MainLayout>
+          <AppRoutes />
+        </MainLayout>
+      )}
+    </Suspense>
   );
 }
 
@@ -41,7 +37,9 @@ function App() {
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
-              <AppContent />
+              <Suspense fallback={<LoadingScreen />}>
+                <AppContent />
+              </Suspense>
               <Toaster />
             </AuthProvider>
           </ThemeProvider>

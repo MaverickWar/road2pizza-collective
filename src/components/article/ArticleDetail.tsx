@@ -6,12 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import RecipeContent from "./RecipeContent";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import ArticleError from "./ArticleError";
 
 const ArticleDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: recipe, isLoading } = useQuery({
+  const { data: recipe, isLoading, error } = useQuery({
     queryKey: ["recipe", id],
     queryFn: async () => {
       console.log("Fetching recipe with id:", id);
@@ -48,16 +49,22 @@ const ArticleDetail = () => {
           )
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching recipe:", error);
         throw error;
       }
 
+      if (!data) {
+        console.log("No recipe found with id:", id);
+        throw new Error("Recipe not found");
+      }
+
       console.log("Fetched recipe data:", data);
       return data as Recipe;
     },
+    retry: 1
   });
 
   const handleBack = () => {
@@ -103,12 +110,12 @@ const ArticleDetail = () => {
     );
   }
 
+  if (error) {
+    return <ArticleError message={error.message} />;
+  }
+
   if (!recipe) {
-    return (
-      <div className="container mx-auto p-4">
-        <p className="text-center text-muted-foreground">Recipe not found</p>
-      </div>
-    );
+    return <ArticleError message="Recipe not found" />;
   }
 
   return (

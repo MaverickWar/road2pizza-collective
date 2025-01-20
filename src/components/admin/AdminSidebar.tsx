@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
-import { useSidebarContext } from "@/components/ui/sidebar/SidebarContext";
+import { useSidebar } from "@/components/ui/sidebar/SidebarContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
@@ -32,7 +32,8 @@ const menuItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
-  const { collapsed, toggleSidebar } = useSidebarContext();
+  const { state, toggleSidebar } = useSidebar();
+  const collapsed = state === "collapsed";
   
   return (
     <Sidebar className={cn(

@@ -103,7 +103,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           method: 'GET',
           error_type: 'theme_fetch_error',
           message: error.message,
-          url: `${supabase.getUrl()}/rest/v1/theme_settings`,
+          url: `${process.env.VITE_SUPABASE_URL}/rest/v1/theme_settings`,
           stack: error.stack,
           origin: window.location.origin
         });

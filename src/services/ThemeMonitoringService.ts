@@ -49,7 +49,7 @@ class ThemeMonitoringService {
         .insert({
           metric_name: 'theme_error',
           metric_value: this.errorCount + 1,
-          metadata: errorData as Json,
+          metadata: JSON.parse(JSON.stringify(errorData)) as Json,
           http_status: error.status || 500,
           endpoint_path: new URL(errorData.url).pathname,
           response_time: 0

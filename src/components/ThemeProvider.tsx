@@ -74,7 +74,7 @@ const DEFAULT_THEME = {
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<any>(DEFAULT_THEME);
+  const [currentTheme, setCurrentTheme] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,15 +84,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const loadActiveTheme = async () => {
     try {
       console.log('Loading active theme...');
-      
-      // First check if we can connect to Supabase
-      const { error: healthCheckError } = await supabase.from('theme_settings').select('count').single();
-      if (healthCheckError) {
-        console.error('Supabase connection error:', healthCheckError);
-        throw new Error('Failed to connect to theme service');
-      }
-
-      // Then fetch the active theme
       const { data: theme, error } = await supabase
         .from('theme_settings')
         .select('*')
@@ -113,9 +104,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setCurrentTheme(DEFAULT_THEME);
         applyTheme(DEFAULT_THEME);
       }
-    } catch (error: any) {
-      console.error('Error in loadActiveTheme:', error);
-      toast.error('Failed to load theme settings. Using default theme.');
+    } catch (error) {
+      console.error('Error loading theme:', error);
+      toast.error('Failed to load theme settings');
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
     } finally {

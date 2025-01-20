@@ -10,17 +10,15 @@ type NetworkRequest = {
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   private activeRequests: Map<string, NetworkRequest>;
-  private readonly TIMEOUT_MS = 15000; // Increased timeout to 15 seconds
+  private readonly TIMEOUT_MS = 10000; // Increased timeout to 10 seconds
   private errorCount: number = 0;
   private lastErrorTime: number = 0;
   private readonly ERROR_THRESHOLD = 5;
   private readonly ERROR_RESET_TIME = 60000; // 1 minute
-  private retryCount: Map<string, number> = new Map();
-  private readonly MAX_RETRIES = 3;
 
   private constructor() {
     this.activeRequests = new Map();
-    console.log("Network monitoring service initialized with enhanced error handling");
+    console.log("Network monitoring service initialized");
   }
 
   static getInstance(): NetworkMonitoringService {
@@ -45,33 +43,6 @@ class NetworkMonitoringService {
     return true;
   }
 
-  private async retryRequest(
-    input: RequestInfo | URL,
-    init?: RequestInit,
-    retryCount: number = 0
-  ): Promise<Response> {
-    const url = typeof input === 'string' ? input : input.toString();
-    
-    try {
-      const response = await fetch(input, init);
-      if (!response.ok && retryCount < this.MAX_RETRIES) {
-        const delay = Math.min(1000 * Math.pow(2, retryCount), 5000);
-        console.log(`Retrying request to ${url} after ${delay}ms (attempt ${retryCount + 1})`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return this.retryRequest(input, init, retryCount + 1);
-      }
-      return response;
-    } catch (error) {
-      if (retryCount < this.MAX_RETRIES) {
-        const delay = Math.min(1000 * Math.pow(2, retryCount), 5000);
-        console.log(`Retrying failed request to ${url} after ${delay}ms (attempt ${retryCount + 1})`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return this.retryRequest(input, init, retryCount + 1);
-      }
-      throw error;
-    }
-  }
-
   monitorFetch = async (
     input: RequestInfo | URL,
     init?: RequestInit
@@ -80,7 +51,7 @@ class NetworkMonitoringService {
     const id = Math.random().toString(36).substring(7);
     const startTime = performance.now();
 
-    const url = typeof input === 'string' ? input : input.toString();
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method || "GET";
 
     // Skip monitoring for certain endpoints
@@ -89,7 +60,6 @@ class NetworkMonitoringService {
     }
 
     this.activeRequests.set(id, { url, startTime, method });
-    console.log(`Starting request to ${url} with method ${method}`);
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -97,11 +67,7 @@ class NetworkMonitoringService {
     }, this.TIMEOUT_MS);
 
     try {
-      const response = await this.retryRequest(input, {
-        ...init,
-        signal: controller.signal
-      });
-
+      const response = await fetch(input, { ...init, signal: controller.signal });
       clearTimeout(timeoutId);
       const duration = performance.now() - startTime;
 
@@ -124,17 +90,15 @@ class NetworkMonitoringService {
       }
 
       return response;
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
       
       if (error.name === "AbortError" && this.shouldLogError()) {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         this.logToAnalytics("timeout", "Request timed out", url);
-        toast.error("Request timed out. Please try again.");
       } else if (this.shouldLogError()) {
         console.error(`❌ Request to ${url} failed:`, error);
         this.logToAnalytics("network_error", error.message, url);
-        toast.error("Network error occurred. Please check your connection.");
       }
 
       throw error;
@@ -161,6 +125,7 @@ class NetworkMonitoringService {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
+      // Only log analytics if user is authenticated
       if (session?.user) {
         const { error } = await supabase.from("analytics_metrics").insert({
           metric_name: type,
@@ -174,10 +139,12 @@ class NetworkMonitoringService {
         });
 
         if (error) {
+          // Log error but don't throw - this is non-critical functionality
           console.error("Error logging to analytics:", error);
         }
       }
     } catch (err) {
+      // Log error but don't throw - this is non-critical functionality
       console.error("Unexpected error logging to analytics:", err);
     }
   }
@@ -190,7 +157,6 @@ class NetworkMonitoringService {
     console.log("Cleaning up active network requests...");
     this.activeRequests.clear();
     this.errorCount = 0;
-    this.retryCount.clear();
   }
 }
 

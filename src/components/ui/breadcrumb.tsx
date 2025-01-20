@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 
 const Breadcrumb = React.forwardRef<
@@ -75,15 +76,15 @@ const BreadcrumbSeparator = ({
   children,
   className,
   ...props
-}: React.ComponentProps<"span">) => (
-  <span
+}: React.ComponentProps<"li">) => (
+  <li
     role="presentation"
     aria-hidden="true"
     className={cn("[&>svg]:size-3.5", className)}
     {...props}
   >
     {children ?? <ChevronRight />}
-  </span>
+  </li>
 )
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
 
@@ -101,7 +102,7 @@ const BreadcrumbEllipsis = ({
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
+BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
 
 export {
   Breadcrumb,

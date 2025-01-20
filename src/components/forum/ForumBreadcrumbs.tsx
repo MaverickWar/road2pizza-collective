@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Breadcrumb,
@@ -31,29 +30,27 @@ const ForumBreadcrumbs = ({ items = [] }: ForumBreadcrumbsProps) => {
     <Breadcrumb className="mb-6">
       <BreadcrumbList className="text-orange-600/60 dark:text-orange-400/60">
         {allItems.map((item, index) => (
-          <React.Fragment key={index}>
-            <BreadcrumbItem>
-              {index === 0 ? (
-                <BreadcrumbLink asChild>
-                  <Link to={item.path || '#'} className="hover:text-orange-600 dark:hover:text-orange-400">
-                    <Home className="h-4 w-4" />
-                  </Link>
-                </BreadcrumbLink>
-              ) : item.path ? (
-                <BreadcrumbLink asChild>
-                  <Link 
-                    to={item.path}
-                    className="hover:text-orange-600 dark:hover:text-orange-400"
-                  >
-                    {item.label}
-                  </Link>
-                </BreadcrumbLink>
-              ) : (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
+          <BreadcrumbItem key={index}>
+            {index === 0 ? (
+              <BreadcrumbLink asChild>
+                <Link to={item.path || '#'} className="hover:text-orange-600 dark:hover:text-orange-400">
+                  <Home className="h-4 w-4" />
+                </Link>
+              </BreadcrumbLink>
+            ) : item.path ? (
+              <BreadcrumbLink asChild>
+                <Link 
+                  to={item.path}
+                  className="hover:text-orange-600 dark:hover:text-orange-400"
+                >
+                  {item.label}
+                </Link>
+              </BreadcrumbLink>
+            ) : (
+              <BreadcrumbPage>{item.label}</BreadcrumbPage>
+            )}
             {index < allItems.length - 1 && <BreadcrumbSeparator />}
-          </React.Fragment>
+          </BreadcrumbItem>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

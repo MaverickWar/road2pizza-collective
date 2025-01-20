@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': 'http://localhost:8080',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization, apikey, x-client-info',
       'Access-Control-Allow-Credentials': 'true',
@@ -17,7 +17,12 @@ export default defineConfig(({ mode }) => ({
       'Pragma': 'no-cache',
       'Expires': '0',
     },
-    cors: true
+    cors: {
+      origin: 'http://localhost:8080',
+      credentials: true,
+      allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'apikey', 'x-client-info'],
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    }
   },
   preview: {
     host: "::",

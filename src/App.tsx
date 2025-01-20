@@ -4,8 +4,8 @@ import { QueryProvider } from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AppRoutes } from "@/routes/AppRoutes";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { LoadingScreen } from "@/components/LoadingScreen";
+import ErrorBoundary from "@/components/ErrorBoundary"; // Fixed import
+import LoadingScreen from "@/components/LoadingScreen"; // Fixed import
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation } from "react-router-dom";

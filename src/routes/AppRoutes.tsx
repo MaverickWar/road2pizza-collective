@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 import Login from "@/pages/Login";
@@ -18,7 +18,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Analytics from "@/pages/admin/Analytics";
 import UserManagement from "@/pages/admin/AdminUsersPage";
 import RecipeManagement from "@/pages/admin/RecipeManagement";
-import ReviewManagement from "@/pages/ReviewManagement";
+import ReviewManagement from "@/pages/admin/ReviewManagement"; // Fixed import path
 import RewardsManagement from "@/pages/admin/RewardsManagement";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 import NotificationManagement from "@/pages/admin/NotificationManagement";
@@ -27,7 +27,7 @@ import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
 import MenuManagement from "@/pages/admin/MenuManagement";
 import ForumManagement from "@/pages/admin/ForumManagement";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import ProtectedRoute from "@/components/ProtectedRoute"; // Fixed import
 import DashboardLayout from "@/components/DashboardLayout";
 
 export function AppRoutes() {

@@ -4,11 +4,12 @@ import { QueryProvider } from "@/providers/QueryProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { AppRoutes } from "@/routes/AppRoutes";
-import ErrorBoundary from "@/components/ErrorBoundary"; // Fixed import
-import LoadingScreen from "@/components/LoadingScreen"; // Fixed import
+import ErrorBoundary from "@/components/ErrorBoundary";
+import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation } from "react-router-dom";
+import { Suspense } from "react";
 
 function AppContent() {
   const location = useLocation();
@@ -16,13 +17,19 @@ function AppContent() {
 
   // If it's an admin route, don't wrap with MainLayout
   if (isAdminRoute) {
-    return <AppRoutes />;
+    return (
+      <Suspense fallback={<LoadingScreen />}>
+        <AppRoutes />
+      </Suspense>
+    );
   }
 
   // For all other routes, use MainLayout
   return (
     <MainLayout>
-      <AppRoutes />
+      <Suspense fallback={<LoadingScreen />}>
+        <AppRoutes />
+      </Suspense>
     </MainLayout>
   );
 }
@@ -31,14 +38,14 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <ThemeProvider>
-          <QueryProvider>
+        <QueryProvider>
+          <ThemeProvider>
             <AuthProvider>
               <AppContent />
               <Toaster />
             </AuthProvider>
-          </QueryProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </BrowserRouter>
     </ErrorBoundary>
   );

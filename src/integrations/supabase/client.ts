@@ -5,27 +5,30 @@ import { networkMonitor } from '@/services/NetworkMonitoringService';
 const SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
 
-if (!SUPABASE_ANON_KEY) {
-  console.error('Missing SUPABASE_ANON_KEY environment variable');
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase environment variables');
+  throw new Error('Missing required environment variables');
 }
 
 export const supabase = createClient<Database>(
-  SUPABASE_URL, 
+  SUPABASE_URL,
   SUPABASE_ANON_KEY,
   {
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce',
     },
     global: {
       headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
+        'x-client-info': 'lovable-app',
       },
-      fetch: networkMonitor.monitorFetch,
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
     },
   }
 );

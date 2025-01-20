@@ -21,43 +21,60 @@ const PizzaTypeGrid = () => {
   const queryClient = useQueryClient();
   const showControls = isAdmin || isStaff;
 
-  const { data: pizzaTypes, isLoading } = useQuery({
+  const { data: pizzaTypes, isLoading, error } = useQuery({
     queryKey: ['pizzaTypes'],
     queryFn: async () => {
       console.log('Fetching pizza types...');
-      const query = supabase
-        .from('pizza_types')
-        .select('*')
-        .order('display_order');
+      try {
+        let query = supabase
+          .from('pizza_types')
+          .select('*')
+          .order('display_order');
 
-      // Only filter out hidden items for non-admin/staff users
-      if (!isAdmin && !isStaff) {
-        query.eq('is_hidden', false);
+        // Only filter out hidden items for non-admin/staff users
+        if (!isAdmin && !isStaff) {
+          query = query.eq('is_hidden', false);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error('Supabase error fetching pizza types:', error);
+          throw error;
+        }
+
+        if (!data) {
+          console.log('No pizza types found');
+          return [];
+        }
+
+        console.log('Successfully fetched pizza types:', data);
+        return data as PizzaType[];
+      } catch (err) {
+        console.error('Error in pizza types query:', err);
+        throw err;
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching pizza types:', error);
-        throw error;
-      }
-
-      console.log('Fetched pizza types:', data);
-      return data as PizzaType[];
     },
     staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    retry: 3, // Retry failed requests 3 times
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const updateOrderMutation = useMutation({
     mutationFn: async ({ id, newOrder, name, slug }: { id: string; newOrder: number; name: string; slug: string }) => {
+      console.log('Updating order for pizza type:', { id, newOrder, name, slug });
       const { error } = await supabase
         .from('pizza_types')
         .update({ display_order: newOrder, name, slug })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating order:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log('Successfully updated pizza type order');
       queryClient.invalidateQueries({ queryKey: ['pizzaTypes'] });
     },
     onError: (error) => {
@@ -74,27 +91,41 @@ const PizzaTypeGrid = () => {
     if (!pizzaTypes) return;
     
     const newOrder = direction === 'up' ? currentOrder - 1 : currentOrder + 1;
+    console.log('Handling reorder:', { id, currentOrder, newOrder, direction });
     
     // Find the item that needs to swap positions
     const itemToSwap = pizzaTypes.find(type => type.display_order === newOrder);
     if (!itemToSwap) return;
 
-    // Update both items
-    await Promise.all([
-      updateOrderMutation.mutateAsync({ 
-        id, 
-        newOrder,
-        name: pizzaTypes.find(t => t.id === id)?.name || '',
-        slug: pizzaTypes.find(t => t.id === id)?.slug || ''
-      }),
-      updateOrderMutation.mutateAsync({ 
-        id: itemToSwap.id, 
-        newOrder: currentOrder,
-        name: itemToSwap.name,
-        slug: itemToSwap.slug
-      })
-    ]);
+    try {
+      // Update both items
+      await Promise.all([
+        updateOrderMutation.mutateAsync({ 
+          id, 
+          newOrder,
+          name: pizzaTypes.find(t => t.id === id)?.name || '',
+          slug: pizzaTypes.find(t => t.id === id)?.slug || ''
+        }),
+        updateOrderMutation.mutateAsync({ 
+          id: itemToSwap.id, 
+          newOrder: currentOrder,
+          name: itemToSwap.name,
+          slug: itemToSwap.slug
+        })
+      ]);
+    } catch (err) {
+      console.error('Error during reorder operation:', err);
+    }
   };
+
+  if (error) {
+    console.error('Error loading pizza types:', error);
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">Failed to load pizza types. Please try again later.</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

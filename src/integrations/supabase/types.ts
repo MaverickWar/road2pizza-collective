@@ -963,6 +963,7 @@ export type Database = {
           is_staff: boolean | null
           is_suspended: boolean | null
           is_verified: boolean | null
+          last_seen: string | null
           points: number
           recipes_shared: number
           requires_recipe_approval: boolean | null
@@ -981,6 +982,7 @@ export type Database = {
           is_staff?: boolean | null
           is_suspended?: boolean | null
           is_verified?: boolean | null
+          last_seen?: string | null
           points?: number
           recipes_shared?: number
           requires_recipe_approval?: boolean | null
@@ -999,6 +1001,7 @@ export type Database = {
           is_staff?: boolean | null
           is_suspended?: boolean | null
           is_verified?: boolean | null
+          last_seen?: string | null
           points?: number
           recipes_shared?: number
           requires_recipe_approval?: boolean | null

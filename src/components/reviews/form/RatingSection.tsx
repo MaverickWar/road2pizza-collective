@@ -1,8 +1,9 @@
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { UseFormReturn } from "react-hook-form";
-import { ReviewFormData } from "@/types/review";
+import type { ReviewFormData } from "@/types/review";
+import { Card } from "@/components/ui/card";
+import { Star } from "lucide-react";
 
 interface RatingSectionProps {
   form: UseFormReturn<ReviewFormData>;
@@ -12,22 +13,26 @@ const ratingCriteria = [
   {
     key: "rating" as const,
     label: "Overall Rating",
-    description: "Overall rating of the product"
+    description: "Your overall impression of the product",
+    color: "text-yellow-500"
   },
   {
     key: "durability_rating" as const,
     label: "Durability",
-    description: "Long-term durability and build quality"
+    description: "How well does it hold up over time?",
+    color: "text-blue-500"
   },
   {
     key: "value_rating" as const,
     label: "Value for Money",
-    description: "Price point relative to features and quality"
+    description: "Is it worth the price?",
+    color: "text-green-500"
   },
   {
     key: "ease_of_use_rating" as const,
     label: "Ease of Use",
-    description: "How intuitive and user-friendly is the product"
+    description: "How user-friendly is the product?",
+    color: "text-purple-500"
   }
 ];
 
@@ -37,27 +42,40 @@ const RatingSection = ({ form }: RatingSectionProps) => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-6">
-        {ratingCriteria.map(({ key, label, description }) => (
-          <div key={key} className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label>{label}</Label>
-              <span className="text-sm font-medium">
-                {form.watch(key)}/5
-              </span>
-            </div>
-            <Slider
-              value={[form.watch(key) || 5]}
-              onValueChange={(value) => handleRatingChange(key, value)}
-              max={5}
-              step={0.5}
-              className="my-4"
-            />
-            <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="space-y-6">
+      <Card className="p-6 bg-background shadow-none">
+        <div className="text-center p-6 bg-muted rounded-lg mb-8">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+            <h3 className="text-lg font-semibold">Overall Rating</h3>
           </div>
-        ))}
-      </div>
+          <div className="text-4xl font-bold text-yellow-500">{form.watch("rating")}/5</div>
+        </div>
+
+        <div className="space-y-8">
+          {ratingCriteria.map(({ key, label, description, color }) => (
+            <div key={key} className="space-y-3">
+              <div>
+                <Label className={`text-base font-semibold ${color}`}>{label}</Label>
+                <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <Slider
+                  value={[form.watch(key) || 5]}
+                  onValueChange={(value) => handleRatingChange(key, value)}
+                  max={5}
+                  step={0.5}
+                  className="flex-1"
+                />
+                <span className="font-medium min-w-[48px] text-center">
+                  {form.watch(key)}/5
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import BasicInfoSection from "./form/BasicInfoSection";
 import MediaSection from "./form/MediaSection";
@@ -11,7 +11,7 @@ import { useAuth } from "@/components/AuthProvider";
 import FormNavigation from "./form/FormNavigation";
 import FormActions from "./form/FormActions";
 import { useForm } from "react-hook-form";
-import { ReviewFormData } from "@/types/review";
+import type { ReviewFormData } from "@/types/review";
 
 interface ReviewFormProps {
   isOpen: boolean;
@@ -83,42 +83,47 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col max-w-4xl h-[90vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle>Create New Review</DialogTitle>
-        </DialogHeader>
-        
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <FormNavigation activeTab={activeTab} />
-
-          <div className="flex-1 overflow-y-auto">
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6 space-y-6 pb-24">
-              <TabsContent value="basic" className="mt-0 space-y-6">
-                <BasicInfoSection form={form} />
-              </TabsContent>
-
-              <TabsContent value="media" className="mt-0 space-y-6">
-                <MediaSection form={form} />
-              </TabsContent>
-
-              <TabsContent value="proscons" className="mt-0 space-y-6">
-                <ProsCons form={form} />
-              </TabsContent>
-
-              <TabsContent value="ratings" className="mt-0 space-y-6">
-                <RatingSection form={form} />
-              </TabsContent>
-            </form>
+      <DialogContent className="flex flex-col max-w-4xl h-[90vh] p-0 bg-background border-none sm:rounded-lg overflow-hidden">
+        <div className="flex flex-col h-full">
+          <div className="px-6 py-4 bg-white border-b">
+            <h2 className="text-2xl font-semibold text-foreground">Create New Review</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Share your experience and help others make informed decisions
+            </p>
           </div>
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <FormNavigation activeTab={activeTab} />
 
-          <div className="absolute bottom-0 left-0 right-0 bg-card border-t p-4 flex justify-end gap-2">
-            <FormActions 
-              onClose={onClose}
-              onSubmit={form.handleSubmit(handleSubmit)}
-              isSubmitting={isSubmitting}
-            />
-          </div>
-        </Tabs>
+            <div className="flex-1 overflow-y-auto">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <TabsContent value="basic" className="m-0 p-6">
+                  <BasicInfoSection form={form} />
+                </TabsContent>
+
+                <TabsContent value="media" className="m-0 p-6">
+                  <MediaSection form={form} />
+                </TabsContent>
+
+                <TabsContent value="proscons" className="m-0 p-6">
+                  <ProsCons form={form} />
+                </TabsContent>
+
+                <TabsContent value="ratings" className="m-0 p-6">
+                  <RatingSection form={form} />
+                </TabsContent>
+              </form>
+            </div>
+
+            <div className="sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-4 flex justify-end gap-2">
+              <FormActions 
+                onClose={onClose}
+                onSubmit={form.handleSubmit(handleSubmit)}
+                isSubmitting={isSubmitting}
+              />
+            </div>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );

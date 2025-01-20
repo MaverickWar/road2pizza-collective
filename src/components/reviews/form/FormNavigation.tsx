@@ -1,4 +1,5 @@
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Image, ListPlus, Star } from "lucide-react";
 
 interface FormNavigationProps {
   activeTab: string;
@@ -6,31 +7,35 @@ interface FormNavigationProps {
 
 const FormNavigation = ({ activeTab }: FormNavigationProps) => {
   return (
-    <div className="px-6 sticky top-0 z-10 bg-card border-b">
-      <TabsList className="w-full grid grid-cols-4 bg-background p-1 gap-1 rounded-lg my-2">
+    <div className="px-6 sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
+      <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4 bg-muted/50 p-1 gap-1 rounded-lg my-2">
         <TabsTrigger 
           value="basic"
-          className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+          className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
         >
-          Basic Info
+          <FileText className="w-4 h-4" />
+          <span className="hidden sm:inline">Basic Info</span>
         </TabsTrigger>
         <TabsTrigger 
           value="media"
-          className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+          className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
         >
-          Media
+          <Image className="w-4 h-4" />
+          <span className="hidden sm:inline">Media</span>
         </TabsTrigger>
         <TabsTrigger 
           value="proscons"
-          className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium whitespace-nowrap"
+          className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
         >
-          Pros & Cons
+          <ListPlus className="w-4 h-4" />
+          <span className="hidden sm:inline">Pros & Cons</span>
         </TabsTrigger>
         <TabsTrigger 
           value="ratings"
-          className="px-4 py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-colors rounded-md text-sm font-medium"
+          className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
         >
-          Ratings
+          <Star className="w-4 h-4" />
+          <span className="hidden sm:inline">Ratings</span>
         </TabsTrigger>
       </TabsList>
     </div>

@@ -49,28 +49,6 @@ const DEFAULT_THEME = {
     borderRadius: 8,
     logo: '',
     favicon: ''
-  },
-  admin_colors: {
-    admin: {
-      DEFAULT: '249 115 22',
-      secondary: '234 88 12',
-      accent: '249 115 22',
-      muted: '120 113 108',
-      background: '249 250 251',
-      foreground: '41 37 36',
-      border: '229 231 235',
-      hover: {
-        DEFAULT: '234 88 12',
-        secondary: '217 70 0'
-      }
-    }
-  },
-  admin_menu: {
-    type: 'vertical',
-    position: 'left',
-    itemSpacing: 16,
-    showIcons: true,
-    items: []
   }
 };
 
@@ -79,71 +57,48 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    let mounted = true;
-    
-    const loadActiveTheme = async () => {
-      try {
-        console.log('Loading active theme...', { isAuthenticated: !!user });
-        setIsLoading(true);
+  const loadActiveTheme = async () => {
+    try {
+      console.log('Loading active theme...', { isAuthenticated: !!user });
+      setIsLoading(true);
 
-        // First check if we need authentication for this request
-        const { data: settings, error: settingsError } = await supabase
-          .from('theme_settings')
-          .select('count')
-          .single();
+      // First try to load the public theme
+      const { data: publicTheme, error: publicError } = await supabase
+        .from('theme_settings')
+        .select('*')
+        .eq('is_active', true)
+        .eq('is_admin_theme', false)
+        .maybeSingle();
 
-        if (settingsError) {
-          if (settingsError.code === 'PGRST116') {
-            console.log('Theme settings require authentication');
-            setCurrentTheme(DEFAULT_THEME);
-            return;
-          }
-          console.error('Error checking theme settings:', settingsError);
-          throw new Error('Failed to check theme settings');
-        }
-
-        // Then fetch the active theme
-        const { data: theme, error } = await supabase
-          .from('theme_settings')
-          .select('*')
-          .eq('is_active', true)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error loading theme:', error);
-          throw error;
-        }
-        
-        if (theme && mounted) {
-          console.log('Active theme found:', theme);
-          setCurrentTheme(theme);
-          applyTheme(theme);
-        } else {
-          console.log('No active theme found, using default theme');
-          setCurrentTheme(DEFAULT_THEME);
-          applyTheme(DEFAULT_THEME);
-        }
-      } catch (error: any) {
-        console.error('Error in loadActiveTheme:', error);
-        if (mounted) {
-          setCurrentTheme(DEFAULT_THEME);
-          applyTheme(DEFAULT_THEME);
-          toast.error('Failed to load theme settings. Using default theme.');
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+      if (publicError) {
+        console.error('Error loading public theme:', publicError);
+        setCurrentTheme(DEFAULT_THEME);
+        applyTheme(DEFAULT_THEME);
+        return;
       }
-    };
 
+      if (publicTheme) {
+        console.log('Active public theme found:', publicTheme);
+        setCurrentTheme(publicTheme);
+        applyTheme(publicTheme);
+      } else {
+        console.log('No active public theme found, using default theme');
+        setCurrentTheme(DEFAULT_THEME);
+        applyTheme(DEFAULT_THEME);
+      }
+    } catch (error: any) {
+      console.error('Error in loadActiveTheme:', error);
+      setCurrentTheme(DEFAULT_THEME);
+      applyTheme(DEFAULT_THEME);
+      toast.error('Failed to load theme settings. Using default theme.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadActiveTheme();
-
-    return () => {
-      mounted = false;
-    };
-  }, [user]); // Add user as dependency to reload theme when auth state changes
+  }, [user]); // Reload theme when auth state changes
 
   const applyTheme = (theme: any) => {
     const root = document.documentElement;
@@ -152,19 +107,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (theme.colors) {
       Object.entries(theme.colors).forEach(([key, value]: [string, any]) => {
         root.style.setProperty(`--${key}`, value as string);
-      });
-    }
-
-    // Apply admin colors if present
-    if (theme.admin_colors?.admin) {
-      Object.entries(theme.admin_colors.admin).forEach(([key, value]: [string, any]) => {
-        if (typeof value === 'object') {
-          Object.entries(value).forEach(([subKey, subValue]) => {
-            root.style.setProperty(`--admin-${key}-${subKey}`, subValue as string);
-          });
-        } else {
-          root.style.setProperty(`--admin-${key}`, value as string);
-        }
       });
     }
 
@@ -197,30 +139,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         root.style.setProperty(`--menu-${key}`, value as string);
       });
     }
-
-    // Apply admin menu styles
-    if (theme.admin_menu) {
-      Object.entries(theme.admin_menu).forEach(([key, value]) => {
-        if (key !== 'items') {
-          root.style.setProperty(`--admin-menu-${key}`, value as string);
-        }
-      });
-    }
-
-    // Apply image styles and logos
-    if (theme.images) {
-      Object.entries(theme.images).forEach(([key, value]) => {
-        root.style.setProperty(`--image-${key}`, value as string);
-      });
-    }
-
-    // Apply logos
-    if (theme.site_logo_url) {
-      root.style.setProperty('--site-logo', `url(${theme.site_logo_url})`);
-    }
-    if (theme.admin_logo_url) {
-      root.style.setProperty('--admin-logo', `url(${theme.admin_logo_url})`);
-    }
   };
 
   const setTheme = async (themeId: string) => {
@@ -228,18 +146,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       console.log('Setting new theme:', themeId);
       
-      // Deactivate current theme
-      await supabase
-        .from('theme_settings')
-        .update({ is_active: false })
-        .eq('is_active', true);
-
-      // Activate new theme
       const { data: newTheme, error } = await supabase
         .from('theme_settings')
-        .update({ is_active: true })
+        .select('*')
         .eq('id', themeId)
-        .select()
         .maybeSingle();
 
       if (error) throw error;
@@ -264,33 +174,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetToDefault = async () => {
-    try {
-      setIsLoading(true);
-      console.log('Resetting to default theme');
-      
-      const { data: defaultTheme, error } = await supabase
-        .from('theme_settings')
-        .select('*')
-        .eq('name', 'Default Theme')
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (defaultTheme) {
-        await setTheme(defaultTheme.id);
-        toast.success('Reset to default theme');
-      } else {
-        console.log('Default theme not found, using fallback');
-        setCurrentTheme(DEFAULT_THEME);
-        applyTheme(DEFAULT_THEME);
-        toast.info('Using system default theme');
-      }
-    } catch (error) {
-      console.error('Error resetting theme:', error);
-      toast.error('Failed to reset theme');
-    } finally {
-      setIsLoading(false);
-    }
+    setCurrentTheme(DEFAULT_THEME);
+    applyTheme(DEFAULT_THEME);
+    toast.success('Reset to default theme');
   };
 
   return (

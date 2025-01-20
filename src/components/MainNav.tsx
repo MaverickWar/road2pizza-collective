@@ -18,12 +18,26 @@ const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Define the default navigation links with explicit paths
+  const defaultNavLinks = [
+    { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
+    { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
+    { href: "/community", label: "Community", description: "Join discussions and share ideas", icon: Users },
+    { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
+  ];
   
-  const { data: navigationItems, isLoading } = useQuery({
+  const { data: navigationItems } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
-        console.log('Fetching navigation menu items...', { isAuthenticated: !!user });
+        // Only fetch custom navigation if user is authenticated
+        if (!user) {
+          console.log('User not authenticated, using default navigation');
+          return [];
+        }
+
+        console.log('Fetching navigation menu items...');
         const { data, error } = await supabase
           .from('navigation_menu')
           .select('*, pages(title, slug)')
@@ -40,27 +54,14 @@ const MainNav = () => {
         return data || [];
       } catch (error) {
         console.error('Failed to fetch navigation menu:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load navigation menu. Using default menu.",
-          variant: "destructive",
-        });
         return [];
       }
     },
-    enabled: !!user, // Only fetch if user is authenticated
+    enabled: true, // Always enabled, but only fetches when user is authenticated
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
-
-  // Define the default navigation links with explicit paths
-  const defaultNavLinks = [
-    { href: "/", label: "Home", description: "Home to Road2Pizza", icon: Home },
-    { href: "/pizza", label: "Pizza", description: "Explore pizza styles and recipes", icon: Pizza },
-    { href: "/community", label: "Community", description: "Join discussions and share ideas", icon: Users },
-    { href: "/reviews", label: "Reviews", description: "Read and write equipment reviews", icon: Star },
-  ];
 
   // Only add custom nav links if they were successfully fetched
   const customNavLinks = (navigationItems || []).map(item => ({
@@ -71,8 +72,6 @@ const MainNav = () => {
   }));
 
   const allNavLinks = [...defaultNavLinks, ...customNavLinks];
-
-  console.log('Current navigation links:', allNavLinks);
 
   return (
     <nav className="w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">

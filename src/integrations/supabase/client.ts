@@ -14,20 +14,18 @@ export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_ANON_KEY,
   {
-    global: {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      fetch: networkMonitor.monitorFetch,
-    },
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true
-    }
+    },
+    global: {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      fetch: networkMonitor.monitorFetch,
+    },
   }
 );
 

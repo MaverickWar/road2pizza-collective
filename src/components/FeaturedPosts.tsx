@@ -31,7 +31,8 @@ const FeaturedPosts = () => {
           .eq('status', 'published')
           .eq('approval_status', 'approved')
           .order('created_at', { ascending: false })
-          .limit(3);
+          .limit(3)
+          .throwOnError(); // This will ensure errors are properly caught
         
         if (error) {
           console.error('Error fetching featured recipes:', error);
@@ -42,7 +43,6 @@ const FeaturedPosts = () => {
         return data || [];
       } catch (error: any) {
         console.error('Failed to fetch featured recipes:', error);
-        // Only show toast error once
         toast.error("Failed to load featured recipes. Please try again later.");
         throw error;
       }

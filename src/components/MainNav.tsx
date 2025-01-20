@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './AuthProvider';
 import {
   Sheet,
   SheetContent,
@@ -16,12 +17,13 @@ import {
 const MainNav = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  const { data: navigationItems } = useQuery({
+  const { data: navigationItems, isLoading } = useQuery({
     queryKey: ['navigation-menu'],
     queryFn: async () => {
       try {
-        console.log('Fetching navigation menu items...');
+        console.log('Fetching navigation menu items...', { isAuthenticated: !!user });
         const { data, error } = await supabase
           .from('navigation_menu')
           .select('*, pages(title, slug)')
@@ -40,13 +42,14 @@ const MainNav = () => {
         console.error('Failed to fetch navigation menu:', error);
         toast({
           title: "Error",
-          description: "Failed to load navigation menu. Please try again later.",
+          description: "Failed to load navigation menu. Using default menu.",
           variant: "destructive",
         });
         return [];
       }
     },
-    retry: false,
+    enabled: !!user, // Only fetch if user is authenticated
+    retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });

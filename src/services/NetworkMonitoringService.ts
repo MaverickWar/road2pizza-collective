@@ -60,10 +60,12 @@ class NetworkMonitoringService {
     }
 
     // Check if we have a valid session before making authenticated requests
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user && url.includes('supabase.co')) {
-      console.warn('Attempting authenticated request without session:', { url, method });
-      return Promise.reject(new Error('No authenticated session'));
+    if (url.includes('supabase.co') && !url.includes('auth')) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        console.warn('Attempting authenticated request without session:', { url, method });
+        return Promise.reject(new Error('No authenticated session'));
+      }
     }
 
     this.activeRequests.set(id, { url, startTime, method });
@@ -88,14 +90,13 @@ class NetworkMonitoringService {
       if (!response.ok) {
         if (this.shouldLogError()) {
           this.logFailure(id, `HTTP ${response.status}`);
-          this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
+          await this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       if (duration > 3000 && this.shouldLogError()) {
         console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
-        this.logToAnalytics(
+        await this.logToAnalytics(
           "slow_request",
           "Request took longer than 3000ms",
           url,
@@ -104,15 +105,15 @@ class NetworkMonitoringService {
       }
 
       return response;
-    } catch (error) {
+    } catch (error: any) {
       clearTimeout(timeoutId);
       
       if (error.name === "AbortError" && this.shouldLogError()) {
         console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
-        this.logToAnalytics("timeout", "Request timed out", url);
+        await this.logToAnalytics("timeout", "Request timed out", url);
       } else if (this.shouldLogError()) {
         console.error(`❌ Request to ${url} failed:`, error);
-        this.logToAnalytics("network_error", error.message, url);
+        await this.logToAnalytics("network_error", error.message, url);
       }
 
       throw error;
@@ -139,7 +140,6 @@ class NetworkMonitoringService {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      // Only log analytics if user is authenticated
       if (session?.user) {
         const { error } = await supabase.from("analytics_metrics").insert({
           metric_name: type,
@@ -149,7 +149,7 @@ class NetworkMonitoringService {
             url,
             severity: type === "timeout" || type === "network_error" ? "high" : "low",
             status: "open",
-            user_id: session.user.id // Add user_id to metadata
+            user_id: session.user.id
           }
         });
 

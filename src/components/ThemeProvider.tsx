@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useAuth } from './AuthProvider';
 
 interface ThemeContextType {
   currentTheme: any;
@@ -76,52 +77,73 @@ const DEFAULT_THEME = {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [currentTheme, setCurrentTheme] = useState<any>(DEFAULT_THEME);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
+    let mounted = true;
+    
+    const loadActiveTheme = async () => {
+      try {
+        console.log('Loading active theme...', { isAuthenticated: !!user });
+        setIsLoading(true);
+
+        // First check if we need authentication for this request
+        const { data: settings, error: settingsError } = await supabase
+          .from('theme_settings')
+          .select('count')
+          .single();
+
+        if (settingsError) {
+          if (settingsError.code === 'PGRST116') {
+            console.log('Theme settings require authentication');
+            setCurrentTheme(DEFAULT_THEME);
+            return;
+          }
+          console.error('Error checking theme settings:', settingsError);
+          throw new Error('Failed to check theme settings');
+        }
+
+        // Then fetch the active theme
+        const { data: theme, error } = await supabase
+          .from('theme_settings')
+          .select('*')
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading theme:', error);
+          throw error;
+        }
+        
+        if (theme && mounted) {
+          console.log('Active theme found:', theme);
+          setCurrentTheme(theme);
+          applyTheme(theme);
+        } else {
+          console.log('No active theme found, using default theme');
+          setCurrentTheme(DEFAULT_THEME);
+          applyTheme(DEFAULT_THEME);
+        }
+      } catch (error: any) {
+        console.error('Error in loadActiveTheme:', error);
+        if (mounted) {
+          setCurrentTheme(DEFAULT_THEME);
+          applyTheme(DEFAULT_THEME);
+          toast.error('Failed to load theme settings. Using default theme.');
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
     loadActiveTheme();
-  }, []);
 
-  const loadActiveTheme = async () => {
-    try {
-      console.log('Loading active theme...');
-      
-      // First check if we can connect to Supabase
-      const { error: healthCheckError } = await supabase.from('theme_settings').select('count').single();
-      if (healthCheckError) {
-        console.error('Supabase connection error:', healthCheckError);
-        throw new Error('Failed to connect to theme service');
-      }
-
-      // Then fetch the active theme
-      const { data: theme, error } = await supabase
-        .from('theme_settings')
-        .select('*')
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error loading theme:', error);
-        throw error;
-      }
-      
-      if (theme) {
-        console.log('Active theme found:', theme);
-        setCurrentTheme(theme);
-        applyTheme(theme);
-      } else {
-        console.log('No active theme found, using default theme');
-        setCurrentTheme(DEFAULT_THEME);
-        applyTheme(DEFAULT_THEME);
-      }
-    } catch (error: any) {
-      console.error('Error in loadActiveTheme:', error);
-      toast.error('Failed to load theme settings. Using default theme.');
-      setCurrentTheme(DEFAULT_THEME);
-      applyTheme(DEFAULT_THEME);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return () => {
+      mounted = false;
+    };
+  }, [user]); // Add user as dependency to reload theme when auth state changes
 
   const applyTheme = (theme: any) => {
     const root = document.documentElement;

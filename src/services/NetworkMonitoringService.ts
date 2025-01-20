@@ -47,17 +47,23 @@ class NetworkMonitoringService {
     const startTime = performance.now();
     const url = input instanceof Request ? input.url : input.toString();
     
-    // Add required headers for Supabase requests
+    // Create new headers with all required Supabase headers
     const headers = new Headers(init?.headers || {});
     headers.set('apikey', this.SUPABASE_ANON_KEY);
     headers.set('Authorization', `Bearer ${this.SUPABASE_ANON_KEY}`);
+    headers.set('Content-Type', 'application/json');
+    headers.set('Prefer', 'return=minimal');
     
     try {
       console.log('Making fetch request to:', url, 'with headers:', Object.fromEntries(headers.entries()));
-      const response = await fetch(input, { ...init, headers });
+      const response = await fetch(input, { 
+        ...init, 
+        headers
+      });
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
+      // Only log API requests that aren't analytics logging
       if (!url.includes('analytics_metrics')) {
         await this.logApiRequest(
           url,

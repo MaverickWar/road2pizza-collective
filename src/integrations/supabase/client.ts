@@ -9,7 +9,7 @@ if (!SUPABASE_ANON_KEY) {
   console.error('Missing SUPABASE_ANON_KEY environment variable');
 }
 
-// Create Supabase client with custom fetch implementation and proper headers
+// Create Supabase client with consistent auth headers
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_ANON_KEY,
@@ -18,6 +18,8 @@ export const supabase = createClient<Database>(
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
       },
       fetch: networkMonitor.monitorFetch,
     },
@@ -28,3 +30,6 @@ export const supabase = createClient<Database>(
     }
   }
 );
+
+// Export constants for use in other services
+export { SUPABASE_URL, SUPABASE_ANON_KEY };

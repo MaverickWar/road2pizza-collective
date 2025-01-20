@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import UserStats from "@/components/community/UserStats";
 import Leaderboard from "@/components/community/Leaderboard";
 import ForumCategories from "@/components/community/ForumCategories";
+import { useQuery } from "@tanstack/react-query";
 
 const Community = () => {
   const { user } = useAuth();
-  const [leaderboard, setLeaderboard] = useState([]);
   const [userStats, setUserStats] = useState({
     points: 0,
     badge_count: 0,
@@ -17,16 +17,9 @@ const Community = () => {
     rank: 0,
   });
 
-  useEffect(() => {
-    console.log("Community page mounted, auth state:", user);
-    fetchLeaderboard();
-    if (user) {
-      fetchUserStats();
-    }
-  }, [user]);
-
-  const fetchLeaderboard = async () => {
-    try {
+  const { data: leaderboard = [], isError: isLeaderboardError } = useQuery({
+    queryKey: ["leaderboard"],
+    queryFn: async () => {
       console.log("Fetching leaderboard data...");
       const { data, error } = await supabase
         .from('profiles')
@@ -40,12 +33,15 @@ const Community = () => {
       }
 
       console.log("Leaderboard data fetched successfully:", data);
-      setLeaderboard(data || []);
-    } catch (error) {
+      return data || [];
+    },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    onError: (error) => {
       console.error('Failed to load leaderboard:', error);
-      toast.error("Failed to load leaderboard");
+      toast.error("Failed to load leaderboard. Please try refreshing the page.");
     }
-  };
+  });
 
   const fetchUserStats = async () => {
     if (!user) return;
@@ -90,6 +86,13 @@ const Community = () => {
       toast.error("Failed to load user statistics");
     }
   };
+
+  useEffect(() => {
+    console.log("Community page mounted, auth state:", user);
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-background">

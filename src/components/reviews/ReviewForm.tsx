@@ -10,38 +10,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import FormNavigation from "./form/FormNavigation";
 import FormActions from "./form/FormActions";
+import { useForm } from "react-hook-form";
+import { ReviewFormData } from "@/types/review";
 
 interface ReviewFormProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-export interface ReviewFormData {
-  title: string;
-  brand: string;
-  category: string;
-  shortDescription: string;
-  content: string;
-  imageUrl: string;
-  additionalImages: string[];
-  videoUrl: string;
-  videoProvider: string;
-  pros: string[];
-  cons: string[];
-  ratings: {
-    design: number;
-    easeOfUse: number;
-    portability: number;
-    valueForMoney: number;
-    reliability: number;
-    descriptions: {
-      design: string;
-      easeOfUse: string;
-      portability: string;
-      valueForMoney: string;
-      reliability: string;
-    };
-  };
 }
 
 const initialFormData: ReviewFormData = {
@@ -73,46 +47,48 @@ const initialFormData: ReviewFormData = {
 };
 
 const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
-  const [formData, setFormData] = useState<ReviewFormData>(initialFormData);
   const [activeTab, setActiveTab] = useState("basic");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
+  const form = useForm<ReviewFormData>({
+    defaultValues: initialFormData
+  });
 
   const calculateOverallRating = () => {
-    const { design, easeOfUse, portability, valueForMoney, reliability } = formData.ratings;
+    const { design, easeOfUse, portability, valueForMoney, reliability } = form.getValues().ratings;
     return Math.round((design + easeOfUse + portability + valueForMoney + reliability) / 5);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: ReviewFormData) => {
     try {
       setIsSubmitting(true);
-      console.log("Submitting review with data:", formData);
+      console.log("Submitting review with data:", values);
       
       const { error } = await supabase.from("equipment_reviews").insert({
-        title: formData.title,
-        brand: formData.brand,
-        category: formData.category,
-        content: formData.content,
-        image_url: formData.imageUrl,
-        images: formData.additionalImages,
-        video_url: formData.videoUrl,
-        video_provider: formData.videoProvider,
-        pros: formData.pros.filter(Boolean),
-        cons: formData.cons.filter(Boolean),
+        title: values.title,
+        brand: values.brand,
+        category: values.category,
+        content: values.content,
+        image_url: values.imageUrl,
+        images: values.additionalImages,
+        video_url: values.videoUrl,
+        video_provider: values.videoProvider,
+        pros: values.pros.filter(Boolean),
+        cons: values.cons.filter(Boolean),
         rating: calculateOverallRating(),
-        durability_rating: Math.round(formData.ratings.reliability),
-        value_rating: Math.round(formData.ratings.valueForMoney),
-        ease_of_use_rating: Math.round(formData.ratings.easeOfUse),
+        durability_rating: Math.round(values.ratings.reliability),
+        value_rating: Math.round(values.ratings.valueForMoney),
+        ease_of_use_rating: Math.round(values.ratings.easeOfUse),
         created_by: user?.id,
         author: user?.username || "Anonymous",
-        is_published: false // Set initially as unpublished
+        is_published: false
       });
 
       if (error) throw error;
 
       toast.success("Review submitted successfully");
       onClose();
-      setFormData(initialFormData);
+      form.reset(initialFormData);
     } catch (error) {
       console.error("Error submitting review:", error);
       toast.error("Failed to submit review");
@@ -132,40 +108,50 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <FormNavigation activeTab={activeTab} />
 
           <div className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6 pb-24">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6 space-y-6 pb-24">
               <TabsContent value="basic" className="mt-0 space-y-6">
                 <BasicInfoSection 
-                  formData={formData} 
-                  setFormData={setFormData} 
+                  formData={form.getValues()} 
+                  setFormData={(data) => {
+                    Object.entries(data).forEach(([key, value]) => {
+                      form.setValue(key as keyof ReviewFormData, value);
+                    });
+                  }}
                 />
               </TabsContent>
 
               <TabsContent value="media" className="mt-0 space-y-6">
-                <MediaSection 
-                  form={formData}
-                />
+                <MediaSection form={form} />
               </TabsContent>
 
               <TabsContent value="proscons" className="mt-0 space-y-6">
                 <ProsCons 
-                  formData={formData} 
-                  setFormData={setFormData} 
+                  formData={form.getValues()} 
+                  setFormData={(data) => {
+                    Object.entries(data).forEach(([key, value]) => {
+                      form.setValue(key as keyof ReviewFormData, value);
+                    });
+                  }}
                 />
               </TabsContent>
 
               <TabsContent value="ratings" className="mt-0 space-y-6">
                 <RatingSection 
-                  formData={formData} 
-                  setFormData={setFormData} 
+                  formData={form.getValues()} 
+                  setFormData={(data) => {
+                    Object.entries(data).forEach(([key, value]) => {
+                      form.setValue(key as keyof ReviewFormData, value);
+                    });
+                  }}
                 />
               </TabsContent>
-            </div>
+            </form>
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 bg-card border-t p-4 flex justify-end gap-2">
             <FormActions 
               onClose={onClose}
-              onSubmit={handleSubmit}
+              onSubmit={form.handleSubmit(handleSubmit)}
               isSubmitting={isSubmitting}
             />
           </div>

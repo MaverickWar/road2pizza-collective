@@ -4,7 +4,8 @@ class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   
   private constructor() {
-    console.log('NetworkMonitoringService initialized');
+    this.setupGlobalErrorHandling();
+    console.log('NetworkMonitoringService initialized with enhanced error tracking');
   }
 
   public static getInstance(): NetworkMonitoringService {
@@ -12,6 +13,40 @@ class NetworkMonitoringService {
       NetworkMonitoringService.instance = new NetworkMonitoringService();
     }
     return NetworkMonitoringService.instance;
+  }
+
+  private setupGlobalErrorHandling() {
+    // Capture unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      this.logNetworkEvent({
+        type: 'error_unhandled_rejection',
+        message: event.reason?.message || 'Unhandled Promise Rejection',
+        severity: 'high',
+        status: 'error',
+        errorDetails: event.reason?.stack,
+        metadata: {
+          type: event.reason?.name,
+          timestamp: new Date().toISOString()
+        }
+      });
+    });
+
+    // Capture global errors
+    window.addEventListener('error', (event) => {
+      this.logNetworkEvent({
+        type: 'error_runtime',
+        message: event.message,
+        severity: 'high',
+        status: 'error',
+        errorDetails: event.error?.stack,
+        metadata: {
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+          timestamp: new Date().toISOString()
+        }
+      });
+    });
   }
 
   monitorFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -25,7 +60,7 @@ class NetworkMonitoringService {
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      // Skip logging for non-API requests and analytics endpoints to prevent loops
+      // Log all API requests, not just errors
       if ((url.includes('/api/') || url.includes('supabase')) && 
           !url.includes('analytics_metrics')) {
         await this.logApiRequest(
@@ -34,9 +69,21 @@ class NetworkMonitoringService {
           response.status,
           responseTime,
           response.ok ? undefined : new Error(`HTTP ${response.status}`)
-        ).catch(err => {
-          // Log error but don't throw to prevent affecting the main request
-          console.error('Failed to log API request:', err);
+        );
+      }
+      
+      // Log non-200 responses as errors
+      if (!response.ok) {
+        const errorText = await response.clone().text();
+        await this.logNetworkEvent({
+          type: 'api_error',
+          message: `API request failed with status ${response.status}`,
+          severity: response.status >= 500 ? 'critical' : 'high',
+          status: 'error',
+          url,
+          httpStatus: response.status,
+          responseTime,
+          errorDetails: errorText,
         });
       }
       
@@ -45,19 +92,16 @@ class NetworkMonitoringService {
       console.error('Fetch error:', error);
       const endTime = performance.now();
       
-      // Only try to log if we have an authenticated session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id && error instanceof Error) {
-        await this.logApiRequest(
-          url, 
-          startTime, 
-          500, 
-          endTime - startTime, 
-          error
-        ).catch(err => {
-          console.error('Failed to log error:', err);
-        });
-      }
+      await this.logNetworkEvent({
+        type: 'network_error',
+        message: error instanceof Error ? error.message : 'Network request failed',
+        severity: 'critical',
+        status: 'error',
+        url,
+        httpStatus: 0,
+        responseTime: endTime - startTime,
+        errorDetails: error instanceof Error ? error.stack : undefined,
+      });
       
       throw error;
     }
@@ -80,12 +124,6 @@ class NetworkMonitoringService {
     metadata?: any;
   }) {
     try {
-      // Only proceed if user is authenticated
-      if (!await this.isAuthenticated()) {
-        console.log('User not authenticated, skipping analytics logging');
-        return null;
-      }
-
       console.log('Logging network event:', event);
 
       const { data, error } = await supabase
@@ -128,12 +166,6 @@ class NetworkMonitoringService {
     responseTime: number, 
     error?: Error
   ) {
-    // Only proceed if user is authenticated
-    if (!await this.isAuthenticated()) {
-      console.log('User not authenticated, skipping API request logging');
-      return null;
-    }
-
     console.log('Logging API request:', {
       url,
       status,

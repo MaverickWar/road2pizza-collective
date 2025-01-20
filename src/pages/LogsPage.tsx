@@ -5,6 +5,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import StatsCards from "@/components/admin/analytics/StatsCards";
 
 type MetadataType = {
   message?: string;
@@ -30,12 +31,6 @@ const LogsPage = () => {
       if (error) {
         console.error("Error fetching logs:", error);
         throw error;
-      }
-
-      if (!data || data.length === 0) {
-        console.log("No logs found in the database");
-      } else {
-        console.log(`Retrieved ${data.length} logs`);
       }
 
       return data?.map(log => {
@@ -73,15 +68,42 @@ const LogsPage = () => {
     );
   }
 
-  const getMetricsByType = (type: string) => {
-    return logs?.filter(log => log.type.includes(type)) || [];
+  const getMetricsByType = (type: string | string[]) => {
+    if (!logs) return [];
+    if (Array.isArray(type)) {
+      return logs.filter(log => type.some(t => log.type.includes(t)));
+    }
+    return logs.filter(log => log.type.includes(type));
   };
 
-  const calculateAverageResponseTime = () => {
-    if (!logs || logs.length === 0) return 0;
-    const validTimes = logs.filter(log => log.response_time != null);
-    if (validTimes.length === 0) return 0;
-    return validTimes.reduce((acc, log) => acc + (log.response_time || 0), 0) / validTimes.length;
+  const calculateStats = () => {
+    if (!logs) return {
+      totalErrors: 0,
+      resolvedIssues: 0,
+      activeAlerts: 0,
+      avgResponseTime: 0
+    };
+
+    const errors = logs.filter(log => 
+      log.type.includes('error') || 
+      log.severity === 'high' || 
+      log.severity === 'critical'
+    );
+
+    const resolvedIssues = logs.filter(log => log.status === 'success' || log.status === 'resolved');
+    const activeAlerts = errors.filter(log => log.status === 'open' || log.status === 'investigating');
+    
+    const validResponseTimes = logs.filter(log => log.response_time != null);
+    const avgResponseTime = validResponseTimes.length > 0
+      ? validResponseTimes.reduce((acc, log) => acc + (log.response_time || 0), 0) / validResponseTimes.length
+      : 0;
+
+    return {
+      totalErrors: errors.length,
+      resolvedIssues: resolvedIssues.length,
+      activeAlerts: activeAlerts.length,
+      avgResponseTime: Math.round(avgResponseTime)
+    };
   };
 
   return (
@@ -93,42 +115,8 @@ const LogsPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Error Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {getMetricsByType('error').length}
-            </div>
-            <p className="text-sm text-gray-500">Last 500 requests</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Avg Response Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {calculateAverageResponseTime().toFixed(0)}ms
-            </div>
-            <p className="text-sm text-gray-500">Across all requests</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Issues</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {logs?.filter(log => log.status === 'open' && (log.severity === 'high' || log.severity === 'critical')).length || 0}
-            </div>
-            <p className="text-sm text-gray-500">High/Critical severity</p>
-          </CardContent>
-        </Card>
+      <div className="mb-6">
+        <StatsCards stats={calculateStats()} />
       </div>
 
       <Tabs defaultValue="all" className="space-y-4">
@@ -137,7 +125,9 @@ const LogsPage = () => {
           <TabsTrigger value="errors">Errors</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="network">Network</TabsTrigger>
+          <TabsTrigger value="runtime">Runtime</TabsTrigger>
           <TabsTrigger value="auth">Authentication</TabsTrigger>
+          <TabsTrigger value="api">API</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
@@ -146,41 +136,48 @@ const LogsPage = () => {
 
         <TabsContent value="errors">
           <LogsTable 
-            logs={logs?.filter(log => 
-              log.type.includes('error') || 
-              log.severity === 'high' || 
-              log.severity === 'critical'
-            ) || []} 
+            logs={getMetricsByType([
+              'error',
+              'error_runtime',
+              'error_unhandled_rejection',
+              'api_error',
+              'network_error'
+            ])} 
             isLoading={isLoading} 
           />
         </TabsContent>
 
         <TabsContent value="performance">
           <LogsTable 
-            logs={logs?.filter(log => 
-              log.type.includes('performance') || 
-              log.response_time > 1000
-            ) || []} 
+            logs={getMetricsByType(['performance', 'api_request'])} 
             isLoading={isLoading} 
           />
         </TabsContent>
 
         <TabsContent value="network">
           <LogsTable 
-            logs={logs?.filter(log => 
-              log.type.includes('network') || 
-              log.type.includes('request') || 
-              log.type.includes('response')
-            ) || []} 
+            logs={getMetricsByType(['network', 'api_request', 'network_error'])} 
+            isLoading={isLoading} 
+          />
+        </TabsContent>
+
+        <TabsContent value="runtime">
+          <LogsTable 
+            logs={getMetricsByType(['error_runtime', 'error_unhandled_rejection'])} 
             isLoading={isLoading} 
           />
         </TabsContent>
 
         <TabsContent value="auth">
           <LogsTable 
-            logs={logs?.filter(log => 
-              log.type.includes('auth')
-            ) || []} 
+            logs={getMetricsByType('auth')} 
+            isLoading={isLoading} 
+          />
+        </TabsContent>
+
+        <TabsContent value="api">
+          <LogsTable 
+            logs={getMetricsByType(['api_request', 'api_error'])} 
             isLoading={isLoading} 
           />
         </TabsContent>

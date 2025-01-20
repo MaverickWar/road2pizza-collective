@@ -5,19 +5,19 @@ import { toast } from 'sonner';
 const SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
 
-// Enhanced error handling for fetch operations
+// Enhanced fetch implementation with better error handling
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   try {
     console.log('Making Supabase request to:', typeof input === 'string' ? input : input.toString());
     
-    // Ensure headers are properly set
+    // Create new headers with authentication
     const headers = new Headers(init?.headers);
     headers.set('apikey', SUPABASE_ANON_KEY);
     headers.set('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
     
     const response = await fetch(input, {
       ...init,
-      headers
+      headers,
     });
 
     if (!response.ok) {
@@ -26,6 +26,11 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
         statusText: response.statusText,
         url: response.url,
       });
+      
+      // Log the response body for debugging
+      const errorBody = await response.text();
+      console.error('Error response body:', errorBody);
+      
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -48,7 +53,6 @@ export const supabase = createClient<Database>(
       detectSessionInUrl: true,
       storage: localStorage,
       storageKey: 'supabase.auth.token',
-      flowType: 'pkce',
     },
     global: {
       fetch: customFetch,
@@ -64,7 +68,10 @@ export const supabase = createClient<Database>(
 export const checkSupabaseConnection = async () => {
   try {
     console.log('Checking Supabase connection...');
-    const { data, error } = await supabase.from('profiles').select('count').limit(1);
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1);
     
     if (error) {
       console.error('Supabase health check failed:', error);

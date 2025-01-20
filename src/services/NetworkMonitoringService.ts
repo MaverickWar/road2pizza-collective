@@ -58,10 +58,20 @@ class NetworkMonitoringService {
       console.log('Making fetch request to:', url, 'with headers:', Object.fromEntries(headers.entries()));
       const response = await fetch(input, { 
         ...init, 
-        headers
+        headers,
+        credentials: 'include' // Include credentials for cross-origin requests
       });
       const endTime = performance.now();
       const responseTime = endTime - startTime;
+
+      if (!response.ok) {
+        console.error('Request failed:', {
+          url,
+          status: response.status,
+          statusText: response.statusText
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
       // Only log API requests that aren't analytics logging
       if (!url.includes('analytics_metrics')) {
@@ -69,17 +79,8 @@ class NetworkMonitoringService {
           url,
           startTime,
           response.status,
-          responseTime,
-          response.ok ? undefined : new Error(`HTTP ${response.status}`)
+          responseTime
         ).catch(console.error);
-      }
-      
-      if (!response.ok) {
-        console.error('Request failed:', {
-          url,
-          status: response.status,
-          statusText: response.statusText
-        });
       }
       
       return response;

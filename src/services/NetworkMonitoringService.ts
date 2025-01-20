@@ -1,5 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
-
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   
@@ -21,17 +19,38 @@ class NetworkMonitoringService {
     console.log('Monitoring fetch request:', { url, init });
     
     try {
+      // Add authorization header if missing
+      if (!init?.headers?.['Authorization']) {
+        init = {
+          ...init,
+          headers: {
+            ...init?.headers,
+            'apikey': process.env.VITE_SUPABASE_ANON_KEY || '',
+            'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY || ''}`,
+          }
+        };
+      }
+
       const response = await fetch(input, init);
       const endTime = performance.now();
-      
-      // Log the API request
-      await this.logApiRequest(url, startTime, response.status);
+      const responseTime = endTime - startTime;
+
+      // Log successful requests
+      await this.logApiRequest(
+        url,
+        startTime,
+        response.status,
+        responseTime,
+        response.ok ? undefined : new Error(`HTTP ${response.status}`)
+      );
       
       return response;
     } catch (error) {
       console.error('Fetch error:', error);
+      const endTime = performance.now();
+      
       if (error instanceof Error) {
-        await this.logApiRequest(url, startTime, 500, error);
+        await this.logApiRequest(url, startTime, 500, endTime - startTime, error);
       }
       throw error;
     }
@@ -66,8 +85,10 @@ class NetworkMonitoringService {
           },
           http_status: event.httpStatus,
           endpoint_path: event.url ? new URL(event.url).pathname : null,
-          response_time: event.responseTime
-        }]);
+          response_time: event.responseTime,
+          timestamp: new Date().toISOString()
+        }])
+        .select();
 
       if (error) {
         console.error('Error logging network event:', error);
@@ -78,7 +99,8 @@ class NetworkMonitoringService {
       return data;
     } catch (error) {
       console.error('Failed to log network event:', error);
-      throw error;
+      // Don't throw here to prevent infinite loops
+      return null;
     }
   }
 
@@ -91,14 +113,15 @@ class NetworkMonitoringService {
       severity: 'high',
       status: 'open',
       errorDetails: error.stack,
-      metadata
+      metadata: {
+        ...metadata,
+        errorType: error.name,
+        componentStack: metadata?.componentStack
+      }
     });
   }
 
-  async logApiRequest(url: string, startTime: number, status: number, error?: Error) {
-    const endTime = performance.now();
-    const responseTime = endTime - startTime;
-
+  async logApiRequest(url: string, startTime: number, status: number, responseTime: number, error?: Error) {
     console.log('Logging API request:', {
       url,
       status,
@@ -114,32 +137,11 @@ class NetworkMonitoringService {
       url,
       httpStatus: status,
       responseTime,
-      errorDetails: error?.stack
-    });
-  }
-
-  async logAuthEvent(event: string, metadata?: any) {
-    console.log('Logging auth event:', event, metadata);
-
-    return this.logNetworkEvent({
-      type: 'auth',
-      message: event,
-      severity: 'medium',
-      status: 'info',
-      metadata
-    });
-  }
-
-  async logPerformanceMetric(metric: string, value: number, metadata?: any) {
-    console.log('Logging performance metric:', metric, value, metadata);
-
-    return this.logNetworkEvent({
-      type: 'performance',
-      message: `Performance metric: ${metric}`,
-      severity: 'low',
-      status: 'info',
-      responseTime: value,
-      metadata
+      errorDetails: error?.stack,
+      metadata: {
+        method: 'GET',
+        timestamp: new Date(startTime).toISOString()
+      }
     });
   }
 }

@@ -19,7 +19,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-screen w-full mt-[96px] md:mt-[80px]">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{

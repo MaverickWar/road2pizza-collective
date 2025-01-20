@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     middlewareMode: false,
     headers: {
       // CORS headers
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': mode === 'development' ? '*' : 'https://api.lovable.dev',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
       'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Credentials': 'true',
@@ -31,10 +31,17 @@ export default defineConfig(({ mode }) => ({
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
       
+      // Cookie security
+      'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
+      
       // CSP - More permissive to allow Supabase connections
       'Content-Security-Policy': "default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * ws: wss:; img-src * data: blob:;"
     },
-    cors: true
+    cors: {
+      origin: mode === 'development' ? '*' : 'https://api.lovable.dev',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      credentials: true
+    }
   },
   preview: {
     host: "::",

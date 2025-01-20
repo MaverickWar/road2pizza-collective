@@ -48,14 +48,12 @@ class NetworkMonitoringService {
     const url = input instanceof Request ? input.url : input.toString();
     
     // Add required headers for Supabase requests
-    const headers = {
-      ...init?.headers,
-      'apikey': this.SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
-    };
+    const headers = new Headers(init?.headers || {});
+    headers.set('apikey', this.SUPABASE_ANON_KEY);
+    headers.set('Authorization', `Bearer ${this.SUPABASE_ANON_KEY}`);
     
     try {
-      console.log('Making fetch request to:', url);
+      console.log('Making fetch request to:', url, 'with headers:', Object.fromEntries(headers.entries()));
       const response = await fetch(input, { ...init, headers });
       const endTime = performance.now();
       const responseTime = endTime - startTime;
@@ -68,6 +66,14 @@ class NetworkMonitoringService {
           responseTime,
           response.ok ? undefined : new Error(`HTTP ${response.status}`)
         ).catch(console.error);
+      }
+      
+      if (!response.ok) {
+        console.error('Request failed:', {
+          url,
+          status: response.status,
+          statusText: response.statusText
+        });
       }
       
       return response;

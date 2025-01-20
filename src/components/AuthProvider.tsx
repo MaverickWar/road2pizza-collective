@@ -43,37 +43,62 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", { event, sessionExists: !!session });
+      console.log("[AuthProvider] Auth state change:", { 
+        event, 
+        sessionExists: !!session,
+        sessionUser: session?.user?.id,
+        currentPath: window.location.pathname
+      });
       
       if (event === 'SIGNED_OUT') {
-        console.log('User signed out, redirecting to login');
+        console.log('[AuthProvider] User signed out, redirecting to login');
         navigate('/login');
+      }
+
+      if (event === 'SIGNED_IN') {
+        console.log('[AuthProvider] User signed in:', {
+          userId: session?.user?.id,
+          email: session?.user?.email,
+          timestamp: new Date().toISOString()
+        });
       }
     });
 
     // Initial session check
     const checkSession = async () => {
       try {
+        console.log('[AuthProvider] Checking initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Session check error:', error);
+          console.error('[AuthProvider] Session check error:', {
+            error,
+            errorMessage: error.message,
+            timestamp: new Date().toISOString()
+          });
           navigate('/login');
           return;
         }
 
         if (!session) {
-          console.log('No active session');
+          console.log('[AuthProvider] No active session found');
           navigate('/login');
           return;
         }
 
-        console.log('Valid session found:', {
+        console.log('[AuthProvider] Valid session found:', {
           userId: session.user.id,
-          expiresAt: session.expires_at
+          email: session.user.email,
+          expiresAt: session.expires_at,
+          currentPath: window.location.pathname
         });
       } catch (error) {
-        console.error('Error checking session:', error);
+        console.error('[AuthProvider] Unexpected error checking session:', {
+          error,
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          timestamp: new Date().toISOString()
+        });
         navigate('/login');
       }
     };
@@ -81,27 +106,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkSession();
 
     return () => {
-      console.log('Cleaning up auth provider');
+      console.log('[AuthProvider] Cleaning up auth provider');
       mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
 
-  console.log("AuthProvider state:", { 
+  console.log("[AuthProvider] Current state:", { 
     user, 
     isAdmin, 
     isStaff, 
     loading, 
     isSuspended,
     showEmailPrompt,
-    showUsernamePrompt
+    showUsernamePrompt,
+    currentPath: window.location.pathname,
+    timestamp: new Date().toISOString()
   });
 
   if (loading) {
+    console.log('[AuthProvider] Still loading auth state...');
     return null;
   }
 
   if (isSuspended && user) {
+    console.log('[AuthProvider] User is suspended:', { userId: user.id });
     return (
       <div className="min-h-screen bg-background">
         <SuspensionNotice />

@@ -14,7 +14,7 @@ export const useAuthState = () => {
 
   const checkSuspensionStatus = async (userId: string) => {
     try {
-      console.log("Checking suspension status for user:", userId);
+      console.log("[useAuthState] Checking suspension status for user:", userId);
       const { data, error } = await supabase
         .from("profiles")
         .select("is_suspended")
@@ -22,14 +22,28 @@ export const useAuthState = () => {
         .single();
 
       if (error) {
-        console.error("Suspension check error:", error);
+        console.error("[useAuthState] Suspension check error:", {
+          error,
+          userId,
+          timestamp: new Date().toISOString()
+        });
         return false;
       }
 
-      console.log("Suspension check data:", data);
+      console.log("[useAuthState] Suspension check result:", {
+        userId,
+        isSuspended: data?.is_suspended,
+        timestamp: new Date().toISOString()
+      });
       return data?.is_suspended || false;
     } catch (error) {
-      console.error("Error checking suspension status:", error);
+      console.error("[useAuthState] Error checking suspension status:", {
+        error,
+        userId,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString()
+      });
       return false;
     }
   };

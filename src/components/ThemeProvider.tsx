@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { themeMonitor } from '@/services/ThemeMonitoringService';
 
 interface ThemeContextType {
   currentTheme: any;
@@ -76,6 +77,8 @@ const DEFAULT_THEME = {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [currentTheme, setCurrentTheme] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   useEffect(() => {
     loadActiveTheme();
@@ -84,16 +87,42 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const loadActiveTheme = async () => {
     try {
       console.log('Loading active theme...');
+      const startTime = performance.now();
+      
       const { data: theme, error } = await supabase
         .from('theme_settings')
         .select('*')
         .eq('is_active', true)
         .maybeSingle();
 
+      const duration = performance.now() - startTime;
+
       if (error) {
         console.error('Error loading theme:', error);
+        await themeMonitor.logThemeError({
+          ...error,
+          method: 'GET',
+          url: `${supabase.supabaseUrl}/rest/v1/theme_settings`,
+          error_type: 'theme_fetch_error'
+        });
+
+        if (retryCount < MAX_RETRIES) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(loadActiveTheme, 1000 * (retryCount + 1));
+          return;
+        }
+        
         throw error;
       }
+      
+      // Log successful theme load
+      await supabase.from('analytics_metrics').insert({
+        metric_name: 'theme_load_success',
+        metric_value: duration,
+        response_time: duration,
+        endpoint_path: '/rest/v1/theme_settings',
+        http_status: 200
+      });
       
       if (theme) {
         console.log('Active theme found:', theme);
@@ -104,13 +133,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setCurrentTheme(DEFAULT_THEME);
         applyTheme(DEFAULT_THEME);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading theme:', error);
+      await themeMonitor.logThemeError(error);
       toast.error('Failed to load theme settings');
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
     } finally {
       setIsLoading(false);
+      setRetryCount(0);
     }
   };
 

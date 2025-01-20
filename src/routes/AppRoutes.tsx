@@ -67,7 +67,7 @@ function AppRoutes() {
       <Route path="/dashboard/member" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/staff" element={<ProtectedRoute requireStaff><StaffDashboard /></ProtectedRoute>} />
       
-      {/* Admin routes */}
+      {/* Admin routes - No MainLayout wrapper */}
       <Route path="/dashboard/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/admin/analytics" element={<ProtectedRoute requireAdmin><Analytics /></ProtectedRoute>} />
       <Route path="/dashboard/admin/users" element={<ProtectedRoute requireAdmin><UserManagement /></ProtectedRoute>} />

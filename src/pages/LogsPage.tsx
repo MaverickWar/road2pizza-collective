@@ -25,17 +25,21 @@ const LogsPage = () => {
         .from("analytics_metrics")
         .select("*")
         .order("timestamp", { ascending: false })
-        .limit(500); // Increased limit to show more logs
+        .limit(500);
 
       if (error) {
         console.error("Error fetching logs:", error);
         throw error;
       }
 
-      console.log("Fetched logs:", data);
-      return data.map(log => {
+      if (!data || data.length === 0) {
+        console.log("No logs found in the database");
+      } else {
+        console.log(`Retrieved ${data.length} logs`);
+      }
+
+      return data?.map(log => {
         const metadata = log.metadata as MetadataType;
-        
         return {
           id: log.id,
           type: log.metric_name,
@@ -50,12 +54,15 @@ const LogsPage = () => {
           endpoint: log.endpoint_path,
           error_details: metadata?.stack,
         };
-      });
+      }) || [];
     },
-    refetchInterval: 5000 // Refresh every 5 seconds
+    refetchInterval: 5000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
   if (error) {
+    console.error("Error in LogsPage:", error);
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />

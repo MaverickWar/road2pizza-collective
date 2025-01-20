@@ -1,24 +1,14 @@
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-type NetworkRequest = {
-  url: string;
-  startTime: number;
-  method: string;
-};
-
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
-  private activeRequests: Map<string, NetworkRequest>;
+  private activeRequests: Map<string, { url: string; startTime: number; method: string }>;
   private readonly TIMEOUT_MS = 10000;
-  private errorCount: number = 0;
-  private lastErrorTime: number = 0;
-  private readonly ERROR_THRESHOLD = 5;
-  private readonly ERROR_RESET_TIME = 60000;
 
   private constructor() {
     this.activeRequests = new Map();
-    console.log("Network monitoring service initialized");
+    this.logToAnalytics("service_start", "Network monitoring service initialized").catch(console.error);
   }
 
   static getInstance(): NetworkMonitoringService {
@@ -28,90 +18,60 @@ class NetworkMonitoringService {
     return NetworkMonitoringService.instance;
   }
 
-  private shouldLogError(): boolean {
-    const now = Date.now();
-    if (now - this.lastErrorTime > this.ERROR_RESET_TIME) {
-      this.errorCount = 0;
-    }
-    
-    if (this.errorCount >= this.ERROR_THRESHOLD) {
-      return false;
-    }
-    
-    this.errorCount++;
-    this.lastErrorTime = now;
-    return true;
-  }
-
   monitorFetch = async (
     input: RequestInfo | URL,
     init?: RequestInit
   ): Promise<Response> => {
-    const controller = new AbortController();
-    const id = Math.random().toString(36).substring(7);
     const startTime = performance.now();
-
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const method = init?.method || "GET";
-
-    // Enhanced logging for all requests
-    console.log(`[Network] Starting ${method} request to ${url}`, {
-      requestId: id,
-      timestamp: new Date().toISOString(),
-      headers: init?.headers,
-      body: init?.body ? JSON.parse(init.body as string) : undefined
-    });
-
-    // Log analytics metrics for the request
-    await this.logToAnalytics("request_started", `${method} request to ${url} started`, url);
+    const method = init?.method || 'GET';
+    const requestId = Math.random().toString(36).substring(7);
 
     try {
-      // Check session for authenticated requests
-      if (url.includes('supabase.co') && !url.includes('auth')) {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) {
-          console.warn('[Network] Attempting authenticated request without session:', { url, method });
-          await this.logToAnalytics("auth_error", "Attempted request without session", url);
-          return Promise.reject(new Error('No authenticated session'));
+      // Log request start
+      await this.logToAnalytics(
+        "request_start",
+        `${method} request to ${url}`,
+        url,
+        0,
+        {
+          requestId,
+          method,
+          headers: init?.headers ? JSON.stringify(Object.fromEntries(new Headers(init.headers).entries())) : undefined
         }
-      }
+      );
 
-      const response = await fetch(input, { ...init, signal: controller.signal });
+      const response = await fetch(input, init);
       const duration = performance.now() - startTime;
 
-      // Enhanced response logging
-      console.log(`[Network] Completed ${method} request to ${url}`, {
-        requestId: id,
-        status: response.status,
-        duration: `${duration.toFixed(0)}ms`,
-        timestamp: new Date().toISOString(),
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
-      // Log performance metrics
+      // Log successful response
       await this.logToAnalytics(
-        "response_time",
-        `Request completed in ${duration.toFixed(0)}ms`,
+        "request_complete",
+        `${method} request completed`,
         url,
-        duration
+        duration,
+        {
+          requestId,
+          status: response.status,
+          statusText: response.statusText,
+          headers: JSON.stringify(Object.fromEntries(response.headers.entries())),
+          duration: `${duration.toFixed(0)}ms`
+        }
       );
 
       if (!response.ok) {
+        // Log error response
         const errorBody = await response.clone().text();
-        console.error(`[Network] Error response from ${url}:`, {
-          status: response.status,
-          body: errorBody,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-        
         await this.logToAnalytics(
-          "http_error",
+          "request_error",
           `HTTP ${response.status} error for ${method} ${url}`,
           url,
           duration,
           {
+            requestId,
             error: errorBody,
-            status: response.status
+            status: response.status,
+            severity: response.status >= 500 ? "high" : "medium"
           }
         );
       }
@@ -120,20 +80,17 @@ class NetworkMonitoringService {
     } catch (error: any) {
       const duration = performance.now() - startTime;
       
-      console.error(`[Network] Request failed for ${url}:`, {
-        error: error.message,
-        stack: error.stack,
-        duration: `${duration.toFixed(0)}ms`
-      });
-
+      // Log network error
       await this.logToAnalytics(
         "network_error",
         error.message,
         url,
         duration,
         {
+          requestId,
           errorType: error.name,
-          stack: error.stack
+          stack: error.stack,
+          severity: "high"
         }
       );
 
@@ -144,34 +101,28 @@ class NetworkMonitoringService {
   private async logToAnalytics(
     type: string,
     message: string,
-    url: string,
-    duration?: number,
-    additionalMetadata?: Record<string, any>
+    url?: string,
+    duration: number = 0,
+    additionalMetadata: Record<string, any> = {}
   ) {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const metadata = {
-        message,
-        url,
-        timestamp: new Date().toISOString(),
-        user_id: session?.user?.id,
-        severity: this.getSeverityLevel(type),
-        status: 'open',
-        ...additionalMetadata
-      };
-
       const { error } = await supabase.from("analytics_metrics").insert({
         metric_name: type,
-        metric_value: duration || 0,
-        metadata,
-        http_status: additionalMetadata?.status,
+        metric_value: duration,
+        metadata: {
+          message,
+          url,
+          timestamp: new Date().toISOString(),
+          severity: this.getSeverityLevel(type),
+          status: 'open',
+          ...additionalMetadata
+        },
         endpoint_path: url,
-        response_time: duration
+        response_time: duration > 0 ? duration : null,
       });
 
       if (error) {
-        console.error("[Analytics] Error logging to analytics:", error);
+        console.error("[Analytics] Failed to log event:", error);
       }
     } catch (err) {
       console.error("[Analytics] Unexpected error logging to analytics:", err);
@@ -179,21 +130,14 @@ class NetworkMonitoringService {
   }
 
   private getSeverityLevel(type: string): string {
-    switch (type) {
-      case 'network_error':
-      case 'http_error':
-        return 'high';
-      case 'slow_request':
-        return 'medium';
-      default:
-        return 'low';
-    }
+    if (type.includes('error')) return 'high';
+    if (type.includes('warning')) return 'medium';
+    return 'low';
   }
 
   public cleanup() {
-    console.log("Cleaning up active network requests...");
     this.activeRequests.clear();
-    this.errorCount = 0;
+    this.logToAnalytics("service_cleanup", "Network monitoring service cleaned up").catch(console.error);
   }
 }
 

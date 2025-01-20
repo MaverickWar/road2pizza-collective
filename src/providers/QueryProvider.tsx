@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export function QueryProvider({ children }: { children: ReactNode }) {
-  // Create QueryClient instance that persists across re-renders
   const queryClient = useRef(
     new QueryClient({
       defaultOptions: {
@@ -20,13 +19,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           refetchOnWindowFocus: false, // Prevent unnecessary refetches
           refetchOnReconnect: true,
           refetchOnMount: true,
-          // Use suspense for better loading handling
-          suspense: true,
           useErrorBoundary: true,
           meta: {
             errorHandler: (error: any) => {
               console.error('Query error:', error);
-              // Only show one error toast per error type
               toast.error(error?.message || 'An error occurred while fetching data', {
                 id: `query-error-${error?.code || 'unknown'}`,
               });
@@ -38,7 +34,6 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   ).current;
 
   useEffect(() => {
-    // Only clear cache on sign out to prevent unnecessary refetches
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       console.log('Auth state changed:', event);
       if (event === 'SIGNED_OUT') {

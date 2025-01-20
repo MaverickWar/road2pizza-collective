@@ -13,12 +13,14 @@ type AuthContextType = {
   user: (User & Partial<Profile>) | null;
   isAdmin: boolean;
   isStaff: boolean;
+  isLoading: boolean; // Added isLoading to the type
 };
 
 const AuthContext = createContext<AuthContextType>({ 
   user: null, 
   isAdmin: false,
-  isStaff: false 
+  isStaff: false,
+  isLoading: true // Added default value
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -123,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, isStaff }}>
+    <AuthContext.Provider value={{ user, isAdmin, isStaff, isLoading: loading }}>
       {showEmailPrompt && user ? (
         <EmailPromptDialog
           open={showEmailPrompt}

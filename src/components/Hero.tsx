@@ -19,7 +19,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative w-full pt-16 md:pt-24" style={{ minHeight: 'calc(100vh - 64px)' }}>
+    <section className="relative w-full pt-24 md:pt-32" style={{ minHeight: 'calc(100vh - 64px)' }}>
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{

@@ -38,31 +38,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   } = useAuthState();
 
   useEffect(() => {
+    let mounted = true;
     let refreshTimer: NodeJS.Timeout;
 
     const setupSessionRefresh = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        // Calculate time until token needs refresh (5 minutes before expiry)
-        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (expiresIn > 0) {
+        if (sessionError) {
+          console.error('Error getting session:', sessionError);
+          return;
+        }
+
+        if (!session?.refresh_token || !session?.expires_at) {
+          console.log('No valid session found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        // Calculate time until token needs refresh (5 minutes before expiry)
+        const expiresAt = new Date(session.expires_at).getTime();
+        const timeUntilExpiry = expiresAt - Date.now();
+        const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000); // 5 minutes before expiry
+
+        console.log('Session expires in:', Math.floor(timeUntilExpiry / 1000), 'seconds');
+        console.log('Will refresh in:', Math.floor(refreshTime / 1000), 'seconds');
+
+        if (refreshTime > 0 && mounted) {
           refreshTimer = setTimeout(async () => {
-            const { data, error } = await supabase.auth.refreshSession();
-            if (error) {
-              console.error('Session refresh failed:', error);
-              toast.error("Your session has expired. Please sign in again.");
+            try {
+              const { data, error } = await supabase.auth.refreshSession();
+              
+              if (error) {
+                console.error('Session refresh failed:', error);
+                if (error.message.includes('refresh_token_not_found')) {
+                  toast.error("Your session has expired. Please sign in again.");
+                  await supabase.auth.signOut();
+                  navigate('/login');
+                  return;
+                }
+              } else {
+                console.log('Session refreshed successfully:', data.session?.expires_at);
+                setupSessionRefresh(); // Setup next refresh
+              }
+            } catch (error) {
+              console.error('Unexpected error during session refresh:', error);
+              toast.error("Session refresh failed. Please sign in again.");
               await supabase.auth.signOut();
               navigate('/login');
-            } else {
-              console.log('Session refreshed successfully:', data.session?.expires_at);
-              setupSessionRefresh(); // Setup next refresh
             }
-          }, expiresIn);
+          }, refreshTime);
         }
+      } catch (error) {
+        console.error('Error in setupSessionRefresh:', error);
       }
     };
 
+    // Initial setup
     setupSessionRefresh();
 
     const {
@@ -81,20 +113,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
-    });
 
-    // Handle refresh token errors globally
-    window.addEventListener('supabase.auth.error', (event: any) => {
-      if (event.detail?.error?.message?.includes('refresh_token_not_found')) {
-        console.log('Invalid refresh token, signing out user');
-        toast.error("Your session has expired. Please sign in again.");
-        supabase.auth.signOut().then(() => {
-          navigate('/login');
-        });
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in, setting up session refresh');
+        setupSessionRefresh();
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
       clearTimeout(refreshTimer);
     };

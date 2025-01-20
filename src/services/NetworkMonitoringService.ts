@@ -48,6 +48,11 @@ class NetworkMonitoringService {
     }
   };
 
+  private async isAuthenticated(): Promise<boolean> {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  }
+
   async logNetworkEvent(event: {
     type: string;
     message: string;
@@ -62,10 +67,9 @@ class NetworkMonitoringService {
     console.log('Logging network event:', event);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        console.log('No active session, skipping analytics logging');
+      // Only proceed if user is authenticated
+      if (!await this.isAuthenticated()) {
+        console.log('User not authenticated, skipping analytics logging');
         return null;
       }
 

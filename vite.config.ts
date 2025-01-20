@@ -9,10 +9,15 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
+      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization, apikey, x-client-info',
+      'Access-Control-Allow-Credentials': 'true',
       'Cache-Control': 'no-store, no-cache, must-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0',
     },
+    cors: true
   },
   preview: {
     host: "::",
@@ -27,7 +32,6 @@ export default defineConfig(({ mode }) => ({
       },
     },
     sourcemap: true,
-    // Ensure proper cache busting
     assetsDir: '_assets',
     modulePreload: {
       polyfill: true,

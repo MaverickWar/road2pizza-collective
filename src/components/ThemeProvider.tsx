@@ -62,30 +62,48 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       console.log('Loading active theme...', { isAuthenticated: !!user });
       setIsLoading(true);
 
-      const { data: publicTheme, error } = await supabase
-        .from('theme_settings')
-        .select('*')
-        .eq('is_active', true)
-        .eq('is_admin_theme', false)
-        .limit(1)
-        .maybeSingle();
+      // Add retry logic for network issues
+      let retryCount = 0;
+      const maxRetries = 3;
+      let success = false;
 
-      if (error) {
-        console.error('Error loading public theme:', error);
-        toast.error('Failed to load theme settings. Using default theme.');
-        setCurrentTheme(DEFAULT_THEME);
-        applyTheme(DEFAULT_THEME);
-        return;
-      }
+      while (!success && retryCount < maxRetries) {
+        try {
+          const { data: publicTheme, error } = await supabase
+            .from('theme_settings')
+            .select('*')
+            .eq('is_active', true)
+            .eq('is_admin_theme', false)
+            .limit(1)
+            .maybeSingle();
 
-      if (publicTheme) {
-        console.log('Active public theme found:', publicTheme);
-        setCurrentTheme(publicTheme);
-        applyTheme(publicTheme);
-      } else {
-        console.log('No active public theme found, using default theme');
-        setCurrentTheme(DEFAULT_THEME);
-        applyTheme(DEFAULT_THEME);
+          if (error) {
+            console.error(`Attempt ${retryCount + 1} failed:`, error);
+            retryCount++;
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+              continue;
+            }
+            throw error;
+          }
+
+          if (publicTheme) {
+            console.log('Active public theme found:', publicTheme);
+            setCurrentTheme(publicTheme);
+            applyTheme(publicTheme);
+          } else {
+            console.log('No active public theme found, using default theme');
+            setCurrentTheme(DEFAULT_THEME);
+            applyTheme(DEFAULT_THEME);
+          }
+          success = true;
+
+        } catch (retryError) {
+          console.error(`Retry attempt ${retryCount + 1} failed:`, retryError);
+          retryCount++;
+          if (retryCount === maxRetries) throw retryError;
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
       }
     } catch (error: any) {
       console.error('Error in loadActiveTheme:', error);
@@ -99,7 +117,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadActiveTheme();
-  }, [user]); // Reload theme when auth state changes
+  }, [user]);
 
   const applyTheme = (theme: any) => {
     const root = document.documentElement;
@@ -147,29 +165,48 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       console.log('Setting new theme:', themeId);
       
-      const { data: newTheme, error } = await supabase
-        .from('theme_settings')
-        .select('*')
-        .eq('id', themeId)
-        .limit(1)
-        .maybeSingle();
+      let retryCount = 0;
+      const maxRetries = 3;
+      let success = false;
 
-      if (error) {
-        console.error('Error fetching theme:', error);
-        toast.error('Failed to apply theme');
-        return;
-      }
+      while (!success && retryCount < maxRetries) {
+        try {
+          const { data: newTheme, error } = await supabase
+            .from('theme_settings')
+            .select('*')
+            .eq('id', themeId)
+            .limit(1)
+            .maybeSingle();
 
-      if (newTheme) {
-        console.log('New theme applied:', newTheme);
-        setCurrentTheme(newTheme);
-        applyTheme(newTheme);
-        toast.success('Theme applied successfully');
-      } else {
-        console.log('Theme not found, using default');
-        setCurrentTheme(DEFAULT_THEME);
-        applyTheme(DEFAULT_THEME);
-        toast.error('Theme not found, using default');
+          if (error) {
+            console.error(`Attempt ${retryCount + 1} failed:`, error);
+            retryCount++;
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+              continue;
+            }
+            throw error;
+          }
+
+          if (newTheme) {
+            console.log('New theme applied:', newTheme);
+            setCurrentTheme(newTheme);
+            applyTheme(newTheme);
+            toast.success('Theme applied successfully');
+          } else {
+            console.log('Theme not found, using default');
+            setCurrentTheme(DEFAULT_THEME);
+            applyTheme(DEFAULT_THEME);
+            toast.error('Theme not found, using default');
+          }
+          success = true;
+
+        } catch (retryError) {
+          console.error(`Retry attempt ${retryCount + 1} failed:`, retryError);
+          retryCount++;
+          if (retryCount === maxRetries) throw retryError;
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
       }
     } catch (error) {
       console.error('Error setting theme:', error);

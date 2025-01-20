@@ -100,6 +100,13 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
     mutation.mutate(values);
   };
 
+  const formData = form.watch();
+  const setFormData = (data: Partial<ReviewFormData>) => {
+    Object.entries(data).forEach(([key, value]) => {
+      form.setValue(key as keyof ReviewFormData, value as any);
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -113,7 +120,7 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
 
           <div className="mt-6">
             <TabsContent value="basic">
-              <BasicInfoSection form={form} />
+              <BasicInfoSection formData={formData} setFormData={setFormData} />
             </TabsContent>
 
             <TabsContent value="media">
@@ -121,11 +128,11 @@ const ReviewForm = ({ review, onSuccess }: ReviewFormProps) => {
             </TabsContent>
 
             <TabsContent value="ratings">
-              <RatingSection form={form} />
+              <RatingSection formData={formData} setFormData={setFormData} />
             </TabsContent>
 
             <TabsContent value="proscons">
-              <ProsCons form={form} />
+              <ProsCons formData={formData} setFormData={setFormData} />
             </TabsContent>
           </div>
         </Tabs>

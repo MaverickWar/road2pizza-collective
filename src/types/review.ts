@@ -23,29 +23,20 @@ export const reviewSchema = z.object({
 
 export type ReviewFormData = z.infer<typeof reviewSchema>;
 
-export interface ReviewData {
+export interface ReviewData extends Omit<ReviewFormData, 'imageUrl' | 'additionalImages' | 'videoUrl' | 'videoProvider'> {
   id: string;
-  title: string;
-  author: string;
-  brand: string;
-  model?: string;
-  category: string;
-  price_range?: string;
-  content: string;
-  rating: number;
-  durability_rating: number;
-  value_rating: number;
-  ease_of_use_rating: number;
-  is_featured: boolean;
   image_url?: string;
   images?: string[];
   video_url?: string;
   video_provider?: string;
-  pros?: string[];
-  cons?: string[];
   created_at: string;
   created_by?: string;
   profiles?: {
     username: string;
   };
+}
+
+export interface FormSectionProps {
+  formData: ReviewFormData;
+  setFormData: (data: Partial<ReviewFormData>) => void;
 }

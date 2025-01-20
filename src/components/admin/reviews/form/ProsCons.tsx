@@ -3,24 +3,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Plus, Minus } from "lucide-react";
-import type { ReviewFormData } from "../ReviewForm";
+import type { FormSectionProps } from "@/types/review";
 
-interface ProsConsProps {
-  formData: ReviewFormData;
-  setFormData: (data: ReviewFormData) => void;
-}
-
-const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
+const ProsCons = ({ formData, setFormData }: FormSectionProps) => {
   const addPro = () => {
     setFormData({
-      ...formData,
       pros: [...formData.pros, ""]
     });
   };
 
   const addCon = () => {
     setFormData({
-      ...formData,
       cons: [...formData.cons, ""]
     });
   };
@@ -29,7 +22,6 @@ const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
     const newPros = [...formData.pros];
     newPros[index] = value;
     setFormData({
-      ...formData,
       pros: newPros
     });
   };
@@ -38,21 +30,18 @@ const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
     const newCons = [...formData.cons];
     newCons[index] = value;
     setFormData({
-      ...formData,
       cons: newCons
     });
   };
 
   const removePro = (index: number) => {
     setFormData({
-      ...formData,
       pros: formData.pros.filter((_, i) => i !== index)
     });
   };
 
   const removeCon = (index: number) => {
     setFormData({
-      ...formData,
       cons: formData.cons.filter((_, i) => i !== index)
     });
   };

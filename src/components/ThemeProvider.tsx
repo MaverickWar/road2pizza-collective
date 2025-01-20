@@ -62,16 +62,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       console.log('Loading active theme...', { isAuthenticated: !!user });
       setIsLoading(true);
 
-      // First try to load the public theme
-      const { data: publicTheme, error: publicError } = await supabase
+      const { data: publicTheme, error } = await supabase
         .from('theme_settings')
         .select('*')
         .eq('is_active', true)
         .eq('is_admin_theme', false)
-        .maybeSingle();
+        .maybeSingle()
+        .throwOnError();
 
-      if (publicError) {
-        console.error('Error loading public theme:', publicError);
+      if (error) {
+        console.error('Error loading public theme:', error);
         setCurrentTheme(DEFAULT_THEME);
         applyTheme(DEFAULT_THEME);
         return;
@@ -90,7 +90,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       console.error('Error in loadActiveTheme:', error);
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
-      toast.error('Failed to load theme settings. Using default theme.');
+      // Only show toast error once
+      toast.error('Failed to load theme settings');
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +151,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .from('theme_settings')
         .select('*')
         .eq('id', themeId)
-        .maybeSingle();
+        .maybeSingle()
+        .throwOnError();
 
       if (error) throw error;
 

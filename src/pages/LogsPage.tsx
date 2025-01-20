@@ -24,9 +24,9 @@ const LogsPage = () => {
       return data.map(log => ({
         id: log.id,
         type: log.metric_name,
-        message: log.metadata?.message || "No message provided",
-        severity: log.metadata?.severity || "low",
-        status: log.metadata?.status || "open",
+        message: typeof log.metadata === 'object' && log.metadata ? log.metadata.message || "No message provided" : "No message provided",
+        severity: typeof log.metadata === 'object' && log.metadata ? log.metadata.severity || "low" : "low",
+        status: typeof log.metadata === 'object' && log.metadata ? log.metadata.status || "open" : "open",
         created_at: log.timestamp
       }));
     },

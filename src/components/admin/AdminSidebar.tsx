@@ -32,19 +32,23 @@ const menuItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
-  const { state, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar, isMobile, openMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   
   return (
-    <Sidebar className={cn(
-      "fixed top-0 left-0 z-50 h-screen bg-white border-r border-admin-border shadow-admin transition-all duration-300",
-      collapsed ? "w-20" : "w-64"
-    )}>
+    <Sidebar 
+      className={cn(
+        "fixed top-0 left-0 z-50 h-screen bg-white border-r border-admin-border shadow-admin transition-all duration-300",
+        collapsed ? "w-20" : "w-64",
+        isMobile && "w-64"
+      )}
+      side="left"
+    >
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between p-4 border-b border-admin-border">
           <h2 className={cn(
             "font-semibold transition-all duration-300",
-            collapsed ? "opacity-0 w-0" : "opacity-100 text-lg text-admin"
+            (collapsed && !isMobile) ? "opacity-0 w-0" : "opacity-100 text-lg text-admin"
           )}>
             Admin Panel
           </h2>
@@ -65,6 +69,7 @@ export function AdminSidebar() {
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => isMobile && setOpenMobile(false)}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-admin-foreground transition-colors",
                   "hover:bg-admin/10 hover:text-admin",
@@ -74,7 +79,7 @@ export function AdminSidebar() {
                 <item.icon className="h-5 w-5 shrink-0" />
                 <span className={cn(
                   "transition-all duration-300",
-                  collapsed ? "opacity-0 w-0" : "opacity-100"
+                  (collapsed && !isMobile) ? "opacity-0 w-0" : "opacity-100"
                 )}>
                   {item.label}
                 </span>

@@ -12,16 +12,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen bg-admin-background">
         <div className="flex min-h-screen">
-          {/* Sidebar - fixed position */}
+          {/* Sidebar */}
           <AdminSidebar />
           
-          {/* Main content area - flex grow */}
+          {/* Main content area */}
           <div className="flex-1 flex flex-col min-h-screen">
-            {/* Header - sticky at top of content area */}
+            {/* Header */}
             <AdminHeader />
             
-            {/* Main content - scrollable */}
-            <main className="flex-1 p-6 pt-24">
+            {/* Main content */}
+            <main className="flex-1 p-6 pt-24 md:pl-64">
               {children}
             </main>
             

@@ -18,7 +18,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Analytics from "@/pages/admin/Analytics";
 import UserManagement from "@/pages/admin/AdminUsersPage";
 import RecipeManagement from "@/pages/admin/RecipeManagement";
-import ReviewManagement from "@/pages/admin/ReviewManagement";
+import ReviewManagementPage from "@/pages/admin/ReviewManagement";
 import RewardsManagement from "@/pages/admin/RewardsManagement";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 import NotificationManagement from "@/pages/admin/NotificationManagement";
@@ -60,7 +60,7 @@ export function AppRoutes() {
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/users" element={<UserManagement />} />
               <Route path="/recipes" element={<RecipeManagement />} />
-              <Route path="/review-management" element={<ReviewManagement />} />
+              <Route path="/review-management" element={<ReviewManagementPage />} />
               <Route path="/rewards" element={<RewardsManagement />} />
               <Route path="/pizza-types" element={<PizzaTypeManagement />} />
               <Route path="/notifications" element={<NotificationManagement />} />

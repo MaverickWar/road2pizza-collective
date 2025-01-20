@@ -97,12 +97,12 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     : currentUnpinnedThreads;
 
   return (
-    <Card className="overflow-hidden bg-card hover:bg-card/80 transition-colors">
-      <div className="p-6 bg-background-secondary border-b border-border">
+    <Card className="overflow-hidden bg-gradient-to-br from-card to-card/80 hover:from-card/90 hover:to-card/70 transition-colors shadow-lg border border-border/50">
+      <div className="p-6 bg-gradient-to-r from-accent/10 to-transparent border-b border-border/50">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-textLight">
+              <h3 className="text-xl font-semibold text-primary">
                 {category.name}
               </h3>
               {isAdmin && (
@@ -122,7 +122,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="secondary" className="bg-secondary hover:bg-secondary-hover text-secondary-foreground">
+              <Button variant="secondary" className="bg-primary/10 hover:bg-primary/20 text-primary">
                 <Plus className="w-4 h-4 mr-2" />
                 <span className="sm:inline hidden">New Thread</span>
                 <span className="sm:hidden inline">New</span>
@@ -137,15 +137,15 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                   placeholder="Thread Title"
                   value={newThread.title}
                   onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
-                  className="bg-background"
+                  className="bg-background/50 border-accent/20 focus:border-accent"
                 />
-                <div className="min-h-[200px]">
+                <div className="min-h-[200px] bg-background/50 rounded-lg border border-accent/20">
                   <Editor
                     content={newThread.content}
                     onChange={(content) => setNewThread({ ...newThread, content })}
                   />
                 </div>
-                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover text-accent-foreground">
+                <Button onClick={handleCreateThread} className="w-full bg-primary hover:bg-primary-hover text-primary-foreground">
                   Create Thread
                 </Button>
               </div>

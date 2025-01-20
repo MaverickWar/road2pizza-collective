@@ -18,19 +18,19 @@ interface ThreadItemProps {
 
 const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemProps) => {
   return (
-    <div className="p-4 hover:bg-secondary/20 transition-colors border-b border-border last:border-0">
+    <div className="p-4 hover:bg-accent/5 transition-colors border-b border-border/50 last:border-0">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             {thread.is_pinned && (
-              <Pin className="w-4 h-4 text-accent" />
+              <Pin className="w-4 h-4 text-primary" />
             )}
             {thread.is_locked && (
               <Lock className="w-4 h-4 text-destructive" />
             )}
             <Link
               to={`/community/forum/thread/${thread.id}`}
-              className="font-medium text-textLight hover:text-accent transition-colors truncate"
+              className="font-medium text-primary hover:text-primary-hover transition-colors truncate"
             >
               {thread.title}
             </Link>

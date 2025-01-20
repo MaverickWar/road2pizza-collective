@@ -122,29 +122,31 @@ const ForumCategories = () => {
 
   return (
     <div className="space-y-6">
-      <ForumBreadcrumbs />
+      <div className="bg-gradient-to-r from-accent to-accent/30 p-6 rounded-lg shadow-lg">
+        <ForumBreadcrumbs />
+      </div>
       
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-bold text-textLight">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-card p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-hover bg-clip-text text-transparent">
           Forum Categories
         </h2>
         <CategoryManager onCategoryAdded={fetchCategories} />
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center bg-card p-4 rounded-lg shadow-md border border-border/50">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />
           <Input
             placeholder="Search threads..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background"
+            className="pl-9 bg-background/50 border-accent/20 focus:border-accent"
           />
         </div>
         <div className="flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="bg-background hover:bg-background-secondary">
+              <Button variant="outline" className="bg-background/50 hover:bg-background border-accent/20 hover:border-accent">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
               </Button>
@@ -158,7 +160,7 @@ const ForumCategories = () => {
           <Button
             variant="outline"
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="bg-background hover:bg-background-secondary"
+            className="bg-background/50 hover:bg-background border-accent/20 hover:border-accent"
           >
             {sortOrder === 'asc' ? (
               <SortAsc className="h-4 w-4 mr-2" />
@@ -171,7 +173,7 @@ const ForumCategories = () => {
       </div>
 
       {filteredCategories.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground bg-background rounded-lg border border-border">
+        <div className="text-center py-8 text-muted-foreground bg-card rounded-lg border border-border/50 shadow-md">
           No categories available yet.
         </div>
       ) : (

@@ -9,37 +9,55 @@ import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation } from "react-router-dom";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, memo } from "react";
 import { useAuth } from "@/components/AuthProvider";
+
+// Memoize the layouts to prevent unnecessary re-renders
+const MemoizedMainLayout = memo(MainLayout);
+const MemoizedDashboardLayout = memo(DashboardLayout);
 
 function AppContent() {
   const location = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLoading } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
   useEffect(() => {
-    console.log("AppContent auth state:", { user, isAdmin, path: location.pathname });
-  }, [user, isAdmin, location.pathname]);
+    console.log("AppContent state:", { 
+      user, 
+      isAdmin, 
+      path: location.pathname,
+      isLoading 
+    });
+  }, [user, isAdmin, location.pathname, isLoading]);
 
-  // If on admin route but not admin, show loading while auth check completes
-  if (isAdminRoute && !isAdmin && user) {
+  // Show loading only during initial auth check
+  if (isLoading) {
     return <LoadingScreen />;
   }
 
+  // If on admin route but not admin, redirect will happen in ProtectedRoute
+  if (isAdminRoute && !isAdmin && user) {
+    return null;
+  }
+
+  // Only use one Suspense boundary at the app level
   return (
     <Suspense fallback={<LoadingScreen />}>
       {isAdminRoute ? (
-        <DashboardLayout>
+        <MemoizedDashboardLayout>
           <AppRoutes />
-        </DashboardLayout>
+        </MemoizedDashboardLayout>
       ) : (
-        <MainLayout>
+        <MemoizedMainLayout>
           <AppRoutes />
-        </MainLayout>
+        </MemoizedMainLayout>
       )}
     </Suspense>
   );
 }
+
+// Memoize AppContent to prevent unnecessary re-renders
+const MemoizedAppContent = memo(AppContent);
 
 function App() {
   return (
@@ -48,7 +66,7 @@ function App() {
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
-              <AppContent />
+              <MemoizedAppContent />
               <Toaster />
             </AuthProvider>
           </ThemeProvider>

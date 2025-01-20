@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import TopNav from './TopNav';
 import MainNav from './MainNav';
 
@@ -12,4 +13,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default memo(Navigation);

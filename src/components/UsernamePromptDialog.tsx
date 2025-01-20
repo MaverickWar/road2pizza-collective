@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { FormLayout, FormSection, FormActions } from "@/components/ui/form-layout";
 
 interface UsernamePromptDialogProps {
   open: boolean;
@@ -27,7 +28,6 @@ const UsernamePromptDialog = ({ open, userId, currentUsername, onUsernameSet }: 
       setIsSubmitting(true);
       console.log("Updating username for user:", userId);
 
-      // Check if username is already taken
       const { data: existingUser, error: checkError } = await supabase
         .from('profiles')
         .select('id')
@@ -63,32 +63,37 @@ const UsernamePromptDialog = ({ open, userId, currentUsername, onUsernameSet }: 
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-background border-0 shadow-lg sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Choose Your Username</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold">Choose Your Username</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <FormLayout>
           <p className="text-sm text-muted-foreground">
             Please choose a username to continue. Your current temporary username is {currentUsername}.
           </p>
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+          <FormSection>
+            <Label htmlFor="username" className="text-sm font-medium leading-none">
+              Username
+            </Label>
             <Input
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               disabled={isSubmitting}
+              className="w-full"
             />
-          </div>
-          <Button
-            className="w-full"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Set Username"}
-          </Button>
-        </div>
+          </FormSection>
+          <FormActions>
+            <Button
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Set Username"}
+            </Button>
+          </FormActions>
+        </FormLayout>
       </DialogContent>
     </Dialog>
   );

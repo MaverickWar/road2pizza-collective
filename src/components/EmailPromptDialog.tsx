@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { FormLayout, FormSection, FormActions } from "@/components/ui/form-layout";
 
 interface EmailPromptDialogProps {
   open: boolean;
@@ -45,13 +46,15 @@ const EmailPromptDialog = ({ open, userId, onEmailSet }: EmailPromptDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-background border-0 shadow-lg sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Email Required</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold">Email Required</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+        <FormLayout>
+          <FormSection>
+            <Label htmlFor="email" className="text-sm font-medium leading-none">
+              Email Address
+            </Label>
             <Input
               id="email"
               type="email"
@@ -59,16 +62,19 @@ const EmailPromptDialog = ({ open, userId, onEmailSet }: EmailPromptDialogProps)
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email address"
               disabled={isSubmitting}
+              className="w-full"
             />
-          </div>
-          <Button
-            className="w-full"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save Email"}
-          </Button>
-        </div>
+          </FormSection>
+          <FormActions>
+            <Button
+              className="w-full"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Email"}
+            </Button>
+          </FormActions>
+        </FormLayout>
       </DialogContent>
     </Dialog>
   );

@@ -19,7 +19,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative h-full w-full">
+    <section className="relative h-[calc(100vh-64px)] w-full">
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
@@ -29,8 +29,8 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
       
-      <div className="relative w-full h-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20 flex flex-col justify-center">
-        <div className="max-w-2xl mx-auto space-y-8 md:space-y-10">
+      <div className="relative h-full w-full flex flex-col justify-center">
+        <div className="max-w-2xl mx-auto px-4 space-y-8 md:space-y-10">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
             <span className="text-white">Master the Art of</span>
             <span className="block mt-2 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">Pizza Making</span>
@@ -63,8 +63,8 @@ const Hero = () => {
           </div>
         </div>
         
-        <div className="max-w-7xl mx-auto w-full mt-12 md:mt-16">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="w-full px-4 mt-12 md:mt-16">
+          <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {stats.map((stat, index) => (
               <div 
                 key={index}
@@ -78,7 +78,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

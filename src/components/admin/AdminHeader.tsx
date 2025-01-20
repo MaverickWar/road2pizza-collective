@@ -12,38 +12,37 @@ export const AdminHeader = () => {
 
   return (
     <div className="fixed top-0 right-0 left-0 z-40 bg-admin-gradient shadow-admin">
-      <div className="p-3 md:p-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center gap-3">
+      <div className="p-2 md:p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
             {isMobile && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-white hover:bg-white/10"
+                className="text-white hover:bg-white/10 h-8 w-8"
                 onClick={() => setOpenMobile(!openMobile)}
               >
-                <Menu className="h-5 w-5" />
+                <Menu className="h-4 w-4" />
               </Button>
             )}
-            <div className="flex flex-col md:flex-row md:items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-bold text-white">Admin Dashboard</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg md:text-xl font-bold text-white">Admin Dashboard</h1>
               <Link 
                 to="/" 
                 className={cn(
-                  "inline-flex items-center gap-2 px-3 py-1.5",
-                  "bg-white/10 rounded-lg border border-white/20 backdrop-blur-sm",
-                  "hover:bg-white/20 transition-colors w-fit"
+                  "inline-flex items-center justify-center",
+                  "w-8 h-8 rounded-lg bg-white/10 border border-white/20",
+                  "hover:bg-white/20 transition-colors"
                 )}
               >
                 <Home className="w-4 h-4 text-white" />
-                <span className="text-sm font-medium text-white whitespace-nowrap">Return to Site</span>
               </Link>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 rounded-lg border border-white/20 backdrop-blur-sm">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-2 py-1 bg-white/10 rounded-lg border border-white/20">
               <Shield className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white whitespace-nowrap">Admin Access</span>
+              <span className="text-sm font-medium text-white">Admin</span>
             </div>
             {user && <UserMenu user={user} isAdmin={true} />}
           </div>

@@ -37,9 +37,8 @@ const Community = () => {
     },
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-    onError: (error) => {
-      console.error('Failed to load leaderboard:', error);
-      toast.error("Failed to load leaderboard. Please try refreshing the page.");
+    meta: {
+      errorMessage: "Failed to load leaderboard. Please try refreshing the page."
     }
   });
 
@@ -59,7 +58,6 @@ const Community = () => {
         throw error;
       }
 
-      // Get user's rank
       const { count: rankData, error: rankError } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true })
@@ -93,6 +91,10 @@ const Community = () => {
       fetchUserStats();
     }
   }, [user]);
+
+  if (isLeaderboardError) {
+    toast.error("Failed to load leaderboard. Please try refreshing the page.");
+  }
 
   return (
     <div className="min-h-screen bg-background">

@@ -43,6 +43,7 @@ export function AppRoutes() {
       <Route path="/pizza/:style" element={<PizzaStyle />} />
       <Route path="/community" element={<Community />} />
       <Route path="/reviews" element={<Reviews />} />
+      <Route path="/logs" element={<LogsPage />} />
       
       {/* Protected routes */}
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -51,7 +52,6 @@ export function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/dashboard/member" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/staff" element={<ProtectedRoute requireStaff><StaffDashboard /></ProtectedRoute>} />
-      <Route path="/logs" element={<ProtectedRoute requireAdmin><LogsPage /></ProtectedRoute>} />
       
       {/* Admin routes - Wrapped in DashboardLayout */}
       <Route path="/dashboard/admin/*" element={

@@ -43,42 +43,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const setupSessionRefresh = async () => {
       try {
+        // Clear any existing session data
+        localStorage.removeItem('supabase.auth.token');
+        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Error getting session:', sessionError);
-          return;
-        }
-
-        if (!session?.refresh_token || !session?.expires_at) {
-          console.log('No valid session found, redirecting to login');
           navigate('/login');
           return;
         }
 
-        // Calculate time until token needs refresh (5 minutes before expiry)
-        const expiresAt = new Date(session.expires_at).getTime();
+        if (!session) {
+          console.log('No session found, redirecting to login');
+          navigate('/login');
+          return;
+        }
+
+        // Store the new session
+        localStorage.setItem('supabase.auth.token', JSON.stringify(session));
+
+        // Calculate refresh time (5 minutes before expiry)
+        const expiresAt = session.expires_at ? new Date(session.expires_at).getTime() : 0;
         const timeUntilExpiry = expiresAt - Date.now();
-        const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000); // 5 minutes before expiry
+        const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000);
 
-        console.log('Session expires in:', Math.floor(timeUntilExpiry / 1000), 'seconds');
-        console.log('Will refresh in:', Math.floor(refreshTime / 1000), 'seconds');
+        console.log('Session management:', {
+          expiresAt: new Date(expiresAt).toISOString(),
+          timeUntilExpiry: Math.floor(timeUntilExpiry / 1000),
+          refreshTime: Math.floor(refreshTime / 1000),
+          hasRefreshToken: !!session.refresh_token
+        });
 
-        if (refreshTime > 0 && mounted) {
+        if (refreshTime > 0 && mounted && session.refresh_token) {
           refreshTimer = setTimeout(async () => {
             try {
               const { data, error } = await supabase.auth.refreshSession();
               
               if (error) {
                 console.error('Session refresh failed:', error);
-                if (error.message.includes('refresh_token_not_found')) {
-                  toast.error("Your session has expired. Please sign in again.");
-                  await supabase.auth.signOut();
-                  navigate('/login');
-                  return;
-                }
-              } else {
-                console.log('Session refreshed successfully:', data.session?.expires_at);
+                toast.error("Session expired. Please sign in again.");
+                await supabase.auth.signOut();
+                navigate('/login');
+                return;
+              }
+
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              if (mounted) {
                 setupSessionRefresh(); // Setup next refresh
               }
             } catch (error) {
@@ -88,14 +99,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               navigate('/login');
             }
           }, refreshTime);
+        } else {
+          console.log('Session requires immediate refresh or is invalid');
+          await supabase.auth.signOut();
+          navigate('/login');
         }
       } catch (error) {
         console.error('Error in setupSessionRefresh:', error);
+        navigate('/login');
       }
     };
-
-    // Initial setup
-    setupSessionRefresh();
 
     const {
       data: { subscription },
@@ -104,23 +117,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
-        setupSessionRefresh(); // Setup next refresh after token refresh
+        if (mounted) {
+          setupSessionRefresh();
+        }
       }
       
       if (event === 'SIGNED_OUT') {
-        console.log('User signed out, redirecting to login');
+        console.log('User signed out, cleaning up');
         clearTimeout(refreshTimer);
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
 
       if (event === 'SIGNED_IN') {
-        console.log('User signed in, setting up session refresh');
-        setupSessionRefresh();
+        console.log('User signed in, setting up session');
+        if (mounted) {
+          setupSessionRefresh();
+        }
       }
     });
 
+    // Initial setup
+    setupSessionRefresh();
+
     return () => {
+      console.log('Cleaning up auth provider');
       mounted = false;
       subscription.unsubscribe();
       clearTimeout(refreshTimer);

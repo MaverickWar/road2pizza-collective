@@ -21,34 +21,20 @@ class NetworkMonitoringService {
     console.log('Monitoring fetch request:', { url, init });
     
     try {
-      // Get the current session
-      const { data: { session } } = await supabase.auth.getSession();
-      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : undefined;
-
-      // Add authorization header if missing
-      const headers = new Headers(init?.headers);
-      if (authHeader && !headers.has('Authorization')) {
-        headers.set('Authorization', authHeader);
-      }
-
-      // Create new init object with updated headers
-      const updatedInit = {
-        ...init,
-        headers
-      };
-
-      const response = await fetch(input, updatedInit);
+      const response = await fetch(input, init);
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      // Log successful requests
-      await this.logApiRequest(
-        url,
-        startTime,
-        response.status,
-        responseTime,
-        response.ok ? undefined : new Error(`HTTP ${response.status}`)
-      );
+      // Only log API requests, not static assets
+      if (url.includes('/api/') || url.includes('supabase')) {
+        await this.logApiRequest(
+          url,
+          startTime,
+          response.status,
+          responseTime,
+          response.ok ? undefined : new Error(`HTTP ${response.status}`)
+        );
+      }
       
       return response;
     } catch (error) {
@@ -76,6 +62,13 @@ class NetworkMonitoringService {
     console.log('Logging network event:', event);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.log('No active session, skipping analytics logging');
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('analytics_metrics')
         .insert([{
@@ -98,20 +91,19 @@ class NetworkMonitoringService {
 
       if (error) {
         console.error('Error logging network event:', error);
-        throw error;
+        return null;
       }
 
       console.log('Successfully logged network event:', data);
       return data;
     } catch (error) {
       console.error('Failed to log network event:', error);
-      // Don't throw here to prevent infinite loops
       return null;
     }
   }
 
   async logError(error: Error, metadata?: any) {
-    console.error('Logging error:', error);
+    console.log('Logging error:', error);
 
     return this.logNetworkEvent({
       type: 'error',

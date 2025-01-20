@@ -22,7 +22,6 @@ const initialFormData: ReviewFormData = {
   title: "",
   brand: "",
   category: "",
-  shortDescription: "",
   content: "",
   imageUrl: "",
   additionalImages: [],
@@ -30,20 +29,10 @@ const initialFormData: ReviewFormData = {
   videoProvider: "",
   pros: [""],
   cons: [""],
-  ratings: {
-    design: 5,
-    easeOfUse: 5,
-    portability: 5,
-    valueForMoney: 5,
-    reliability: 5,
-    descriptions: {
-      design: "",
-      easeOfUse: "",
-      portability: "",
-      valueForMoney: "",
-      reliability: "",
-    },
-  },
+  rating: 5,
+  durability_rating: 5,
+  value_rating: 5,
+  ease_of_use_rating: 5,
 };
 
 const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
@@ -53,11 +42,6 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
   const form = useForm<ReviewFormData>({
     defaultValues: initialFormData
   });
-
-  const calculateOverallRating = () => {
-    const { design, easeOfUse, portability, valueForMoney, reliability } = form.getValues().ratings;
-    return Math.round((design + easeOfUse + portability + valueForMoney + reliability) / 5);
-  };
 
   const handleSubmit = async (values: ReviewFormData) => {
     try {
@@ -75,10 +59,10 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
         video_provider: values.videoProvider,
         pros: values.pros.filter(Boolean),
         cons: values.cons.filter(Boolean),
-        rating: calculateOverallRating(),
-        durability_rating: Math.round(values.ratings.reliability),
-        value_rating: Math.round(values.ratings.valueForMoney),
-        ease_of_use_rating: Math.round(values.ratings.easeOfUse),
+        rating: values.rating,
+        durability_rating: values.durability_rating,
+        value_rating: values.value_rating,
+        ease_of_use_rating: values.ease_of_use_rating,
         created_by: user?.id,
         author: user?.username || "Anonymous",
         is_published: false
@@ -110,14 +94,7 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <div className="flex-1 overflow-y-auto">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="p-6 space-y-6 pb-24">
               <TabsContent value="basic" className="mt-0 space-y-6">
-                <BasicInfoSection 
-                  formData={form.getValues()} 
-                  setFormData={(data) => {
-                    Object.entries(data).forEach(([key, value]) => {
-                      form.setValue(key as keyof ReviewFormData, value);
-                    });
-                  }}
-                />
+                <BasicInfoSection form={form} />
               </TabsContent>
 
               <TabsContent value="media" className="mt-0 space-y-6">
@@ -125,25 +102,11 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
               </TabsContent>
 
               <TabsContent value="proscons" className="mt-0 space-y-6">
-                <ProsCons 
-                  formData={form.getValues()} 
-                  setFormData={(data) => {
-                    Object.entries(data).forEach(([key, value]) => {
-                      form.setValue(key as keyof ReviewFormData, value);
-                    });
-                  }}
-                />
+                <ProsCons form={form} />
               </TabsContent>
 
               <TabsContent value="ratings" className="mt-0 space-y-6">
-                <RatingSection 
-                  formData={form.getValues()} 
-                  setFormData={(data) => {
-                    Object.entries(data).forEach(([key, value]) => {
-                      form.setValue(key as keyof ReviewFormData, value);
-                    });
-                  }}
-                />
+                <RatingSection form={form} />
               </TabsContent>
             </form>
           </div>

@@ -2,58 +2,52 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus } from "lucide-react";
-import type { ReviewFormData } from "../ReviewForm";
+import { UseFormReturn } from "react-hook-form";
+import { ReviewFormData } from "@/types/review";
 
 interface ProsConsProps {
-  formData: ReviewFormData;
-  setFormData: (data: ReviewFormData) => void;
+  form: UseFormReturn<ReviewFormData>;
 }
 
-const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
+const ProsCons = ({ form }: ProsConsProps) => {
   const addPro = () => {
-    setFormData({
-      ...formData,
-      pros: [...formData.pros, ""]
-    });
+    const currentPros = form.getValues("pros") || [];
+    form.setValue("pros", [...currentPros, ""]);
   };
 
   const addCon = () => {
-    setFormData({
-      ...formData,
-      cons: [...formData.cons, ""]
-    });
+    const currentCons = form.getValues("cons") || [];
+    form.setValue("cons", [...currentCons, ""]);
   };
 
   const updatePro = (index: number, value: string) => {
-    const newPros = [...formData.pros];
+    const currentPros = form.getValues("pros") || [];
+    const newPros = [...currentPros];
     newPros[index] = value;
-    setFormData({
-      ...formData,
-      pros: newPros
-    });
+    form.setValue("pros", newPros);
   };
 
   const updateCon = (index: number, value: string) => {
-    const newCons = [...formData.cons];
+    const currentCons = form.getValues("cons") || [];
+    const newCons = [...currentCons];
     newCons[index] = value;
-    setFormData({
-      ...formData,
-      cons: newCons
-    });
+    form.setValue("cons", newCons);
   };
 
   const removePro = (index: number) => {
-    setFormData({
-      ...formData,
-      pros: formData.pros.filter((_, i) => i !== index)
-    });
+    const currentPros = form.getValues("pros") || [];
+    form.setValue(
+      "pros",
+      currentPros.filter((_, i) => i !== index)
+    );
   };
 
   const removeCon = (index: number) => {
-    setFormData({
-      ...formData,
-      cons: formData.cons.filter((_, i) => i !== index)
-    });
+    const currentCons = form.getValues("cons") || [];
+    form.setValue(
+      "cons",
+      currentCons.filter((_, i) => i !== index)
+    );
   };
 
   return (
@@ -73,7 +67,7 @@ const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
           </Button>
         </div>
         <div className="space-y-2">
-          {formData.pros.map((pro, index) => (
+          {(form.watch("pros") || [""]).map((pro, index) => (
             <div key={index} className="flex gap-2">
               <Input
                 value={pro}
@@ -109,7 +103,7 @@ const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
           </Button>
         </div>
         <div className="space-y-2">
-          {formData.cons.map((con, index) => (
+          {(form.watch("cons") || [""]).map((con, index) => (
             <div key={index} className="flex gap-2">
               <Input
                 value={con}

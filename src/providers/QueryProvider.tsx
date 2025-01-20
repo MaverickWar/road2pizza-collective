@@ -15,16 +15,17 @@ const queryClient = new QueryClient({
         if (error?.status === 404 || error?.status === 401) return false;
         return failureCount < 2;
       },
-      refetchOnWindowFocus: true, // Enable this to keep data fresh
+      refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,
-      // Add default error handling
-      onError: (error: any) => {
-        console.error('Query error:', error);
-        // Only show one error toast per error type
-        toast.error(error?.message || 'An error occurred while fetching data', {
-          id: `query-error-${error?.code || 'unknown'}`,
-        });
+      meta: {
+        errorHandler: (error: any) => {
+          console.error('Query error:', error);
+          // Only show one error toast per error type
+          toast.error(error?.message || 'An error occurred while fetching data', {
+            id: `query-error-${error?.code || 'unknown'}`,
+          });
+        }
       }
     },
   },

@@ -6,14 +6,18 @@ import { BookOpen } from "lucide-react";
 const RecipeManagementPage = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <BookOpen className="w-6 h-6" />
-            Recipe Management
-          </h1>
-        </div>
-        <RecipeManagement />
+      <div className="space-y-4">
+        <Card className="shadow-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+              <BookOpen className="w-5 h-5" />
+              Recipe Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecipeManagement />
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

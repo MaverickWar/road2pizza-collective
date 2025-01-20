@@ -5,9 +5,9 @@ import { Settings } from "lucide-react";
 const SiteSettings = () => {
   return (
     <DashboardLayout>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="shadow-sm">
+        <CardHeader className="space-y-1">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Settings className="w-5 h-5" />
             Site Settings
           </CardTitle>

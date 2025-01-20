@@ -5,9 +5,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 const NotificationManagement = () => {
   return (
     <DashboardLayout>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="shadow-sm">
+        <CardHeader className="space-y-1">
+          <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
             <Bell className="w-5 h-5" />
             Notification Management
           </CardTitle>

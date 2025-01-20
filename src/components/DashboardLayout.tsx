@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <AdminHeader />
             
             {/* Main content */}
-            <main className="flex-1 p-4 md:p-6 pt-20 md:pt-24 md:pl-64 transition-all duration-300">
+            <main className="flex-1 p-3 md:p-6 pt-16 md:pt-20 md:pl-64 transition-all duration-300">
               {children}
             </main>
             

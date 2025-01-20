@@ -35,6 +35,11 @@ export const useAuthState = () => {
   };
 
   const fetchUserProfile = async (userId: string) => {
+    if (!userId) {
+      console.log("No user ID provided to fetchUserProfile");
+      return null;
+    }
+
     try {
       console.log("Fetching profile for user:", userId);
       const { data: profile, error } = await supabase
@@ -68,6 +73,13 @@ export const useAuthState = () => {
   };
 
   const checkUserRoles = async (userId: string) => {
+    if (!userId) {
+      console.log("No user ID provided to checkUserRoles");
+      setIsAdmin(false);
+      setIsStaff(false);
+      return;
+    }
+
     try {
       console.log("Checking roles for user:", userId);
       const { data, error } = await supabase
@@ -95,7 +107,7 @@ export const useAuthState = () => {
   };
 
   const handleEmailSet = async () => {
-    if (user) {
+    if (user?.id) {
       const profile = await fetchUserProfile(user.id);
       setUser(profile ? { ...user, ...profile } : user);
       setShowEmailPrompt(false);
@@ -103,7 +115,7 @@ export const useAuthState = () => {
   };
 
   const handleUsernameSet = async () => {
-    if (user) {
+    if (user?.id) {
       const profile = await fetchUserProfile(user.id);
       setUser(profile ? { ...user, ...profile } : user);
       setShowUsernamePrompt(false);

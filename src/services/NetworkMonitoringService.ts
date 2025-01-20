@@ -10,11 +10,11 @@ type NetworkRequest = {
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   private activeRequests: Map<string, NetworkRequest>;
-  private readonly TIMEOUT_MS = 10000; // Increased timeout to 10 seconds
+  private readonly TIMEOUT_MS = 10000;
   private errorCount: number = 0;
   private lastErrorTime: number = 0;
   private readonly ERROR_THRESHOLD = 5;
-  private readonly ERROR_RESET_TIME = 60000; // 1 minute
+  private readonly ERROR_RESET_TIME = 60000;
 
   private constructor() {
     this.activeRequests = new Map();
@@ -59,7 +59,15 @@ class NetworkMonitoringService {
       return fetch(input, init);
     }
 
+    // Check if we have a valid session before making authenticated requests
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user && url.includes('supabase.co')) {
+      console.warn('Attempting authenticated request without session:', { url, method });
+      return Promise.reject(new Error('No authenticated session'));
+    }
+
     this.activeRequests.set(id, { url, startTime, method });
+    console.log(`Starting ${method} request to ${url}`, { requestId: id });
 
     const timeoutId = setTimeout(() => {
       controller.abort();
@@ -70,6 +78,12 @@ class NetworkMonitoringService {
       const response = await fetch(input, { ...init, signal: controller.signal });
       clearTimeout(timeoutId);
       const duration = performance.now() - startTime;
+
+      console.log(`Completed ${method} request to ${url}`, {
+        requestId: id,
+        status: response.status,
+        duration: `${duration.toFixed(0)}ms`
+      });
 
       if (!response.ok) {
         if (this.shouldLogError()) {
@@ -134,17 +148,16 @@ class NetworkMonitoringService {
             message,
             url,
             severity: type === "timeout" || type === "network_error" ? "high" : "low",
-            status: "open"
+            status: "open",
+            user_id: session.user.id // Add user_id to metadata
           }
         });
 
         if (error) {
-          // Log error but don't throw - this is non-critical functionality
           console.error("Error logging to analytics:", error);
         }
       }
     } catch (err) {
-      // Log error but don't throw - this is non-critical functionality
       console.error("Unexpected error logging to analytics:", err);
     }
   }

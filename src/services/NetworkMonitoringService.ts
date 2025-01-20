@@ -1,3 +1,5 @@
+import { supabase } from "@/integrations/supabase/client";
+
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   
@@ -19,19 +21,23 @@ class NetworkMonitoringService {
     console.log('Monitoring fetch request:', { url, init });
     
     try {
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession();
+      const authHeader = session?.access_token ? `Bearer ${session.access_token}` : undefined;
+
       // Add authorization header if missing
-      if (!init?.headers?.['Authorization']) {
-        init = {
-          ...init,
-          headers: {
-            ...init?.headers,
-            'apikey': process.env.VITE_SUPABASE_ANON_KEY || '',
-            'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY || ''}`,
-          }
-        };
+      const headers = new Headers(init?.headers);
+      if (authHeader && !headers.has('Authorization')) {
+        headers.set('Authorization', authHeader);
       }
 
-      const response = await fetch(input, init);
+      // Create new init object with updated headers
+      const updatedInit = {
+        ...init,
+        headers
+      };
+
+      const response = await fetch(input, updatedInit);
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 

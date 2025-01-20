@@ -7,11 +7,11 @@ interface LoadingScreenProps {
   showWelcome?: boolean;
 }
 
-const LoadingScreen = ({ duration = 2000, showWelcome = false }: LoadingScreenProps) => {
+const LoadingScreen = ({ duration = 1000, showWelcome = false }: LoadingScreenProps) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const interval = 20; // Update every 20ms for smoother animation
+    const interval = 10; // Update every 10ms for smoother animation
     const steps = duration / interval;
     const increment = 100 / steps;
     
@@ -29,9 +29,9 @@ const LoadingScreen = ({ duration = 2000, showWelcome = false }: LoadingScreenPr
   }, [duration]);
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in duration-300">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center animate-in fade-in-0 duration-200">
       <div className="flex flex-col items-center gap-6 max-w-md mx-auto p-6">
-        <div className="flex items-center space-x-3 group">
+        <div className="flex items-center space-x-3">
           <div className="w-12 h-12 bg-transparent border-2 border-accent rounded-full flex items-center justify-center">
             <Pizza className="w-7 h-7 text-accent animate-spin" />
           </div>

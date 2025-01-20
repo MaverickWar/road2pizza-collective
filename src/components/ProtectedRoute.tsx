@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import LoadingScreen from "./LoadingScreen";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -46,28 +47,27 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
     });
 
     if (!user) {
-      console.log("No user found, redirecting to login");
-      toast.error("Please login to access this page");
-      navigate("/login");
       return;
     }
 
     if (requireAdmin && !isAdmin) {
       console.log("Admin access required but user is not admin");
       toast.error("Admin access required");
-      navigate("/dashboard");
+      navigate("/");
       return;
     }
 
     if (requireStaff && !isAdmin && !isStaff) {
       console.log("Staff access required but user is not staff");
       toast.error("Staff access required");
-      navigate("/dashboard");
+      navigate("/");
       return;
     }
   }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate]);
 
-  if (!user) return null;
+  if (!user) {
+    return <LoadingScreen />;
+  }
 
   return <>{children}</>;
 };

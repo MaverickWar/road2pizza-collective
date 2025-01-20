@@ -9,11 +9,22 @@ import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation } from "react-router-dom";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
 
 function AppContent() {
   const location = useLocation();
+  const { user, isAdmin } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
+
+  useEffect(() => {
+    console.log("AppContent auth state:", { user, isAdmin, path: location.pathname });
+  }, [user, isAdmin, location.pathname]);
+
+  // If on admin route but not admin, show loading while auth check completes
+  if (isAdminRoute && !isAdmin && user) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -37,9 +48,7 @@ function App() {
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
-              <Suspense fallback={<LoadingScreen />}>
-                <AppContent />
-              </Suspense>
+              <AppContent />
               <Toaster />
             </AuthProvider>
           </ThemeProvider>

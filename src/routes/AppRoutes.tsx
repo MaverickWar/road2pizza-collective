@@ -18,7 +18,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import Analytics from "@/pages/admin/Analytics";
 import UserManagement from "@/pages/admin/AdminUsersPage";
 import RecipeManagement from "@/pages/admin/RecipeManagement";
-import ReviewManagement from "@/pages/admin/ReviewManagement"; // Fixed import path
+import ReviewManagement from "@/pages/admin/ReviewManagement";
 import RewardsManagement from "@/pages/admin/RewardsManagement";
 import PizzaTypeManagement from "@/pages/admin/PizzaTypeManagement";
 import NotificationManagement from "@/pages/admin/NotificationManagement";
@@ -27,7 +27,7 @@ import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
 import MenuManagement from "@/pages/admin/MenuManagement";
 import ForumManagement from "@/pages/admin/ForumManagement";
-import ProtectedRoute from "@/components/ProtectedRoute"; // Fixed import
+import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export function AppRoutes() {

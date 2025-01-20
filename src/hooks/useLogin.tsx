@@ -54,11 +54,11 @@ export const useLogin = () => {
       const isEmail = identifier.includes('@');
       
       if (!isEmail) {
-        // If username provided, get the email from profiles table
+        // If username provided, get the email from profiles table using case-insensitive comparison
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('email')
-          .eq('username', identifier)
+          .ilike('username', identifier)
           .maybeSingle();
 
         if (profileError) {
@@ -110,11 +110,11 @@ export const useLogin = () => {
       if (isEmail) {
         email = identifier;
       } else {
-        // If username provided, get the email from profiles table
+        // If username provided, get the email from profiles table using case-insensitive comparison
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('email')
-          .eq('username', identifier)
+          .ilike('username', identifier)
           .maybeSingle();
 
         if (profileError) {

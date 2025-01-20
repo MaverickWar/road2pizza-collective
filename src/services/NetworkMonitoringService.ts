@@ -2,6 +2,8 @@ class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
   private readonly SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
   private readonly SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
+  private failedRequests: any[] = [];
+  private isLogging: boolean = false;
   
   private constructor() {
     this.setupGlobalErrorHandling();
@@ -27,7 +29,7 @@ class NetworkMonitoringService {
           type: event.reason?.name,
           timestamp: new Date().toISOString()
         }
-      });
+      }).catch(console.error); // Explicitly catch any logging errors
     });
 
     window.addEventListener('error', (event) => {
@@ -43,7 +45,7 @@ class NetworkMonitoringService {
           colno: event.colno,
           timestamp: new Date().toISOString()
         }
-      });
+      }).catch(console.error); // Explicitly catch any logging errors
     });
   }
 
@@ -58,30 +60,15 @@ class NetworkMonitoringService {
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      // Don't log analytics_metrics requests to avoid infinite loop
-      if ((url.includes('/api/') || url.includes('supabase')) && 
-          !url.includes('analytics_metrics')) {
+      // Skip logging for analytics_metrics requests to prevent infinite loops
+      if (!url.includes('analytics_metrics')) {
         await this.logApiRequest(
           url,
           startTime,
           response.status,
           responseTime,
           response.ok ? undefined : new Error(`HTTP ${response.status}`)
-        );
-      }
-      
-      if (!response.ok) {
-        const errorText = await response.clone().text();
-        await this.logNetworkEvent({
-          type: 'api_error',
-          message: `API request failed with status ${response.status}`,
-          severity: response.status >= 500 ? 'critical' : 'high',
-          status: 'error',
-          url,
-          httpStatus: response.status,
-          responseTime,
-          errorDetails: errorText,
-        });
+        ).catch(console.error); // Explicitly catch logging errors
       }
       
       return response;
@@ -89,16 +76,23 @@ class NetworkMonitoringService {
       console.error('Fetch error:', error);
       const endTime = performance.now();
       
-      await this.logNetworkEvent({
-        type: 'network_error',
-        message: error instanceof Error ? error.message : 'Network request failed',
-        severity: 'critical',
-        status: 'error',
-        url,
-        httpStatus: 0,
-        responseTime: endTime - startTime,
-        errorDetails: error instanceof Error ? error.stack : undefined,
-      });
+      if (!this.isLogging) {
+        this.isLogging = true;
+        try {
+          await this.logNetworkEvent({
+            type: 'network_error',
+            message: error instanceof Error ? error.message : 'Network request failed',
+            severity: 'critical',
+            status: 'error',
+            url,
+            httpStatus: 0,
+            responseTime: endTime - startTime,
+            errorDetails: error instanceof Error ? error.stack : undefined,
+          });
+        } finally {
+          this.isLogging = false;
+        }
+      }
       
       throw error;
     }
@@ -115,10 +109,33 @@ class NetworkMonitoringService {
     errorDetails?: string;
     metadata?: any;
   }) {
+    // Skip if already logging to prevent recursive loops
+    if (this.isLogging) {
+      return null;
+    }
+
+    this.isLogging = true;
+
     try {
       console.log('Logging network event:', event);
 
-      // Use direct fetch instead of Supabase client to avoid circular dependency
+      const payload = {
+        metric_name: event.type,
+        metric_value: event.responseTime || 0,
+        metadata: {
+          message: event.message,
+          severity: event.severity || 'low',
+          status: event.status || 'open',
+          url: event.url,
+          errorDetails: event.errorDetails,
+          ...event.metadata
+        },
+        http_status: event.httpStatus,
+        endpoint_path: event.url ? new URL(event.url).pathname : null,
+        response_time: event.responseTime,
+        timestamp: new Date().toISOString()
+      };
+
       const response = await fetch(`${this.SUPABASE_URL}/rest/v1/analytics_metrics`, {
         method: 'POST',
         headers: {
@@ -127,26 +144,12 @@ class NetworkMonitoringService {
           'Content-Type': 'application/json',
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify([{
-          metric_name: event.type,
-          metric_value: event.responseTime || 0,
-          metadata: {
-            message: event.message,
-            severity: event.severity || 'low',
-            status: event.status || 'open',
-            url: event.url,
-            errorDetails: event.errorDetails,
-            ...event.metadata
-          },
-          http_status: event.httpStatus,
-          endpoint_path: event.url ? new URL(event.url).pathname : null,
-          response_time: event.responseTime,
-          timestamp: new Date().toISOString()
-        }])
+        body: JSON.stringify([payload])
       });
 
       if (!response.ok) {
         console.error('Error logging network event:', await response.text());
+        this.failedRequests.push(payload);
         return null;
       }
 
@@ -155,6 +158,8 @@ class NetworkMonitoringService {
     } catch (error) {
       console.error('Failed to log network event:', error);
       return null;
+    } finally {
+      this.isLogging = false;
     }
   }
 

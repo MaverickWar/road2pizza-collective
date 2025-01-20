@@ -38,79 +38,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   } = useAuthState();
 
   useEffect(() => {
-    let mounted = true;
     let refreshTimer: NodeJS.Timeout;
 
     const setupSessionRefresh = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Current session:", session);
-
-        if (session?.user?.id && mounted) {
-          const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
-          
-          if (expiresIn > 0) {
-            refreshTimer = setTimeout(async () => {
-              console.log("Attempting to refresh session");
-              const { data, error } = await supabase.auth.refreshSession();
-              
-              if (error) {
-                console.error('Session refresh failed:', error);
-                toast.error("Your session has expired. Please sign in again.");
-                await supabase.auth.signOut();
-                if (mounted) navigate('/login');
-              } else {
-                console.log('Session refreshed successfully:', data.session?.expires_at);
-                if (mounted) setupSessionRefresh();
-              }
-            }, expiresIn);
-          }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        // Calculate time until token needs refresh (5 minutes before expiry)
+        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+        
+        if (expiresIn > 0) {
+          refreshTimer = setTimeout(async () => {
+            const { data, error } = await supabase.auth.refreshSession();
+            if (error) {
+              console.error('Session refresh failed:', error);
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+            } else {
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              setupSessionRefresh(); // Setup next refresh
+            }
+          }, expiresIn);
         }
-      } catch (error) {
-        console.error("Error in setupSessionRefresh:", error);
       }
     };
+
+    setupSessionRefresh();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change event:", event, "Session:", session?.user?.id);
-      
-      if (event === 'SIGNED_IN') {
-        console.log('User signed in, setting up session refresh');
-        await setupSessionRefresh();
-      }
+      console.log("Auth state change event:", event);
       
       if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed, updating session refresh timer');
-        if (mounted) setupSessionRefresh();
+        console.log('Token refreshed successfully');
+        setupSessionRefresh(); // Setup next refresh after token refresh
       }
       
       if (event === 'SIGNED_OUT') {
-        console.log('User signed out, cleaning up');
+        console.log('User signed out, redirecting to login');
         clearTimeout(refreshTimer);
         localStorage.removeItem('supabase.auth.token');
-        if (mounted) navigate('/login');
+        navigate('/login');
       }
     });
 
-    // Handle refresh token errors
+    // Handle refresh token errors globally
     window.addEventListener('supabase.auth.error', (event: any) => {
       if (event.detail?.error?.message?.includes('refresh_token_not_found')) {
         console.log('Invalid refresh token, signing out user');
         toast.error("Your session has expired. Please sign in again.");
         supabase.auth.signOut().then(() => {
-          if (mounted) navigate('/login');
+          navigate('/login');
         });
       }
     });
 
-    setupSessionRefresh();
-
     return () => {
-      mounted = false;
-      clearTimeout(refreshTimer);
       subscription.unsubscribe();
+      clearTimeout(refreshTimer);
     };
   }, [navigate]);
 

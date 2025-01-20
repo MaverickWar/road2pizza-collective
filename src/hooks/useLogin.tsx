@@ -25,72 +25,42 @@ export const useLogin = () => {
             return 'Please check your email to confirm your account before logging in.';
           }
           if (error.message.includes('Invalid login credentials')) {
-            return 'Invalid email/username or password. Please check your credentials and try again.';
+            return 'Invalid email or password. Please check your credentials and try again.';
           }
           if (error.message.includes('invalid_credentials')) {
-            return 'Invalid email/username or password. Please check your credentials and try again.';
+            return 'Invalid email or password. Please check your credentials and try again.';
           }
           if (error.message.includes('rate limit')) {
             return 'Too many login attempts. Please try again later.';
           }
           return 'Invalid login attempt. Please check your credentials and try again.';
         case 401:
-          return 'Invalid credentials. Please check your email/username and password.';
+          return 'Invalid credentials. Please check your email and password.';
         case 422:
           return 'Invalid email format. Please enter a valid email address.';
         case 429:
           return 'Too many login attempts. Please try again later.';
         default:
-          return error.message;
+          return 'An error occurred during login. Please try again.';
       }
     }
     return error.message;
   };
 
-  const handleForgotPassword = async (identifier: string) => {
+  const handleForgotPassword = async (email: string) => {
     try {
-      console.log('Starting password reset for:', identifier);
       setIsSendingReset(true);
-
-      // Check if identifier is an email
-      const isEmail = identifier.includes('@');
-      let email: string;
-
-      if (isEmail) {
-        email = identifier;
-      } else {
-        // Get email from profiles table using case-insensitive comparison
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email')
-          .ilike('username', identifier)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Profile lookup error:', profileError);
-          toast.error('Could not find a user with this username.');
-          return;
-        }
-
-        if (!profile?.email) {
-          console.log('No email found for username:', identifier);
-          toast.error('Could not find a user with this username.');
-          return;
-        }
-        email = profile.email;
-      }
-
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
         console.error('Password reset error:', error);
-        toast.error(getErrorMessage(error));
+        toast.error('Failed to send reset email. Please try again.');
         return;
       }
 
-      toast.success('Password reset email sent. Please check your inbox.');
+      toast.success('Password reset email sent! Please check your inbox.');
     } catch (error) {
       console.error('Unexpected error during password reset:', error);
       toast.error('An unexpected error occurred. Please try again.');
@@ -101,47 +71,14 @@ export const useLogin = () => {
 
   const handleLogin = async (values: LoginFormValues) => {
     try {
-      console.log('Starting login attempt...');
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      const identifier = values.identifier.toLowerCase().trim();
+      const email = values.email.toLowerCase().trim();
       const { password } = values;
       
-      console.log('Processing login for identifier:', identifier);
+      console.log('Starting login attempt...', { email });
 
-      // Check if identifier is an email
-      const isEmail = identifier.includes('@');
-      let email: string;
-
-      if (isEmail) {
-        email = identifier;
-        console.log('Using email for login');
-      } else {
-        console.log('Looking up email for username');
-        // Get email from profiles table using case-insensitive comparison
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email')
-          .ilike('username', identifier)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Profile lookup error:', profileError);
-          toast.error('Could not find a user with this username.');
-          return;
-        }
-
-        if (!profile?.email) {
-          console.log('No email found for username:', identifier);
-          toast.error('Could not find a user with this username.');
-          return;
-        }
-        email = profile.email;
-        console.log('Found email for username');
-      }
-
-      console.log('Attempting sign in with email');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -166,7 +103,7 @@ export const useLogin = () => {
         });
         
         toast.success('Login successful');
-        navigate('/');
+        navigate('/'); // Changed from '/dashboard' to '/'
       } else {
         console.error('No user data received from successful login');
         toast.error('Login failed - please try again');

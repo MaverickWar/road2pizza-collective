@@ -19,7 +19,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative h-[calc(100vh-64px)] w-full">
+    <section className="relative w-full" style={{ marginTop: '64px', height: 'calc(100vh - 64px)' }}>
       <div 
         className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{

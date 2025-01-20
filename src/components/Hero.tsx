@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { Pizza, ChefHat, Users, Star } from 'lucide-react';
+import { Pizza, ChefHat, Users, Star, FileText } from 'lucide-react';
 import { Button } from './ui/button';
+import { useAuth } from './AuthProvider';
 
 const Hero = () => {
   console.log('Rendering Hero component');
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const stats = [
     { icon: ChefHat, label: 'Expert Guidance', value: '10 Pizza Experts' },
@@ -60,6 +62,18 @@ const Hero = () => {
               <Users className="mr-2 h-5 w-5" />
               Join Community
             </Button>
+
+            {isAdmin && (
+              <Button 
+                size="lg"
+                variant="outline"
+                onClick={() => handleNavigation('/logs')}
+                className="w-full sm:w-auto border-2 border-white text-white hover:bg-white/10 font-semibold"
+              >
+                <FileText className="mr-2 h-5 w-5" />
+                System Logs
+              </Button>
+            )}
           </div>
         </div>
         

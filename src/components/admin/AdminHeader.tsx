@@ -11,7 +11,7 @@ export const AdminHeader = () => {
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
   return (
-    <div className="fixed top-0 right-0 left-0 z-40 bg-admin-gradient shadow-admin">
+    <header className="fixed top-0 right-0 left-0 md:left-64 z-40 bg-admin-gradient shadow-admin transition-all duration-300">
       <div className="p-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -45,6 +45,6 @@ export const AdminHeader = () => {
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

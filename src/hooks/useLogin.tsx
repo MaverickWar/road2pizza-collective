@@ -41,67 +41,22 @@ export const useLogin = () => {
         case 429:
           return 'Too many login attempts. Please try again later.';
         default:
-          return 'An error occurred during login. Please try again.';
+          return error.message;
       }
     }
     return error.message;
   };
 
-  const handleForgotPassword = async (identifier: string) => {
-    try {
-      setIsSendingReset(true);
-      // Check if identifier is an email
-      const isEmail = identifier.includes('@');
-      
-      if (!isEmail) {
-        // If username provided, get the email from profiles table using case-insensitive comparison
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email')
-          .ilike('username', identifier)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error('Profile lookup error:', profileError);
-          toast.error('Could not find an email associated with this username.');
-          return;
-        }
-
-        if (!profile?.email) {
-          toast.error('Could not find an email associated with this username.');
-          return;
-        }
-        identifier = profile.email;
-      }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(identifier, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) {
-        console.error('Password reset error:', error);
-        toast.error('Failed to send reset email. Please try again.');
-        return;
-      }
-
-      toast.success('Password reset email sent! Please check your inbox.');
-    } catch (error) {
-      console.error('Unexpected error during password reset:', error);
-      toast.error('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsSendingReset(false);
-    }
-  };
-
   const handleLogin = async (values: LoginFormValues) => {
     try {
+      console.log('Starting login attempt...');
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
       const identifier = values.identifier.toLowerCase().trim();
       const { password } = values;
       
-      console.log('Starting login attempt...', { identifier });
+      console.log('Processing login for identifier:', identifier);
 
       // Check if identifier is an email
       const isEmail = identifier.includes('@');
@@ -109,8 +64,10 @@ export const useLogin = () => {
 
       if (isEmail) {
         email = identifier;
+        console.log('Using email for login');
       } else {
-        // If username provided, get the email from profiles table using case-insensitive comparison
+        console.log('Looking up email for username');
+        // Get email from profiles table using case-insensitive comparison
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('email')
@@ -124,12 +81,15 @@ export const useLogin = () => {
         }
 
         if (!profile?.email) {
+          console.log('No email found for username:', identifier);
           toast.error('Could not find a user with this username.');
           return;
         }
         email = profile.email;
+        console.log('Found email for username');
       }
 
+      console.log('Attempting sign in with email');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -171,7 +131,6 @@ export const useLogin = () => {
     isLoading,
     showEmailConfirmAlert,
     isSendingReset,
-    handleLogin,
-    handleForgotPassword
+    handleLogin
   };
 };

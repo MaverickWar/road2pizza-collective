@@ -1,10 +1,13 @@
 /*
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET,HEAD,PUT,PATCH,POST,DELETE
+  Access-Control-Allow-Headers: *
+  Access-Control-Allow-Credentials: true
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co wss://zbcadnulavhsmzfvbwtn.supabase.co;
+  Content-Security-Policy: default-src * 'unsafe-inline' 'unsafe-eval'; connect-src * ws: wss:; img-src * data: blob:;
   Cache-Control: public, max-age=0, must-revalidate
 
 /assets/*

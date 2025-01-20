@@ -7,6 +7,7 @@ import LoadingScreen from "./LoadingScreen";
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -25,12 +26,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     if (!isLoading) {
       if (!user) {
         console.log("No user found, redirecting to login...");
+        toast.error("Please login to access the admin dashboard");
         navigate('/login');
         return;
       }
       
       if (!isAdmin) {
         console.log("Non-admin user attempting to access admin area, redirecting...");
+        toast.error("Admin access required");
         navigate('/');
         return;
       }
@@ -38,12 +41,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, isAdmin, isLoading, navigate]);
 
   // Show loading screen while checking auth
-  if (isLoading || !user) {
+  if (isLoading) {
     return <LoadingScreen showWelcome={false} />;
   }
 
   // If we have a user but they're not an admin, show loading while redirect happens
-  if (!isAdmin) {
+  if (!user || !isAdmin) {
     return <LoadingScreen showWelcome={false} />;
   }
 

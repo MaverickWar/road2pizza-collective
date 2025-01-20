@@ -56,15 +56,15 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
     });
 
     // Only perform checks after loading is complete
-    if (!isLoading && user) {
-      if (requireAdmin && !isAdmin) {
+    if (!isLoading) {
+      if (requireAdmin && !isAdmin && user) {
         console.log("Admin access required but user is not admin");
         toast.error("Admin access required");
         navigate("/");
         return;
       }
 
-      if (requireStaff && !isAdmin && !isStaff) {
+      if (requireStaff && !isAdmin && !isStaff && user) {
         console.log("Staff access required but user is not staff");
         toast.error("Staff access required");
         navigate("/");
@@ -74,7 +74,7 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
   }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate, isLoading]);
 
   // Show loading screen while checking auth state
-  if (isLoading || !user) {
+  if (isLoading) {
     return <LoadingScreen />;
   }
 

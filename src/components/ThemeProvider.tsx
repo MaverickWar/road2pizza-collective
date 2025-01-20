@@ -67,11 +67,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('is_active', true)
         .eq('is_admin_theme', false)
-        .maybeSingle()
-        .throwOnError();
+        .limit(1)
+        .maybeSingle();
 
       if (error) {
         console.error('Error loading public theme:', error);
+        toast.error('Failed to load theme settings. Using default theme.');
         setCurrentTheme(DEFAULT_THEME);
         applyTheme(DEFAULT_THEME);
         return;
@@ -90,8 +91,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       console.error('Error in loadActiveTheme:', error);
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
-      // Only show toast error once
-      toast.error('Failed to load theme settings');
+      toast.error('Failed to load theme settings. Using default theme.');
     } finally {
       setIsLoading(false);
     }
@@ -151,10 +151,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .from('theme_settings')
         .select('*')
         .eq('id', themeId)
-        .maybeSingle()
-        .throwOnError();
+        .limit(1)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching theme:', error);
+        toast.error('Failed to apply theme');
+        return;
+      }
 
       if (newTheme) {
         console.log('New theme applied:', newTheme);

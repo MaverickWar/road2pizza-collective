@@ -19,9 +19,9 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] w-full">
+    <div className="relative min-h-screen w-full pt-16">
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed"
+        className="absolute inset-0 bg-cover bg-center bg-fixed"
         style={{
           backgroundImage: 'url("https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80")',
         }}
@@ -29,14 +29,14 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
       
-      <div className="relative container mx-auto px-4 py-12 md:py-20 lg:py-24 min-h-[calc(100vh-4rem)] flex flex-col justify-center">
-        <div className="max-w-2xl space-y-6 md:space-y-8">
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight">
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20 flex flex-col justify-center min-h-[calc(100vh-4rem)]">
+        <div className="max-w-2xl mx-auto space-y-8 md:space-y-10">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold">
             <span className="text-white">Master the Art of</span>
             <span className="block mt-2 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">Pizza Making</span>
           </h1>
           
-          <p className="text-base md:text-lg text-gray-200 leading-relaxed max-w-xl">
+          <p className="text-lg md:text-xl text-gray-200 leading-relaxed">
             Join our passionate community of pizza enthusiasts and discover the secrets 
             to creating the perfect pie, from classic Neapolitan to innovative modern styles.
           </p>
@@ -63,17 +63,19 @@ const Hero = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12 md:mt-16">
-          {stats.map((stat, index) => (
-            <div 
-              key={index}
-              className="text-center p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300"
-            >
-              <stat.icon className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-3 text-[#FF6B6B]" />
-              <div className="font-bold text-xl md:text-2xl text-white">{stat.value}</div>
-              <div className="text-sm md:text-base text-gray-300">{stat.label}</div>
-            </div>
-          ))}
+        <div className="max-w-7xl mx-auto w-full mt-12 md:mt-16">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {stats.map((stat, index) => (
+              <div 
+                key={index}
+                className="text-center p-4 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300"
+              >
+                <stat.icon className="w-8 h-8 md:w-10 md:h-10 mx-auto mb-3 text-[#FF6B6B]" />
+                <div className="font-bold text-xl md:text-2xl text-white">{stat.value}</div>
+                <div className="text-sm md:text-base text-gray-300">{stat.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

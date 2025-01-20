@@ -47,6 +47,58 @@ export const useLogin = () => {
     return error.message;
   };
 
+  const handleForgotPassword = async (identifier: string) => {
+    try {
+      console.log('Starting password reset for:', identifier);
+      setIsSendingReset(true);
+
+      // Check if identifier is an email
+      const isEmail = identifier.includes('@');
+      let email: string;
+
+      if (isEmail) {
+        email = identifier;
+      } else {
+        // Get email from profiles table using case-insensitive comparison
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .ilike('username', identifier)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Profile lookup error:', profileError);
+          toast.error('Could not find a user with this username.');
+          return;
+        }
+
+        if (!profile?.email) {
+          console.log('No email found for username:', identifier);
+          toast.error('Could not find a user with this username.');
+          return;
+        }
+        email = profile.email;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        toast.error(getErrorMessage(error));
+        return;
+      }
+
+      toast.success('Password reset email sent. Please check your inbox.');
+    } catch (error) {
+      console.error('Unexpected error during password reset:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
+
   const handleLogin = async (values: LoginFormValues) => {
     try {
       console.log('Starting login attempt...');
@@ -131,6 +183,7 @@ export const useLogin = () => {
     isLoading,
     showEmailConfirmAlert,
     isSendingReset,
-    handleLogin
+    handleLogin,
+    handleForgotPassword
   };
 };

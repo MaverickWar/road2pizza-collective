@@ -4,7 +4,7 @@
   X-Frame-Options: SAMEORIGIN
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co;
+  Content-Security-Policy: default-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co wss://zbcadnulavhsmzfvbwtn.supabase.co;
   Cache-Control: public, max-age=0, must-revalidate
 
 /assets/*

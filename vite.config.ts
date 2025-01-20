@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
       // CORS headers - More permissive for development
       'Access-Control-Allow-Origin': mode === 'development' ? '*' : 'https://zbcadnulavhsmzfvbwtn.supabase.co',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
-      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization, apikey, x-client-info',
+      'Access-Control-Allow-Headers': '*',
       'Access-Control-Allow-Credentials': 'true',
       
       // Cache control - Development-friendly
@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => ({
         ? 'no-store, no-cache, must-revalidate'
         : 'public, max-age=31536000',
       
-      // Security headers
-      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+      // Security headers - Relaxed for development
+      'Strict-Transport-Security': mode === 'development' ? '' : 'max-age=31536000; includeSubDomains',
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'SAMEORIGIN',
       'X-XSS-Protection': '1; mode=block',
@@ -29,13 +29,13 @@ export default defineConfig(({ mode }) => ({
       
       // More permissive CSP for development
       'Content-Security-Policy': mode === 'development'
-        ? "default-src 'self' * data: 'unsafe-inline' 'unsafe-eval' blob:;"
-        : "default-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co ws://localhost:*;"
+        ? "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src * ws: wss:;"
+        : "default-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' https://zbcadnulavhsmzfvbwtn.supabase.co ws://localhost:* wss://zbcadnulavhsmzfvbwtn.supabase.co;"
     },
     cors: mode === 'development' ? true : {
       origin: 'https://zbcadnulavhsmzfvbwtn.supabase.co',
-      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-      allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'apikey', 'x-client-info'],
+      methods: ['GET', 'HEAD', 'PUT', PATCH', 'POST', 'DELETE'],
+      allowedHeaders: ['*'],
       credentials: true,
     }
   },

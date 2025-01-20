@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import LogsTable from "@/components/admin/analytics/LogsTable";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Database } from "@/integrations/supabase/types";
+
+type MetadataType = {
+  message?: string;
+  severity?: string;
+  status?: string;
+};
 
 const LogsPage = () => {
   const { data: logs, isLoading, error } = useQuery({
@@ -21,14 +28,18 @@ const LogsPage = () => {
       }
 
       console.log("Fetched logs:", data);
-      return data.map(log => ({
-        id: log.id,
-        type: log.metric_name,
-        message: typeof log.metadata === 'object' && log.metadata ? log.metadata.message || "No message provided" : "No message provided",
-        severity: typeof log.metadata === 'object' && log.metadata ? log.metadata.severity || "low" : "low",
-        status: typeof log.metadata === 'object' && log.metadata ? log.metadata.status || "open" : "open",
-        created_at: log.timestamp
-      }));
+      return data.map(log => {
+        const metadata = log.metadata as MetadataType | null;
+        
+        return {
+          id: log.id,
+          type: log.metric_name,
+          message: metadata?.message || "No message provided",
+          severity: metadata?.severity || "low",
+          status: metadata?.status || "open",
+          created_at: log.timestamp
+        };
+      });
     },
     refetchInterval: 30000 // Refresh every 30 seconds
   });

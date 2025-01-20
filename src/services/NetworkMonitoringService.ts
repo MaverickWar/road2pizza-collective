@@ -54,17 +54,8 @@ class NetworkMonitoringService {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method || "GET";
 
-    console.log('[NetworkMonitor] Starting request:', {
-      id,
-      url,
-      method,
-      headers: init?.headers,
-      timestamp: new Date().toISOString()
-    });
-
     // Skip monitoring for certain endpoints
     if (url.includes('analytics_metrics') || url.includes('analytics_logs')) {
-      console.log('[NetworkMonitor] Skipping monitoring for analytics endpoint:', url);
       return fetch(input, init);
     }
 
@@ -73,47 +64,14 @@ class NetworkMonitoringService {
     const timeoutId = setTimeout(() => {
       controller.abort();
       this.logFailure(id, "timeout");
-      console.error('[NetworkMonitor] Request timeout:', {
-        id,
-        url,
-        method,
-        duration: `${this.TIMEOUT_MS}ms`,
-        timestamp: new Date().toISOString()
-      });
     }, this.TIMEOUT_MS);
 
     try {
-      console.log('[NetworkMonitor] Executing request:', {
-        id,
-        url,
-        method,
-        timestamp: new Date().toISOString()
-      });
-
       const response = await fetch(input, { ...init, signal: controller.signal });
       clearTimeout(timeoutId);
       const duration = performance.now() - startTime;
 
-      console.log('[NetworkMonitor] Request completed:', {
-        id,
-        url,
-        method,
-        status: response.status,
-        duration: `${duration.toFixed(2)}ms`,
-        timestamp: new Date().toISOString()
-      });
-
       if (!response.ok) {
-        console.error('[NetworkMonitor] Request failed:', {
-          id,
-          url,
-          method,
-          status: response.status,
-          statusText: response.statusText,
-          duration: `${duration.toFixed(2)}ms`,
-          timestamp: new Date().toISOString()
-        });
-
         if (this.shouldLogError()) {
           this.logFailure(id, `HTTP ${response.status}`);
           this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
@@ -122,13 +80,7 @@ class NetworkMonitoringService {
       }
 
       if (duration > 3000 && this.shouldLogError()) {
-        console.warn('[NetworkMonitor] Slow request detected:', {
-          id,
-          url,
-          method,
-          duration: `${duration.toFixed(2)}ms`,
-          timestamp: new Date().toISOString()
-        });
+        console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
         this.logToAnalytics(
           "slow_request",
           "Request took longer than 3000ms",
@@ -141,18 +93,11 @@ class NetworkMonitoringService {
     } catch (error) {
       clearTimeout(timeoutId);
       
-      console.error('[NetworkMonitor] Request error:', {
-        id,
-        url,
-        method,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        timestamp: new Date().toISOString()
-      });
-      
       if (error.name === "AbortError" && this.shouldLogError()) {
+        console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
         this.logToAnalytics("timeout", "Request timed out", url);
       } else if (this.shouldLogError()) {
+        console.error(`❌ Request to ${url} failed:`, error);
         this.logToAnalytics("network_error", error.message, url);
       }
 

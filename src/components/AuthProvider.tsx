@@ -38,99 +38,83 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   } = useAuthState();
 
   useEffect(() => {
-    let mounted = true;
+    let refreshTimer: NodeJS.Timeout;
+
+    const setupSessionRefresh = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        // Calculate time until token needs refresh (5 minutes before expiry)
+        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+        
+        if (expiresIn > 0) {
+          refreshTimer = setTimeout(async () => {
+            const { data, error } = await supabase.auth.refreshSession();
+            if (error) {
+              console.error('Session refresh failed:', error);
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+            } else {
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              setupSessionRefresh(); // Setup next refresh
+            }
+          }, expiresIn);
+        }
+      }
+    };
+
+    setupSessionRefresh();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("[AuthProvider] Auth state change:", { 
-        event, 
-        sessionExists: !!session,
-        sessionUser: session?.user?.id,
-        currentPath: window.location.pathname
-      });
+      console.log("Auth state change event:", event);
+      
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
+        setupSessionRefresh(); // Setup next refresh after token refresh
+      }
       
       if (event === 'SIGNED_OUT') {
-        console.log('[AuthProvider] User signed out, redirecting to login');
+        console.log('User signed out, redirecting to login');
+        clearTimeout(refreshTimer);
+        localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
+    });
 
-      if (event === 'SIGNED_IN') {
-        console.log('[AuthProvider] User signed in:', {
-          userId: session?.user?.id,
-          email: session?.user?.email,
-          timestamp: new Date().toISOString()
+    // Handle refresh token errors globally
+    window.addEventListener('supabase.auth.error', (event: any) => {
+      if (event.detail?.error?.message?.includes('refresh_token_not_found')) {
+        console.log('Invalid refresh token, signing out user');
+        toast.error("Your session has expired. Please sign in again.");
+        supabase.auth.signOut().then(() => {
+          navigate('/login');
         });
       }
     });
 
-    // Initial session check
-    const checkSession = async () => {
-      try {
-        console.log('[AuthProvider] Checking initial session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('[AuthProvider] Session check error:', {
-            error,
-            errorMessage: error.message,
-            timestamp: new Date().toISOString()
-          });
-          navigate('/login');
-          return;
-        }
-
-        if (!session) {
-          console.log('[AuthProvider] No active session found');
-          navigate('/login');
-          return;
-        }
-
-        console.log('[AuthProvider] Valid session found:', {
-          userId: session.user.id,
-          email: session.user.email,
-          expiresAt: session.expires_at,
-          currentPath: window.location.pathname
-        });
-      } catch (error) {
-        console.error('[AuthProvider] Unexpected error checking session:', {
-          error,
-          errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined,
-          timestamp: new Date().toISOString()
-        });
-        navigate('/login');
-      }
-    };
-
-    checkSession();
-
     return () => {
-      console.log('[AuthProvider] Cleaning up auth provider');
-      mounted = false;
       subscription.unsubscribe();
+      clearTimeout(refreshTimer);
     };
   }, [navigate]);
 
-  console.log("[AuthProvider] Current state:", { 
+  console.log("AuthProvider state:", { 
     user, 
     isAdmin, 
     isStaff, 
     loading, 
     isSuspended,
     showEmailPrompt,
-    showUsernamePrompt,
-    currentPath: window.location.pathname,
-    timestamp: new Date().toISOString()
+    showUsernamePrompt
   });
 
   if (loading) {
-    console.log('[AuthProvider] Still loading auth state...');
     return null;
   }
 
   if (isSuspended && user) {
-    console.log('[AuthProvider] User is suspended:', { userId: user.id });
     return (
       <div className="min-h-screen bg-background">
         <SuspensionNotice />

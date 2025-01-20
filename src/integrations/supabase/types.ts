@@ -11,33 +11,24 @@ export type Database = {
     Tables: {
       analytics_metrics: {
         Row: {
-          endpoint_path: string | null
-          http_status: number | null
           id: string
           metadata: Json | null
           metric_name: string
           metric_value: number
-          response_time: number | null
           timestamp: string
         }
         Insert: {
-          endpoint_path?: string | null
-          http_status?: number | null
           id?: string
           metadata?: Json | null
           metric_name: string
           metric_value: number
-          response_time?: number | null
           timestamp?: string
         }
         Update: {
-          endpoint_path?: string | null
-          http_status?: number | null
           id?: string
           metadata?: Json | null
           metric_name?: string
           metric_value?: number
-          response_time?: number | null
           timestamp?: string
         }
         Relationships: []

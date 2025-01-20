@@ -15,8 +15,7 @@ export const useLogin = () => {
     console.log('Auth error details:', {
       message: error.message,
       status: error.status,
-      name: error.name,
-      timestamp: new Date().toISOString()
+      name: error.name
     });
 
     if (error instanceof AuthApiError) {
@@ -50,40 +49,20 @@ export const useLogin = () => {
 
   const handleForgotPassword = async (email: string) => {
     try {
-      console.log('[useLogin] Starting password reset for:', { 
-        email,
-        timestamp: new Date().toISOString()
-      });
-      
       setIsSendingReset(true);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
-        console.error('[useLogin] Password reset error:', {
-          error,
-          errorMessage: error.message,
-          email,
-          timestamp: new Date().toISOString()
-        });
+        console.error('Password reset error:', error);
         toast.error('Failed to send reset email. Please try again.');
         return;
       }
 
-      console.log('[useLogin] Password reset email sent successfully:', {
-        email,
-        timestamp: new Date().toISOString()
-      });
       toast.success('Password reset email sent! Please check your inbox.');
     } catch (error) {
-      console.error('[useLogin] Unexpected error during password reset:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        email,
-        timestamp: new Date().toISOString()
-      });
+      console.error('Unexpected error during password reset:', error);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsSendingReset(false);
@@ -92,16 +71,13 @@ export const useLogin = () => {
 
   const handleLogin = async (values: LoginFormValues) => {
     try {
-      console.log('[useLogin] Starting login attempt:', { 
-        email: values.email,
-        timestamp: new Date().toISOString()
-      });
-      
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
       const email = values.email.toLowerCase().trim();
       const { password } = values;
+      
+      console.log('Starting login attempt...', { email });
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -109,14 +85,7 @@ export const useLogin = () => {
       });
 
       if (error) {
-        console.error('[useLogin] Login error:', {
-          error,
-          errorMessage: error.message,
-          errorStatus: error.status,
-          email,
-          timestamp: new Date().toISOString()
-        });
-        
+        console.error('Login error:', error);
         const errorMessage = getErrorMessage(error);
         toast.error(errorMessage);
 
@@ -127,29 +96,20 @@ export const useLogin = () => {
       }
 
       if (data?.user) {
-        console.log('[useLogin] Login successful:', {
+        console.log('Login successful:', {
           id: data.user.id,
           email: data.user.email,
-          lastSignIn: data.user.last_sign_in_at,
-          timestamp: new Date().toISOString()
+          lastSignIn: data.user.last_sign_in_at
         });
         
         toast.success('Login successful');
-        navigate('/');
+        navigate('/'); // Changed from '/dashboard' to '/'
       } else {
-        console.error('[useLogin] No user data received from successful login:', {
-          data,
-          timestamp: new Date().toISOString()
-        });
+        console.error('No user data received from successful login');
         toast.error('Login failed - please try again');
       }
     } catch (error) {
-      console.error('[useLogin] Unexpected error during login:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        timestamp: new Date().toISOString()
-      });
+      console.error('Unexpected error during login:', error);
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

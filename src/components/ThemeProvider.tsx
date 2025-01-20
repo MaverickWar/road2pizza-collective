@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { themeMonitor } from '@/services/ThemeMonitoringService';
 
 interface ThemeContextType {
   currentTheme: any;
@@ -75,10 +74,8 @@ const DEFAULT_THEME = {
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [currentTheme, setCurrentTheme] = useState<any>(null);
+  const [currentTheme, setCurrentTheme] = useState<any>(DEFAULT_THEME);
   const [isLoading, setIsLoading] = useState(true);
-  const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 3;
 
   useEffect(() => {
     loadActiveTheme();
@@ -87,44 +84,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const loadActiveTheme = async () => {
     try {
       console.log('Loading active theme...');
-      const startTime = performance.now();
       
+      // First check if we can connect to Supabase
+      const { error: healthCheckError } = await supabase.from('theme_settings').select('count').single();
+      if (healthCheckError) {
+        console.error('Supabase connection error:', healthCheckError);
+        throw new Error('Failed to connect to theme service');
+      }
+
+      // Then fetch the active theme
       const { data: theme, error } = await supabase
         .from('theme_settings')
         .select('*')
         .eq('is_active', true)
         .maybeSingle();
 
-      const duration = performance.now() - startTime;
-
       if (error) {
         console.error('Error loading theme:', error);
-        await themeMonitor.logThemeError({
-          method: 'GET',
-          error_type: 'theme_fetch_error',
-          message: error.message,
-          url: `${process.env.VITE_SUPABASE_URL}/rest/v1/theme_settings`,
-          stack: error.stack,
-          origin: window.location.origin
-        });
-
-        if (retryCount < MAX_RETRIES) {
-          setRetryCount(prev => prev + 1);
-          setTimeout(loadActiveTheme, 1000 * (retryCount + 1));
-          return;
-        }
-        
         throw error;
       }
-      
-      // Log successful theme load
-      await supabase.from('analytics_metrics').insert({
-        metric_name: 'theme_load_success',
-        metric_value: duration,
-        response_time: duration,
-        endpoint_path: '/rest/v1/theme_settings',
-        http_status: 200
-      });
       
       if (theme) {
         console.log('Active theme found:', theme);
@@ -136,14 +114,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         applyTheme(DEFAULT_THEME);
       }
     } catch (error: any) {
-      console.error('Error loading theme:', error);
-      await themeMonitor.logThemeError(error);
-      toast.error('Failed to load theme settings');
+      console.error('Error in loadActiveTheme:', error);
+      toast.error('Failed to load theme settings. Using default theme.');
       setCurrentTheme(DEFAULT_THEME);
       applyTheme(DEFAULT_THEME);
     } finally {
       setIsLoading(false);
-      setRetryCount(0);
     }
   };
 

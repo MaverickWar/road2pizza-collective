@@ -19,9 +19,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
           refetchOnWindowFocus: false, // Prevent unnecessary refetches
           refetchOnReconnect: true,
           refetchOnMount: true,
-          useErrorBoundary: true,
           meta: {
-            errorHandler: (error: any) => {
+            onError: (error: any) => {
               console.error('Query error:', error);
               toast.error(error?.message || 'An error occurred while fetching data', {
                 id: `query-error-${error?.code || 'unknown'}`,

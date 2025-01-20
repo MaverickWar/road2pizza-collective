@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRouteProps) => {
-  const { user, isAdmin, isStaff } = useAuth();
+  const { user, isAdmin, isStaff, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,8 +34,10 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
       }
     };
 
-    checkSession();
-  }, [navigate]);
+    if (!isLoading && !user) {
+      checkSession();
+    }
+  }, [navigate, user, isLoading]);
 
   useEffect(() => {
     console.log("Protected Route Check:", {
@@ -43,29 +45,30 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
       isAdmin,
       isStaff,
       requireAdmin,
-      requireStaff
+      requireStaff,
+      isLoading
     });
 
-    if (!user) {
-      return;
-    }
+    // Only perform checks after loading is complete
+    if (!isLoading && user) {
+      if (requireAdmin && !isAdmin) {
+        console.log("Admin access required but user is not admin");
+        toast.error("Admin access required");
+        navigate("/");
+        return;
+      }
 
-    if (requireAdmin && !isAdmin) {
-      console.log("Admin access required but user is not admin");
-      toast.error("Admin access required");
-      navigate("/");
-      return;
+      if (requireStaff && !isAdmin && !isStaff) {
+        console.log("Staff access required but user is not staff");
+        toast.error("Staff access required");
+        navigate("/");
+        return;
+      }
     }
+  }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate, isLoading]);
 
-    if (requireStaff && !isAdmin && !isStaff) {
-      console.log("Staff access required but user is not staff");
-      toast.error("Staff access required");
-      navigate("/");
-      return;
-    }
-  }, [user, isAdmin, isStaff, requireAdmin, requireStaff, navigate]);
-
-  if (!user) {
+  // Show loading screen while checking auth state
+  if (isLoading || !user) {
     return <LoadingScreen />;
   }
 

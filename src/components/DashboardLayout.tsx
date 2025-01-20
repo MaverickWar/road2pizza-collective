@@ -13,21 +13,26 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("DashboardLayout auth state:", { user, isAdmin });
+    console.log("DashboardLayout auth state:", { user, isAdmin, isLoading });
     
-    // If we have a user but they're not an admin, redirect to home
-    if (user && !isAdmin) {
+    // Only redirect if we're done loading and the user is not an admin
+    if (!isLoading && user && !isAdmin) {
       console.log("Non-admin user attempting to access admin area, redirecting...");
       navigate('/');
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, isLoading, navigate]);
 
   // Show loading screen while checking auth
-  if (!user || !isAdmin) {
+  if (isLoading || !user) {
+    return <LoadingScreen showWelcome={false} />;
+  }
+
+  // If we have a user but they're not an admin, show loading while redirect happens
+  if (!isAdmin) {
     return <LoadingScreen showWelcome={false} />;
   }
 

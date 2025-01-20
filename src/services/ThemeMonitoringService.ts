@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Json } from '@/integrations/supabase/types';
 
 interface ThemeError {
   method: string;
@@ -8,7 +9,7 @@ interface ThemeError {
   url: string;
   stack?: string;
   origin?: string;
-  timestamp: string;
+  timestamp?: string;
 }
 
 class ThemeMonitoringService {
@@ -48,7 +49,7 @@ class ThemeMonitoringService {
         .insert({
           metric_name: 'theme_error',
           metric_value: this.errorCount + 1,
-          metadata: errorData,
+          metadata: errorData as Json,
           http_status: error.status || 500,
           endpoint_path: new URL(errorData.url).pathname,
           response_time: 0
@@ -79,7 +80,6 @@ class ThemeMonitoringService {
         duration: 5000,
       });
 
-      // Log critical error for immediate attention
       console.error('Critical: Multiple theme errors detected', {
         errorCount: this.errorCount,
         lastError: error

@@ -100,10 +100,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error('Error loading theme:', error);
         await themeMonitor.logThemeError({
-          ...error,
           method: 'GET',
-          url: `${supabase.supabaseUrl}/rest/v1/theme_settings`,
-          error_type: 'theme_fetch_error'
+          error_type: 'theme_fetch_error',
+          message: error.message,
+          url: `${supabase.getUrl()}/rest/v1/theme_settings`,
+          stack: error.stack,
+          origin: window.location.origin
         });
 
         if (retryCount < MAX_RETRIES) {

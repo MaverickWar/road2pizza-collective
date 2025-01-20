@@ -83,7 +83,7 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col max-w-4xl h-[90vh] p-0 bg-background border-none sm:rounded-lg overflow-hidden">
+      <DialogContent className="flex flex-col max-w-4xl h-[90vh] p-0 bg-white border-none sm:rounded-lg overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="px-6 py-4 bg-white border-b">
             <h2 className="text-2xl font-semibold text-foreground">Create New Review</h2>
@@ -95,27 +95,27 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
             <FormNavigation activeTab={activeTab} />
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto bg-white">
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                <TabsContent value="basic" className="m-0 p-6">
+                <TabsContent value="basic" className="m-0 p-6 bg-white">
                   <BasicInfoSection form={form} />
                 </TabsContent>
 
-                <TabsContent value="media" className="m-0 p-6">
+                <TabsContent value="media" className="m-0 p-6 bg-white">
                   <MediaSection form={form} />
                 </TabsContent>
 
-                <TabsContent value="proscons" className="m-0 p-6">
+                <TabsContent value="proscons" className="m-0 p-6 bg-white">
                   <ProsCons form={form} />
                 </TabsContent>
 
-                <TabsContent value="ratings" className="m-0 p-6">
+                <TabsContent value="ratings" className="m-0 p-6 bg-white">
                   <RatingSection form={form} />
                 </TabsContent>
               </form>
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-4 flex justify-end gap-2">
+            <div className="sticky bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-end gap-2">
               <FormActions 
                 onClose={onClose}
                 onSubmit={form.handleSubmit(handleSubmit)}

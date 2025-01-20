@@ -10,10 +10,12 @@ import {
   Bell,
   Settings,
   Palette,
-  Image
+  Image,
+  Menu
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
+import { useSidebarContext } from "@/components/ui/sidebar/SidebarContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
@@ -30,30 +32,54 @@ const menuItems = [
 
 export function AdminSidebar() {
   const location = useLocation();
+  const { collapsed, toggleSidebar } = useSidebarContext();
   
   return (
-    <Sidebar className="w-64 border-r border-admin-border bg-white shadow-admin">
-      <div className="flex flex-col h-full p-4 space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-admin">Admin Dashboard</h2>
+    <Sidebar className={cn(
+      "fixed top-0 left-0 z-50 h-screen bg-white border-r border-admin-border shadow-admin transition-all duration-300",
+      collapsed ? "w-20" : "w-64"
+    )}>
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between p-4 border-b border-admin-border">
+          <h2 className={cn(
+            "font-semibold transition-all duration-300",
+            collapsed ? "opacity-0 w-0" : "opacity-100 text-lg text-admin"
+          )}>
+            Admin Panel
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-admin/10"
+            onClick={toggleSidebar}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
-        <nav className="space-y-2 flex-1">
-          {menuItems.map((item) => (
-            <Button
-              key={item.path}
-              asChild
-              variant="ghost"
-              className={cn(
-                "w-full justify-start hover:bg-admin/10 hover:text-admin",
-                location.pathname === item.path && "bg-admin/10 text-admin"
-              )}
-            >
-              <Link to={item.path}>
-                <item.icon className="h-4 w-4 mr-2" />
-                <span>{item.label}</span>
+        
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg text-admin-foreground transition-colors",
+                  "hover:bg-admin/10 hover:text-admin",
+                  isActive && "bg-admin/10 text-admin font-medium"
+                )}
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                <span className={cn(
+                  "transition-all duration-300",
+                  collapsed ? "opacity-0 w-0" : "opacity-100"
+                )}>
+                  {item.label}
+                </span>
               </Link>
-            </Button>
-          ))}
+            );
+          })}
         </nav>
       </div>
     </Sidebar>

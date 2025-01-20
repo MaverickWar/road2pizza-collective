@@ -17,23 +17,29 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error("Session check error:", error);
-        toast.error("Session expired. Please login again.");
-        navigate("/login");
-        return;
-      }
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session check error:", error);
+          toast.error("Session expired. Please login again.");
+          navigate("/login");
+          return;
+        }
 
-      if (!session) {
-        console.log("No active session found");
-        toast.error("Please login to access this page");
+        if (!session) {
+          console.log("No active session found");
+          toast.error("Please login to access this page");
+          navigate("/login");
+          return;
+        }
+      } catch (error) {
+        console.error("Unexpected error checking session:", error);
         navigate("/login");
-        return;
       }
     };
 
+    // Only check session if we're done loading and there's no user
     if (!isLoading && !user) {
       checkSession();
     }
@@ -70,6 +76,15 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
   // Show loading screen while checking auth state
   if (isLoading || !user) {
     return <LoadingScreen />;
+  }
+
+  // Additional role-based checks
+  if (requireAdmin && !isAdmin) {
+    return null; // Will redirect in useEffect
+  }
+
+  if (requireStaff && !isAdmin && !isStaff) {
+    return null; // Will redirect in useEffect
   }
 
   return <>{children}</>;

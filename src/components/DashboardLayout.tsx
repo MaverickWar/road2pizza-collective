@@ -19,10 +19,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   useEffect(() => {
     console.log("DashboardLayout auth state:", { user, isAdmin, isLoading });
     
-    // Only redirect if we're done loading and the user is not an admin
-    if (!isLoading && user && !isAdmin) {
-      console.log("Non-admin user attempting to access admin area, redirecting...");
-      navigate('/');
+    // Only redirect if we're done loading and either:
+    // 1. There's no user (not authenticated)
+    // 2. User is not an admin
+    if (!isLoading) {
+      if (!user) {
+        console.log("No user found, redirecting to login...");
+        navigate('/login');
+        return;
+      }
+      
+      if (!isAdmin) {
+        console.log("Non-admin user attempting to access admin area, redirecting...");
+        navigate('/');
+        return;
+      }
     }
   }, [user, isAdmin, isLoading, navigate]);
 

@@ -43,24 +43,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let refreshTimer: NodeJS.Timeout;
 
     const setupSessionRefresh = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id) {
-        const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Current session:", session);
         
-        if (expiresIn > 0) {
-          refreshTimer = setTimeout(async () => {
-            const { data, error } = await supabase.auth.refreshSession();
-            if (error) {
-              console.error('Session refresh failed:', error);
-              toast.error("Your session has expired. Please sign in again.");
-              await supabase.auth.signOut();
-              navigate('/login');
-            } else {
-              console.log('Session refreshed successfully:', data.session?.expires_at);
-              setupSessionRefresh();
-            }
-          }, expiresIn);
+        if (session?.user?.id) {
+          const expiresIn = new Date(session.expires_at || 0).getTime() - Date.now() - 5 * 60 * 1000;
+          
+          if (expiresIn > 0) {
+            refreshTimer = setTimeout(async () => {
+              const { data, error } = await supabase.auth.refreshSession();
+              if (error) {
+                console.error('Session refresh failed:', error);
+                toast.error("Your session has expired. Please sign in again.");
+                await supabase.auth.signOut();
+                navigate('/login');
+              } else {
+                console.log('Session refreshed successfully:', data.session?.expires_at);
+                setupSessionRefresh();
+              }
+            }, expiresIn);
+          }
         }
+      } catch (error) {
+        console.error("Error setting up session refresh:", error);
       }
     };
 
@@ -69,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change event:", event);
+      console.log("Auth state change event:", event, "Session:", session?.user?.id);
       
       if (event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
@@ -110,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     showUsernamePrompt
   });
 
-  // Don't render anything while loading
+  // Show loading state while initializing
   if (loading) {
     return null;
   }

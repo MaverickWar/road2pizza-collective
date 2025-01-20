@@ -34,37 +34,37 @@ export default defineConfig(({ mode }) => ({
     },
     cors: mode === 'development' ? true : {
       origin: 'https://zbcadnulavhsmzfvbwtn.supabase.co',
-      methods: ['GET', 'HEAD', 'PUT', PATCH', 'POST', 'DELETE'],
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
       allowedHeaders: ['*'],
-      credentials: true,
+      credentials: true
     }
   },
   preview: {
     host: "::",
-    port: 8080,
+    port: 8080
   },
   build: {
     rollupOptions: {
       output: {
         entryFileNames: `assets/[name]-[hash].js`,
         chunkFileNames: `assets/[name]-[hash].js`,
-        assetFileNames: `assets/[name]-[hash].[ext]`,
-      },
+        assetFileNames: `assets/[name]-[hash].[ext]`
+      }
     },
     sourcemap: true,
     assetsDir: '_assets',
     modulePreload: {
-      polyfill: true,
-    },
+      polyfill: true
+    }
   },
   plugins: [
     react(),
     mode === 'development' &&
-    componentTagger(),
+    componentTagger()
   ].filter(Boolean),
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+      "@": path.resolve(__dirname, "./src")
+    }
+  }
 }));

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { loginFormSchema } from '@/types/auth';
 import { useLogin } from '@/hooks/useLogin';
 import MainLayout from '@/components/MainLayout';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -27,6 +28,43 @@ export default function Login() {
       password: '',
     },
   });
+
+  // Monitor API performance
+  const trackLoginAttempt = async (success: boolean, duration: number, errorType?: string) => {
+    try {
+      const { error } = await supabase.from('analytics_metrics').insert({
+        metric_name: success ? 'login_success' : 'login_error',
+        metric_value: duration,
+        metadata: {
+          error_type: errorType,
+          timestamp: new Date().toISOString()
+        },
+        http_status: success ? 200 : 400,
+        endpoint_path: '/auth/login',
+        response_time: duration
+      });
+
+      if (error) {
+        console.error('Failed to track login metrics:', error);
+      }
+    } catch (err) {
+      console.error('Error tracking login metrics:', err);
+    }
+  };
+
+  // Wrap the original handleLogin with performance tracking
+  const handleLoginWithTracking = async (values: any) => {
+    const startTime = performance.now();
+    try {
+      await handleLogin(values);
+      const duration = performance.now() - startTime;
+      await trackLoginAttempt(true, duration);
+    } catch (error: any) {
+      const duration = performance.now() - startTime;
+      await trackLoginAttempt(false, duration, error.message);
+      throw error; // Re-throw to maintain original error handling
+    }
+  };
 
   return (
     <MainLayout>
@@ -48,7 +86,7 @@ export default function Login() {
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(handleLoginWithTracking)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="email"

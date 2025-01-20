@@ -10,10 +10,20 @@ import { ReviewFormData } from "@/types/review";
 interface AdditionalImagesUploadProps {
   form: UseFormReturn<ReviewFormData>;
   uploading: boolean;
+  setUploading: (value: boolean) => void;
 }
 
-export const AdditionalImagesUpload = ({ form, uploading }: AdditionalImagesUploadProps) => {
+export const AdditionalImagesUpload = ({ form, uploading, setUploading }: AdditionalImagesUploadProps) => {
   const additionalImageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUploading(true);
+    try {
+      await handleImageUpload(e, form, "additionalImages");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const removeAdditionalImage = (index: number) => {
     const currentImages = form.getValues("additionalImages");
@@ -47,7 +57,7 @@ export const AdditionalImagesUpload = ({ form, uploading }: AdditionalImagesUplo
             ref={additionalImageInputRef}
             type="file"
             accept="image/*"
-            onChange={(e) => handleImageUpload(e, form, "additionalImages")}
+            onChange={handleUpload}
             disabled={uploading}
             className="hidden"
           />

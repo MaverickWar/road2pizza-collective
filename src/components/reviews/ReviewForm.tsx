@@ -142,8 +142,7 @@ const ReviewForm = ({ isOpen, onClose }: ReviewFormProps) => {
 
               <TabsContent value="media" className="mt-0 space-y-6">
                 <MediaSection 
-                  formData={formData} 
-                  setFormData={setFormData} 
+                  form={formData}
                 />
               </TabsContent>
 

@@ -7,6 +7,7 @@ import RecipeContent from "./RecipeContent";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import ArticleError from "./ArticleError";
+import ArticleLoading from "./ArticleLoading";
 
 const ArticleDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -64,7 +65,9 @@ const ArticleDetail = () => {
       console.log("Fetched recipe data:", data);
       return data as Recipe;
     },
-    retry: 1
+    retry: 1,
+    staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
   });
 
   const handleBack = () => {
@@ -94,20 +97,7 @@ const ArticleDetail = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto p-4 space-y-4">
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-[300px]" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        </div>
-      </div>
-    );
+    return <ArticleLoading />;
   }
 
   if (error) {

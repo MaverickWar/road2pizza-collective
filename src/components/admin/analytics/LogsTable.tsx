@@ -1,7 +1,13 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, ExternalLink } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Log {
   id: string;
@@ -10,6 +16,12 @@ interface Log {
   severity: string;
   status: string;
   created_at: string;
+  url?: string;
+  user_id?: string;
+  http_status?: number;
+  response_time?: number;
+  endpoint?: string;
+  error_details?: string;
 }
 
 interface LogsTableProps {
@@ -29,11 +41,10 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
   const getSeverityColor = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'critical':
-        return 'bg-red-500';
       case 'high':
-        return 'bg-orange-500';
+        return 'bg-red-500';
       case 'medium':
-        return 'bg-yellow-500';
+        return 'bg-orange-500';
       case 'low':
         return 'bg-blue-500';
       default:
@@ -62,6 +73,8 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
             <TableHead>Time</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Message</TableHead>
+            <TableHead>Endpoint</TableHead>
+            <TableHead>Response</TableHead>
             <TableHead>Severity</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -70,10 +83,50 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
           {logs.map((log) => (
             <TableRow key={log.id}>
               <TableCell>
-                {format(new Date(log.created_at), 'MMM d, yyyy HH:mm')}
+                {format(new Date(log.created_at), 'MMM d, yyyy HH:mm:ss')}
               </TableCell>
               <TableCell className="capitalize">{log.type}</TableCell>
-              <TableCell>{log.message}</TableCell>
+              <TableCell>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div className="max-w-[300px] truncate">
+                        {log.message}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{log.message}</p>
+                      {log.error_details && (
+                        <pre className="mt-2 text-xs bg-gray-100 p-2 rounded">
+                          {log.error_details}
+                        </pre>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableCell>
+              <TableCell>
+                {log.url && (
+                  <div className="flex items-center space-x-1">
+                    <span className="text-sm truncate max-w-[200px]">
+                      {log.endpoint || new URL(log.url).pathname}
+                    </span>
+                    <ExternalLink className="h-3 w-3" />
+                  </div>
+                )}
+              </TableCell>
+              <TableCell>
+                {log.http_status && (
+                  <Badge variant={log.http_status >= 400 ? "destructive" : "secondary"}>
+                    {log.http_status}
+                  </Badge>
+                )}
+                {log.response_time && (
+                  <span className="ml-2 text-sm text-gray-500">
+                    {log.response_time.toFixed(0)}ms
+                  </span>
+                )}
+              </TableCell>
               <TableCell>
                 <Badge className={`${getSeverityColor(log.severity)} text-white`}>
                   {log.severity}

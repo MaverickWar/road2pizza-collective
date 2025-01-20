@@ -54,116 +54,140 @@ class NetworkMonitoringService {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const method = init?.method || "GET";
 
-    // Skip monitoring for certain endpoints
-    if (url.includes('analytics_metrics') || url.includes('analytics_logs')) {
-      return fetch(input, init);
-    }
+    // Enhanced logging for all requests
+    console.log(`[Network] Starting ${method} request to ${url}`, {
+      requestId: id,
+      timestamp: new Date().toISOString(),
+      headers: init?.headers,
+      body: init?.body ? JSON.parse(init.body as string) : undefined
+    });
 
-    // Check if we have a valid session before making authenticated requests
-    if (url.includes('supabase.co') && !url.includes('auth')) {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        console.warn('Attempting authenticated request without session:', { url, method });
-        return Promise.reject(new Error('No authenticated session'));
-      }
-    }
-
-    this.activeRequests.set(id, { url, startTime, method });
-    console.log(`Starting ${method} request to ${url}`, { requestId: id });
-
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      this.logFailure(id, "timeout");
-    }, this.TIMEOUT_MS);
+    // Log analytics metrics for the request
+    await this.logToAnalytics("request_started", `${method} request to ${url} started`, url);
 
     try {
-      const response = await fetch(input, { ...init, signal: controller.signal });
-      clearTimeout(timeoutId);
-      const duration = performance.now() - startTime;
-
-      console.log(`Completed ${method} request to ${url}`, {
-        requestId: id,
-        status: response.status,
-        duration: `${duration.toFixed(0)}ms`
-      });
-
-      if (!response.ok) {
-        if (this.shouldLogError()) {
-          this.logFailure(id, `HTTP ${response.status}`);
-          await this.logToAnalytics("network_error", `HTTP ${response.status}`, url, duration);
+      // Check session for authenticated requests
+      if (url.includes('supabase.co') && !url.includes('auth')) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          console.warn('[Network] Attempting authenticated request without session:', { url, method });
+          await this.logToAnalytics("auth_error", "Attempted request without session", url);
+          return Promise.reject(new Error('No authenticated session'));
         }
       }
 
-      if (duration > 3000 && this.shouldLogError()) {
-        console.warn(`⚠️ Slow request to ${url} (${duration.toFixed(0)}ms)`);
+      const response = await fetch(input, { ...init, signal: controller.signal });
+      const duration = performance.now() - startTime;
+
+      // Enhanced response logging
+      console.log(`[Network] Completed ${method} request to ${url}`, {
+        requestId: id,
+        status: response.status,
+        duration: `${duration.toFixed(0)}ms`,
+        timestamp: new Date().toISOString(),
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      // Log performance metrics
+      await this.logToAnalytics(
+        "response_time",
+        `Request completed in ${duration.toFixed(0)}ms`,
+        url,
+        duration
+      );
+
+      if (!response.ok) {
+        const errorBody = await response.clone().text();
+        console.error(`[Network] Error response from ${url}:`, {
+          status: response.status,
+          body: errorBody,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        
         await this.logToAnalytics(
-          "slow_request",
-          "Request took longer than 3000ms",
+          "http_error",
+          `HTTP ${response.status} error for ${method} ${url}`,
           url,
-          duration
+          duration,
+          {
+            error: errorBody,
+            status: response.status
+          }
         );
       }
 
       return response;
     } catch (error: any) {
-      clearTimeout(timeoutId);
+      const duration = performance.now() - startTime;
       
-      if (error.name === "AbortError" && this.shouldLogError()) {
-        console.error(`🚫 Request to ${url} timed out after ${this.TIMEOUT_MS}ms`);
-        await this.logToAnalytics("timeout", "Request timed out", url);
-      } else if (this.shouldLogError()) {
-        console.error(`❌ Request to ${url} failed:`, error);
-        await this.logToAnalytics("network_error", error.message, url);
-      }
+      console.error(`[Network] Request failed for ${url}:`, {
+        error: error.message,
+        stack: error.stack,
+        duration: `${duration.toFixed(0)}ms`
+      });
+
+      await this.logToAnalytics(
+        "network_error",
+        error.message,
+        url,
+        duration,
+        {
+          errorType: error.name,
+          stack: error.stack
+        }
+      );
 
       throw error;
-    } finally {
-      this.activeRequests.delete(id);
     }
   };
 
-  private logFailure(requestId: string, reason: string) {
-    const request = this.activeRequests.get(requestId);
-    if (!request || !this.shouldLogError()) return;
-
-    const duration = performance.now() - request.startTime;
-    console.error(`❌ ${request.method} request to ${request.url} failed:`, {
-      reason,
-      duration: `${duration.toFixed(0)}ms`,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  private async logToAnalytics(type: string, message: string, url: string, duration?: number) {
-    if (!this.shouldLogError()) return;
-
+  private async logToAnalytics(
+    type: string,
+    message: string,
+    url: string,
+    duration?: number,
+    additionalMetadata?: Record<string, any>
+  ) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      if (session?.user) {
-        const { error } = await supabase.from("analytics_metrics").insert({
-          metric_name: type,
-          metric_value: duration || 0,
-          metadata: {
-            message,
-            url,
-            severity: type === "timeout" || type === "network_error" ? "high" : "low",
-            status: "open",
-            user_id: session.user.id
-          }
-        });
+      const metadata = {
+        message,
+        url,
+        timestamp: new Date().toISOString(),
+        user_id: session?.user?.id,
+        severity: this.getSeverityLevel(type),
+        status: 'open',
+        ...additionalMetadata
+      };
 
-        if (error) {
-          console.error("Error logging to analytics:", error);
-        }
+      const { error } = await supabase.from("analytics_metrics").insert({
+        metric_name: type,
+        metric_value: duration || 0,
+        metadata,
+        http_status: additionalMetadata?.status,
+        endpoint_path: url,
+        response_time: duration
+      });
+
+      if (error) {
+        console.error("[Analytics] Error logging to analytics:", error);
       }
     } catch (err) {
-      console.error("Unexpected error logging to analytics:", err);
+      console.error("[Analytics] Unexpected error logging to analytics:", err);
     }
   }
 
-  getActiveRequests() {
-    return Array.from(this.activeRequests.values());
+  private getSeverityLevel(type: string): string {
+    switch (type) {
+      case 'network_error':
+      case 'http_error':
+        return 'high';
+      case 'slow_request':
+        return 'medium';
+      default:
+        return 'low';
+    }
   }
 
   public cleanup() {

@@ -9,7 +9,6 @@ if (!SUPABASE_ANON_KEY) {
   console.error('Missing SUPABASE_ANON_KEY environment variable');
 }
 
-// Create Supabase client with consistent auth headers
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
   SUPABASE_ANON_KEY,

@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
-import { networkMonitor } from '@/services/NetworkMonitoringService';
 import { toast } from 'sonner';
 
 const SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
@@ -10,14 +9,15 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   try {
     console.log('Making Supabase request to:', typeof input === 'string' ? input : input.toString());
-    const response = await networkMonitor.monitorFetch(input, {
+    
+    // Ensure headers are properly set
+    const headers = new Headers(init?.headers);
+    headers.set('apikey', SUPABASE_ANON_KEY);
+    headers.set('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+    
+    const response = await fetch(input, {
       ...init,
-      headers: {
-        ...init?.headers,
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers
     });
 
     if (!response.ok) {
@@ -37,22 +37,25 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   }
 };
 
-// Create Supabase client with enhanced fetch implementation
+// Create Supabase client with enhanced configuration
 export const supabase = createClient<Database>(
-  SUPABASE_URL, 
+  SUPABASE_URL,
   SUPABASE_ANON_KEY,
   {
-    global: {
-      fetch: customFetch,
-    },
     auth: {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      storage: localStorage,
+      storageKey: 'supabase.auth.token',
+      flowType: 'pkce',
+    },
+    global: {
+      fetch: customFetch,
       headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      }
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
     },
   }
 );
@@ -62,11 +65,20 @@ export const checkSupabaseConnection = async () => {
   try {
     console.log('Checking Supabase connection...');
     const { data, error } = await supabase.from('profiles').select('count').limit(1);
-    if (error) throw error;
+    
+    if (error) {
+      console.error('Supabase health check failed:', error);
+      throw error;
+    }
+    
     console.log('Supabase connection check successful');
     return true;
   } catch (error) {
     console.error('Supabase connection check failed:', error);
+    toast.error('Database connection check failed');
     return false;
   }
 };
+
+// Initialize connection check
+checkSupabaseConnection().catch(console.error);

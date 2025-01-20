@@ -4,7 +4,7 @@ import { networkMonitor } from '@/services/NetworkMonitoringService';
 import { toast } from 'sonner';
 
 const SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
 
 // Enhanced error handling for fetch operations
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -14,6 +14,8 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       ...init,
       headers: {
         ...init?.headers,
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
       },
     });
@@ -38,7 +40,7 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 // Create Supabase client with enhanced fetch implementation
 export const supabase = createClient<Database>(
   SUPABASE_URL, 
-  SUPABASE_PUBLISHABLE_KEY,
+  SUPABASE_ANON_KEY,
   {
     global: {
       fetch: customFetch,
@@ -47,6 +49,10 @@ export const supabase = createClient<Database>(
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true,
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      }
     },
   }
 );
@@ -54,6 +60,7 @@ export const supabase = createClient<Database>(
 // Add a health check function
 export const checkSupabaseConnection = async () => {
   try {
+    console.log('Checking Supabase connection...');
     const { data, error } = await supabase.from('profiles').select('count').limit(1);
     if (error) throw error;
     console.log('Supabase connection check successful');

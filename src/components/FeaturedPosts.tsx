@@ -4,12 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Clock, ChefHat, Star, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const FeaturedPosts = () => {
-  const { toast } = useToast();
-  
   const { data: recipes, isLoading, error } = useQuery({
     queryKey: ['featured-recipes'],
     queryFn: async () => {
@@ -42,26 +40,20 @@ const FeaturedPosts = () => {
         
         console.log('Fetched featured recipes:', data);
         return data || [];
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch featured recipes:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load featured recipes. Please try again later.",
-          variant: "destructive",
-        });
+        // Only show toast error once
+        toast.error("Failed to load featured recipes. Please try again later.");
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    retry: 2,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000,   // Keep unused data for 10 minutes
+    retry: 1, // Only retry once to avoid too many error toasts
   });
 
-  if (error) {
-    return null;
-  }
-
-  if (!isLoading && (!recipes || recipes.length === 0)) {
+  // Don't render anything if there's an error or no recipes
+  if (error || (!isLoading && (!recipes || recipes.length === 0))) {
     return null;
   }
 

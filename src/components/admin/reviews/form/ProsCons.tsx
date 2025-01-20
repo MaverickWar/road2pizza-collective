@@ -1,124 +1,137 @@
 import { Button } from "@/components/ui/button";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import { Plus, Minus } from "lucide-react";
-import { UseFormReturn } from "react-hook-form";
-import { ReviewFormData } from "@/types/review";
+import type { ReviewFormData } from "../ReviewForm";
 
 interface ProsConsProps {
-  form: UseFormReturn<ReviewFormData>;
+  formData: ReviewFormData;
+  setFormData: (data: ReviewFormData) => void;
 }
 
-const ProsCons = ({ form }: ProsConsProps) => {
+const ProsCons = ({ formData, setFormData }: ProsConsProps) => {
   const addPro = () => {
-    const currentPros = form.getValues("pros");
-    form.setValue("pros", [...currentPros, ""]);
+    setFormData({
+      ...formData,
+      pros: [...formData.pros, ""]
+    });
   };
 
   const addCon = () => {
-    const currentCons = form.getValues("cons");
-    form.setValue("cons", [...currentCons, ""]);
+    setFormData({
+      ...formData,
+      cons: [...formData.cons, ""]
+    });
+  };
+
+  const updatePro = (index: number, value: string) => {
+    const newPros = [...formData.pros];
+    newPros[index] = value;
+    setFormData({
+      ...formData,
+      pros: newPros
+    });
+  };
+
+  const updateCon = (index: number, value: string) => {
+    const newCons = [...formData.cons];
+    newCons[index] = value;
+    setFormData({
+      ...formData,
+      cons: newCons
+    });
   };
 
   const removePro = (index: number) => {
-    const currentPros = form.getValues("pros");
-    form.setValue("pros", currentPros.filter((_, i) => i !== index));
+    setFormData({
+      ...formData,
+      pros: formData.pros.filter((_, i) => i !== index)
+    });
   };
 
   const removeCon = (index: number) => {
-    const currentCons = form.getValues("cons");
-    form.setValue("cons", currentCons.filter((_, i) => i !== index));
+    setFormData({
+      ...formData,
+      cons: formData.cons.filter((_, i) => i !== index)
+    });
   };
 
   return (
     <div className="grid md:grid-cols-2 gap-8">
-      <div>
+      <Card className="p-6 bg-background shadow-none">
         <div className="flex items-center justify-between mb-4">
-          <FormLabel className="text-green-500">Pros</FormLabel>
+          <Label className="text-base font-semibold text-green-600">Pros</Label>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addPro}
-            className="text-green-500"
+            className="text-green-600 border-green-600 hover:bg-green-50"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Pro
           </Button>
         </div>
-        <div className="space-y-2">
-          {form.watch("pros").map((_, index) => (
-            <FormField
-              key={index}
-              control={form.control}
-              name={`pros.${index}`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <Input {...field} placeholder="Enter a pro..." />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removePro(index)}
-                        className="text-red-500"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="space-y-3">
+          {formData.pros.map((pro, index) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                value={pro}
+                onChange={(e) => updatePro(index, e.target.value)}
+                placeholder="Enter a pro..."
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removePro(index)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+            </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div>
+      <Card className="p-6 bg-background shadow-none">
         <div className="flex items-center justify-between mb-4">
-          <FormLabel className="text-red-500">Cons</FormLabel>
+          <Label className="text-base font-semibold text-red-600">Cons</Label>
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={addCon}
-            className="text-red-500"
+            className="text-red-600 border-red-600 hover:bg-red-50"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Con
           </Button>
         </div>
-        <div className="space-y-2">
-          {form.watch("cons").map((_, index) => (
-            <FormField
-              key={index}
-              control={form.control}
-              name={`cons.${index}`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <Input {...field} placeholder="Enter a con..." />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeCon(index)}
-                        className="text-red-500"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <div className="space-y-3">
+          {formData.cons.map((con, index) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                value={con}
+                onChange={(e) => updateCon(index, e.target.value)}
+                placeholder="Enter a con..."
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeCon(index)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+            </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

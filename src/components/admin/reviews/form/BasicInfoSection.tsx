@@ -1,138 +1,77 @@
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { UseFormReturn } from "react-hook-form";
-import { ReviewFormData } from "@/types/review";
+import { Card } from "@/components/ui/card";
+import type { ReviewFormData } from "../ReviewForm";
 
 interface BasicInfoSectionProps {
-  form: UseFormReturn<ReviewFormData>;
+  formData: ReviewFormData;
+  setFormData: (data: ReviewFormData) => void;
 }
 
-const BasicInfoSection = ({ form }: BasicInfoSectionProps) => {
+const BasicInfoSection = ({ formData, setFormData }: BasicInfoSectionProps) => {
   return (
-    <div className="space-y-4">
-      <FormField
-        control={form.control}
-        name="title"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Title</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+    <div className="space-y-6">
+      <Card className="p-6 bg-background shadow-none">
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="title" className="text-base font-semibold">Review Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Enter a descriptive title for your review"
+              className="mt-1.5"
+            />
+          </div>
 
-      <FormField
-        control={form.control}
-        name="author"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Author</FormLabel>
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          <div>
+            <Label htmlFor="brand" className="text-base font-semibold">Brand</Label>
+            <Input
+              id="brand"
+              value={formData.brand}
+              onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+              placeholder="Enter the brand name"
+              className="mt-1.5"
+            />
+          </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="brand"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Brand</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div>
+            <Label htmlFor="category" className="text-base font-semibold">Category</Label>
+            <Input
+              id="category"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              placeholder="e.g., Kitchen Equipment, Tools, Accessories"
+              className="mt-1.5"
+            />
+          </div>
 
-        <FormField
-          control={form.control}
-          name="model"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Model (Optional)</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+          <div>
+            <Label htmlFor="shortDescription" className="text-base font-semibold">Short Description</Label>
+            <Textarea
+              id="shortDescription"
+              value={formData.shortDescription}
+              onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+              placeholder="Write a brief summary of your review"
+              className="mt-1.5 resize-none"
+              rows={2}
+            />
+          </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="price_range"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price Range (Optional)</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="e.g., $50-$100" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <FormField
-        control={form.control}
-        name="content"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Review Content</FormLabel>
-            <FormControl>
-              <Textarea {...field} rows={5} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="is_featured"
-        render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
-              <FormLabel className="text-base">Feature Review</FormLabel>
-              <FormMessage />
-            </div>
-            <FormControl>
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                className="data-[state=checked]:bg-orange-500"
-              />
-            </FormControl>
-          </FormItem>
-        )}
-      />
+          <div>
+            <Label htmlFor="content" className="text-base font-semibold">Full Review Content</Label>
+            <Textarea
+              id="content"
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              placeholder="Write your detailed review here..."
+              className="mt-1.5 min-h-[200px] resize-none"
+              rows={8}
+            />
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

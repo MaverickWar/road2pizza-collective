@@ -1,143 +1,123 @@
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
-  private activeRequests: Map<string, { url: string; startTime: number; method: string }>;
-  private readonly TIMEOUT_MS = 10000;
-
+  
   private constructor() {
-    this.activeRequests = new Map();
-    this.logToAnalytics("service_start", "Network monitoring service initialized").catch(console.error);
+    console.log('NetworkMonitoringService initialized');
   }
 
-  static getInstance(): NetworkMonitoringService {
+  public static getInstance(): NetworkMonitoringService {
     if (!NetworkMonitoringService.instance) {
       NetworkMonitoringService.instance = new NetworkMonitoringService();
     }
     return NetworkMonitoringService.instance;
   }
 
-  monitorFetch = async (
-    input: RequestInfo | URL,
-    init?: RequestInit
-  ): Promise<Response> => {
-    const startTime = performance.now();
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-    const method = init?.method || 'GET';
-    const requestId = Math.random().toString(36).substring(7);
+  async logNetworkEvent(event: {
+    type: string;
+    message: string;
+    severity?: string;
+    status?: string;
+    url?: string;
+    httpStatus?: number;
+    responseTime?: number;
+    errorDetails?: string;
+    metadata?: any;
+  }) {
+    console.log('Logging network event:', event);
 
     try {
-      // Log request start
-      await this.logToAnalytics(
-        "request_start",
-        `${method} request to ${url}`,
-        url,
-        0,
-        {
-          requestId,
-          method,
-          headers: init?.headers ? JSON.stringify(Object.fromEntries(new Headers(init.headers).entries())) : undefined
-        }
-      );
-
-      const response = await fetch(input, init);
-      const duration = performance.now() - startTime;
-
-      // Log successful response
-      await this.logToAnalytics(
-        "request_complete",
-        `${method} request completed`,
-        url,
-        duration,
-        {
-          requestId,
-          status: response.status,
-          statusText: response.statusText,
-          headers: JSON.stringify(Object.fromEntries(response.headers.entries())),
-          duration: `${duration.toFixed(0)}ms`
-        }
-      );
-
-      if (!response.ok) {
-        // Log error response
-        const errorBody = await response.clone().text();
-        await this.logToAnalytics(
-          "request_error",
-          `HTTP ${response.status} error for ${method} ${url}`,
-          url,
-          duration,
-          {
-            requestId,
-            error: errorBody,
-            status: response.status,
-            severity: response.status >= 500 ? "high" : "medium"
-          }
-        );
-      }
-
-      return response;
-    } catch (error: any) {
-      const duration = performance.now() - startTime;
-      
-      // Log network error
-      await this.logToAnalytics(
-        "network_error",
-        error.message,
-        url,
-        duration,
-        {
-          requestId,
-          errorType: error.name,
-          stack: error.stack,
-          severity: "high"
-        }
-      );
-
-      throw error;
-    }
-  };
-
-  private async logToAnalytics(
-    type: string,
-    message: string,
-    url?: string,
-    duration: number = 0,
-    additionalMetadata: Record<string, any> = {}
-  ) {
-    try {
-      const { error } = await supabase.from("analytics_metrics").insert({
-        metric_name: type,
-        metric_value: duration,
-        metadata: {
-          message,
-          url,
-          timestamp: new Date().toISOString(),
-          severity: this.getSeverityLevel(type),
-          status: 'open',
-          ...additionalMetadata
-        },
-        endpoint_path: url,
-        response_time: duration > 0 ? duration : null,
-      });
+      const { data, error } = await supabase
+        .from('analytics_metrics')
+        .insert([{
+          metric_name: event.type,
+          metric_value: event.responseTime || 0,
+          metadata: {
+            message: event.message,
+            severity: event.severity || 'low',
+            status: event.status || 'open',
+            url: event.url,
+            errorDetails: event.errorDetails,
+            ...event.metadata
+          },
+          http_status: event.httpStatus,
+          endpoint_path: event.url ? new URL(event.url).pathname : null,
+          response_time: event.responseTime
+        }]);
 
       if (error) {
-        console.error("[Analytics] Failed to log event:", error);
+        console.error('Error logging network event:', error);
+        throw error;
       }
-    } catch (err) {
-      console.error("[Analytics] Unexpected error logging to analytics:", err);
+
+      console.log('Successfully logged network event:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to log network event:', error);
+      throw error;
     }
   }
 
-  private getSeverityLevel(type: string): string {
-    if (type.includes('error')) return 'high';
-    if (type.includes('warning')) return 'medium';
-    return 'low';
+  async logError(error: Error, metadata?: any) {
+    console.error('Logging error:', error);
+
+    return this.logNetworkEvent({
+      type: 'error',
+      message: error.message,
+      severity: 'high',
+      status: 'open',
+      errorDetails: error.stack,
+      metadata
+    });
   }
 
-  public cleanup() {
-    this.activeRequests.clear();
-    this.logToAnalytics("service_cleanup", "Network monitoring service cleaned up").catch(console.error);
+  async logApiRequest(url: string, startTime: number, status: number, error?: Error) {
+    const endTime = performance.now();
+    const responseTime = endTime - startTime;
+
+    console.log('Logging API request:', {
+      url,
+      status,
+      responseTime,
+      error
+    });
+
+    return this.logNetworkEvent({
+      type: 'api_request',
+      message: error ? `API request failed: ${error.message}` : 'API request completed',
+      severity: status >= 400 ? 'high' : 'low',
+      status: status >= 400 ? 'error' : 'success',
+      url,
+      httpStatus: status,
+      responseTime,
+      errorDetails: error?.stack
+    });
+  }
+
+  async logAuthEvent(event: string, metadata?: any) {
+    console.log('Logging auth event:', event, metadata);
+
+    return this.logNetworkEvent({
+      type: 'auth',
+      message: event,
+      severity: 'medium',
+      status: 'info',
+      metadata
+    });
+  }
+
+  async logPerformanceMetric(metric: string, value: number, metadata?: any) {
+    console.log('Logging performance metric:', metric, value, metadata);
+
+    return this.logNetworkEvent({
+      type: 'performance',
+      message: `Performance metric: ${metric}`,
+      severity: 'low',
+      status: 'info',
+      responseTime: value,
+      metadata
+    });
   }
 }
 

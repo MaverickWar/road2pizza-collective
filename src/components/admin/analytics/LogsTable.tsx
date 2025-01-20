@@ -30,6 +30,8 @@ interface LogsTableProps {
 }
 
 const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
+  console.log('LogsTable rendering with:', { logsCount: logs.length, isLoading });
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-8">
@@ -61,6 +63,12 @@ const LogsTable = ({ logs, isLoading }: LogsTableProps) => {
         return 'bg-yellow-500';
       case 'open':
         return 'bg-red-500';
+      case 'success':
+        return 'bg-green-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'info':
+        return 'bg-blue-500';
       default:
         return 'bg-gray-500';
     }

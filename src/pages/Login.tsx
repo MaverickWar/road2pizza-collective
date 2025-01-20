@@ -23,7 +23,7 @@ export default function Login() {
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
   });
@@ -51,14 +51,13 @@ export default function Login() {
             <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="identifier"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-admin-foreground">Email</FormLabel>
+                    <FormLabel className="text-admin-foreground">Email or Username</FormLabel>
                     <FormControl>
                       <Input 
-                        type="email"
-                        placeholder="Enter your email" 
+                        placeholder="Enter your email or username" 
                         className="bg-white border-admin-border focus:border-admin focus:ring-2 focus:ring-admin/20" 
                         disabled={isLoading}
                         {...field} 
@@ -112,12 +111,12 @@ export default function Login() {
               <Button
                 variant="link"
                 onClick={() => {
-                  const email = form.getValues('email');
-                  if (!email) {
-                    toast.error('Please enter your email address first');
+                  const identifier = form.getValues('identifier');
+                  if (!identifier) {
+                    toast.error('Please enter your email or username first');
                     return;
                   }
-                  handleForgotPassword(email);
+                  handleForgotPassword(identifier);
                 }}
                 className="text-admin hover:text-admin-hover-DEFAULT"
                 disabled={isSendingReset || isLoading}

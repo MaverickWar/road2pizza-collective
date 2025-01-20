@@ -25,17 +25,17 @@ export const useLogin = () => {
             return 'Please check your email to confirm your account before logging in.';
           }
           if (error.message.includes('Invalid login credentials')) {
-            return 'Invalid email or password. Please check your credentials and try again.';
+            return 'Invalid email/username or password. Please check your credentials and try again.';
           }
           if (error.message.includes('invalid_credentials')) {
-            return 'Invalid email or password. Please check your credentials and try again.';
+            return 'Invalid email/username or password. Please check your credentials and try again.';
           }
           if (error.message.includes('rate limit')) {
             return 'Too many login attempts. Please try again later.';
           }
           return 'Invalid login attempt. Please check your credentials and try again.';
         case 401:
-          return 'Invalid credentials. Please check your email and password.';
+          return 'Invalid credentials. Please check your email/username and password.';
         case 422:
           return 'Invalid email format. Please enter a valid email address.';
         case 429:
@@ -47,10 +47,28 @@ export const useLogin = () => {
     return error.message;
   };
 
-  const handleForgotPassword = async (email: string) => {
+  const handleForgotPassword = async (identifier: string) => {
     try {
       setIsSendingReset(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      // Check if identifier is an email
+      const isEmail = identifier.includes('@');
+      
+      if (!isEmail) {
+        // If username provided, get the email from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier)
+          .single();
+
+        if (profileError || !profile?.email) {
+          toast.error('Could not find an email associated with this username.');
+          return;
+        }
+        identifier = profile.email;
+      }
+
+      const { error } = await supabase.auth.resetPasswordForEmail(identifier, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
@@ -74,10 +92,31 @@ export const useLogin = () => {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
       
-      const email = values.email.toLowerCase().trim();
+      const identifier = values.identifier.toLowerCase().trim();
       const { password } = values;
       
-      console.log('Starting login attempt...', { email });
+      console.log('Starting login attempt...', { identifier });
+
+      // Check if identifier is an email
+      const isEmail = identifier.includes('@');
+      let email: string;
+
+      if (isEmail) {
+        email = identifier;
+      } else {
+        // If username provided, get the email from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('username', identifier)
+          .single();
+
+        if (profileError || !profile?.email) {
+          toast.error('Could not find a user with this username.');
+          return;
+        }
+        email = profile.email;
+      }
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -103,7 +142,7 @@ export const useLogin = () => {
         });
         
         toast.success('Login successful');
-        navigate('/'); // Changed from '/dashboard' to '/'
+        navigate('/');
       } else {
         console.error('No user data received from successful login');
         toast.error('Login failed - please try again');

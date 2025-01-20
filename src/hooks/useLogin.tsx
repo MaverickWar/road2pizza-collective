@@ -59,9 +59,15 @@ export const useLogin = () => {
           .from('profiles')
           .select('email')
           .eq('username', identifier)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile?.email) {
+        if (profileError) {
+          console.error('Profile lookup error:', profileError);
+          toast.error('Could not find an email associated with this username.');
+          return;
+        }
+
+        if (!profile?.email) {
           toast.error('Could not find an email associated with this username.');
           return;
         }
@@ -109,9 +115,15 @@ export const useLogin = () => {
           .from('profiles')
           .select('email')
           .eq('username', identifier)
-          .single();
+          .maybeSingle();
 
-        if (profileError || !profile?.email) {
+        if (profileError) {
+          console.error('Profile lookup error:', profileError);
+          toast.error('Could not find a user with this username.');
+          return;
+        }
+
+        if (!profile?.email) {
           toast.error('Could not find a user with this username.');
           return;
         }

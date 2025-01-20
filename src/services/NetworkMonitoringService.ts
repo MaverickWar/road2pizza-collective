@@ -1,7 +1,7 @@
-import { supabase } from "@/integrations/supabase/client";
-
 class NetworkMonitoringService {
   private static instance: NetworkMonitoringService;
+  private readonly SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
+  private readonly SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
   
   private constructor() {
     this.setupGlobalErrorHandling();
@@ -16,7 +16,6 @@ class NetworkMonitoringService {
   }
 
   private setupGlobalErrorHandling() {
-    // Capture unhandled promise rejections
     window.addEventListener('unhandledrejection', (event) => {
       this.logNetworkEvent({
         type: 'error_unhandled_rejection',
@@ -31,7 +30,6 @@ class NetworkMonitoringService {
       });
     });
 
-    // Capture global errors
     window.addEventListener('error', (event) => {
       this.logNetworkEvent({
         type: 'error_runtime',
@@ -60,7 +58,7 @@ class NetworkMonitoringService {
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      // Log all API requests, not just errors
+      // Don't log analytics_metrics requests to avoid infinite loop
       if ((url.includes('/api/') || url.includes('supabase')) && 
           !url.includes('analytics_metrics')) {
         await this.logApiRequest(
@@ -72,7 +70,6 @@ class NetworkMonitoringService {
         );
       }
       
-      // Log non-200 responses as errors
       if (!response.ok) {
         const errorText = await response.clone().text();
         await this.logNetworkEvent({
@@ -107,12 +104,7 @@ class NetworkMonitoringService {
     }
   };
 
-  private async isAuthenticated(): Promise<boolean> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return !!session?.user?.id;
-  }
-
-  async logNetworkEvent(event: {
+  private async logNetworkEvent(event: {
     type: string;
     message: string;
     severity?: string;
@@ -126,9 +118,16 @@ class NetworkMonitoringService {
     try {
       console.log('Logging network event:', event);
 
-      const { data, error } = await supabase
-        .from('analytics_metrics')
-        .insert([{
+      // Use direct fetch instead of Supabase client to avoid circular dependency
+      const response = await fetch(`${this.SUPABASE_URL}/rest/v1/analytics_metrics`, {
+        method: 'POST',
+        headers: {
+          'apikey': this.SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${this.SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify([{
           metric_name: event.type,
           metric_value: event.responseTime || 0,
           metadata: {
@@ -144,15 +143,15 @@ class NetworkMonitoringService {
           response_time: event.responseTime,
           timestamp: new Date().toISOString()
         }])
-        .select();
+      });
 
-      if (error) {
-        console.error('Error logging network event:', error);
+      if (!response.ok) {
+        console.error('Error logging network event:', await response.text());
         return null;
       }
 
-      console.log('Successfully logged network event:', data);
-      return data;
+      console.log('Successfully logged network event');
+      return response;
     } catch (error) {
       console.error('Failed to log network event:', error);
       return null;

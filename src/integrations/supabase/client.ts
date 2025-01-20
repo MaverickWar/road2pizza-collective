@@ -5,43 +5,6 @@ import { toast } from 'sonner';
 const SUPABASE_URL = "https://zbcadnulavhsmzfvbwtn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpiY2FkbnVsYXZoc216ZnZid3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ1MjQzODAsImV4cCI6MjA1MDEwMDM4MH0.hcdXgSWpLnI-QFQOVDOeyrivuSDpFuhrqOOzL-OhxsY";
 
-// Enhanced fetch implementation with better error handling
-const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
-  try {
-    console.log('Making Supabase request to:', typeof input === 'string' ? input : input.toString());
-    
-    // Create new headers with authentication
-    const headers = new Headers(init?.headers);
-    headers.set('apikey', SUPABASE_ANON_KEY);
-    headers.set('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
-    
-    const response = await fetch(input, {
-      ...init,
-      headers,
-    });
-
-    if (!response.ok) {
-      console.error('Supabase request failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-      });
-      
-      // Log the response body for debugging
-      const errorBody = await response.text();
-      console.error('Error response body:', errorBody);
-      
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response;
-  } catch (error) {
-    console.error('Supabase fetch error:', error);
-    toast.error('Failed to connect to the database. Please try again later.');
-    throw error;
-  }
-};
-
 // Create Supabase client with enhanced configuration
 export const supabase = createClient<Database>(
   SUPABASE_URL,
@@ -55,10 +18,9 @@ export const supabase = createClient<Database>(
       storageKey: 'supabase.auth.token',
     },
     global: {
-      fetch: customFetch,
       headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     },
   }
@@ -71,18 +33,24 @@ export const checkSupabaseConnection = async () => {
     const { data, error } = await supabase
       .from('profiles')
       .select('count')
-      .limit(1);
+      .limit(1)
+      .single();
     
     if (error) {
       console.error('Supabase health check failed:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+      });
       throw error;
     }
     
-    console.log('Supabase connection check successful');
+    console.log('Supabase connection successful:', data);
     return true;
   } catch (error) {
     console.error('Supabase connection check failed:', error);
-    toast.error('Database connection check failed');
+    toast.error('Database connection check failed. Please check console for details.');
     return false;
   }
 };

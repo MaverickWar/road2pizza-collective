@@ -14,6 +14,29 @@ class NetworkMonitoringService {
     return NetworkMonitoringService.instance;
   }
 
+  monitorFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const startTime = performance.now();
+    const url = input instanceof Request ? input.url : input.toString();
+    
+    console.log('Monitoring fetch request:', { url, init });
+    
+    try {
+      const response = await fetch(input, init);
+      const endTime = performance.now();
+      
+      // Log the API request
+      await this.logApiRequest(url, startTime, response.status);
+      
+      return response;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      if (error instanceof Error) {
+        await this.logApiRequest(url, startTime, 500, error);
+      }
+      throw error;
+    }
+  };
+
   async logNetworkEvent(event: {
     type: string;
     message: string;

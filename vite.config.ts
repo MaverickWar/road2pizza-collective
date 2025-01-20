@@ -17,13 +17,13 @@ export default defineConfig(({ mode }) => ({
       'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       'Access-Control-Allow-Credentials': 'true',
       
-      // Cache control
+      // Cache control - More restrictive for development
       'Cache-Control': mode === 'development' 
         ? 'no-store, no-cache, must-revalidate, proxy-revalidate'
         : 'public, max-age=31536000, immutable',
       'Surrogate-Control': 'no-store',
-      'Pragma': 'no-cache',
-      'Expires': '0',
+      'Pragma': mode === 'development' ? 'no-cache' : 'public',
+      'Expires': mode === 'development' ? '0' : '31536000',
       
       // Security headers
       'X-Content-Type-Options': 'nosniff',

@@ -19,31 +19,32 @@ type TableNames = keyof Database['public']['Tables'];
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,
-      gcTime: 5 * 60 * 1000, // Keep unused data in cache for 5 minutes
+      staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
+      gcTime: 1000 * 60 * 10,   // Keep unused data for 10 minutes
       retry: 3,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
+      refetchOnMount: "always",  // Always fetch fresh data on mount
+      refetchOnWindowFocus: false, // Don't refetch on window focus to prevent duplicate requests
       refetchOnReconnect: true,
       queryFn: async ({ queryKey }) => {
         try {
-          // Ensure the queryKey[0] is a valid table name
+          console.log('Query execution started:', { queryKey });
           const tableName = queryKey[0] as TableNames;
           
-          // Attempt to fetch data
           const { data, error } = await supabase
             .from(tableName)
             .select('*');
 
           if (error) {
+            console.error('Query error:', error);
             throw error;
           }
 
+          console.log('Query completed successfully:', { queryKey, rowCount: data?.length });
           return data;
         } catch (error: any) {
-          // If error is due to token expiration, refresh token and retry
           if (error.status === 401) {
+            console.log('Token expired, attempting refresh...');
             await refreshToken(supabase);
             return queryClient.defaultQueryFn({ queryKey });
           }
@@ -52,20 +53,27 @@ export const queryClient = new QueryClient({
       },
     },
     mutations: {
-      onError: async (error: Error, variables: unknown, context: unknown) => {
-        const { error: supabaseError } = await supabase
+      onError: async (error: Error) => {
+        console.error('Mutation error:', error);
+        const { error: loggingError } = await supabase
           .from('analytics_metrics')
           .insert({
-            metric_name: 'query_error',
+            metric_name: 'mutation_error',
             metric_value: 1,
             metadata: {
               error: error.message,
-              query: "unknown"
+              timestamp: new Date().toISOString()
             }
           });
 
-        if (supabaseError) console.error("Error logging query error:", supabaseError);
+        if (loggingError) console.error("Error logging mutation error:", loggingError);
       },
     }
   }
 });
+
+// Clear cache on auth state changes
+export const clearQueryCache = () => {
+  console.log('Clearing query cache...');
+  queryClient.clear();
+};

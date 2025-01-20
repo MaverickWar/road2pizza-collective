@@ -17,5 +17,6 @@ export const prefetchQuery = async (queryKey: string | string[], queryFn: () => 
   return queryClient.prefetchQuery({
     queryKey: key,
     queryFn,
+    staleTime: 1000 * 60 * 5, // Match the default staleTime
   });
 };

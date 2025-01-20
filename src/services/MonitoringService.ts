@@ -140,7 +140,27 @@ class MonitoringService {
         duration: 5000,
       });
 
+      // Send error report
+      this.sendErrorReport();
+
       this.lastNotificationTime = currentTime;
+    }
+  }
+
+  private async sendErrorReport() {
+    try {
+      const response = await fetch('/functions/v1/error-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to send error report:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error sending error report:', error);
     }
   }
 
@@ -256,6 +276,3 @@ class MonitoringService {
 }
 
 export const monitoringService = MonitoringService.getInstance();
-
-// Example usage to start monitoring if needed
-// monitoringService.startMonitoring();

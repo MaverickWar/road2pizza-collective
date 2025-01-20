@@ -43,41 +43,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const setupSessionRefresh = async () => {
       try {
-        // Clear any existing session data
-        localStorage.removeItem('supabase.auth.token');
-        
+        // Get current session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Error getting session:', sessionError);
+          await supabase.auth.signOut();
           navigate('/login');
           return;
         }
 
         if (!session) {
-          console.log('No session found, redirecting to login');
+          console.log('No session found');
+          await supabase.auth.signOut();
           navigate('/login');
           return;
         }
 
-        // Store the new session
-        localStorage.setItem('supabase.auth.token', JSON.stringify(session));
+        // Validate session data
+        if (!session.refresh_token || !session.expires_at) {
+          console.error('Invalid session data:', { 
+            hasRefreshToken: !!session.refresh_token,
+            expiresAt: session.expires_at 
+          });
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
+        }
 
-        // Calculate refresh time (5 minutes before expiry)
-        const expiresAt = session.expires_at ? new Date(session.expires_at).getTime() : 0;
+        // Calculate refresh timing
+        const expiresAt = new Date(session.expires_at).getTime();
         const timeUntilExpiry = expiresAt - Date.now();
-        const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000);
+        const refreshTime = Math.max(0, timeUntilExpiry - 5 * 60 * 1000); // 5 minutes before expiry
 
-        console.log('Session management:', {
+        console.log('Session status:', {
           expiresAt: new Date(expiresAt).toISOString(),
           timeUntilExpiry: Math.floor(timeUntilExpiry / 1000),
-          refreshTime: Math.floor(refreshTime / 1000),
-          hasRefreshToken: !!session.refresh_token
+          refreshTime: Math.floor(refreshTime / 1000)
         });
 
-        if (refreshTime > 0 && mounted && session.refresh_token) {
+        // Set up refresh timer
+        if (refreshTime > 0 && mounted) {
           refreshTimer = setTimeout(async () => {
             try {
+              console.log('Attempting to refresh session...');
               const { data, error } = await supabase.auth.refreshSession();
               
               if (error) {
@@ -88,9 +97,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 return;
               }
 
-              console.log('Session refreshed successfully:', data.session?.expires_at);
+              if (!data.session) {
+                console.error('No session returned after refresh');
+                toast.error("Session refresh failed. Please sign in again.");
+                await supabase.auth.signOut();
+                navigate('/login');
+                return;
+              }
+
+              console.log('Session refreshed successfully:', {
+                expiresAt: data.session.expires_at,
+                user: data.session.user.id
+              });
+
               if (mounted) {
-                setupSessionRefresh(); // Setup next refresh
+                setupSessionRefresh(); // Setup next refresh cycle
               }
             } catch (error) {
               console.error('Unexpected error during session refresh:', error);
@@ -100,12 +121,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
           }, refreshTime);
         } else {
-          console.log('Session requires immediate refresh or is invalid');
+          console.log('Session requires immediate refresh');
           await supabase.auth.signOut();
           navigate('/login');
         }
       } catch (error) {
         console.error('Error in setupSessionRefresh:', error);
+        await supabase.auth.signOut();
         navigate('/login');
       }
     };
@@ -113,38 +135,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change event:", event);
+      console.log("Auth state change:", { event, sessionExists: !!session });
       
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
+      if (event === 'SIGNED_IN') {
+        console.log('User signed in, initializing session');
         if (mounted) {
-          setupSessionRefresh();
+          await setupSessionRefresh();
         }
       }
       
       if (event === 'SIGNED_OUT') {
         console.log('User signed out, cleaning up');
         clearTimeout(refreshTimer);
-        localStorage.removeItem('supabase.auth.token');
         navigate('/login');
       }
-
-      if (event === 'SIGNED_IN') {
-        console.log('User signed in, setting up session');
+      
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed, updating session');
         if (mounted) {
-          setupSessionRefresh();
+          await setupSessionRefresh();
         }
       }
     });
 
-    // Initial setup
+    // Initial session setup
     setupSessionRefresh();
 
     return () => {
       console.log('Cleaning up auth provider');
       mounted = false;
-      subscription.unsubscribe();
       clearTimeout(refreshTimer);
+      subscription.unsubscribe();
     };
   }, [navigate]);
 

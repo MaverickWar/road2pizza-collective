@@ -8,10 +8,10 @@ import { cn } from "@/lib/utils";
 
 export const AdminHeader = () => {
   const { user } = useAuth();
-  const { toggleSidebar, isMobile } = useSidebar();
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
   return (
-    <div className="fixed top-0 right-0 left-0 z-50 bg-admin-gradient shadow-admin">
+    <div className="fixed top-0 right-0 left-0 z-40 bg-admin-gradient shadow-admin">
       <div className="p-3 md:p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
@@ -20,7 +20,7 @@ export const AdminHeader = () => {
                 variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/10"
-                onClick={toggleSidebar}
+                onClick={() => setOpenMobile(!openMobile)}
               >
                 <Menu className="h-5 w-5" />
               </Button>
@@ -51,4 +51,4 @@ export const AdminHeader = () => {
       </div>
     </div>
   );
-};
+}

@@ -14,7 +14,10 @@ const ForumCategories = () => {
           id,
           name,
           description,
-          forum_threads!forum_threads_category_id_fkey (
+          display_order,
+          created_at,
+          created_by,
+          forum_threads (
             id,
             title,
             content,

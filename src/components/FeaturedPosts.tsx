@@ -59,23 +59,23 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-background via-background to-secondary/5">
-      <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
-        <div className="text-center mb-12 md:mb-16">
+    <section className="py-section-md lg:py-section-lg bg-gradient-to-b from-background via-background to-secondary/5">
+      <div className="container">
+        <div className="text-center mb-section-md lg:mb-section-lg">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent inline-block">
             Featured Recipes
           </h2>
-          <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="mt-component-sm text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Discover our community's most loved and highly rated pizza recipes
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-lg">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="animate-pulse bg-card rounded-xl overflow-hidden shadow-lg">
                 <Skeleton className="h-56 w-full" />
-                <div className="p-6 space-y-4">
+                <div className="p-component-md space-y-component-sm">
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-8 w-1/2" />
                   <Skeleton className="h-4 w-full" />
@@ -108,18 +108,18 @@ const FeaturedPosts = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 
-                <div className="flex-1 p-6">
-                  <div className="flex items-center gap-2 text-sm text-accent mb-3">
+                <div className="flex-1 p-component-md">
+                  <div className="flex items-center gap-2 text-sm text-accent mb-component-sm">
                     <ChefHat className="w-4 h-4" />
                     <span className="font-medium">{recipe.categories?.name || 'Classic'}</span>
                   </div>
                   
-                  <h3 className="text-xl font-bold mb-4 group-hover:text-accent transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold mb-component-md group-hover:text-accent transition-colors line-clamp-2">
                     {recipe.title}
                   </h3>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-600 mt-auto pt-4 border-t border-gray-100">
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between text-sm text-gray-600 mt-auto pt-component-sm border-t border-gray-100">
+                    <div className="flex items-center gap-component-sm">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-gray-400" />
                         <span>{recipe.prep_time || '30 mins'}</span>

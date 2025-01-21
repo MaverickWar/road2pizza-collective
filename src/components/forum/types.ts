@@ -28,8 +28,13 @@ export interface Thread extends DBThread {
   posts?: Post[];
 }
 
-export interface Post extends DBPost {
+export interface Post {
+  id: string;
   thread_id: string;
+  content: string;
+  created_at: string;
+  created_by: string | null;
+  updated_at: string;
   user?: {
     username: string;
     avatar_url?: string | null;
@@ -41,11 +46,11 @@ export interface Post extends DBPost {
   };
   is_pinned?: boolean;
   count?: number;
-  is_solution?: boolean;
-  is_edited?: boolean;
-  likes_count?: number;
-  is_reported?: boolean;
-  is_removed?: boolean;
+  is_solution: boolean | null;
+  is_edited: boolean | null;
+  likes_count: number | null;
+  is_reported: boolean | null;
+  is_removed: boolean | null;
 }
 
 export interface Forum extends DBForum {

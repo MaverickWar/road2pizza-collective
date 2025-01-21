@@ -18,16 +18,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isTransitioning, setIsTransitioning] = useState(true);
+  const [sessionValidated, setSessionValidated] = useState(false);
 
   useEffect(() => {
-    console.log("DashboardLayout state change:", {
+    console.log("DashboardLayout mounted", {
       path: location.pathname,
       user: !!user,
       isAdmin,
       isLoading,
-      isTransitioning
+      isTransitioning,
+      sessionValidated
     });
-  }, [location.pathname, user, isAdmin, isLoading, isTransitioning]);
+
+    return () => {
+      console.log("DashboardLayout unmounted");
+    };
+  }, [location.pathname, user, isAdmin, isLoading, isTransitioning, sessionValidated]);
 
   useEffect(() => {
     let mounted = true;
@@ -52,11 +58,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         if (mounted) {
           console.log("Admin access validated");
+          setSessionValidated(true);
           setIsTransitioning(false);
         }
       } catch (error) {
         console.error("Session validation error:", error);
-        navigate('/login', { replace: true });
+        if (mounted) {
+          navigate('/login', { replace: true });
+        }
       }
     };
 
@@ -70,23 +79,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user, isAdmin, isLoading, navigate]);
 
   // Show loading states
-  if (isLoading || isTransitioning || !user || !isAdmin) {
+  if (isLoading || isTransitioning || !user || !isAdmin || !sessionValidated) {
     return <LoadingScreen showWelcome={false} />;
   }
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-admin-background">
+      <div className="min-h-screen bg-admin-background flex flex-col">
         <AdminSidebar />
         
-        <div className="flex-1 min-h-screen md:pl-64 transition-all duration-300">
+        <div className="flex-1 md:pl-64 flex flex-col min-h-screen transition-all duration-300">
           <AdminHeader />
           
-          <Suspense fallback={<LoadingScreen duration={500} />}>
-            <main className="p-3 md:p-6 pt-16 md:pt-20">
+          <main className="flex-1 p-3 md:p-6 pt-16 md:pt-20">
+            <Suspense fallback={<LoadingScreen duration={500} />}>
               {children}
-            </main>
-          </Suspense>
+            </Suspense>
+          </main>
           
           <AdminFooter />
         </div>

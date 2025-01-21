@@ -23,6 +23,20 @@ function AppContent() {
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
   useEffect(() => {
+    console.log("AppContent mounted", {
+      path: location.pathname,
+      isAdminRoute,
+      user: !!user,
+      isAdmin,
+      isLoading
+    });
+
+    return () => {
+      console.log("AppContent unmounted");
+    };
+  }, []);
+
+  useEffect(() => {
     console.log("Route change detected:", {
       path: location.pathname,
       isAdminRoute,
@@ -30,9 +44,7 @@ function AppContent() {
       isAdmin,
       isLoading
     });
-  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading]);
 
-  useEffect(() => {
     if (!isLoading && isAdminRoute) {
       if (!user) {
         console.log("No user found on admin route, redirecting to login");
@@ -48,20 +60,11 @@ function AppContent() {
         return;
       }
     }
-  }, [isLoading, isAdminRoute, user, isAdmin, navigate]);
+  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, navigate]);
 
-  // Show loading screen during initial auth check
   if (isLoading) {
     console.log("Initial auth check in progress");
     return <LoadingScreen showWelcome={false} />;
-  }
-
-  // Handle admin route access
-  if (isAdminRoute) {
-    if (!user || !isAdmin) {
-      console.log("Unauthorized admin access attempt, showing loading");
-      return <LoadingScreen showWelcome={false} />;
-    }
   }
 
   return (

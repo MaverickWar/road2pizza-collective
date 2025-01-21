@@ -15,7 +15,7 @@ import {
   X
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { Sidebar } from "@/components/ui/sidebar/SidebarBase";
+import { SidebarBase } from "@/components/ui/sidebar/SidebarBase";
 import { useSidebar } from "@/components/ui/sidebar/SidebarContext";
 
 const menuItems = [
@@ -46,14 +46,15 @@ export function AdminSidebar() {
         />
       )}
 
-      <Sidebar 
+      <SidebarBase 
         className={cn(
           "fixed top-0 left-0 z-50 h-screen bg-white border-r border-admin-border shadow-admin transition-all duration-300",
           collapsed && !isMobile ? "w-20" : "w-64",
           isMobile && "transform",
           isMobile && !openMobile && "-translate-x-full"
         )}
-        side="left"
+        position="left"
+        panelId="admin-sidebar"
       >
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between p-4 border-b border-admin-border">
@@ -99,7 +100,7 @@ export function AdminSidebar() {
             })}
           </nav>
         </div>
-      </Sidebar>
+      </SidebarBase>
     </>
   );
 }

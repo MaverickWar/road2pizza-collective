@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       'Expires': '0',
       'Content-Security-Policy': `
         default-src 'self' https://*.supabase.co https://*.supabase.in;
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.dev https://*.cloudflare.com;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.dev https://*.cloudflare.com https://cdn.gpteng.co;
         style-src 'self' 'unsafe-inline';
         img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://*.cloudflare.com https://images.unsplash.com https://*.unsplash.com;
         frame-src 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;

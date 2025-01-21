@@ -8,9 +8,7 @@ const Index = () => {
   return (
     <>
       <Hero />
-      <div className="container mx-auto px-4">
-        <FeaturedPosts />
-      </div>
+      <FeaturedPosts />
     </>
   );
 };

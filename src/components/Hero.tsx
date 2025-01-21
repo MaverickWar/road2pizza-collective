@@ -21,19 +21,19 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative w-full py-16 md:py-24">
+    <section className="relative w-full py-20">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: 'url("https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80")',
-          maxHeight: '600px'
+          maxHeight: '800px'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
       
       <div className="relative container mx-auto px-4">
-        <div className="max-w-2xl mx-auto space-y-6 md:space-y-8 mb-12">
+        <div className="max-w-2xl mx-auto space-y-6 md:space-y-8 mb-16">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
             <span className="text-white">Master the Art of</span>
             <span className="block mt-2 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">Pizza Making</span>

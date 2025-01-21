@@ -1,11 +1,11 @@
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminFooter } from "@/components/admin/AdminFooter";
 import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
 import LoadingScreen from "./LoadingScreen";
 import { useAuth } from "./AuthProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,49 +16,61 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isTransitioning, setIsTransitioning] = useState(true);
 
   useEffect(() => {
-    console.log("DashboardLayout mounted, checking auth state:", {
-      user,
+    console.log("DashboardLayout state change:", {
+      path: location.pathname,
+      user: !!user,
       isAdmin,
-      isLoading
+      isLoading,
+      isTransitioning
     });
+  }, [location.pathname, user, isAdmin, isLoading, isTransitioning]);
 
-    const checkAccess = async () => {
+  useEffect(() => {
+    let mounted = true;
+
+    const validateAccess = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error || !session) {
-          console.log("No valid session found in DashboardLayout");
+          console.log("Invalid session in DashboardLayout");
           toast.error("Please login to access the admin dashboard");
-          navigate('/login');
+          navigate('/login', { replace: true });
           return;
         }
 
         if (!user || !isAdmin) {
-          console.log("Access denied - User not admin:", { user, isAdmin });
+          console.log("Access denied - Not admin");
           toast.error("Admin access required");
-          navigate('/');
+          navigate('/', { replace: true });
           return;
         }
 
-        console.log("Admin access granted:", { 
-          userId: session.user.id,
-          isAdmin 
-        });
+        if (mounted) {
+          console.log("Admin access validated");
+          setIsTransitioning(false);
+        }
       } catch (error) {
-        console.error("Session check error:", error);
-        navigate('/login');
+        console.error("Session validation error:", error);
+        navigate('/login', { replace: true });
       }
     };
 
     if (!isLoading) {
-      checkAccess();
+      validateAccess();
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [user, isAdmin, isLoading, navigate]);
 
-  // Show loading screen while checking auth
-  if (isLoading || !user || !isAdmin) {
+  // Show loading states
+  if (isLoading || isTransitioning || !user || !isAdmin) {
     return <LoadingScreen showWelcome={false} />;
   }
 

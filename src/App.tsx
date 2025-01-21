@@ -8,43 +8,58 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Suspense, useEffect, memo } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { toast } from "sonner";
 
 const MemoizedMainLayout = memo(MainLayout);
 const MemoizedDashboardLayout = memo(DashboardLayout);
 
 function AppContent() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAdmin, isLoading } = useAuth();
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
   useEffect(() => {
-    console.log("AppContent state:", { 
-      user, 
-      isAdmin, 
+    console.log("Route change detected:", {
       path: location.pathname,
-      isLoading,
-      isAdminRoute 
+      isAdminRoute,
+      user: !!user,
+      isAdmin,
+      isLoading
     });
-  }, [user, isAdmin, location.pathname, isLoading, isAdminRoute]);
+  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading]);
 
-  // Always show loading during initial auth check
+  useEffect(() => {
+    if (!isLoading && isAdminRoute) {
+      if (!user) {
+        console.log("No user found on admin route, redirecting to login");
+        toast.error("Please login to access the admin dashboard");
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      if (!isAdmin) {
+        console.log("Non-admin user on admin route, redirecting to home");
+        toast.error("Admin access required");
+        navigate('/', { replace: true });
+        return;
+      }
+    }
+  }, [isLoading, isAdminRoute, user, isAdmin, navigate]);
+
+  // Show loading screen during initial auth check
   if (isLoading) {
-    console.log("Showing loading screen - auth check in progress");
+    console.log("Initial auth check in progress");
     return <LoadingScreen showWelcome={false} />;
   }
 
-  // Show loading during admin route transitions
+  // Handle admin route access
   if (isAdminRoute) {
-    if (!user) {
-      console.log("No user found on admin route, redirecting...");
-      return <LoadingScreen showWelcome={false} />;
-    }
-    
-    if (!isAdmin) {
-      console.log("Non-admin user on admin route, redirecting...");
+    if (!user || !isAdmin) {
+      console.log("Unauthorized admin access attempt, showing loading");
       return <LoadingScreen showWelcome={false} />;
     }
   }

@@ -33,6 +33,11 @@ const ProtectedRoute = ({ children, requireAdmin, requireStaff }: ProtectedRoute
           navigate("/login");
           return;
         }
+
+        console.log("ProtectedRoute session check:", {
+          sessionExists: !!session,
+          userId: session?.user?.id
+        });
       } catch (error) {
         console.error("Unexpected error checking session:", error);
         navigate("/login");

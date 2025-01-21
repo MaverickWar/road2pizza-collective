@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminFooter } from "@/components/admin/AdminFooter";
@@ -6,8 +6,8 @@ import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
 import LoadingScreen from "./LoadingScreen";
 import { useAuth } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -18,11 +18,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session) {
+          console.log("No valid session found in DashboardLayout");
+          toast.error("Please login to access the admin dashboard");
+          navigate('/login');
+          return;
+        }
+
+        console.log("DashboardLayout session check:", { 
+          sessionExists: !!session,
+          userId: session?.user?.id
+        });
+      } catch (error) {
+        console.error("Session check error:", error);
+        navigate('/login');
+      }
+    };
+
+    if (!isLoading) {
+      checkSession();
+    }
+  }, [isLoading, navigate]);
+
+  useEffect(() => {
     console.log("DashboardLayout auth state:", { user, isAdmin, isLoading });
     
-    // Only redirect if we're done loading and either:
-    // 1. There's no user (not authenticated)
-    // 2. User is not an admin
     if (!isLoading) {
       if (!user) {
         console.log("No user found, redirecting to login...");
@@ -32,7 +56,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
       
       if (!isAdmin) {
-        console.log("Non-admin user attempting to access admin area, redirecting...");
+        console.log("Non-admin user attempting to access admin area");
         toast.error("Admin access required");
         navigate('/');
         return;

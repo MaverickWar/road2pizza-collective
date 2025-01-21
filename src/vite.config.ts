@@ -6,8 +6,7 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   plugins: [
     react({
-      // Add development specific options
-      jsxRuntime: mode === 'development' ? 'classic' : 'automatic',
+      // Only include development specific options
       devTools: mode === 'development',
     }),
     mode === 'development' && componentTagger(),

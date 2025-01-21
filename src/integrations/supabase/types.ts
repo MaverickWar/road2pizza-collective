@@ -493,6 +493,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "forum_threads_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "forum_categories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "forum_threads_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false

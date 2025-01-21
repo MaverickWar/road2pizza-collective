@@ -92,10 +92,10 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="min-h-screen bg-admin-background flex flex-col">
         <MemoizedAdminSidebar />
         
-        <div className="flex-1 md:pl-64 flex flex-col min-h-screen transition-all duration-300">
+        <div className="flex-1 lg:pl-64 flex flex-col min-h-screen transition-all duration-300">
           <MemoizedAdminHeader />
           
-          <main className="flex-1 p-3 md:p-6 pt-16 md:pt-20">
+          <main className="flex-1 container py-section-md lg:py-section-lg">
             <Suspense fallback={<LoadingScreen duration={500} />}>
               {children}
             </Suspense>

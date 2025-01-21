@@ -12,17 +12,34 @@ export default {
     container: {
       center: true,
       padding: {
-        DEFAULT: "var(--container-padding-DEFAULT)",
-        sm: "var(--container-padding-sm)",
-        lg: "var(--container-padding-lg)",
-        xl: "var(--container-padding-xl)",
-        "2xl": "var(--container-padding-2xl)",
+        DEFAULT: "1rem",
+        sm: "2rem",
+        lg: "3rem",
+        xl: "4rem",
+        "2xl": "5rem",
       },
       screens: {
-        "2xl": "var(--screen-2xl)",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1536px",
       },
     },
     extend: {
+      spacing: {
+        'section': {
+          sm: '2rem',    // 32px
+          md: '3rem',    // 48px
+          lg: '4rem',    // 64px
+          xl: '5rem',    // 80px
+        },
+        'component': {
+          sm: '1rem',    // 16px
+          md: '1.5rem',  // 24px
+          lg: '2rem',    // 32px
+        }
+      },
       colors: {
         admin: {
           DEFAULT: "rgb(var(--admin-DEFAULT) / <alpha-value>)",

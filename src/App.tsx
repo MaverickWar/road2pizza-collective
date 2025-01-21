@@ -21,7 +21,13 @@ function AppContent() {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading } = useAuth();
   const [isRouteReady, setIsRouteReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
+
+  // Handle client-side only rendering
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Memoize route check to prevent unnecessary re-renders
   const checkRouteAccess = useCallback(() => {
@@ -52,36 +58,23 @@ function AppContent() {
     return true;
   }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
 
-  // Handle initial mount and auth state
   useEffect(() => {
-    console.log("AppContent mounted", {
-      path: location.pathname,
-      isAdminRoute,
-      user: !!user,
-      isAdmin,
-      isLoading
-    });
-
-    // Set route as ready after initial auth check
     if (!isLoading) {
       setIsRouteReady(true);
     }
+  }, [isLoading]);
 
-    return () => {
-      console.log("AppContent unmounted");
-    };
-  }, [isLoading, location.pathname, isAdminRoute, user, isAdmin]);
-
-  // Handle route changes and access control
   useEffect(() => {
     if (!isLoading && isRouteReady) {
       checkRouteAccess();
     }
   }, [checkRouteAccess, isLoading, isRouteReady]);
 
-  // Show loading screen during initial load
+  if (!isMounted) {
+    return null;
+  }
+
   if (isLoading || !isRouteReady) {
-    console.log("Initial loading state:", { isLoading, isRouteReady });
     return <LoadingScreen showWelcome={false} />;
   }
 

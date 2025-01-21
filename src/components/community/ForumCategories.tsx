@@ -11,8 +11,10 @@ const ForumCategories = () => {
       const { data, error } = await supabase
         .from('forum_categories')
         .select(`
-          *,
-          forum_threads (
+          id,
+          name,
+          description,
+          forum_threads!forum_threads_category_id_fkey (
             id,
             title,
             content,

@@ -27,7 +27,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
 
   const fetchThread = async () => {
     try {
-      console.log("Fetching thread:", id);
+      console.log("Fetching thread with ID:", id);
       const { data, error } = await supabase
         .from("forum_threads")
         .select(`
@@ -81,17 +81,23 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
       }
 
       if (data) {
-        // Update view count only if thread exists
-        await supabase
+        console.log("Thread data fetched successfully:", data);
+        
+        // Update view count
+        const { error: updateError } = await supabase
           .from("forum_threads")
           .update({ view_count: (data.view_count || 0) + 1 })
           .eq("id", id);
 
-        console.log("Fetched thread:", data);
+        if (updateError) {
+          console.error("Error updating view count:", updateError);
+        }
+
         setThread(data as Thread);
         
         // Check if thread is password protected
         if (data.password_protected) {
+          console.log("Thread is password protected");
           setIsPasswordDialogOpen(true);
           setHasAccess(false);
         } else {
@@ -102,7 +108,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
         toast.error("Thread not found");
       }
     } catch (error) {
-      console.error("Error fetching thread:", error);
+      console.error("Error in fetchThread:", error);
       toast.error("Error loading thread");
     } finally {
       setLoading(false);
@@ -111,7 +117,8 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
 
   useEffect(() => {
     if (id) {
-      setHasAccess(false); // Reset access state when thread ID changes
+      console.log("Thread ID changed, fetching new thread data:", id);
+      setHasAccess(false);
       fetchThread();
     }
   }, [id]);
@@ -129,11 +136,11 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="p-4">Loading thread...</div>;
   }
 
   if (!thread) {
-    return <div>Thread not found</div>;
+    return <div className="p-4">Thread not found</div>;
   }
 
   if (thread.password_protected && !hasAccess) {

@@ -5,7 +5,7 @@ type DBPost = Database['public']['Tables']['forum_posts']['Row'];
 type DBForum = Database['public']['Tables']['forums']['Row'];
 type DBForumSettings = Database['public']['Tables']['forum_settings']['Row'];
 
-export interface Thread extends DBThread {
+export interface Thread extends Omit<DBThread, 'forum_id' | 'category_id'> {
   forum?: {
     id: string;
     title: string;

@@ -31,7 +31,8 @@ import ForumManagement from "@/pages/admin/ForumManagement";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import ArticleDetail from "@/components/article/ArticleDetail";
-import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
+import EquipmentReviewDetail from "@/pages/reviews/EquipmentReviewDetail";
+import ThreadView from "@/components/forum/ThreadView";
 
 export function AppRoutes() {
   return (
@@ -44,6 +45,7 @@ export function AppRoutes() {
       <Route path="/pizza" element={<Pizza />} />
       <Route path="/pizza/:style" element={<PizzaStyle />} />
       <Route path="/community" element={<Community />} />
+      <Route path="/community/forum/thread/:id" element={<ThreadView />} />
       <Route path="/reviews" element={<Reviews />} />
       <Route path="/logs" element={<LogsPage />} />
       

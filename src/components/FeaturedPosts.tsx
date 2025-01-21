@@ -43,25 +43,23 @@ const FeaturedPosts = () => {
         return data || [];
       } catch (error: any) {
         console.error('Failed to fetch featured recipes:', error);
-        // Only show one error toast
         toast.error("Unable to load featured recipes", {
           id: 'featured-recipes-error',
         });
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 10 * 60 * 1000,   // Keep unused data for 10 minutes
-    retry: 1, // Only retry once
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
   });
 
-  // Don't render anything if there's an error or no recipes
   if (error || (!isLoading && (!recipes || recipes.length === 0))) {
     return null;
   }
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-background via-background to-secondary/5">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-background via-background to-secondary/5">
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent inline-block">

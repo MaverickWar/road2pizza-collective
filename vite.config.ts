@@ -9,15 +9,13 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
-      // CORS headers - Allow Lovable domains
-      'Access-Control-Allow-Origin': mode === 'development' 
-        ? 'http://localhost:8080' 
-        : '*.lovable.app',
+      // CORS headers - Allow all origins in development
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
       'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
       'Access-Control-Allow-Credentials': 'true',
       
-      // Cache control - More restrictive for development
+      // Cache control
       'Cache-Control': mode === 'development' 
         ? 'no-store, no-cache, must-revalidate, proxy-revalidate'
         : 'public, max-age=31536000, immutable',
@@ -36,13 +34,11 @@ export default defineConfig(({ mode }) => ({
       // Cookie security
       'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
       
-      // CSP - Configured for Supabase and Lovable domains
-      'Content-Security-Policy': "default-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.app; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:* https://*.lovable.app; img-src 'self' data: blob: https://*.supabase.co; style-src 'self' 'unsafe-inline'; frame-ancestors 'none';"
+      // CSP - Allow Supabase domains and local development
+      'Content-Security-Policy': "default-src 'self' https://*.supabase.co https://*.supabase.in; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:*; img-src 'self' data: blob: https://*.supabase.co; style-src 'self' 'unsafe-inline'; frame-ancestors 'none';"
     },
     cors: {
-      origin: mode === 'development' 
-        ? 'http://localhost:8080' 
-        : '*.lovable.app',
+      origin: '*',
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
       credentials: true,
       allowedHeaders: ['authorization', 'x-client-info', 'apikey', 'content-type']

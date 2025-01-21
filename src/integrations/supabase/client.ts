@@ -19,6 +19,9 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       detectSessionInUrl: true,
       flowType: 'pkce',
+      storage: window.localStorage,
+      storageKey: 'supabase.auth.token',
+      debug: true // Enable debug logs
     },
     global: {
       headers: {
@@ -32,6 +35,14 @@ export const supabase = createClient<Database>(
     },
   }
 );
+
+// Add connection status monitoring
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', { event, session });
+  if (!session) {
+    console.log('No active session');
+  }
+});
 
 // Export constants for use in other services
 export { SUPABASE_URL, SUPABASE_ANON_KEY };

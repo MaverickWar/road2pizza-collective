@@ -30,7 +30,7 @@ export interface Thread extends Omit<DBThread, 'forum_id' | 'category_id'> {
 
 export interface Post {
   id: string;
-  thread_id: string;
+  thread_id?: string; // Made optional since it might not be present in some contexts
   content: string;
   created_at: string;
   created_by: string | null;
@@ -49,7 +49,6 @@ export interface Post {
     badge_title?: string;
     badge_color?: string;
   };
-  is_pinned?: boolean;
   count?: number;
 }
 

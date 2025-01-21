@@ -47,23 +47,25 @@ const ThreadManagement = () => {
 
       console.log('Successfully fetched threads:', data);
       
-      const transformedData = data?.map(thread => {
-        const postsCount = thread.posts?.[0]?.count || 0;
-        return {
-          ...thread,
-          author: thread.author || undefined,
-          forum: thread.forum || undefined,
-          posts: [{
-            id: '',
-            thread_id: thread.id,
-            content: '',
-            created_at: new Date().toISOString(),
-            created_by: '',
-            updated_at: new Date().toISOString(),
-            count: postsCount
-          }]
-        };
-      }) as Thread[];
+      const transformedData = data?.map(thread => ({
+        ...thread,
+        author: thread.author || undefined,
+        forum: thread.forum || undefined,
+        posts: [{
+          id: '',
+          thread_id: thread.id,
+          content: '',
+          created_at: new Date().toISOString(),
+          created_by: '',
+          updated_at: new Date().toISOString(),
+          is_solution: null,
+          is_edited: null,
+          likes_count: null,
+          is_reported: null,
+          is_removed: null,
+          count: thread.posts?.[0]?.count || 0
+        }]
+      })) as Thread[];
 
       return transformedData;
     },

@@ -92,7 +92,7 @@ function App() {
       <BrowserRouter>
         <QueryProvider>
           <AuthProvider>
-            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <ThemeProvider>
               <MemoizedAppContent />
               <Toaster />
             </ThemeProvider>

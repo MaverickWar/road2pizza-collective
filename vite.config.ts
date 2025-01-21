@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
       
       // Security headers
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
+      'X-Frame-Options': 'SAMEORIGIN', // Changed from DENY to SAMEORIGIN
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
@@ -34,8 +34,16 @@ export default defineConfig(({ mode }) => ({
       // Cookie security
       'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
       
-      // CSP - Allow Supabase domains and local development
-      'Content-Security-Policy': "default-src 'self' https://*.supabase.co https://*.supabase.in; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:*; img-src 'self' data: blob: https://*.supabase.co; style-src 'self' 'unsafe-inline'; frame-ancestors 'none';"
+      // CSP - Allow Supabase domains, local development, and frame ancestors
+      'Content-Security-Policy': `
+        default-src 'self' https://*.supabase.co https://*.supabase.in;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:*;
+        img-src 'self' data: blob: https://*.supabase.co;
+        style-src 'self' 'unsafe-inline';
+        frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in;
+        frame-src 'self' https://*.supabase.co https://*.supabase.in;
+      `.replace(/\s+/g, ' ').trim()
     },
     cors: {
       origin: '*',

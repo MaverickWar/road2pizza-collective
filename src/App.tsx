@@ -30,19 +30,20 @@ function AppContent() {
     });
   }, [user, isAdmin, location.pathname, isLoading]);
 
-  // Show loading only during initial auth check
+  // Show loading screen during initial auth check and route transitions
   if (isLoading) {
-    return <LoadingScreen />;
+    return <LoadingScreen showWelcome={!!user} />;
   }
 
-  // If on admin route but not admin, redirect will happen in ProtectedRoute
+  // If on admin route but not admin, show loading while redirect happens
   if (isAdminRoute && !isAdmin && user) {
-    return null;
+    console.log("Non-admin attempting to access admin route, redirecting...");
+    return <LoadingScreen showWelcome={false} />;
   }
 
-  // Only use one Suspense boundary at the app level
+  // Use a single Suspense boundary for code splitting
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={<LoadingScreen showWelcome={!!user} />}>
       {isAdminRoute ? (
         <MemoizedDashboardLayout>
           <AppRoutes />

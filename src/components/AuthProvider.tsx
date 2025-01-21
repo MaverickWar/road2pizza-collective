@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import type { Profile } from "@/types/profile";
@@ -39,96 +39,95 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     handleUsernameSet,
   } = useAuthState();
 
-  useEffect(() => {
-    let refreshTimer: NodeJS.Timeout;
+  const [sessionChecked, setSessionChecked] = useState(false);
 
-    const setupSessionRefresh = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Current session:", session?.user?.id);
+  const setupSessionRefresh = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session?.user?.id);
+      
+      if (session?.user?.id) {
+        const expiresAt = session.expires_at ? new Date(session.expires_at * 1000) : null;
+        const refreshTime = expiresAt ? expiresAt.getTime() - Date.now() - (5 * 60 * 1000) : null;
         
-        if (session?.user?.id) {
-          // Calculate refresh time (5 minutes before expiry)
-          const expiresAt = session.expires_at ? new Date(session.expires_at * 1000) : null;
-          const refreshTime = expiresAt ? expiresAt.getTime() - Date.now() - (5 * 60 * 1000) : null;
-          
-          console.log("Session expires at:", expiresAt);
-          console.log("Will refresh in:", refreshTime ? `${refreshTime/1000}s` : 'N/A');
-          
-          if (refreshTime && refreshTime > 0) {
-            refreshTimer = setTimeout(async () => {
-              console.log("Refreshing session...");
-              const { data, error } = await supabase.auth.refreshSession();
-              
-              if (error) {
-                console.error('Session refresh failed:', error);
-                toast.error("Your session has expired. Please sign in again.");
-                await supabase.auth.signOut();
-                navigate('/login');
-              } else {
-                console.log('Session refreshed successfully:', data.session?.expires_at);
-                setupSessionRefresh(); // Setup next refresh
-              }
-            }, refreshTime);
-          } else {
-            console.log("Session expired or invalid refresh time");
-            await supabase.auth.signOut();
-            navigate('/login');
-          }
+        console.log("Session expires at:", expiresAt);
+        console.log("Will refresh in:", refreshTime ? `${refreshTime/1000}s` : 'N/A');
+        
+        if (refreshTime && refreshTime > 0) {
+          return setTimeout(async () => {
+            console.log("Refreshing session...");
+            const { data, error } = await supabase.auth.refreshSession();
+            
+            if (error) {
+              console.error('Session refresh failed:', error);
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+            } else {
+              console.log('Session refreshed successfully:', data.session?.expires_at);
+              return setupSessionRefresh(); // Setup next refresh
+            }
+          }, refreshTime);
         }
-      } catch (error) {
-        console.error("Error setting up session refresh:", error);
       }
-    };
-
-    setupSessionRefresh();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change event:", event, "Session:", session?.user?.id);
-      
-      if (event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-        setupSessionRefresh();
-      }
-      
-      if (event === 'SIGNED_OUT') {
-        console.log('User signed out, redirecting to login');
-        clearTimeout(refreshTimer);
-        localStorage.removeItem('supabase.auth.token');
-        navigate('/login');
-        return;
-      }
-
-      // Handle session expiry or invalid session
-      if (!session && event !== 'INITIAL_SESSION') {
-        console.log('Session invalid or expired, signing out user');
-        toast.error("Your session has expired. Please sign in again.");
-        await supabase.auth.signOut();
-        navigate('/login');
-        return;
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(refreshTimer);
-    };
+      return null;
+    } catch (error) {
+      console.error("Error setting up session refresh:", error);
+      return null;
+    }
   }, [navigate]);
 
-  console.log("AuthProvider state:", { 
-    user, 
-    isAdmin, 
-    isStaff, 
-    loading, 
-    isSuspended,
-    showEmailPrompt,
-    showUsernamePrompt
-  });
+  useEffect(() => {
+    let refreshTimer: NodeJS.Timeout | null = null;
+    let authSubscription: { unsubscribe: () => void } | null = null;
+
+    const initAuth = async () => {
+      try {
+        refreshTimer = await setupSessionRefresh();
+        
+        authSubscription = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth state change event:", event, "Session:", session?.user?.id);
+          
+          if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
+            if (refreshTimer) clearTimeout(refreshTimer);
+            refreshTimer = await setupSessionRefresh();
+          }
+          
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out, redirecting to login');
+            if (refreshTimer) clearTimeout(refreshTimer);
+            localStorage.removeItem('supabase.auth.token');
+            navigate('/login');
+            return;
+          }
+
+          if (!session && event !== 'INITIAL_SESSION') {
+            console.log('Session invalid or expired, signing out user');
+            toast.error("Your session has expired. Please sign in again.");
+            await supabase.auth.signOut();
+            navigate('/login');
+            return;
+          }
+        }).data.subscription;
+
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+      } finally {
+        setSessionChecked(true);
+      }
+    };
+
+    initAuth();
+
+    return () => {
+      if (refreshTimer) clearTimeout(refreshTimer);
+      if (authSubscription) authSubscription.unsubscribe();
+    };
+  }, [navigate, setupSessionRefresh]);
 
   // Show loading state while initializing
-  if (loading) {
+  if (loading || !sessionChecked) {
     return null;
   }
 

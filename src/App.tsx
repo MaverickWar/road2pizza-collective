@@ -9,7 +9,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Suspense, useEffect, memo, useState } from "react";
+import { Suspense, useEffect, memo, useState, useCallback } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
 
@@ -23,7 +23,36 @@ function AppContent() {
   const [isRouteReady, setIsRouteReady] = useState(false);
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
-  // Handle initial mount
+  // Memoize route check to prevent unnecessary re-renders
+  const checkRouteAccess = useCallback(() => {
+    console.log("Checking route access:", {
+      path: location.pathname,
+      isAdminRoute,
+      user: !!user,
+      isAdmin,
+      isLoading,
+      isRouteReady
+    });
+
+    if (!isLoading && isRouteReady && isAdminRoute) {
+      if (!user) {
+        console.log("No user found on admin route, redirecting to login");
+        toast.error("Please login to access the admin dashboard");
+        navigate('/login', { replace: true });
+        return false;
+      }
+
+      if (!isAdmin) {
+        console.log("Non-admin user on admin route, redirecting to home");
+        toast.error("Admin access required");
+        navigate('/', { replace: true });
+        return false;
+      }
+    }
+    return true;
+  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
+
+  // Handle initial mount and auth state
   useEffect(() => {
     console.log("AppContent mounted", {
       path: location.pathname,
@@ -41,35 +70,14 @@ function AppContent() {
     return () => {
       console.log("AppContent unmounted");
     };
-  }, [isLoading]);
+  }, [isLoading, location.pathname, isAdminRoute, user, isAdmin]);
 
   // Handle route changes and access control
   useEffect(() => {
-    console.log("Route change detected:", {
-      path: location.pathname,
-      isAdminRoute,
-      user: !!user,
-      isAdmin,
-      isLoading,
-      isRouteReady
-    });
-
-    if (!isLoading && isRouteReady && isAdminRoute) {
-      if (!user) {
-        console.log("No user found on admin route, redirecting to login");
-        toast.error("Please login to access the admin dashboard");
-        navigate('/login', { replace: true });
-        return;
-      }
-
-      if (!isAdmin) {
-        console.log("Non-admin user on admin route, redirecting to home");
-        toast.error("Admin access required");
-        navigate('/', { replace: true });
-        return;
-      }
+    if (!isLoading && isRouteReady) {
+      checkRouteAccess();
     }
-  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
+  }, [checkRouteAccess, isLoading, isRouteReady]);
 
   // Show loading screen during initial load
   if (isLoading || !isRouteReady) {
@@ -77,17 +85,13 @@ function AppContent() {
     return <LoadingScreen showWelcome={false} />;
   }
 
+  const Layout = isAdminRoute ? MemoizedDashboardLayout : MemoizedMainLayout;
+
   return (
     <Suspense fallback={<LoadingScreen showWelcome={!!user} />}>
-      {isAdminRoute ? (
-        <MemoizedDashboardLayout>
-          <AppRoutes />
-        </MemoizedDashboardLayout>
-      ) : (
-        <MemoizedMainLayout>
-          <AppRoutes />
-        </MemoizedMainLayout>
-      )}
+      <Layout>
+        <AppRoutes />
+      </Layout>
     </Suspense>
   );
 }

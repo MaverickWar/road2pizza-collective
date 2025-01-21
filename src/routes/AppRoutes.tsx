@@ -31,7 +31,7 @@ import ForumManagement from "@/pages/admin/ForumManagement";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import ArticleDetail from "@/components/article/ArticleDetail";
-import EquipmentReviewDetail from "@/pages/reviews/EquipmentReviewDetail";
+import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 import ThreadView from "@/components/forum/ThreadView";
 
 export function AppRoutes() {

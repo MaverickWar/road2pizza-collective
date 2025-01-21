@@ -35,6 +35,11 @@ export interface Post {
   created_at: string;
   created_by: string | null;
   updated_at: string;
+  is_solution: boolean | null;
+  is_edited: boolean | null;
+  likes_count: number | null;
+  is_reported: boolean | null;
+  is_removed: boolean | null;
   user?: {
     username: string;
     avatar_url?: string | null;
@@ -46,11 +51,6 @@ export interface Post {
   };
   is_pinned?: boolean;
   count?: number;
-  is_solution: boolean | null;
-  is_edited: boolean | null;
-  likes_count: number | null;
-  is_reported: boolean | null;
-  is_removed: boolean | null;
 }
 
 export interface Forum extends DBForum {

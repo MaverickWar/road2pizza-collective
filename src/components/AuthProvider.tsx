@@ -98,14 +98,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         clearTimeout(refreshTimer);
         localStorage.removeItem('supabase.auth.token');
         navigate('/login');
+        return;
       }
 
-      // Handle session refresh failure
-      if (!session) {
-        console.log('Session invalid, signing out user');
+      // Handle session expiry or invalid session
+      if (!session && event !== 'INITIAL_SESSION') {
+        console.log('Session invalid or expired, signing out user');
         toast.error("Your session has expired. Please sign in again.");
         await supabase.auth.signOut();
         navigate('/login');
+        return;
       }
     });
 

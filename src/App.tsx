@@ -9,7 +9,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import MainLayout from "@/components/MainLayout";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Suspense, useEffect, memo } from "react";
+import { Suspense, useEffect, memo, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
 
@@ -20,8 +20,10 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAdmin, isLoading } = useAuth();
+  const [isRouteReady, setIsRouteReady] = useState(false);
   const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
 
+  // Handle initial mount
   useEffect(() => {
     console.log("AppContent mounted", {
       path: location.pathname,
@@ -31,21 +33,28 @@ function AppContent() {
       isLoading
     });
 
+    // Set route as ready after initial auth check
+    if (!isLoading) {
+      setIsRouteReady(true);
+    }
+
     return () => {
       console.log("AppContent unmounted");
     };
-  }, []);
+  }, [isLoading]);
 
+  // Handle route changes and access control
   useEffect(() => {
     console.log("Route change detected:", {
       path: location.pathname,
       isAdminRoute,
       user: !!user,
       isAdmin,
-      isLoading
+      isLoading,
+      isRouteReady
     });
 
-    if (!isLoading && isAdminRoute) {
+    if (!isLoading && isRouteReady && isAdminRoute) {
       if (!user) {
         console.log("No user found on admin route, redirecting to login");
         toast.error("Please login to access the admin dashboard");
@@ -60,10 +69,11 @@ function AppContent() {
         return;
       }
     }
-  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, navigate]);
+  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
 
-  if (isLoading) {
-    console.log("Initial auth check in progress");
+  // Show loading screen during initial load
+  if (isLoading || !isRouteReady) {
+    console.log("Initial loading state:", { isLoading, isRouteReady });
     return <LoadingScreen showWelcome={false} />;
   }
 

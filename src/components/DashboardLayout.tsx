@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, memo } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminFooter } from "@/components/admin/AdminFooter";
@@ -13,13 +13,18 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+const MemoizedAdminFooter = memo(AdminFooter);
+const MemoizedAdminHeader = memo(AdminHeader);
+const MemoizedAdminSidebar = memo(AdminSidebar);
+
+function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [sessionValidated, setSessionValidated] = useState(false);
 
+  // Debug mount/unmount
   useEffect(() => {
     console.log("DashboardLayout mounted", {
       path: location.pathname,
@@ -33,27 +38,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => {
       console.log("DashboardLayout unmounted");
     };
-  }, [location.pathname, user, isAdmin, isLoading, isTransitioning, sessionValidated]);
+  }, []);
 
+  // Validate session and access rights
   useEffect(() => {
     let mounted = true;
 
     const validateAccess = async () => {
       try {
+        console.log("Validating admin access...");
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error || !session) {
           console.log("Invalid session in DashboardLayout");
-          toast.error("Please login to access the admin dashboard");
-          navigate('/login', { replace: true });
-          return;
+          throw new Error("Invalid session");
         }
 
         if (!user || !isAdmin) {
           console.log("Access denied - Not admin");
-          toast.error("Admin access required");
-          navigate('/', { replace: true });
-          return;
+          throw new Error("Admin access required");
         }
 
         if (mounted) {
@@ -64,6 +67,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       } catch (error) {
         console.error("Session validation error:", error);
         if (mounted) {
+          toast.error(error instanceof Error ? error.message : "Access denied");
           navigate('/login', { replace: true });
         }
       }
@@ -86,10 +90,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-admin-background flex flex-col">
-        <AdminSidebar />
+        <MemoizedAdminSidebar />
         
         <div className="flex-1 md:pl-64 flex flex-col min-h-screen transition-all duration-300">
-          <AdminHeader />
+          <MemoizedAdminHeader />
           
           <main className="flex-1 p-3 md:p-6 pt-16 md:pt-20">
             <Suspense fallback={<LoadingScreen duration={500} />}>
@@ -97,9 +101,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </Suspense>
           </main>
           
-          <AdminFooter />
+          <MemoizedAdminFooter />
         </div>
       </div>
     </SidebarProvider>
   );
 }
+
+export default memo(DashboardLayout);

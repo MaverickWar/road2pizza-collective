@@ -1,19 +1,21 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
+import { componentTagger } from "lovable-tagger";
 
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react(),
+    mode === 'development' && componentTagger(),
+  ].filter(Boolean),
   server: {
+    host: "::",
+    port: 8080,
     headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
       'Cross-Origin-Resource-Policy': 'cross-origin',
+      'X-Frame-Options': 'SAMEORIGIN',
       'Content-Security-Policy': `
         default-src 'self' https://*.supabase.co https://*.supabase.in;
         script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.dev https://*.cloudflare.com;
@@ -25,19 +27,15 @@ export default defineConfig({
         worker-src 'self' blob:;
         font-src 'self' data:;
         media-src 'self';
-      `,
-      'X-Frame-Options': 'ALLOW-FROM https://*.lovable.app https://*.lovableproject.com',
+      `.replace(/\s+/g, ' ').trim(),
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
-    },
-    proxy: {
-      '/api': {
-        target: 'https://api.lovable.dev',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
+    }
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
   },
-});
+}));

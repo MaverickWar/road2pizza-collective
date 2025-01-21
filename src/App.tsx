@@ -26,13 +26,9 @@ function AppContent() {
 
   // Handle client-side only rendering
   useEffect(() => {
-    // Prevent hydration mismatch by only mounting on client
-    if (typeof window !== 'undefined') {
-      setIsMounted(true);
-    }
+    setIsMounted(true);
   }, []);
 
-  // Memoize route check to prevent unnecessary re-renders
   const checkRouteAccess = useCallback(() => {
     if (!isLoading && isRouteReady && isAdminRoute) {
       if (!user) {
@@ -50,7 +46,7 @@ function AppContent() {
       }
     }
     return true;
-  }, [location.pathname, isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
+  }, [isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -64,7 +60,6 @@ function AppContent() {
     }
   }, [checkRouteAccess, isLoading, isRouteReady]);
 
-  // Return null during SSR to prevent hydration mismatch
   if (!isMounted) {
     return null;
   }

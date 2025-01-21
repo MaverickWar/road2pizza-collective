@@ -10,6 +10,11 @@ export default defineConfig(({ mode }) => ({
     middlewareMode: false,
     headers: {
       'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'SAMEORIGIN',
+      'Content-Security-Policy': "default-src 'self'; connect-src 'self' https://api.lovable.dev https://*.supabase.co; frame-ancestors 'self' https://*.lovableproject.com",
+      'Set-Cookie': 'session=; HttpOnly; Secure; SameSite=Strict',
+      'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
     },
   },
   preview: {
@@ -25,7 +30,6 @@ export default defineConfig(({ mode }) => ({
       },
     },
     sourcemap: true,
-    // Ensure proper cache busting
     assetsDir: '_assets',
     modulePreload: {
       polyfill: true,

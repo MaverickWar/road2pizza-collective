@@ -25,16 +25,16 @@ export default defineConfig(({ mode }) => ({
       
       // Security headers
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN', // Changed from DENY to SAMEORIGIN
+      'X-Frame-Options': 'SAMEORIGIN',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
       'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
       
-      // Cookie security
-      'Set-Cookie': 'HttpOnly; Secure; SameSite=Strict',
+      // Cookie security - Fixed format with name=value
+      'Set-Cookie': 'session=; HttpOnly; Secure; SameSite=Strict',
       
-      // CSP - Allow Supabase domains, local development, and frame ancestors
+      // CSP - Allow Supabase domains and frame ancestors
       'Content-Security-Policy': `
         default-src 'self' https://*.supabase.co https://*.supabase.in;
         script-src 'self' 'unsafe-inline' 'unsafe-eval';

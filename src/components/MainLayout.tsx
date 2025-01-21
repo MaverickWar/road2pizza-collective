@@ -5,7 +5,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <main className="pt-[120px] container">
+      <main className="pt-[120px]">
         {children}
       </main>
     </div>

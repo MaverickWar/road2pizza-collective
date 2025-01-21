@@ -12,7 +12,6 @@ import { useLocation } from "react-router-dom";
 import { Suspense, useEffect, memo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 
-// Memoize the layouts to prevent unnecessary re-renders
 const MemoizedMainLayout = memo(MainLayout);
 const MemoizedDashboardLayout = memo(DashboardLayout);
 
@@ -26,22 +25,30 @@ function AppContent() {
       user, 
       isAdmin, 
       path: location.pathname,
-      isLoading 
+      isLoading,
+      isAdminRoute 
     });
-  }, [user, isAdmin, location.pathname, isLoading]);
+  }, [user, isAdmin, location.pathname, isLoading, isAdminRoute]);
 
-  // Show loading screen during initial auth check and route transitions
+  // Always show loading during initial auth check
   if (isLoading) {
-    return <LoadingScreen showWelcome={!!user} />;
-  }
-
-  // If on admin route but not admin, show loading while redirect happens
-  if (isAdminRoute && !isAdmin && user) {
-    console.log("Non-admin attempting to access admin route, redirecting...");
+    console.log("Showing loading screen - auth check in progress");
     return <LoadingScreen showWelcome={false} />;
   }
 
-  // Use a single Suspense boundary for code splitting
+  // Show loading during admin route transitions
+  if (isAdminRoute) {
+    if (!user) {
+      console.log("No user found on admin route, redirecting...");
+      return <LoadingScreen showWelcome={false} />;
+    }
+    
+    if (!isAdmin) {
+      console.log("Non-admin user on admin route, redirecting...");
+      return <LoadingScreen showWelcome={false} />;
+    }
+  }
+
   return (
     <Suspense fallback={<LoadingScreen showWelcome={!!user} />}>
       {isAdminRoute ? (
@@ -57,7 +64,6 @@ function AppContent() {
   );
 }
 
-// Memoize AppContent to prevent unnecessary re-renders
 const MemoizedAppContent = memo(AppContent);
 
 function App() {
@@ -65,12 +71,12 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <QueryProvider>
-          <ThemeProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <ThemeProvider>
               <MemoizedAppContent />
               <Toaster />
-            </AuthProvider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </AuthProvider>
         </QueryProvider>
       </BrowserRouter>
     </ErrorBoundary>

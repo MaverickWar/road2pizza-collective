@@ -18,7 +18,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
+    console.log("DashboardLayout mounted, checking auth state:", {
+      user,
+      isAdmin,
+      isLoading
+    });
+
+    const checkAccess = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -29,9 +35,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           return;
         }
 
-        console.log("DashboardLayout session check:", { 
-          sessionExists: !!session,
-          userId: session?.user?.id
+        if (!user || !isAdmin) {
+          console.log("Access denied - User not admin:", { user, isAdmin });
+          toast.error("Admin access required");
+          navigate('/');
+          return;
+        }
+
+        console.log("Admin access granted:", { 
+          userId: session.user.id,
+          isAdmin 
         });
       } catch (error) {
         console.error("Session check error:", error);
@@ -40,37 +53,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     if (!isLoading) {
-      checkSession();
-    }
-  }, [isLoading, navigate]);
-
-  useEffect(() => {
-    console.log("DashboardLayout auth state:", { user, isAdmin, isLoading });
-    
-    if (!isLoading) {
-      if (!user) {
-        console.log("No user found, redirecting to login...");
-        toast.error("Please login to access the admin dashboard");
-        navigate('/login');
-        return;
-      }
-      
-      if (!isAdmin) {
-        console.log("Non-admin user attempting to access admin area");
-        toast.error("Admin access required");
-        navigate('/');
-        return;
-      }
+      checkAccess();
     }
   }, [user, isAdmin, isLoading, navigate]);
 
   // Show loading screen while checking auth
-  if (isLoading) {
-    return <LoadingScreen showWelcome={false} />;
-  }
-
-  // If we have a user but they're not an admin, show loading while redirect happens
-  if (!user || !isAdmin) {
+  if (isLoading || !user || !isAdmin) {
     return <LoadingScreen showWelcome={false} />;
   }
 

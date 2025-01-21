@@ -10,7 +10,19 @@ const ForumCategories = () => {
       console.log("Fetching forum categories...");
       const { data, error } = await supabase
         .from('forum_categories')
-        .select('*')
+        .select(`
+          *,
+          forum_threads (
+            id,
+            title,
+            content,
+            is_pinned,
+            is_locked,
+            category_id,
+            created_at,
+            forum_posts (*)
+          )
+        `)
         .order('display_order', { ascending: true });
 
       if (error) {
@@ -38,7 +50,14 @@ const ForumCategories = () => {
         <h2 className="text-2xl font-bold text-textLight mb-6">Forum Categories</h2>
         <div className="space-y-6">
           {categories.map((category) => (
-            <CategorySection key={category.id} category={category} />
+            <CategorySection 
+              key={category.id} 
+              category={category} 
+              onThreadCreated={() => {
+                // Refetch the categories when a thread is created
+                // The query client will handle this automatically
+              }}
+            />
           ))}
         </div>
       </div>

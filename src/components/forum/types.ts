@@ -25,16 +25,41 @@ export interface Thread extends DBThread {
     is_admin?: boolean;
     is_staff?: boolean;
   };
-  posts?: Post[];
+  posts?: {
+    id: string;
+    content: string;
+    created_at: string;
+    created_by: string | null;
+    updated_at: string;
+    is_solution: boolean | null;
+    is_edited: boolean | null;
+    likes_count: number | null;
+    is_reported: boolean | null;
+    is_removed: boolean | null;
+    user?: {
+      username: string;
+      avatar_url?: string | null;
+      is_admin?: boolean;
+      is_staff?: boolean;
+      points?: number;
+      badge_title?: string;
+      badge_color?: string;
+    };
+  }[];
 }
 
 export interface Post extends DBPost {
   user?: {
     username: string;
     avatar_url?: string;
+    is_admin?: boolean;
+    is_staff?: boolean;
+    points?: number;
+    badge_title?: string;
+    badge_color?: string;
   };
   is_pinned?: boolean;
-  count?: number; // Added this property for post counts
+  count?: number;
 }
 
 export interface Forum extends DBForum {

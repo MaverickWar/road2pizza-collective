@@ -100,9 +100,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         navigate('/login');
       }
 
-      // Handle invalid refresh token
-      if (event === 'TOKEN_REFRESH_FAILED') {
-        console.log('Token refresh failed, signing out user');
+      // Handle session refresh failure
+      if (event === 'USER_DELETED' || event === 'SIGNED_OUT') {
+        console.log('Session invalid, signing out user');
         toast.error("Your session has expired. Please sign in again.");
         await supabase.auth.signOut();
         navigate('/login');

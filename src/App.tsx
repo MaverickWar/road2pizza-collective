@@ -26,20 +26,14 @@ function AppContent() {
 
   // Handle client-side only rendering
   useEffect(() => {
-    setIsMounted(true);
+    // Prevent hydration mismatch by only mounting on client
+    if (typeof window !== 'undefined') {
+      setIsMounted(true);
+    }
   }, []);
 
   // Memoize route check to prevent unnecessary re-renders
   const checkRouteAccess = useCallback(() => {
-    console.log("Checking route access:", {
-      path: location.pathname,
-      isAdminRoute,
-      user: !!user,
-      isAdmin,
-      isLoading,
-      isRouteReady
-    });
-
     if (!isLoading && isRouteReady && isAdminRoute) {
       if (!user) {
         console.log("No user found on admin route, redirecting to login");
@@ -70,6 +64,7 @@ function AppContent() {
     }
   }, [checkRouteAccess, isLoading, isRouteReady]);
 
+  // Return null during SSR to prevent hydration mismatch
   if (!isMounted) {
     return null;
   }
@@ -97,7 +92,7 @@ function App() {
       <BrowserRouter>
         <QueryProvider>
           <AuthProvider>
-            <ThemeProvider>
+            <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
               <MemoizedAppContent />
               <Toaster />
             </ThemeProvider>

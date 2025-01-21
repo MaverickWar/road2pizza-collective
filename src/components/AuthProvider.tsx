@@ -16,8 +16,8 @@ type AuthContextType = {
   isLoading: boolean;
 };
 
-const AuthContext = createContext<AuthContextType>({ 
-  user: null, 
+const AuthContext = createContext<AuthContextType>({
+  user: null,
   isAdmin: false,
   isStaff: false,
   isLoading: true
@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setupSessionRefresh = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      console.log("Current session:", session?.user?.id);
       
       if (session?.user?.id) {
         const expiresAt = session.expires_at ? new Date(session.expires_at * 1000) : null;
@@ -55,17 +54,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (refreshTime && refreshTime > 0) {
           return setTimeout(async () => {
-            console.log("Refreshing session...");
-            const { data, error } = await supabase.auth.refreshSession();
-            
-            if (error) {
-              console.error('Session refresh failed:', error);
-              toast.error("Your session has expired. Please sign in again.");
+            try {
+              console.log("Refreshing session...");
+              const { data, error } = await supabase.auth.refreshSession();
+              
+              if (error) {
+                console.error('Session refresh failed:', error);
+                toast.error("Your session has expired. Please sign in again.");
+                await supabase.auth.signOut();
+                navigate('/login');
+              } else {
+                console.log('Session refreshed successfully:', data.session?.expires_at);
+                return setupSessionRefresh();
+              }
+            } catch (error) {
+              console.error("Error during session refresh:", error);
+              toast.error("Session refresh failed. Please sign in again.");
               await supabase.auth.signOut();
               navigate('/login');
-            } else {
-              console.log('Session refreshed successfully:', data.session?.expires_at);
-              return setupSessionRefresh(); // Setup next refresh
             }
           }, refreshTime);
         }
@@ -126,12 +132,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [navigate, setupSessionRefresh]);
 
-  // Show loading state while initializing
   if (loading || !sessionChecked) {
     return null;
   }
 
-  // Show suspension notice if user is suspended
   if (isSuspended && user) {
     return (
       <div className="min-h-screen bg-background">

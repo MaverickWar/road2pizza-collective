@@ -63,7 +63,12 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             is_removed,
             user:profiles(
               username,
-              avatar_url
+              avatar_url,
+              is_admin,
+              is_staff,
+              points,
+              badge_title,
+              badge_color
             )
           )
         `)
@@ -92,6 +97,9 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
         } else {
           setHasAccess(true);
         }
+      } else {
+        console.log("Thread not found");
+        toast.error("Thread not found");
       }
     } catch (error) {
       console.error("Error fetching thread:", error);

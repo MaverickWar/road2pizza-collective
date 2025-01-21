@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     headers: {
-      // CORS headers - Allow all origins in development
+      // CORS headers
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
       'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -25,24 +25,23 @@ export default defineConfig(({ mode }) => ({
       
       // Security headers
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'SAMEORIGIN',
+      'X-Frame-Options': 'ALLOW-FROM https://*.lovableproject.com https://*.lovable.app https://*.supabase.co https://*.supabase.in',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-      'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
       
-      // Cookie security - Fixed format with name=value and Secure flag
-      'Set-Cookie': 'session=; HttpOnly; Secure; SameSite=Strict',
-      
-      // CSP - Allow Supabase domains, Lovable domains and frame ancestors
+      // CSP - Allow necessary domains and frame ancestors
       'Content-Security-Policy': `
         default-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.app https://*.lovableproject.com;
-        script-src 'self' 'unsafe-inline' 'unsafe-eval';
-        connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:* https://*.lovable.app https://api.lovable.dev;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cloudflare.com;
+        connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co ws://localhost:* http://localhost:* https://*.lovable.app https://api.lovable.dev https://*.cloudflare.com;
         img-src 'self' data: blob: https://*.supabase.co;
         style-src 'self' 'unsafe-inline';
         frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
-        frame-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
+        frame-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovableproject.com https://*.lovable.app;
+        worker-src 'self' blob:;
       `.replace(/\s+/g, ' ').trim()
     },
     cors: {
@@ -54,7 +53,11 @@ export default defineConfig(({ mode }) => ({
   },
   preview: {
     host: "::",
-    port: 8080
+    port: 8080,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
+    }
   },
   build: {
     rollupOptions: {

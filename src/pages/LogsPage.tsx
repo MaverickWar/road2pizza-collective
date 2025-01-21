@@ -25,9 +25,9 @@ const LogsPage = () => {
       console.log("Fetching analytics logs...");
       try {
         // First try to check if we can connect to Supabase
-        const { data: healthCheck, error: healthError } = await supabase
+        const { count, error: healthError } = await supabase
           .from("analytics_metrics")
-          .select("count(*)", { count: 'exact' });
+          .select('*', { count: 'exact', head: true });
 
         if (healthError) {
           console.error("Health check failed:", healthError);

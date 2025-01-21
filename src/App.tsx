@@ -82,6 +82,16 @@ function AppContent() {
 const MemoizedAppContent = memo(AppContent);
 
 function App() {
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null;
+  }
+
   return (
     <ErrorBoundary>
       <BrowserRouter>

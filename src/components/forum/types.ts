@@ -27,15 +27,17 @@ export interface Thread extends DBThread {
   };
   posts?: {
     id: string;
+    thread_id: string;
     content: string;
     created_at: string;
     created_by: string | null;
     updated_at: string;
-    is_solution: boolean | null;
-    is_edited: boolean | null;
-    likes_count: number | null;
-    is_reported: boolean | null;
-    is_removed: boolean | null;
+    is_solution?: boolean | null;
+    is_edited?: boolean | null;
+    likes_count?: number | null;
+    is_reported?: boolean | null;
+    is_removed?: boolean | null;
+    count?: number;
     user?: {
       username: string;
       avatar_url?: string | null;
@@ -49,9 +51,10 @@ export interface Thread extends DBThread {
 }
 
 export interface Post extends DBPost {
+  thread_id: string;
   user?: {
     username: string;
-    avatar_url?: string;
+    avatar_url?: string | null;
     is_admin?: boolean;
     is_staff?: boolean;
     points?: number;

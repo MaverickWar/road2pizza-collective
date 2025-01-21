@@ -30,6 +30,8 @@ import MenuManagement from "@/pages/admin/MenuManagement";
 import ForumManagement from "@/pages/admin/ForumManagement";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
+import ArticleDetail from "@/components/article/ArticleDetail";
+import { EquipmentReviewDetail } from "@/components/reviews/EquipmentReviewDetail";
 
 export function AppRoutes() {
   return (
@@ -44,6 +46,10 @@ export function AppRoutes() {
       <Route path="/community" element={<Community />} />
       <Route path="/reviews" element={<Reviews />} />
       <Route path="/logs" element={<LogsPage />} />
+      
+      {/* Article and Review routes */}
+      <Route path="/article/:id" element={<ArticleDetail />} />
+      <Route path="/reviews/:id" element={<EquipmentReviewDetail />} />
       
       {/* Protected routes */}
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

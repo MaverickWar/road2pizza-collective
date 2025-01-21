@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
         default-src 'self' https://*.supabase.co https://*.supabase.in;
         script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.dev https://*.cloudflare.com;
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://*.cloudflare.com https://images.unsplash.com https://*.unsplash.com https://api.dicebear.com;
+        img-src * data: blob:;
         frame-src 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
         frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
         connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev wss://*.supabase.co;

@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input";
 import Editor from "@/components/Editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Plus, Settings } from "lucide-react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface CategorySectionProps {
   category: {
@@ -32,7 +36,7 @@ interface CategorySectionProps {
 }
 
 const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [content, setContent] = useState("");
@@ -70,56 +74,65 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   };
 
   return (
-    <div className="bg-card rounded-lg overflow-hidden mb-6">
-      <div className="flex items-center justify-between p-6 border-b border-border">
+    <Card className="mb-8">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div>
-          <h3 className="text-xl font-semibold">{category.name}</h3>
+          <h3 className="text-2xl font-bold">{category.name}</h3>
           {category.description && (
             <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
           )}
         </div>
-        {user && (
-          <Button 
-            onClick={() => setIsDialogOpen(true)}
-            className="bg-accent hover:bg-accent/90"
-          >
-            New Thread
-          </Button>
-        )}
-      </div>
+        <div className="flex items-center gap-2">
+          {user && (
+            <Button 
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-accent hover:bg-accent/90"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Thread
+            </Button>
+          )}
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Edit Category</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">Delete Category</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </CardHeader>
 
-      <div>
-        {category.forum_threads?.map((thread) => (
-          <Link
-            key={thread.id}
-            to={`/community/forum/thread/${thread.id}`}
-            className="block border-b border-border last:border-0"
-          >
-            <div className="flex items-center gap-4 p-4 hover:bg-secondary/5 transition-colors">
-              <div className="flex-1">
-                <h4 className="font-medium hover:text-accent transition-colors">
-                  {thread.title}
-                </h4>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                  <span>by {thread.author?.username || 'Unknown'}</span>
-                  <span>•</span>
-                  <span>{new Date(thread.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                <div className="text-center">
-                  <div className="font-medium">{thread.view_count || 0}</div>
-                  <div className="text-xs">views</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-medium">{thread.forum_posts?.length || 0}</div>
-                  <div className="text-xs">replies</div>
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <CardContent>
+        <Separator className="my-4" />
+        
+        <div className="space-y-4">
+          {category.forum_threads?.map((thread) => (
+            <Link
+              key={thread.id}
+              to={`/community/forum/thread/${thread.id}`}
+              className="block"
+            >
+              <ThreadItem 
+                thread={thread}
+                showAdminControls={isAdmin}
+                onThreadUpdated={onThreadCreated}
+              />
+            </Link>
+          ))}
+
+          {category.forum_threads?.length === 0 && (
+            <p className="text-center text-muted-foreground py-8">
+              No threads yet. Be the first to start a discussion!
+            </p>
+          )}
+        </div>
+      </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
@@ -164,7 +177,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 };
 

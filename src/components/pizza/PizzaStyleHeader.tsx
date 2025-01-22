@@ -9,9 +9,9 @@ interface PizzaStyleHeaderProps {
 
 export const PizzaStyleHeader = ({ title, description, onSubmitRecipe }: PizzaStyleHeaderProps) => {
   return (
-    <div className="flex justify-between items-center mb-8">
-      <div>
-        <h1 className="text-4xl font-bold text-textLight mb-4">{title}</h1>
+    <div className="flex justify-center items-center min-h-screen mb-8">
+  <div>
+    <h1 className="text-4xl font-bold text-textLight mb-4">{title}</h1>
         <p className="text-xl text-textLight">{description}</p>
       </div>
       <Button 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MessageSquare, Eye, Clock, Pin, PinOff, Lock, LockOpen, Trash2, Key } from "lucide-react";
+import { MessageSquare, Eye, Clock, Pin, Lock, LockOpen, Trash2, Key } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
@@ -145,11 +145,14 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   const displayPoster = thread.last_poster || thread.author;
 
   return (
-    <Link
-      to={`/community/forum/thread/${thread.id}`}
-      className="block group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5"
-    >
-      <div className="flex-1 min-w-0 space-y-1">
+    <div className="group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
+      <Link
+        to={`/community/forum/thread/${thread.id}`}
+        className="absolute inset-0 z-0"
+        aria-label={`View thread: ${thread.title}`}
+      />
+      
+      <div className="flex-1 min-w-0 space-y-1 relative z-10">
         <div className="flex items-center gap-2">
           <span className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1">
             {thread.title}
@@ -170,17 +173,17 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
       </div>
 
       {showAdminControls && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative z-10">
           <Button
             variant="ghost"
             size="icon"
             onClick={handlePinToggle}
             className={cn(
-              "transition-colors",
-              thread.is_pinned && "text-yellow-500 hover:text-yellow-600"
+              "transition-colors hover:bg-orange-100 dark:hover:bg-orange-900",
+              thread.is_pinned && "text-orange-500"
             )}
           >
-            {thread.is_pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+            <Pin className="h-4 w-4" />
           </Button>
           
           <Button
@@ -188,8 +191,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
             size="icon"
             onClick={handleLockToggle}
             className={cn(
-              "transition-colors",
-              thread.is_locked && "text-red-500 hover:text-red-600"
+              "transition-colors hover:bg-red-100 dark:hover:bg-red-900",
+              thread.is_locked && "text-red-500"
             )}
           >
             {thread.is_locked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
@@ -200,8 +203,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
             size="icon"
             onClick={handlePasswordClick}
             className={cn(
-              "transition-colors",
-              thread.password_protected && "text-blue-500 hover:text-blue-600"
+              "transition-colors hover:bg-blue-100 dark:hover:bg-blue-900",
+              thread.password_protected && "text-blue-500"
             )}
           >
             <Key className="h-4 w-4" />
@@ -211,7 +214,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
             variant="ghost"
             size="icon"
             onClick={handleDelete}
-            className="text-red-500 hover:text-red-600"
+            className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -220,7 +223,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
 
       <Separator orientation="vertical" className="h-12" />
 
-      <div className="flex items-center gap-6 text-sm text-muted-foreground">
+      <div className="flex items-center gap-6 text-sm text-muted-foreground relative z-10">
         <div className="flex flex-col items-center">
           <span className="font-medium">{thread.view_count || 0}</span>
           <span className="text-xs flex items-center gap-1">
@@ -238,7 +241,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
 
       <Separator orientation="vertical" className="h-12" />
 
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center relative z-10">
         <Avatar className="h-8 w-8">
           <AvatarImage src={displayPoster?.avatar_url} />
           <AvatarFallback>
@@ -284,7 +287,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
           </div>
         </DialogContent>
       </Dialog>
-    </Link>
+    </div>
   );
 };
 

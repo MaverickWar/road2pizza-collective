@@ -7,8 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
 import { PizzaStyleHeader } from '@/components/pizza/PizzaStyleHeader';
-import { PizzaStyleContent } from '@/components/pizza/PizzaStyleContent';
 import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
+import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -86,7 +86,8 @@ const PizzaStyle = () => {
               name
             )
           `)
-          .eq('category_id', categories.id);
+          .eq('category_id', categories.id)
+          .order('created_at', { ascending: false });
 
         if (recipesError) {
           console.error('Error fetching recipes:', recipesError);
@@ -114,7 +115,6 @@ const PizzaStyle = () => {
       return;
     }
 
-    // Get category ID for the current pizza style
     const { data: category } = await supabase
       .from('categories')
       .select('id')
@@ -122,7 +122,6 @@ const PizzaStyle = () => {
       .maybeSingle();
 
     if (category) {
-      // Navigate to the recipe submission form with the category information
       navigate('/dashboard', { 
         state: { 
           showRecipeForm: true,
@@ -148,22 +147,31 @@ const PizzaStyle = () => {
     );
   }
 
+  const latestImage = recipes?.[0]?.image_url || '/placeholder.svg';
+
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="container mx-auto px-4 pt-36 md:pt-32">
-        <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Pizza Styles
-        </Link>
-        
-        <PizzaStyleHeader 
+      <div className="container mx-auto px-4 pt-36 md:pt-32 space-y-12">
+        <div>
+          <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Pizza Styles
+          </Link>
+          
+          <PizzaStyleHeader 
+            title={pizzaStyle.title}
+            description={pizzaStyle.description}
+            onSubmitRecipe={handleSubmitRecipe}
+          />
+        </div>
+
+        <Hero 
           title={pizzaStyle.title}
-          description={pizzaStyle.description}
-          onSubmitRecipe={handleSubmitRecipe}
+          description={pizzaStyle.history}
+          image={latestImage}
+          showButtons={false}
         />
-        
-        <PizzaStyleContent history={pizzaStyle.history} />
         
         <PizzaStyleRecipes 
           recipes={recipes || []}

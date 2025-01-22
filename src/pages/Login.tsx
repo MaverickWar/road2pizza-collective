@@ -30,7 +30,7 @@ export default function Login() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-[calc(100vh-16rem)] items-center justify-center bg-[#FFF8F3] px-4 py-8">
+      <div className="flex min-h-[calc(60vh-16rem)] items-center justify-center bg-[#FFF8F3] px-4 py-8">
         <div className="w-full max-w-sm space-y-4 bg-white rounded-xl shadow-lg p-6 border border-orange-100">
           <div className="space-y-1 text-center">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">Welcome back</h1>

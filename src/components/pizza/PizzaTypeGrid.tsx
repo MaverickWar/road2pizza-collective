@@ -1,7 +1,8 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuthState';
+import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/components/ui/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PizzaType {
   id: string;
@@ -19,7 +20,40 @@ interface PizzaType {
 const PizzaTypeGrid = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+
+  const { data: pizzaTypes, isLoading, error } = useQuery({
+    queryKey: ['pizzaTypes'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pizza_types')
+        .select('*')
+        .order('display_order', { ascending: true });
+      
+      if (error) {
+        console.error('Error fetching pizza types:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load pizza types",
+          variant: "destructive",
+        });
+        throw error;
+      }
+      
+      return data as PizzaType[];
+    },
+  });
+
+  if (isLoading) {
+    return <div className="text-center">Loading pizza types...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">Error loading pizza types</div>;
+  }
+
+  if (!pizzaTypes?.length) {
+    return <div className="text-center">No pizza types available</div>;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

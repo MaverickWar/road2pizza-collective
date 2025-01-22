@@ -4,6 +4,7 @@ type ValidationCheck = {
   id: string;
   check: () => boolean | Promise<boolean>;
   message: string;
+  metadata?: Record<string, any>; // Add optional metadata field
 };
 
 type DashboardData = {

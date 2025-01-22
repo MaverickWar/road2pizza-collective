@@ -30,7 +30,7 @@ const ForumCategories = () => {
             post_count,
             last_post_at,
             last_post_by,
-            author:profiles!forum_threads_created_by_fkey(
+            author:profiles!forum_threads_created_by_fkey (
               username,
               avatar_url,
               created_at,
@@ -40,7 +40,7 @@ const ForumCategories = () => {
               is_admin,
               is_staff
             ),
-            last_poster:profiles!forum_threads_last_post_by_fkey(
+            last_poster:profiles!forum_threads_last_post_by_fkey (
               username,
               avatar_url
             ),
@@ -49,7 +49,7 @@ const ForumCategories = () => {
               content,
               created_at,
               created_by,
-              user:profiles!forum_posts_created_by_fkey(
+              user:profiles!forum_posts_created_by_fkey (
                 username,
                 avatar_url,
                 is_admin,

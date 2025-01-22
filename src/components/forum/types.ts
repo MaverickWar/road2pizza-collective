@@ -28,23 +28,25 @@ export interface Thread {
     username: string;
     avatar_url?: string;
   };
-  posts?: {
-    id: string;
-    content: string;
-    created_at: string;
-    created_by: string;
-    user?: {
-      username: string;
-      avatar_url?: string;
-      is_admin?: boolean;
-      is_staff?: boolean;
-    };
-  }[];
+  posts?: Post[];
   forum?: {
     title?: string;
     category?: {
       id: string;
       name: string;
     };
+  };
+}
+
+export interface Post {
+  id: string;
+  content: string;
+  created_at: string;
+  created_by: string;
+  user?: {
+    username: string;
+    avatar_url?: string;
+    is_admin?: boolean;
+    is_staff?: boolean;
   };
 }

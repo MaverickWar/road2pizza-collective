@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface Recipe {
   id: string;
@@ -7,6 +8,8 @@ interface Recipe {
   image_url: string | null;
   difficulty?: string;
   prep_time?: string;
+  created_at: string;
+  is_featured?: boolean;
 }
 
 interface PizzaStyleRecipesProps {
@@ -21,6 +24,12 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
       return url;
     }
     return new URL(url, window.location.origin).href;
+  };
+
+  const isNewRecipe = (createdAt: string) => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return new Date(createdAt) > oneMonthAgo;
   };
 
   if (isLoading) {
@@ -49,27 +58,47 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
           <Link
             key={recipe.id}
             to={`/article/${recipe.id}`}
-            className="bg-secondary rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300"
+            className="group relative"
           >
-            <div className="aspect-video relative">
-              <img
-                src={recipe.image_url ? getImageUrl(recipe.image_url) : '/placeholder.svg'}
-                alt={recipe.title}
-                className="absolute inset-0 w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.svg';
-                }}
-              />
-            </div>
-            <div className="p-4">
-              <h3 className="text-xl font-bold text-textLight mb-2">{recipe.title}</h3>
-              <p className="text-textLight mb-4">
-                {recipe.content?.substring(0, 100)}...
-              </p>
-              <div className="flex justify-between text-sm text-textLight">
-                <span>Difficulty: {recipe.difficulty}</span>
-                <span>Prep: {recipe.prep_time}</span>
+            <div className={cn(
+              "bg-secondary rounded-lg overflow-hidden hover:transform hover:scale-105 transition-transform duration-300",
+              "border-4 border-admin/20 hover:border-admin/40 transition-colors"
+            )}>
+              {/* Ribbon */}
+              {(recipe.is_featured || isNewRecipe(recipe.created_at)) && (
+                <div className="absolute top-0 right-0 z-10">
+                  <div className={cn(
+                    "w-32 text-center py-1 rotate-45 translate-x-8 -translate-y-2",
+                    "text-white text-sm font-semibold shadow-lg",
+                    recipe.is_featured 
+                      ? "bg-admin" 
+                      : "bg-highlight"
+                  )}>
+                    {recipe.is_featured ? "Featured" : "New"}
+                  </div>
+                </div>
+              )}
+              
+              <div className="aspect-video relative">
+                <img
+                  src={recipe.image_url ? getImageUrl(recipe.image_url) : '/placeholder.svg'}
+                  alt={recipe.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }}
+                />
+              </div>
+              <div className="p-4">
+                <h3 className="text-xl font-bold text-textLight mb-2">{recipe.title}</h3>
+                <p className="text-textLight mb-4">
+                  {recipe.content?.substring(0, 100)}...
+                </p>
+                <div className="flex justify-between text-sm text-textLight">
+                  <span>Difficulty: {recipe.difficulty}</span>
+                  <span>Prep: {recipe.prep_time}</span>
+                </div>
               </div>
             </div>
           </Link>

@@ -12,13 +12,7 @@ import MainLayout from '@/components/MainLayout';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { 
-    isLoading, 
-    showEmailConfirmAlert, 
-    isSendingReset, 
-    handleLogin, 
-    handleForgotPassword 
-  } = useLogin();
+  const { isLoading, showEmailConfirmAlert, isSendingReset, handleLogin, handleForgotPassword } = useLogin();
 
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
@@ -30,21 +24,11 @@ export default function Login() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-[calc(100vh-16rem)] items-center justify-center bg-[#FFF8F3] px-4 pt-10 pb-20">
-        <div className="w-full max-w-sm space-y-4 bg-white rounded-xl shadow-lg p-6 border border-orange-100">
-          <div className="space-y-1 text-center"> <MainLayout>
-      {/* Flex container without excessive height */}
-      <div className="flex items-center justify-center bg-[#FFF8F3] px-4 py-10 min-h-screen">
-        {/* Login Form */}
+      <div className="flex min-h-screen items-center justify-center bg-[#FFF8F3] px-4 pb-20">
         <div className="w-full max-w-sm space-y-4 bg-white rounded-xl shadow-lg p-6 border border-orange-100">
           <div className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-              Welcome back
-            </h1>
             <h1 className="text-2xl font-bold tracking-tight text-gray-900">Welcome back</h1>
-            <p className="text-sm text-gray-600">
-              Sign in to access your account
-            </p>
+            <p className="text-sm text-gray-600">Sign in to access your account</p>
           </div>
 
           {showEmailConfirmAlert && (

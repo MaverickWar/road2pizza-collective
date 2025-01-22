@@ -17,7 +17,7 @@ const ForumCategories = () => {
           display_order,
           created_at,
           created_by,
-          forum_threads (
+          forum_threads!forum_threads_category_id_fkey (
             id,
             title,
             content,
@@ -30,6 +30,9 @@ const ForumCategories = () => {
             post_count,
             last_post_at,
             last_post_by,
+            password_protected,
+            password,
+            required_role,
             author:profiles!forum_threads_created_by_fkey (
               username,
               avatar_url,
@@ -49,6 +52,12 @@ const ForumCategories = () => {
               content,
               created_at,
               created_by,
+              thread_id,
+              is_solution,
+              is_edited,
+              likes_count,
+              is_reported,
+              is_removed,
               user:profiles!forum_posts_created_by_fkey (
                 username,
                 avatar_url,
@@ -86,7 +95,6 @@ const ForumCategories = () => {
           key={category.id} 
           category={category} 
           onThreadCreated={() => {
-            // Refetch the categories when a thread is created
             // The query client will handle this automatically
           }}
         />

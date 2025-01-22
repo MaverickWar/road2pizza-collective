@@ -142,24 +142,24 @@ export const ThreadItem = ({
   const displayPoster = thread.last_poster || thread.author;
 
   return (
-    <div className="group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
-      <div className="flex-1 min-w-0 space-y-1">
+    <div className="group relative flex flex-col md:flex-row items-start md:items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
+      <div className="flex-1 min-w-0 space-y-1 order-2 md:order-1">
         <Link
           to={`/community/forum/thread/${thread.id}`}
           className="block"
           aria-label={`View thread: ${thread.title}`}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-foreground transition-colors line-clamp-1">
+            <span className="text-base md:text-lg font-semibold text-foreground transition-colors line-clamp-1">
               {thread.title}
             </span>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-1">{thread.excerpt}</p>
+          <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{thread.excerpt}</p>
         </Link>
       </div>
 
       {showAdminControls && (
-        <div className="flex items-center gap-2 relative z-20" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-2 relative z-20 order-1 md:order-2 mb-2 md:mb-0" onClick={e => e.stopPropagation()}>
           <Button
             variant="ghost"
             size="icon"
@@ -207,33 +207,29 @@ export const ThreadItem = ({
         </div>
       )}
 
-      <Separator orientation="vertical" className="h-12" />
+      <Separator orientation="vertical" className="hidden md:block h-12" />
 
-      <div className="flex items-center gap-6 text-sm text-muted-foreground">
-        <div className="flex flex-col items-center">
-          <span className="font-medium">{thread.view_count || 0}</span>
-          <span className="text-xs flex items-center gap-1">
-            <Eye className="h-3 w-3" /> Views
-          </span>
+      <div className="flex items-center gap-4 text-sm text-muted-foreground order-3">
+        <div className="flex items-center gap-2">
+          <Eye className="h-4 w-4" />
+          <span>{thread.view_count || 0}</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="font-medium">{thread.post_count || 0}</span>
-          <span className="text-xs flex items-center gap-1">
-            <MessageSquare className="h-3 w-3" /> Posts
-          </span>
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-4 w-4" />
+          <span>{thread.post_count || 0}</span>
         </div>
       </div>
 
-      <Separator orientation="vertical" className="h-12" />
+      <Separator orientation="vertical" className="hidden md:block h-12" />
 
-      <div className="flex flex-col items-center">
+      <div className="flex items-center gap-3 order-4">
         <Avatar className="h-8 w-8">
           <AvatarImage src={displayPoster?.avatar_url} />
           <AvatarFallback>
             {displayPoster?.username?.[0]?.toUpperCase() || 'U'}
           </AvatarFallback>
         </Avatar>
-        <div className="mt-1 text-xs text-center">
+        <div className="text-xs">
           <div className="font-medium text-foreground">
             {displayPoster?.username || 'Unknown'}
           </div>

@@ -30,11 +30,11 @@ export default function Login() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-background pt-[5rem]">
-        <div className="w-full max-w-md space-y-8 px-8 py-12 bg-white rounded-xl shadow-admin animate-fade-up z-10">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-admin">Welcome back</h1>
-            <p className="text-sm text-admin-muted">
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4">
+        <div className="w-full max-w-sm space-y-6 bg-white rounded-xl shadow-lg p-6">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h1>
+            <p className="text-sm text-muted-foreground">
               Sign in to access your account
             </p>
           </div>
@@ -48,18 +48,18 @@ export default function Login() {
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-admin-foreground">Email</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input 
                         type="email"
                         placeholder="Enter your email" 
-                        className="bg-white border-admin-border focus:border-admin focus:ring-2 focus:ring-admin/20" 
+                        className="bg-background"
                         disabled={isLoading}
                         {...field} 
                       />
@@ -74,12 +74,12 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-admin-foreground">Password</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input 
                         type="password" 
                         placeholder="Enter your password" 
-                        className="bg-white border-admin-border focus:border-admin focus:ring-2 focus:ring-admin/20"
+                        className="bg-background"
                         disabled={isLoading}
                         {...field} 
                       />
@@ -91,7 +91,7 @@ export default function Login() {
 
               <Button 
                 type="submit" 
-                className="w-full bg-admin hover:bg-admin-hover-DEFAULT text-white transition-colors"
+                className="w-full"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign in"}
@@ -99,11 +99,11 @@ export default function Login() {
             </form>
           </Form>
 
-          <div className="text-center space-y-4">
+          <div className="space-y-2 text-center">
             <Button 
               variant="link" 
               onClick={() => navigate('/signup')} 
-              className="text-admin hover:text-admin-hover-DEFAULT"
+              className="text-sm"
               disabled={isLoading}
             >
               Don't have an account? Sign up
@@ -119,7 +119,7 @@ export default function Login() {
                   }
                   handleForgotPassword(email);
                 }}
-                className="text-admin hover:text-admin-hover-DEFAULT"
+                className="text-sm"
                 disabled={isSendingReset || isLoading}
               >
                 {isSendingReset ? 'Sending reset email...' : 'Forgot your password?'}

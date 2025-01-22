@@ -147,7 +147,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                   last_post_by: thread.last_post_by || thread.created_by
                 }}
                 showAdminControls={isAdmin}
-                onThreadUpdated={onThreadCreated}
+                onThreadUpdate={onThreadCreated}
               />
             </Link>
           ))}

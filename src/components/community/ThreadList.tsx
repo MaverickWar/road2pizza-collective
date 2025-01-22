@@ -50,7 +50,7 @@ const ThreadList = ({ threads, showAdminControls, onThreadUpdated }: ThreadListP
             view_count: thread.view_count || 0
           }}
           showAdminControls={showAdminControls}
-          onThreadUpdated={onThreadUpdated}
+          onThreadUpdate={onThreadUpdated}
         />
       ))}
     </div>

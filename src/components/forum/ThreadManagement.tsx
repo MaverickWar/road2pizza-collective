@@ -89,7 +89,7 @@ const ThreadManagement = () => {
                           Posted in {thread.forum?.title} by {thread.author?.username}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {thread.posts?.[0]?.count || 0} replies
+                          {thread.post_count || 0} replies
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2 w-full md:w-auto">

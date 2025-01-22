@@ -4,6 +4,9 @@ export interface Thread {
   content: string;
   is_pinned?: boolean;
   is_locked?: boolean;
+  password_protected?: boolean;
+  password?: string;
+  required_role?: string;
   category_id?: string;
   created_at: string;
   view_count: number;
@@ -47,5 +50,8 @@ export interface ForumPost {
     avatar_url?: string;
     is_admin?: boolean;
     is_staff?: boolean;
+    points?: number;
+    badge_title?: string;
+    badge_color?: string;
   };
 }

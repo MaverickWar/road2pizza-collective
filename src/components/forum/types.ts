@@ -40,6 +40,7 @@ export interface Post {
   likes_count: number | null;
   is_reported: boolean | null;
   is_removed: boolean | null;
+  is_pinned?: boolean; // Added this property
   user?: {
     username: string;
     avatar_url?: string | null;

@@ -40,7 +40,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
               name
             )
           ),
-          author:profiles(
+          author:profiles!forum_threads_created_by_fkey(
             username,
             avatar_url,
             created_at,
@@ -55,13 +55,7 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             content,
             created_at,
             created_by,
-            updated_at,
-            is_solution,
-            is_edited,
-            likes_count,
-            is_reported,
-            is_removed,
-            user:profiles(
+            user:profiles!forum_posts_created_by_fkey(
               username,
               avatar_url,
               is_admin,

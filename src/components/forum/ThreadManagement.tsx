@@ -1,11 +1,11 @@
-import DashboardLayout from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import ThreadManagementActions from "./ThreadManagementActions";
 import { Thread } from "./types";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const ThreadManagement = () => {
   const { data: threads, isLoading, refetch } = useQuery({
@@ -25,7 +25,7 @@ const ThreadManagement = () => {
               name
             )
           ),
-          author:profiles(
+          author:profiles!forum_threads_created_by_fkey(
             username,
             avatar_url,
             created_at,
@@ -35,7 +35,13 @@ const ThreadManagement = () => {
             is_admin,
             is_staff
           ),
-          posts:forum_posts(count)
+          posts:forum_posts(
+            id,
+            content,
+            created_at,
+            created_by,
+            count
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -46,33 +52,8 @@ const ThreadManagement = () => {
       }
 
       console.log('Successfully fetched threads:', data);
-      
-      const transformedData = data?.map(thread => ({
-        ...thread,
-        author: thread.author || undefined,
-        forum: thread.forum || undefined,
-        posts: [{
-          id: '',
-          thread_id: thread.id,
-          content: '',
-          created_at: new Date().toISOString(),
-          created_by: '',
-          updated_at: new Date().toISOString(),
-          is_solution: null,
-          is_edited: null,
-          likes_count: null,
-          is_reported: null,
-          is_removed: null,
-          count: thread.posts?.[0]?.count || 0
-        }]
-      })) as Thread[];
-
-      return transformedData;
+      return data as Thread[];
     },
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    staleTime: 1000 * 60, // Consider data stale after 1 minute
   });
 
   return (

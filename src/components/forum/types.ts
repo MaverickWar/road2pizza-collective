@@ -11,9 +11,6 @@ export interface Thread {
   post_count?: number;
   last_post_at?: string;
   last_post_by?: string;
-  password_protected?: boolean;
-  password?: string;
-  required_role?: string;
   author?: {
     username: string;
     avatar_url?: string;
@@ -28,7 +25,7 @@ export interface Thread {
     username: string;
     avatar_url?: string;
   };
-  posts?: Post[];
+  posts?: ForumPost[];
   forum?: {
     title?: string;
     category?: {
@@ -38,11 +35,13 @@ export interface Thread {
   };
 }
 
-export interface Post {
+export interface ForumPost {
   id: string;
   content: string;
   created_at: string;
   created_by: string;
+  count?: number;
+  is_pinned?: boolean;
   user?: {
     username: string;
     avatar_url?: string;

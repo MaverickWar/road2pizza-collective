@@ -34,14 +34,12 @@ interface ThreadItemProps {
   thread: any;
   showAdminControls?: boolean;
   onThreadUpdate?: (threadId: string, updates: any) => void;
-  onThreadDelete?: (threadId: string) => void;
 }
 
 export const ThreadItem = ({
   thread,
   showAdminControls = false,
   onThreadUpdate,
-  onThreadDelete,
 }: ThreadItemProps) => {
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -132,7 +130,7 @@ export const ThreadItem = ({
 
       if (error) throw error;
 
-      onThreadDelete?.(thread.id);
+      onThreadUpdate?.(thread.id, { deleted: true });
       setIsDeleteDialogOpen(false);
       toast.success('Thread deleted successfully');
     } catch (error) {
@@ -145,23 +143,23 @@ export const ThreadItem = ({
 
   return (
     <div className="group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
-      <Link
-        to={`/community/forum/thread/${thread.id}`}
-        className="absolute inset-0 z-0"
-        aria-label={`View thread: ${thread.title}`}
-      />
-      
-      <div className="flex-1 min-w-0 space-y-1 relative z-10">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold text-foreground transition-colors line-clamp-1">
-            {thread.title}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground line-clamp-1">{thread.excerpt}</p>
+      <div className="flex-1 min-w-0 space-y-1">
+        <Link
+          to={`/community/forum/thread/${thread.id}`}
+          className="block"
+          aria-label={`View thread: ${thread.title}`}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-foreground transition-colors line-clamp-1">
+              {thread.title}
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground line-clamp-1">{thread.excerpt}</p>
+        </Link>
       </div>
 
       {showAdminControls && (
-        <div className="flex items-center gap-2 relative z-10" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-2 relative z-20" onClick={e => e.stopPropagation()}>
           <Button
             variant="ghost"
             size="icon"
@@ -211,7 +209,7 @@ export const ThreadItem = ({
 
       <Separator orientation="vertical" className="h-12" />
 
-      <div className="flex items-center gap-6 text-sm text-muted-foreground relative z-10">
+      <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <div className="flex flex-col items-center">
           <span className="font-medium">{thread.view_count || 0}</span>
           <span className="text-xs flex items-center gap-1">
@@ -228,7 +226,7 @@ export const ThreadItem = ({
 
       <Separator orientation="vertical" className="h-12" />
 
-      <div className="flex flex-col items-center relative z-10">
+      <div className="flex flex-col items-center">
         <Avatar className="h-8 w-8">
           <AvatarImage src={displayPoster?.avatar_url} />
           <AvatarFallback>

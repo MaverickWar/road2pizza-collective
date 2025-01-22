@@ -32,22 +32,39 @@ const ForumCategories = () => {
             last_post_by,
             author:profiles!forum_threads_created_by_fkey(
               username,
-              avatar_url
+              avatar_url,
+              created_at,
+              points,
+              badge_title,
+              badge_color,
+              is_admin,
+              is_staff
             ),
             last_poster:profiles!forum_threads_last_post_by_fkey(
               username,
               avatar_url
             ),
-            forum_posts (*)
+            forum_posts (
+              id,
+              content,
+              created_at,
+              created_by,
+              user:profiles!forum_posts_created_by_fkey(
+                username,
+                avatar_url,
+                is_admin,
+                is_staff
+              )
+            )
           )
         `)
         .order('display_order', { ascending: true });
-
+      
       if (error) {
         console.error('Error fetching forum categories:', error);
         throw error;
       }
-
+      
       console.log("Forum categories fetched successfully:", data);
       return data || [];
     },

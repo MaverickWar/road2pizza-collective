@@ -11,10 +11,13 @@ export interface Thread {
   post_count?: number;
   last_post_at?: string;
   last_post_by?: string;
+  password_protected?: boolean;
+  password?: string;
+  required_role?: string;
   author?: {
     username: string;
     avatar_url?: string;
-    created_at?: string;
+    created_at: string;
     points?: number;
     badge_title?: string;
     badge_color?: string;
@@ -25,8 +28,20 @@ export interface Thread {
     username: string;
     avatar_url?: string;
   };
-  forum_posts: any[];
+  posts?: {
+    id: string;
+    content: string;
+    created_at: string;
+    created_by: string;
+    user?: {
+      username: string;
+      avatar_url?: string;
+      is_admin?: boolean;
+      is_staff?: boolean;
+    };
+  }[];
   forum?: {
+    title?: string;
     category?: {
       id: string;
       name: string;

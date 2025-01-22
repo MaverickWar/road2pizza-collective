@@ -52,7 +52,10 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
     return "text-gray-900 dark:text-gray-100";
   };
 
-  const handlePinToggle = async () => {
+  const handlePinToggle = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    
     try {
       const { error } = await supabase
         .from("forum_threads")
@@ -68,7 +71,10 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
     }
   };
 
-  const handleLockToggle = async () => {
+  const handleLockToggle = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    
     try {
       const { error } = await supabase
         .from("forum_threads")
@@ -84,7 +90,10 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    
     if (!confirm("Are you sure you want to delete this thread?")) return;
     
     try {
@@ -102,7 +111,10 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
     }
   };
 
-  const handlePasswordUpdate = async () => {
+  const handlePasswordUpdate = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    
     try {
       const { error } = await supabase
         .from("forum_threads")
@@ -121,6 +133,12 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
       console.error("Error updating password:", error);
       toast.error("Failed to update password");
     }
+  };
+
+  const handlePasswordClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation(); // Stop event bubbling
+    setIsPasswordDialogOpen(true);
   };
 
   // Use author as last poster if no last poster exists
@@ -180,7 +198,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsPasswordDialogOpen(true)}
+            onClick={handlePasswordClick}
             className={cn(
               "transition-colors",
               thread.password_protected && "text-blue-500 hover:text-blue-600"
@@ -256,7 +274,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
                   variant="ghost" 
                   onClick={() => {
                     setPassword('');
-                    handlePasswordUpdate();
+                    handlePasswordUpdate;
                   }}
                 >
                   Remove Password

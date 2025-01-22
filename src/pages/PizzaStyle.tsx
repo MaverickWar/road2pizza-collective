@@ -139,7 +139,7 @@ const PizzaStyle = () => {
     return (
       <div className="min-h-screen">
         <Navigation />
-        <div className="container mx-auto px-4 pt-36 md:pt-32">
+        <div className="container mx-auto px-4 pt-20">
           <h1 className="text-2xl font-bold text-textLight">Style not found</h1>
           <Link to="/pizza" className="text-accent hover:text-highlight">Return to Pizza Styles</Link>
         </div>
@@ -152,9 +152,9 @@ const PizzaStyle = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="container mx-auto px-4 pt-36 md:pt-32 space-y-12">
+      <div className="container mx-auto px-4 pt-20 space-y-8">
         <div>
-          <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-6">
+          <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Pizza Styles
           </Link>

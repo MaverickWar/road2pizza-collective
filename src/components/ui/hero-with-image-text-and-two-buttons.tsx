@@ -11,16 +11,16 @@ interface HeroProps {
 }
 
 function Hero({ 
-  title, 
-  description, 
-  image, 
-  showButtons = true,
-  badgeText = "We're live!"
+  title = "This is the start of something!",
+  description,
+  image,
+  showButtons = false,
+  badgeText
 }: HeroProps) {
   return (
-    <div className="w-full py-12 lg:py-20">
+    <div className="w-full py-8">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 gap-8 items-center lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 items-center lg:grid-cols-2">
           <div className="flex gap-4 flex-col">
             {badgeText && (
               <div>
@@ -28,12 +28,10 @@ function Hero({
               </div>
             )}
             <div className="flex gap-4 flex-col">
-              {title && (
-                <h2 className="text-4xl md:text-6xl max-w-lg tracking-tighter text-left font-regular">
-                  {title}
-                </h2>
-              )}
-              <p className="text-xl leading-relaxed tracking-tight text-muted-foreground max-w-md text-left">
+              <h2 className="text-4xl md:text-5xl max-w-lg tracking-tighter text-left font-regular">
+                {title}
+              </h2>
+              <p className="text-lg leading-relaxed tracking-tight text-muted-foreground max-w-md text-left">
                 {description}
               </p>
             </div>
@@ -48,11 +46,11 @@ function Hero({
               </div>
             )}
           </div>
-          <div className="relative aspect-square rounded-md overflow-hidden">
+          <div className="rounded-lg overflow-hidden aspect-video">
             <img 
               src={image} 
-              alt={title || "Hero image"} 
-              className="absolute inset-0 w-full h-full object-cover"
+              alt="Hero image"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/placeholder.svg';

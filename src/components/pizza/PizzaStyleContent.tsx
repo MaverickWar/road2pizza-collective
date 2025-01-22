@@ -45,8 +45,6 @@ const PizzaStyleContent = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-serif mb-6">{pizzaType.name}</h1>
-      <p className="text-muted-foreground mb-8">{pizzaType.description}</p>
       <PizzaStyleRecipes recipes={recipes} isLoading={recipesLoading} />
     </div>
   );

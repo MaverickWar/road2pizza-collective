@@ -30,11 +30,11 @@ export default function Login() {
 
   return (
     <MainLayout>
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-background px-4">
-        <div className="w-full max-w-sm space-y-6 bg-white rounded-xl shadow-lg p-6">
-          <div className="space-y-2 text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h1>
-            <p className="text-sm text-muted-foreground">
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center bg-[#FFF8F3] px-4">
+        <div className="w-full max-w-sm space-y-4 bg-white rounded-xl shadow-lg p-6 border border-orange-100">
+          <div className="space-y-1 text-center">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Welcome back</h1>
+            <p className="text-sm text-gray-600">
               Sign in to access your account
             </p>
           </div>
@@ -54,12 +54,12 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-gray-700">Email</FormLabel>
                     <FormControl>
                       <Input 
                         type="email"
                         placeholder="Enter your email" 
-                        className="bg-background"
+                        className="bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
                         disabled={isLoading}
                         {...field} 
                       />
@@ -74,12 +74,12 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-gray-700">Password</FormLabel>
                     <FormControl>
                       <Input 
                         type="password" 
                         placeholder="Enter your password" 
-                        className="bg-background"
+                        className="bg-white border-orange-200 focus:border-orange-400 focus:ring-orange-400"
                         disabled={isLoading}
                         {...field} 
                       />
@@ -91,7 +91,7 @@ export default function Login() {
 
               <Button 
                 type="submit" 
-                className="w-full"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-md transition-colors"
                 disabled={isLoading}
               >
                 {isLoading ? "Signing in..." : "Sign in"}
@@ -103,7 +103,7 @@ export default function Login() {
             <Button 
               variant="link" 
               onClick={() => navigate('/signup')} 
-              className="text-sm"
+              className="text-sm text-orange-600 hover:text-orange-700"
               disabled={isLoading}
             >
               Don't have an account? Sign up
@@ -119,7 +119,7 @@ export default function Login() {
                   }
                   handleForgotPassword(email);
                 }}
-                className="text-sm"
+                className="text-sm text-orange-600 hover:text-orange-700"
                 disabled={isSendingReset || isLoading}
               >
                 {isSendingReset ? 'Sending reset email...' : 'Forgot your password?'}

@@ -39,8 +39,7 @@ const ThreadManagement = () => {
             id,
             content,
             created_at,
-            created_by,
-            count
+            created_by
           )
         `)
         .order('created_at', { ascending: false });
@@ -89,7 +88,7 @@ const ThreadManagement = () => {
                           Posted in {thread.forum?.title} by {thread.author?.username}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {thread.post_count || 0} replies
+                          {thread.posts?.length || 0} replies
                         </p>
                       </div>
                       <div className="flex flex-wrap gap-2 w-full md:w-auto">

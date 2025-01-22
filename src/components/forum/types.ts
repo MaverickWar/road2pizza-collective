@@ -43,8 +43,12 @@ export interface ForumPost {
   content: string;
   created_at: string;
   created_by: string;
-  count?: number;
-  is_pinned?: boolean;
+  thread_id: string;
+  is_solution?: boolean;
+  is_edited?: boolean;
+  likes_count?: number;
+  is_reported?: boolean;
+  is_removed?: boolean;
   user?: {
     username: string;
     avatar_url?: string;

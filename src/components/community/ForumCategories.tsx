@@ -30,11 +30,11 @@ const ForumCategories = () => {
             post_count,
             last_post_at,
             last_post_by,
-            author:profiles(
+            author:profiles!forum_threads_created_by_fkey(
               username,
               avatar_url
             ),
-            last_poster:profiles(
+            last_poster:profiles!forum_threads_last_post_by_fkey(
               username,
               avatar_url
             ),

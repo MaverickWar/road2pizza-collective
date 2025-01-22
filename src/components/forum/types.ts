@@ -1,70 +1,35 @@
-import { Database } from '@/integrations/supabase/types';
-
-type DBThread = Database['public']['Tables']['forum_threads']['Row'];
-type DBPost = Database['public']['Tables']['forum_posts']['Row'];
-type DBForum = Database['public']['Tables']['forums']['Row'];
-type DBForumSettings = Database['public']['Tables']['forum_settings']['Row'];
-
-export interface Thread extends Omit<DBThread, 'forum_id' | 'category_id'> {
+export interface Thread {
+  id: string;
+  title: string;
+  content: string;
+  is_pinned?: boolean;
+  is_locked?: boolean;
+  category_id?: string;
+  created_at: string;
+  view_count: number;
+  created_by: string;
+  post_count?: number;
+  last_post_at?: string;
+  last_post_by?: string;
+  author?: {
+    username: string;
+    avatar_url?: string;
+    created_at?: string;
+    points?: number;
+    badge_title?: string;
+    badge_color?: string;
+    is_admin?: boolean;
+    is_staff?: boolean;
+  };
+  last_poster?: {
+    username: string;
+    avatar_url?: string;
+  };
+  forum_posts: any[];
   forum?: {
-    id: string;
-    title: string;
-    description?: string | null;
     category?: {
       id: string;
       name: string;
     };
   };
-  author?: {
-    username: string;
-    avatar_url?: string | null;
-    created_at: string;
-    points?: number;
-    badge_title?: string;
-    badge_color?: string;
-    is_admin?: boolean;
-    is_staff?: boolean;
-  };
-  posts?: Post[];
-}
-
-export interface Post {
-  id: string;
-  thread_id?: string; // Made optional since it might not be present in some contexts
-  content: string;
-  created_at: string;
-  created_by: string | null;
-  updated_at: string;
-  is_solution: boolean | null;
-  is_edited: boolean | null;
-  likes_count: number | null;
-  is_reported: boolean | null;
-  is_removed: boolean | null;
-  is_pinned?: boolean; // Added this property
-  user?: {
-    username: string;
-    avatar_url?: string | null;
-    is_admin?: boolean;
-    is_staff?: boolean;
-    points?: number;
-    badge_title?: string;
-    badge_color?: string;
-  };
-  count?: number;
-}
-
-export interface Forum extends DBForum {
-  category?: {
-    id: string;
-    name: string;
-  };
-}
-
-export interface ForumSettings extends DBForumSettings {
-  id: number;
-  allow_guest_viewing: boolean | null;
-  require_approval: boolean | null;
-  auto_lock_inactive: boolean | null;
-  created_at: string;
-  updated_at: string;
 }

@@ -55,6 +55,12 @@ const ThreadView = ({ threadId: propThreadId, inModal }: ThreadViewProps) => {
             content,
             created_at,
             created_by,
+            thread_id,
+            is_solution,
+            is_edited,
+            likes_count,
+            is_reported,
+            is_removed,
             user:profiles!forum_posts_created_by_fkey(
               username,
               avatar_url,

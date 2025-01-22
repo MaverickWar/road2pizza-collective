@@ -39,7 +39,22 @@ const ThreadManagement = () => {
             id,
             content,
             created_at,
-            created_by
+            created_by,
+            thread_id,
+            is_solution,
+            is_edited,
+            likes_count,
+            is_reported,
+            is_removed,
+            user:profiles!forum_posts_created_by_fkey(
+              username,
+              avatar_url,
+              is_admin,
+              is_staff,
+              points,
+              badge_title,
+              badge_color
+            )
           )
         `)
         .order('created_at', { ascending: false });

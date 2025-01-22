@@ -21,13 +21,13 @@ export default defineConfig(({ mode }) => ({
       'Pragma': 'no-cache',
       'Expires': '0',
       'Content-Security-Policy': `
-        default-src 'self' https://*.supabase.co https://*.supabase.in;
+        default-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev https://*.lovable.app https://*.lovableproject.com;
         script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.dev https://*.cloudflare.com https://cdn.gpteng.co;
         style-src 'self' 'unsafe-inline';
         img-src * data: blob:;
         frame-src 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
-        frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
-        connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev wss://*.supabase.co;
+        frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com https://lovable.dev;
+        connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev wss://*.supabase.co https://*.lovable.app https://*.lovableproject.com;
         worker-src 'self' blob:;
         font-src 'self' data:;
         media-src 'self';

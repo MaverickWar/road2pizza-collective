@@ -12,6 +12,7 @@ import { Plus, Settings } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ThreadItem from "./ThreadItem";
 
 interface CategorySectionProps {
   category: {

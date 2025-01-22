@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import Editor from "@/components/Editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
 
 interface CategorySectionProps {
   category: {
@@ -71,10 +70,10 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   };
 
   return (
-    <Card className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="bg-card rounded-lg overflow-hidden mb-6">
+      <div className="flex items-center justify-between p-6 border-b border-border">
         <div>
-          <h3 className="text-2xl font-semibold text-foreground">{category.name}</h3>
+          <h3 className="text-xl font-semibold">{category.name}</h3>
           {category.description && (
             <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
           )}
@@ -87,6 +86,39 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             New Thread
           </Button>
         )}
+      </div>
+
+      <div>
+        {category.forum_threads?.map((thread) => (
+          <Link
+            key={thread.id}
+            to={`/community/forum/thread/${thread.id}`}
+            className="block border-b border-border last:border-0"
+          >
+            <div className="flex items-center gap-4 p-4 hover:bg-secondary/5 transition-colors">
+              <div className="flex-1">
+                <h4 className="font-medium hover:text-accent transition-colors">
+                  {thread.title}
+                </h4>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <span>by {thread.author?.username || 'Unknown'}</span>
+                  <span>•</span>
+                  <span>{new Date(thread.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <div className="text-center">
+                  <div className="font-medium">{thread.view_count || 0}</div>
+                  <div className="text-xs">views</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-medium">{thread.forum_posts?.length || 0}</div>
+                  <div className="text-xs">replies</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -132,7 +164,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </form>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };
 

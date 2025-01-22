@@ -16,7 +16,12 @@ import {
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { SidebarBase } from "@/components/ui/sidebar/SidebarBase";
-import { useSidebar } from "@/components/ui/sidebar/SidebarContext";
+
+interface AdminSidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  isMobile: boolean;
+}
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Overview", path: "/dashboard/admin" },
@@ -31,27 +36,26 @@ const menuItems = [
   { icon: Image, label: "Media", path: "/dashboard/admin/media" }
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ isOpen, onToggle, isMobile }: AdminSidebarProps) {
   const location = useLocation();
-  const { state, toggleSidebar, isMobile, openMobile, setOpenMobile } = useSidebar();
-  const collapsed = state === "collapsed";
 
   return (
     <>
       {/* Mobile Overlay */}
-      {isMobile && openMobile && (
+      {isMobile && isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40"
-          onClick={() => setOpenMobile(false)}
+          onClick={onToggle}
         />
       )}
 
       <SidebarBase 
         className={cn(
           "fixed top-0 left-0 z-50 h-screen bg-white border-r border-admin-border shadow-admin transition-all duration-300",
-          collapsed && !isMobile ? "w-20" : "w-64",
+          isOpen && !isMobile ? "w-64" : "w-20",
           isMobile && "transform",
-          isMobile && !openMobile && "-translate-x-full"
+          isMobile && !isOpen && "-translate-x-full",
+          isMobile && isOpen && "w-64"
         )}
         position="left"
         panelId="admin-sidebar"
@@ -60,7 +64,7 @@ export function AdminSidebar() {
           <div className="flex items-center justify-between p-4 border-b border-admin-border">
             <h2 className={cn(
               "font-semibold transition-all duration-300",
-              (collapsed && !isMobile) ? "opacity-0 w-0" : "opacity-100 text-lg text-admin"
+              (!isOpen && !isMobile) || (isMobile && !isOpen) ? "opacity-0 w-0" : "opacity-100 text-lg text-admin"
             )}>
               Admin Panel
             </h2>
@@ -68,9 +72,9 @@ export function AdminSidebar() {
               variant="ghost"
               size="icon"
               className="hover:bg-admin/10"
-              onClick={() => isMobile ? setOpenMobile(false) : toggleSidebar()}
+              onClick={onToggle}
             >
-              {isMobile ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobile && isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
           
@@ -81,7 +85,7 @@ export function AdminSidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => isMobile && setOpenMobile(false)}
+                  onClick={() => isMobile && onToggle()}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-admin-foreground transition-colors",
                     "hover:bg-admin/10 hover:text-admin",
@@ -91,7 +95,7 @@ export function AdminSidebar() {
                   <item.icon className="h-5 w-5 shrink-0" />
                   <span className={cn(
                     "transition-all duration-300",
-                    (collapsed && !isMobile) ? "opacity-0 w-0" : "opacity-100"
+                    (!isOpen && !isMobile) || (isMobile && !isOpen) ? "opacity-0 w-0" : "opacity-100"
                   )}>
                     {item.label}
                   </span>

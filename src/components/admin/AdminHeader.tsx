@@ -3,28 +3,28 @@ import { Shield, Home, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
-import { useSidebar } from "@/components/ui/sidebar/SidebarContext";
 import { cn } from "@/lib/utils";
 
-export const AdminHeader = () => {
+interface AdminHeaderProps {
+  onMenuClick: () => void;
+}
+
+export const AdminHeader = ({ onMenuClick }: AdminHeaderProps) => {
   const { user } = useAuth();
-  const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
   return (
-    <header className="fixed top-0 right-0 left-0 md:left-64 z-40 bg-admin-gradient shadow-admin transition-all duration-300">
+    <header className="fixed top-0 right-0 left-0 z-40 bg-admin-gradient shadow-admin transition-all duration-300">
       <div className="p-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            {isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/10 h-8 w-8"
-                onClick={() => setOpenMobile(!openMobile)}
-              >
-                <Menu className="h-4 w-4" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:bg-white/10 h-8 w-8"
+              onClick={onMenuClick}
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
             <Link 
               to="/" 
               className={cn(
@@ -47,4 +47,4 @@ export const AdminHeader = () => {
       </div>
     </header>
   );
-}
+};

@@ -447,8 +447,10 @@ export type Database = {
           is_locked: boolean | null
           is_pinned: boolean | null
           last_post_at: string
+          last_post_by: string | null
           password: string | null
           password_protected: boolean | null
+          post_count: number | null
           required_role: string | null
           slug: string | null
           title: string
@@ -465,8 +467,10 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          last_post_by?: string | null
           password?: string | null
           password_protected?: boolean | null
+          post_count?: number | null
           required_role?: string | null
           slug?: string | null
           title: string
@@ -483,8 +487,10 @@ export type Database = {
           is_locked?: boolean | null
           is_pinned?: boolean | null
           last_post_at?: string
+          last_post_by?: string | null
           password?: string | null
           password_protected?: boolean | null
+          post_count?: number | null
           required_role?: string | null
           slug?: string | null
           title?: string
@@ -511,6 +517,13 @@ export type Database = {
             columns: ["forum_id"]
             isOneToOne: false
             referencedRelation: "forums"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_threads_last_post_by_fkey"
+            columns: ["last_post_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

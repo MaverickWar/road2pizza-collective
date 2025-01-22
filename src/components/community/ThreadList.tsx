@@ -1,4 +1,5 @@
 import ThreadItem from './ThreadItem';
+import { Card } from "@/components/ui/card";
 
 interface ThreadListProps {
   threads: Array<{
@@ -9,6 +10,19 @@ interface ThreadListProps {
     is_locked: boolean;
     category_id: string;
     forum_posts: any[];
+    created_at: string;
+    created_by: string;
+    post_count: number;
+    last_post_at: string;
+    last_post_by: string;
+    author?: {
+      username: string;
+      avatar_url?: string;
+    };
+    last_poster?: {
+      username: string;
+      avatar_url?: string;
+    };
   }>;
   showAdminControls: boolean;
   onThreadUpdated: () => void;
@@ -17,14 +31,16 @@ interface ThreadListProps {
 const ThreadList = ({ threads, showAdminControls, onThreadUpdated }: ThreadListProps) => {
   if (threads.length === 0) {
     return (
-      <p className="text-center py-8 text-muted-foreground">
-        No threads yet. Be the first to start a discussion!
-      </p>
+      <Card className="p-8">
+        <p className="text-center text-muted-foreground">
+          No threads yet. Be the first to start a discussion!
+        </p>
+      </Card>
     );
   }
 
   return (
-    <div className="divide-y divide-border">
+    <div className="space-y-4">
       {threads.map((thread) => (
         <ThreadItem 
           key={thread.id} 

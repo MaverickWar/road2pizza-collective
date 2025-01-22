@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import CategorySection from "./CategorySection";
 import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
 
 const ForumCategories = () => {
   const { data: categories = [], isError } = useQuery({
@@ -28,7 +27,14 @@ const ForumCategories = () => {
             created_at,
             view_count,
             created_by,
+            post_count,
+            last_post_at,
+            last_post_by,
             author:profiles(
+              username,
+              avatar_url
+            ),
+            last_poster:profiles(
               username,
               avatar_url
             ),
@@ -57,20 +63,18 @@ const ForumCategories = () => {
   }
 
   return (
-    <Card className="p-6 bg-background">
-      <div className="space-y-8">
-        {categories.map((category) => (
-          <CategorySection 
-            key={category.id} 
-            category={category} 
-            onThreadCreated={() => {
-              // Refetch the categories when a thread is created
-              // The query client will handle this automatically
-            }}
-          />
-        ))}
-      </div>
-    </Card>
+    <div className="space-y-8">
+      {categories.map((category) => (
+        <CategorySection 
+          key={category.id} 
+          category={category} 
+          onThreadCreated={() => {
+            // Refetch the categories when a thread is created
+            // The query client will handle this automatically
+          }}
+        />
+      ))}
+    </div>
   );
 };
 

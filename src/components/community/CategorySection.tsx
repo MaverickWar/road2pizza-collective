@@ -1,11 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Eye, MessageSquare, Clock } from "lucide-react";
-import { format } from "date-fns";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import Editor from "@/components/Editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 
 interface CategorySectionProps {
   category: {
@@ -75,62 +71,22 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
   };
 
   return (
-    <div className="space-y-4">
+    <Card className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-foreground">{category.name}</h3>
+          <h3 className="text-2xl font-semibold text-foreground">{category.name}</h3>
           {category.description && (
             <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
           )}
         </div>
         {user && (
           <Button 
-            onClick={() => setIsDialogOpen(true)} 
-            className="bg-primary hover:bg-primary/90"
+            onClick={() => setIsDialogOpen(true)}
+            className="bg-accent hover:bg-accent/90"
           >
             New Thread
           </Button>
         )}
-      </div>
-
-      <div className="space-y-3">
-        {category.forum_threads.map((thread) => (
-          <Link key={thread.id} to={`/community/forum/thread/${thread.id}`}>
-            <Card className="p-4 hover:bg-accent/5 transition-colors">
-              <div className="flex items-start gap-4">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={thread.author?.avatar_url} />
-                  <AvatarFallback>{getInitials(thread.author?.username || 'Unknown')}</AvatarFallback>
-                </Avatar>
-                
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
-                    {thread.title}
-                  </h4>
-                  <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-                    {thread.content.replace(/<[^>]*>/g, '')}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-4 h-4" />
-                      <span>{thread.view_count || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MessageSquare className="w-4 h-4" />
-                      <span>{thread.forum_posts?.length || 0}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{format(new Date(thread.created_at), 'PP')}</span>
-                    </div>
-                    <span>by {thread.author?.username || 'Unknown'}</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </Link>
-        ))}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -176,7 +132,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 };
 

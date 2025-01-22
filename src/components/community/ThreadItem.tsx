@@ -53,8 +53,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   };
 
   const handlePinToggle = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     
     try {
       const { error } = await supabase
@@ -72,8 +72,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   };
 
   const handleLockToggle = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     
     try {
       const { error } = await supabase
@@ -91,8 +91,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   };
 
   const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     
     if (!confirm("Are you sure you want to delete this thread?")) return;
     
@@ -112,8 +112,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   };
 
   const handlePasswordUpdate = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     
     try {
       const { error } = await supabase
@@ -136,8 +136,8 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   };
 
   const handlePasswordClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation
-    e.stopPropagation(); // Stop event bubbling
+    e.preventDefault();
+    e.stopPropagation();
     setIsPasswordDialogOpen(true);
   };
 
@@ -145,15 +145,15 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
   const displayPoster = thread.last_poster || thread.author;
 
   return (
-    <div className="group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
+    <Link
+      to={`/community/forum/thread/${thread.id}`}
+      className="block group relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5"
+    >
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-center gap-2">
-          <Link
-            to={`/community/forum/thread/${thread.id}`}
-            className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1"
-          >
+          <span className="text-lg font-semibold hover:text-accent transition-colors line-clamp-1">
             {thread.title}
-          </Link>
+          </span>
         </div>
         
         <div className="flex items-center gap-3 text-sm">
@@ -284,7 +284,7 @@ const ThreadItem = ({ thread, showAdminControls, onThreadUpdated }: ThreadItemPr
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </Link>
   );
 };
 

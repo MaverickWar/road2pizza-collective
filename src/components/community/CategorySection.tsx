@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "@/components/AuthProvider";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -27,7 +27,17 @@ interface CategorySectionProps {
       view_count: number;
       forum_posts: any[];
       created_by: string;
+      is_pinned: boolean;
+      is_locked: boolean;
+      category_id: string;
+      post_count: number;
+      last_post_at: string;
+      last_post_by: string;
       author?: {
+        username: string;
+        avatar_url?: string;
+      };
+      last_poster?: {
         username: string;
         avatar_url?: string;
       };
@@ -55,7 +65,13 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             title: data.title,
             content: content,
             category_id: category.id,
-            created_by: user.id
+            created_by: user.id,
+            is_pinned: false,
+            is_locked: false,
+            post_count: 0,
+            view_count: 0,
+            last_post_at: new Date().toISOString(),
+            last_post_by: user.id
           }
         ]);
 
@@ -120,7 +136,16 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
               className="block"
             >
               <ThreadItem 
-                thread={thread}
+                thread={{
+                  ...thread,
+                  is_pinned: thread.is_pinned || false,
+                  is_locked: thread.is_locked || false,
+                  category_id: thread.category_id || category.id,
+                  post_count: thread.post_count || 0,
+                  view_count: thread.view_count || 0,
+                  last_post_at: thread.last_post_at || thread.created_at,
+                  last_post_by: thread.last_post_by || thread.created_by
+                }}
                 showAdminControls={isAdmin}
                 onThreadUpdated={onThreadCreated}
               />

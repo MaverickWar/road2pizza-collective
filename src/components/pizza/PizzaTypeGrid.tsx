@@ -4,6 +4,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 interface PizzaType {
   id: string;
@@ -60,30 +61,26 @@ const PizzaTypeGrid = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {pizzaTypes?.map((pizzaType) => (
-        <div
+        <Link
           key={pizzaType.id}
-          className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+          to={`/pizza/${pizzaType.slug}`}
+          className="block relative overflow-hidden rounded-lg aspect-square hover:transform hover:scale-105 transition-transform duration-300"
         >
-          <div className="relative h-48">
-            {pizzaType.image_url ? (
-              <img
-                src={pizzaType.image_url}
-                alt={pizzaType.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <span className="text-gray-400">No image available</span>
-              </div>
-            )}
+          <img
+            src={pizzaType.image_url || '/placeholder.svg'}
+            alt={pizzaType.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = '/placeholder.svg';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent opacity-90 group-hover:opacity-75 transition-opacity" />
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <h3 className="text-xl font-bold text-white mb-2">{pizzaType.name}</h3>
+            <p className="text-sm text-gray-200">{pizzaType.description || 'No description available'}</p>
           </div>
-          <div className="p-4">
-            <h3 className="text-xl font-semibold mb-2">{pizzaType.name}</h3>
-            <p className="text-gray-600">
-              {pizzaType.description || "No description available"}
-            </p>
-          </div>
-        </div>
+        </Link>
       ))}
     </div>
   );

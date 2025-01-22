@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
       'Cross-Origin-Resource-Policy': 'cross-origin',
       'X-Frame-Options': 'SAMEORIGIN',
       'X-Content-Type-Options': 'nosniff',
@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
         img-src * data: blob:;
         frame-src 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;
         frame-ancestors 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com https://lovable.dev;
-        connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev wss://*.supabase.co https://*.lovable.app https://*.lovableproject.com;
+        connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.lovable.dev wss://*.supabase.co https://*.lovable.app https://*.lovableproject.com https://*.dicebear.com;
         worker-src 'self' blob:;
         font-src 'self' data:;
         media-src 'self';

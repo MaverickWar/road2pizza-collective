@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Rating } from "@/components/Rating";
 import AuthorCard from "./AuthorCard";
 import MediaGallery from "./MediaGallery";
+import { cn } from "@/lib/utils";
 
 interface RecipeContentProps {
   recipe: Recipe;
@@ -12,6 +13,12 @@ const RecipeContent = ({ recipe }: RecipeContentProps) => {
   const averageRating = recipe.reviews?.length 
     ? recipe.reviews.reduce((acc, review) => acc + review.rating, 0) / recipe.reviews.length
     : 0;
+
+  const isNewRecipe = (createdAt: string) => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return new Date(createdAt) > oneMonthAgo;
+  };
 
   return (
     <div className="space-y-8">
@@ -34,12 +41,29 @@ const RecipeContent = ({ recipe }: RecipeContentProps) => {
             </div>
           )}
 
-          <MediaGallery 
-            imageUrl={recipe.image_url}
-            videoUrl={recipe.video_url}
-            videoProvider={recipe.video_provider}
-            images={Array.isArray(recipe.images) ? recipe.images : []}
-          />
+          <div className="relative">
+            {/* Ribbon */}
+            {(recipe.is_featured || (recipe.created_at && isNewRecipe(recipe.created_at))) && (
+              <div className="absolute top-0 left-0 z-10 overflow-hidden h-24 w-24">
+                <div className={cn(
+                  "absolute top-[20px] left-[-45px] w-[170px] text-center py-2 -rotate-45",
+                  "text-white text-sm font-semibold shadow-lg",
+                  recipe.is_featured 
+                    ? "bg-admin text-white" 
+                    : "bg-white text-admin border border-admin/20"
+                )}>
+                  {recipe.is_featured ? "Featured" : "New"}
+                </div>
+              </div>
+            )}
+            
+            <MediaGallery 
+              imageUrl={recipe.image_url}
+              videoUrl={recipe.video_url}
+              videoProvider={recipe.video_provider}
+              images={Array.isArray(recipe.images) ? recipe.images : []}
+            />
+          </div>
 
           <Card className="p-6 bg-card">
             <div className="prose prose-invert max-w-none">

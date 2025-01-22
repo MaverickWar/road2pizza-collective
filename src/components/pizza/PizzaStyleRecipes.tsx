@@ -58,7 +58,7 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
 
   return (
     <>
-      <h2 className="text-2xl font-bold text-textLight mb-6">Recipes</h2>
+      <h2 className="text-3xl font-bold text-textLight mb-8 text-center font-serif">Recipes</h2>
       <div className="border-4 border-admin/20 rounded-xl p-8 bg-white/50 backdrop-blur-sm">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recipes.map((recipe) => (
@@ -70,13 +70,13 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
               <div className="relative">
                 {/* Ribbon */}
                 {(recipe.is_featured || isNewRecipe(recipe.created_at)) && (
-                  <div className="absolute top-0 left-0 z-10">
+                  <div className="absolute top-0 left-0 z-10 overflow-hidden h-24 w-24">
                     <div className={cn(
-                      "w-32 text-center py-1 -rotate-45 -translate-x-8 -translate-y-2",
+                      "absolute top-[20px] left-[-45px] w-[170px] text-center py-2 -rotate-45",
                       "text-white text-sm font-semibold shadow-lg",
                       recipe.is_featured 
-                        ? "bg-admin" 
-                        : "bg-highlight"
+                        ? "bg-admin text-white" 
+                        : "bg-white text-admin border border-admin/20"
                     )}>
                       {recipe.is_featured ? "Featured" : "New"}
                     </div>

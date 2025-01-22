@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import CategorySection from "./CategorySection";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 
 const ForumCategories = () => {
   const { data: categories = [], isError } = useQuery({
@@ -25,6 +26,12 @@ const ForumCategories = () => {
             is_locked,
             category_id,
             created_at,
+            view_count,
+            created_by,
+            author:profiles(
+              username,
+              avatar_url
+            ),
             forum_posts (*)
           )
         `)
@@ -41,7 +48,7 @@ const ForumCategories = () => {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     meta: {
-      errorMessage: "Failed to load forum categories. Please try refreshing the page."
+      errorMessage: "Failed to load forum categories"
     }
   });
 
@@ -50,23 +57,20 @@ const ForumCategories = () => {
   }
 
   return (
-    <div className="bg-[#FEC6A1] p-4 rounded-lg">
-      <div className="bg-secondary rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-textLight mb-6">Forum Categories</h2>
-        <div className="space-y-6">
-          {categories.map((category) => (
-            <CategorySection 
-              key={category.id} 
-              category={category} 
-              onThreadCreated={() => {
-                // Refetch the categories when a thread is created
-                // The query client will handle this automatically
-              }}
-            />
-          ))}
-        </div>
+    <Card className="p-6 bg-background">
+      <div className="space-y-8">
+        {categories.map((category) => (
+          <CategorySection 
+            key={category.id} 
+            category={category} 
+            onThreadCreated={() => {
+              // Refetch the categories when a thread is created
+              // The query client will handle this automatically
+            }}
+          />
+        ))}
       </div>
-    </div>
+    </Card>
   );
 };
 

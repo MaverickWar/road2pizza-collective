@@ -1,171 +1,182 @@
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import Editor from '@/components/Editor';
-import { useState } from 'react';
-import { useAuth } from '@/components/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { AdminControls } from './AdminControls';
-import ThreadList from './ThreadList';
-import ThreadPagination from './ThreadPagination';
+import { Link } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Eye, MessageSquare, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import Editor from "@/components/Editor";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface CategorySectionProps {
   category: {
     id: string;
     name: string;
-    description: string | null;
+    description: string;
     forum_threads: Array<{
       id: string;
       title: string;
       content: string;
-      is_pinned: boolean;
-      is_locked: boolean;
-      category_id: string;
-      forum_posts: any[];
       created_at: string;
+      view_count: number;
+      forum_posts: any[];
+      created_by: string;
+      author?: {
+        username: string;
+        avatar_url?: string;
+      };
     }>;
   };
   onThreadCreated: () => void;
 }
 
-const THREADS_PER_PAGE = 5;
-
 const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [newThread, setNewThread] = useState({ title: '', content: '' });
-  const [currentPage, setCurrentPage] = useState(1);
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [content, setContent] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreateThread = async () => {
+  const onSubmit = async (data: any) => {
+    if (!user) return;
+    
+    setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('forum_threads')
         .insert([
           {
-            title: newThread.title,
-            content: newThread.content,
+            title: data.title,
+            content: content,
             category_id: category.id,
-            created_by: user?.id,
-          },
+            created_by: user.id
+          }
         ]);
 
       if (error) throw error;
 
       toast.success('Thread created successfully');
-      setIsCreateDialogOpen(false);
-      setNewThread({ title: '', content: '' });
+      setIsDialogOpen(false);
+      reset();
+      setContent("");
       onThreadCreated();
     } catch (error) {
       console.error('Error creating thread:', error);
       toast.error('Failed to create thread');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Get pinned and unpinned threads
-  const pinnedThreads = category.forum_threads
-    .filter(thread => thread.is_pinned)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-  const unpinnedThreads = category.forum_threads
-    .filter(thread => !thread.is_pinned)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-  // Calculate remaining slots for unpinned threads based on pinned threads (only on first page)
-  const remainingSlots = currentPage === 1 
-    ? Math.max(0, THREADS_PER_PAGE - pinnedThreads.length)
-    : THREADS_PER_PAGE;
-  
-  // Calculate total pages based on unpinned threads
-  const totalPages = Math.ceil(unpinnedThreads.length / THREADS_PER_PAGE) || 1;
-  
-  // Ensure currentPage is within bounds
-  if (currentPage > totalPages) {
-    setCurrentPage(totalPages);
-  }
-  
-  // Get current page threads
-  const startIndex = (currentPage - 1) * THREADS_PER_PAGE;
-  const endIndex = startIndex + remainingSlots;
-  const currentUnpinnedThreads = unpinnedThreads.slice(startIndex, endIndex);
-  
-  // Combine threads based on current page
-  const displayThreads = currentPage === 1
-    ? [...pinnedThreads, ...currentUnpinnedThreads]
-    : currentUnpinnedThreads;
-
   return (
-    <Card className="overflow-hidden bg-card hover:bg-card/80 transition-colors">
-      <div className="p-6 bg-background-secondary border-b border-border">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-4">
-              <h3 className="text-xl font-semibold text-textLight">
-                {category.name}
-              </h3>
-              {isAdmin && (
-                <AdminControls
-                  categoryId={category.id}
-                  title={category.name}
-                  onUpdate={onThreadCreated}
-                  type="category"
-                />
-              )}
-            </div>
-            {category.description && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {category.description}
-              </p>
-            )}
-          </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="secondary" className="bg-secondary hover:bg-secondary-hover text-secondary-foreground">
-                <Plus className="w-4 h-4 mr-2" />
-                <span className="sm:inline hidden">New Thread</span>
-                <span className="sm:hidden inline">New</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] bg-card">
-              <DialogHeader>
-                <DialogTitle>Create New Thread</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Thread Title"
-                  value={newThread.title}
-                  onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
-                  className="bg-background"
-                />
-                <div className="min-h-[200px]">
-                  <Editor
-                    content={newThread.content}
-                    onChange={(content) => setNewThread({ ...newThread, content })}
-                  />
-                </div>
-                <Button onClick={handleCreateThread} className="w-full bg-accent hover:bg-accent-hover text-accent-foreground">
-                  Create Thread
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-semibold text-foreground">{category.name}</h3>
+          {category.description && (
+            <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+          )}
         </div>
+        {user && (
+          <Button 
+            onClick={() => setIsDialogOpen(true)} 
+            className="bg-primary hover:bg-primary/90"
+          >
+            New Thread
+          </Button>
+        )}
       </div>
 
-      <ThreadList 
-        threads={displayThreads}
-        showAdminControls={isAdmin}
-        onThreadUpdated={onThreadCreated}
-      />
+      <div className="space-y-3">
+        {category.forum_threads.map((thread) => (
+          <Link key={thread.id} to={`/community/forum/thread/${thread.id}`}>
+            <Card className="p-4 hover:bg-accent/5 transition-colors">
+              <div className="flex items-start gap-4">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={thread.author?.avatar_url} />
+                  <AvatarFallback>{getInitials(thread.author?.username || 'Unknown')}</AvatarFallback>
+                </Avatar>
+                
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1">
+                    {thread.title}
+                  </h4>
+                  <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                    {thread.content.replace(/<[^>]*>/g, '')}
+                  </p>
+                  
+                  <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{thread.view_count || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>{thread.forum_posts?.length || 0}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{format(new Date(thread.created_at), 'PP')}</span>
+                    </div>
+                    <span>by {thread.author?.username || 'Unknown'}</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
 
-      <ThreadPagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
-    </Card>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Thread</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Input
+                placeholder="Thread Title"
+                {...register("title", { required: "Title is required" })}
+              />
+              {errors.title && (
+                <p className="text-sm text-destructive mt-1">
+                  {errors.title.message as string}
+                </p>
+              )}
+            </div>
+            <div>
+              <Editor content={content} onChange={setContent} />
+              {!content && (
+                <p className="text-sm text-destructive mt-1">
+                  Content is required
+                </p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !content}
+              >
+                {isSubmitting ? "Creating..." : "Create Thread"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

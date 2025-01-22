@@ -1,6 +1,6 @@
 import React from 'react';
 import Navigation from '../components/Navigation';
-import { PizzaTypeGrid } from '@/components/pizza/PizzaTypeGrid';
+import PizzaTypeGrid from '@/components/pizza/PizzaTypeGrid';
 
 const Pizza = () => {
   return (

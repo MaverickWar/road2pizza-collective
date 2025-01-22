@@ -15,7 +15,7 @@ interface PizzaType {
   is_hidden: boolean;
 }
 
-const PizzaTypeGrid = () => {
+export const PizzaTypeGrid = () => {
   const { isAdmin, isStaff } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();

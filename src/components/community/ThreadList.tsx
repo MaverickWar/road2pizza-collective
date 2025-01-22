@@ -13,6 +13,7 @@ interface ThreadListProps {
     created_at: string;
     created_by: string;
     post_count: number;
+    view_count: number;
     last_post_at: string;
     last_post_by: string;
     author?: {
@@ -44,7 +45,10 @@ const ThreadList = ({ threads, showAdminControls, onThreadUpdated }: ThreadListP
       {threads.map((thread) => (
         <ThreadItem 
           key={thread.id} 
-          thread={thread}
+          thread={{
+            ...thread,
+            view_count: thread.view_count || 0
+          }}
           showAdminControls={showAdminControls}
           onThreadUpdated={onThreadUpdated}
         />

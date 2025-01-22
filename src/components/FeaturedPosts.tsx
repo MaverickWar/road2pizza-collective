@@ -59,7 +59,7 @@ const FeaturedPosts = () => {
   }
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-background via-background to-secondary/5">
+    <section className="pt-0 md:pt-0 py-8 md:py-12 bg-gradient-to-b from-background via-background to-secondary/5">
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent to-highlight bg-clip-text text-transparent inline-block">

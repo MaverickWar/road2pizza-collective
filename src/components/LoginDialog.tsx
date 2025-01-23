@@ -18,14 +18,6 @@ interface LoginDialogProps {
   onClose: () => void;
 }
 
-interface FeaturedRecipe {
-  id: string;
-  title: string;
-  image_url: string;
-  author: string;
-  created_by: string;
-}
-
 export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
   const { handleLogin, handleForgotPassword, isLoading } = useLogin();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -41,7 +33,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
     },
   });
 
-  // Fetch featured recipes
+  // Fetch featured recipes with author information
   const { data: featuredRecipes = [] } = useQuery({
     queryKey: ['featured-recipes'],
     queryFn: async () => {
@@ -66,14 +58,14 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
     },
   });
 
-  // Auto-rotate featured recipes
+  // Auto-rotate featured recipes every 3 seconds
   useEffect(() => {
     if (featuredRecipes.length > 0) {
       const interval = setInterval(() => {
         setCurrentRecipeIndex((prev) => 
           prev === featuredRecipes.length - 1 ? 0 : prev + 1
         );
-      }, 5000);
+      }, 3000); // Changed to 3000ms (3 seconds)
       return () => clearInterval(interval);
     }
   }, [featuredRecipes]);
@@ -107,7 +99,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                   <img 
                     src={currentRecipe.image_url || '/placeholder.svg'} 
                     alt={currentRecipe.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-opacity duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80" />
                 </div>
@@ -117,6 +109,9 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                   <h3 className="text-xl font-semibold mb-2 line-clamp-2">
                     {currentRecipe.title}
                   </h3>
+                  <p className="text-sm mb-2 bg-gradient-to-r from-[#F97316] to-[#FEC6A1] text-transparent bg-clip-text font-medium">
+                    By {currentRecipe.profiles?.username || currentRecipe.author}
+                  </p>
                   <Link 
                     to={`/recipe/${currentRecipe.id}`}
                     className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white transition-colors"

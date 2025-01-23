@@ -19,15 +19,15 @@ const TopNav = ({ onLoginClick }: TopNavProps) => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <div className="text-white font-bold">
-                  Welcome, {user?.username || user?.email || 'User'}!
+                <div className="text-white">
+                  Welcome, <span className="font-bold">{user?.username || user?.email || 'User'}</span>!
                 </div>
                 <UserMenu user={user} isAdmin={isAdmin} />
               </>
             ) : (
               <div className="flex items-center gap-4">
-                <div className="text-white/90">
-                  Welcome to Road2Pizza!
+                <div className="text-white/90 font-bold">
+                  Join Our Community!
                 </div>
                 <Button
                   onClick={onLoginClick}

@@ -114,7 +114,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                   </p>
                   <Link 
                     to={`/recipe/${currentRecipe.id}`}
-                    className="inline-flex items-center gap-2 text-sm text-white/90 hover:text-white transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-white font-semibold hover:text-[#F97316] transition-colors"
                     onClick={onClose}
                   >
                     <span>View Recipe</span>
@@ -194,25 +194,53 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
 
                 <div className="space-y-4 text-center">
                   {!showForgotPassword && (
-                    <button
-                      type="button"
-                      onClick={handleForgotPasswordClick}
-                      className="text-base text-muted-foreground hover:text-admin transition-colors relative group"
-                    >
-                      Forgot your password?
-                      <span className="absolute -bottom-0.5 left-1/2 w-0 h-0.5 bg-admin transition-all duration-300 group-hover:w-32 -translate-x-1/2" />
-                    </button>
+                    <div className="flex items-center justify-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleForgotPasswordClick}
+                        className="text-base text-muted-foreground hover:text-admin transition-colors relative group"
+                      >
+                        Forgot your password?
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setIsSignUp(!isSignUp);
+                        }}
+                        className="text-base font-medium text-admin hover:text-admin-hover-DEFAULT transition-colors"
+                      >
+                        {isSignUp ? "Sign In Instead" : "Create an Account"}
+                      </button>
+                    </div>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(false);
-                      setIsSignUp(!isSignUp);
-                    }}
-                    className="text-base font-medium text-admin hover:text-admin-hover-DEFAULT transition-colors"
-                  >
-                    {isSignUp ? "Sign In Instead" : "Create an Account"}
-                  </button>
+
+                  {showForgotPassword && (
+                    <div className="flex items-center justify-center space-x-2 mt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setIsSignUp(true);
+                        }}
+                        className="text-base text-muted-foreground hover:text-admin transition-colors"
+                      >
+                        Create Account
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowForgotPassword(false);
+                          setIsSignUp(false);
+                        }}
+                        className="text-base font-medium text-admin hover:text-admin-hover-DEFAULT transition-colors"
+                      >
+                        Sign In Instead
+                      </button>
+                    </div>
+                  )}
                 </div>
               </form>
             </div>

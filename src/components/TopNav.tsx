@@ -25,14 +25,19 @@ const TopNav = ({ onLoginClick }: TopNavProps) => {
                 <UserMenu user={user} isAdmin={isAdmin} />
               </>
             ) : (
-              <Button
-                onClick={onLoginClick}
-                variant="ghost"
-                className="text-white hover:text-white/90 hover:bg-white/10"
-              >
-                <UserRound className="h-4 w-4 mr-2" />
-                Login
-              </Button>
+              <div className="flex items-center gap-4">
+                <div className="text-white/90">
+                  Welcome to Road2Pizza!
+                </div>
+                <Button
+                  onClick={onLoginClick}
+                  variant="ghost"
+                  className="text-white hover:text-white/90 hover:bg-white/10"
+                >
+                  <UserRound className="h-4 w-4 mr-2" />
+                  Login / Sign Up
+                </Button>
+              </div>
             )}
           </div>
         </div>

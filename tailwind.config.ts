@@ -37,39 +37,15 @@ export default {
             secondary: "rgb(var(--admin-hover-secondary) / <alpha-value>)",
           },
         },
-        background: {
-          DEFAULT: "hsl(var(--background))",
-          secondary: "hsl(var(--background-secondary))",
-        },
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          hover: "hsl(var(--primary-hover))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          hover: "hsl(var(--secondary-hover))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          hover: "hsl(var(--accent-hover))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        highlight: {
-          DEFAULT: "hsl(var(--highlight))",
-          hover: "hsl(var(--highlight-hover))",
-          foreground: "hsl(var(--highlight-foreground))",
-        },
-        textLight: "hsl(var(--textLight))",
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          hover: "hsl(var(--card-hover))",
-        },
-        switch: {
-          DEFAULT: "hsl(var(--switch))",
-          active: "hsl(var(--switch-active))",
-        },
+        dashboard: {
+          primary: "rgb(var(--dashboard-primary) / <alpha-value>)",
+          secondary: "rgb(var(--dashboard-secondary) / <alpha-value>)",
+          accent: "rgb(var(--dashboard-accent) / <alpha-value>)",
+          muted: "rgb(var(--dashboard-muted) / <alpha-value>)",
+          background: "rgb(var(--dashboard-background) / <alpha-value>)",
+          foreground: "rgb(var(--dashboard-foreground) / <alpha-value>)",
+          border: "rgb(var(--dashboard-border) / <alpha-value>)",
+        }
       },
       backgroundImage: {
         'admin-gradient': 'linear-gradient(to right, rgb(var(--admin-DEFAULT)), rgb(var(--admin-secondary)))',
@@ -79,6 +55,8 @@ export default {
         'admin': 'var(--shadow-admin)',
         'admin-hover': 'var(--shadow-admin-hover)',
         'admin-card': 'var(--shadow-admin-card)',
+        'dashboard': '0 2px 8px rgba(0, 0, 0, 0.05)',
+        'dashboard-hover': '0 4px 12px rgba(0, 0, 0, 0.1)',
       },
     },
   },

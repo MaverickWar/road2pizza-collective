@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
 import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 const pizzaStyles = {
   "neapolitan": {

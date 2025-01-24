@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { SignupFormValues } from '@/types/auth';
-import type { GetAuthConfigResponse } from '@/types/auth';
+import type { SignupFormValues, GetAuthConfigResponse } from '@/types/auth';
 
 export const useSignup = () => {
   const navigate = useNavigate();
@@ -59,7 +58,7 @@ export const useSignup = () => {
         });
         
         // Check if email confirmation is required
-        const { data: authConfigData } = await supabase.rpc<GetAuthConfigResponse>('get_auth_config');
+        const { data: authConfigData } = await supabase.rpc<GetAuthConfigResponse, Record<string, never>>('get_auth_config');
         const requiresEmailConfirmation = authConfigData?.confirmations_required ?? false;
 
         if (requiresEmailConfirmation) {

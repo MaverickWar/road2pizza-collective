@@ -58,8 +58,8 @@ export const useSignup = () => {
         });
         
         // Check if email confirmation is required
-        const { data: authConfig } = await supabase.rpc('get_auth_config');
-        const requiresEmailConfirmation = authConfig?.confirmations_required || false;
+        const { data: authConfigData } = await supabase.rpc('get_auth_config') as { data: { confirmations_required: boolean } };
+        const requiresEmailConfirmation = authConfigData?.confirmations_required ?? false;
 
         if (requiresEmailConfirmation) {
           toast.success('Account created! Please check your email to confirm your account.');

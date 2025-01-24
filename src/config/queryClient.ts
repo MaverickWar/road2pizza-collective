@@ -29,11 +29,7 @@ export const queryClient = new QueryClient({
       queryFn: async ({ queryKey }) => {
         try {
           console.log('Query execution started:', { queryKey });
-          const tableName = queryKey[0] as string;
-          
-          if (typeof tableName !== 'string') {
-            throw new Error('Table name must be a string');
-          }
+          const tableName = queryKey[0] as TableNames;
           
           const { data, error } = await supabase
             .from(tableName)

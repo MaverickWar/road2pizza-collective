@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { SignupFormValues } from '@/types/auth';
-import type { GetAuthConfigResponse } from '@/integrations/supabase/types';
+import type { GetAuthConfigResponse } from '@/types/auth';
 
 export const useSignup = () => {
   const navigate = useNavigate();

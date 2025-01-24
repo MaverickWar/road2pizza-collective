@@ -17,3 +17,7 @@ export const signupFormSchema = z.object({
 
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
+
+export type GetAuthConfigResponse = {
+  confirmations_required: boolean;
+};

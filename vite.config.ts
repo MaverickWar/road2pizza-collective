@@ -27,7 +27,7 @@ export default defineConfig({
       'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
       'Content-Security-Policy': `
         default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.app https://*.supabase.co https://*.supabase.in;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://cdn.gpteng.co;
         style-src 'self' 'unsafe-inline';
         img-src * data: blob:;
         frame-src 'self' https://*.lovable.app https://*.supabase.co https://*.supabase.in https://*.lovableproject.com;

@@ -154,11 +154,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
         
         <div className="space-y-4">
           {paginatedThreads?.map((thread) => (
-            <Link
-              key={thread.id}
-              to={`/community/forum/thread/${thread.id}`}
-              className="block"
-            >
+            <div key={thread.id} className="block">
               <ThreadItem 
                 thread={{
                   ...thread,
@@ -173,7 +169,7 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
                 showAdminControls={isAdmin}
                 onThreadUpdate={onThreadCreated}
               />
-            </Link>
+            </div>
           ))}
 
           {category.forum_threads?.length === 0 && (

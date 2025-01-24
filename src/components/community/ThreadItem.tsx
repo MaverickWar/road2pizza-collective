@@ -51,13 +51,19 @@ export const ThreadItem = ({
     e.stopPropagation();
     
     try {
-      const { error } = await supabase
+      console.log('Attempting to toggle pin status for thread:', thread.id);
+      const { data, error } = await supabase
         .from('forum_threads')
         .update({ is_pinned: !thread.is_pinned })
-        .eq('id', thread.id);
+        .eq('id', thread.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error toggling pin:', error);
+        throw error;
+      }
 
+      console.log('Pin toggle successful:', data);
       onThreadUpdate?.(thread.id, { is_pinned: !thread.is_pinned });
       toast.success(thread.is_pinned ? 'Thread unpinned' : 'Thread pinned');
     } catch (error) {
@@ -71,13 +77,19 @@ export const ThreadItem = ({
     e.stopPropagation();
     
     try {
-      const { error } = await supabase
+      console.log('Attempting to toggle lock status for thread:', thread.id);
+      const { data, error } = await supabase
         .from('forum_threads')
         .update({ is_locked: !thread.is_locked })
-        .eq('id', thread.id);
+        .eq('id', thread.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error toggling lock:', error);
+        throw error;
+      }
 
+      console.log('Lock toggle successful:', data);
       onThreadUpdate?.(thread.id, { is_locked: !thread.is_locked });
       toast.success(thread.is_locked ? 'Thread unlocked' : 'Thread locked');
     } catch (error) {
@@ -159,7 +171,7 @@ export const ThreadItem = ({
       </div>
 
       {showAdminControls && (
-        <div className="flex items-center gap-2 relative z-20 order-1 md:order-2 mb-2 md:mb-0" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-2 relative z-20 order-1 md:order-2 mb-2 md:mb-0">
           <Button
             variant="ghost"
             size="icon"
@@ -241,12 +253,12 @@ export const ThreadItem = ({
       </div>
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-background border-border">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-foreground">
               {thread.password_protected ? 'Remove Password Protection' : 'Set Thread Password'}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-muted-foreground">
               {thread.password_protected
                 ? 'Remove password protection from this thread?'
                 : 'Enter a password to protect this thread. Leave empty to remove protection.'}
@@ -277,16 +289,16 @@ export const ThreadItem = ({
       </Dialog>
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-background border-border">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Thread</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground">Delete Thread</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
               Are you sure you want to delete this thread? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogCancel className="bg-background text-foreground border-border">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600 text-white">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -199,90 +199,79 @@ export const ThreadItem = ({
         </div>
       </div>
 
-      {showAdminControls && (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handlePinToggle}
-            className={cn(
-              "transition-colors hover:bg-orange-100 dark:hover:bg-orange-900",
-              isPinned ? "text-orange-500" : "text-muted-foreground"
-            )}
-          >
-            <Pin className={cn("h-4 w-4", isPinned && "fill-current")} />
-          </Button>
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleLockToggle}
-            className={cn(
-              "transition-colors hover:bg-red-100 dark:hover:bg-red-900",
-              isLocked ? "text-red-500" : "text-muted-foreground"
-            )}
-          >
-            {isLocked ? (
-              <Lock className="h-4 w-4 stroke-[3]" />
-            ) : (
-              <LockOpen className="h-4 w-4" />
-            )}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handlePasswordClick}
-            className={cn(
-              "transition-colors hover:bg-blue-100 dark:hover:bg-blue-900",
-              thread.password_protected ? "text-blue-500" : "text-muted-foreground"
-            )}
-          >
-            <Key className="h-4 w-4" />
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleDelete}
-            className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
-
       <Separator orientation="vertical" className="hidden md:block h-12" />
 
-      <div className="flex items-center gap-4 text-sm text-muted-foreground order-3">
-        <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4" />
-          <span>{thread.view_count || 0}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4" />
-          <span>{thread.post_count || 0}</span>
-        </div>
-      </div>
-
-      <Separator orientation="vertical" className="hidden md:block h-12" />
-
-      <div className="flex items-center gap-3 order-4">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={displayPoster?.avatar_url} />
-          <AvatarFallback>
-            {displayPoster?.username?.[0]?.toUpperCase() || 'U'}
-          </AvatarFallback>
-        </Avatar>
-        <div className="text-xs">
-          <div className="font-medium text-foreground">
-            {displayPoster?.username || 'Unknown'}
-          </div>
-          <div className="text-muted-foreground flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {format(new Date(thread.last_post_at || thread.created_at), 'MMM d, yyyy')}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={displayPoster?.avatar_url} />
+            <AvatarFallback>
+              {displayPoster?.username?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-xs">
+            <div className="font-medium text-foreground">
+              {displayPoster?.username || 'Unknown'}
+            </div>
+            <div className="text-muted-foreground flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {format(new Date(thread.last_post_at || thread.created_at), 'MMM d, yyyy')}
+            </div>
           </div>
         </div>
+
+        {showAdminControls && (
+          <div className="flex items-center gap-0.5">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePinToggle}
+              className={cn(
+                "h-7 w-7 transition-colors hover:bg-orange-100 dark:hover:bg-orange-900",
+                isPinned ? "text-orange-500" : "text-muted-foreground"
+              )}
+            >
+              <Pin className={cn("h-3 w-3", isPinned && "fill-current")} />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLockToggle}
+              className={cn(
+                "h-7 w-7 transition-colors hover:bg-red-100 dark:hover:bg-red-900",
+                isLocked ? "text-red-500" : "text-muted-foreground"
+              )}
+            >
+              {isLocked ? (
+                <Lock className="h-3 w-3 stroke-[3]" />
+              ) : (
+                <LockOpen className="h-3 w-3" />
+              )}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePasswordClick}
+              className={cn(
+                "h-7 w-7 transition-colors hover:bg-blue-100 dark:hover:bg-blue-900",
+                thread.password_protected ? "text-blue-500" : "text-muted-foreground"
+              )}
+            >
+              <Key className="h-3 w-3" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleDelete}
+              className="h-7 w-7 text-red-500 hover:bg-red-100 dark:hover:bg-red-900"
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>

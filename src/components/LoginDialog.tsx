@@ -52,6 +52,8 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
           )
         `)
         .eq('is_featured', true)
+        .eq('status', 'published')
+        .eq('approval_status', 'approved')
         .limit(5);
 
       if (error) {
@@ -64,14 +66,14 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
     },
   });
 
-  // Auto-rotate featured recipes every 5 seconds (increased from 3)
+  // Auto-rotate featured recipes every 5 seconds
   useEffect(() => {
     if (featuredRecipes.length > 0) {
       const interval = setInterval(() => {
         setCurrentRecipeIndex((prev) => 
           prev === featuredRecipes.length - 1 ? 0 : prev + 1
         );
-      }, 5000); // Changed to 5000ms (5 seconds)
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [featuredRecipes]);
@@ -119,7 +121,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                   </p>
                   <Link 
                     to={`/recipe/${currentRecipe.id}`}
-                    className="inline-flex items-center gap-2 text-sm text-white font-semibold hover:text-[#F97316] transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-white font-bold hover:text-[#F97316] transition-colors"
                     onClick={onClose}
                   >
                     <span>View Recipe</span>
@@ -152,7 +154,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                   </p>
                   <Link 
                     to={`/recipe/${currentRecipe.id}`}
-                    className="inline-flex items-center gap-1.5 text-sm text-white font-semibold hover:text-[#F97316] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm text-white font-bold hover:text-[#F97316] transition-colors"
                     onClick={onClose}
                   >
                     <span>View Recipe</span>

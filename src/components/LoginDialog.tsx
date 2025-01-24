@@ -46,6 +46,8 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
           image_url,
           author,
           created_by,
+          status,
+          approval_status,
           profiles:profiles!recipes_created_by_fkey (
             username,
             avatar_url
@@ -120,7 +122,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                     By {currentRecipe.profiles?.username || currentRecipe.author}
                   </p>
                   <Link 
-                    to={`/recipe/${currentRecipe.id}`}
+                    to={`/article/${currentRecipe.id}`}
                     className="inline-flex items-center gap-2 text-sm text-white font-bold hover:text-[#F97316] transition-colors"
                     onClick={onClose}
                   >
@@ -153,7 +155,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                     By {currentRecipe.profiles?.username || currentRecipe.author}
                   </p>
                   <Link 
-                    to={`/recipe/${currentRecipe.id}`}
+                    to={`/article/${currentRecipe.id}`}
                     className="inline-flex items-center gap-1.5 text-sm text-white font-bold hover:text-[#F97316] transition-colors"
                     onClick={onClose}
                   >

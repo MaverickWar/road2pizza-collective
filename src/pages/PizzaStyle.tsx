@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
 import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -170,7 +171,11 @@ const PizzaStyle = () => {
         <div className="flex justify-end mb-8">
           <Button 
             onClick={handleSubmitRecipe}
-            className="bg-accent hover:bg-accent-hover text-white"
+            className={cn(
+              "w-auto py-6 text-lg bg-gradient-to-r text-white transition-all duration-300",
+              "shadow-lg hover:shadow-xl rounded-xl relative overflow-hidden hover:scale-[1.02] active:scale-[0.98]",
+              "from-admin to-admin-secondary hover:from-admin-hover-DEFAULT hover:to-admin-hover-secondary"
+            )}
           >
             <Plus className="w-4 h-4 mr-2" />
             Submit Recipe

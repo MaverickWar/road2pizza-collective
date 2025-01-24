@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState, memo } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminFooter } from "@/components/admin/AdminFooter";
+import Footer from "@/components/Footer";
 import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
 import LoadingScreen from "./LoadingScreen";
 import { useAuth } from "./AuthProvider";
@@ -14,7 +14,6 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const MemoizedAdminFooter = memo(AdminFooter);
 const MemoizedAdminHeader = memo(AdminHeader);
 const MemoizedAdminSidebar = memo(AdminSidebar);
 
@@ -106,33 +105,34 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-admin-background">
-        <MemoizedAdminSidebar 
-          isOpen={sidebarOpen} 
-          onToggle={toggleSidebar} 
-          isMobile={isMobile} 
-        />
-        
-        <div 
-          className={`min-h-screen transition-all duration-300 ${
-            sidebarOpen && !isMobile ? 'md:ml-64' : 'md:ml-20'
-          }`}
-        >
-          <MemoizedAdminHeader onMenuClick={toggleSidebar} />
+      <div className="min-h-screen bg-admin-background flex flex-col">
+        <div className="flex flex-1">
+          <MemoizedAdminSidebar 
+            isOpen={sidebarOpen} 
+            onToggle={toggleSidebar} 
+            isMobile={isMobile} 
+          />
           
-          <main 
-            className="p-4 md:p-6 pt-20 min-h-[calc(100vh-4rem)]"
-            onClick={handleContentClick}
+          <div 
+            className={`flex-1 transition-all duration-300 ${
+              sidebarOpen && !isMobile ? 'md:ml-64' : 'md:ml-20'
+            }`}
           >
-            <div className="max-w-7xl mx-auto">
-              <Suspense fallback={<LoadingScreen duration={500} />}>
-                {children}
-              </Suspense>
-            </div>
-          </main>
-          
-          <MemoizedAdminFooter />
+            <MemoizedAdminHeader onMenuClick={toggleSidebar} />
+            
+            <main 
+              className="p-4 md:p-6 pt-20"
+              onClick={handleContentClick}
+            >
+              <div className="max-w-7xl mx-auto">
+                <Suspense fallback={<LoadingScreen duration={500} />}>
+                  {children}
+                </Suspense>
+              </div>
+            </main>
+          </div>
         </div>
+        <Footer />
       </div>
     </SidebarProvider>
   );

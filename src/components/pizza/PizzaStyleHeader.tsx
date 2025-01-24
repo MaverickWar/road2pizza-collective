@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 interface PizzaStyleHeaderProps {
-
+  title: string;
+  description: string;
   onSubmitRecipe: () => void;
 }
 

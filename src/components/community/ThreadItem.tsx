@@ -197,10 +197,11 @@ export const ThreadItem = ({
               isLocked ? "text-red-500" : "text-foreground"
             )}
           >
-            {isLocked ? 
-              <Lock className="h-4 w-4 fill-current" /> : 
+            {isLocked ? (
+              <Lock className="h-4 w-4 stroke-[2.5]" />
+            ) : (
               <LockOpen className="h-4 w-4" />
-            }
+            )}
           </Button>
 
           <Button

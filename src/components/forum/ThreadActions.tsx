@@ -106,25 +106,34 @@ export const ThreadActions = ({
 
   return (
     <div className="flex items-center gap-2">
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="hover:bg-accent">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuItem onClick={() => {
-            setIsEditDialogOpen(true);
-            setIsDropdownOpen(false);
-          }}>
+        <DropdownMenuContent 
+          align="end" 
+          className="w-48 bg-background border border-border shadow-lg"
+        >
+          <DropdownMenuItem 
+            onClick={() => {
+              setIsEditDialogOpen(true);
+              setIsDropdownOpen(false);
+            }}
+            className="flex items-center cursor-pointer"
+          >
             <Edit className="w-4 h-4 mr-2" />
             Edit Thread
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={() => {
-            setIsPasswordDialogOpen(true);
-            setIsDropdownOpen(false);
-          }}>
+          <DropdownMenuItem 
+            onClick={() => {
+              setIsPasswordDialogOpen(true);
+              setIsDropdownOpen(false);
+            }}
+            className="flex items-center cursor-pointer"
+          >
             <Key className="w-4 h-4 mr-2" />
             {hasPassword ? 'Manage Password' : 'Add Password'}
           </DropdownMenuItem>
@@ -132,8 +141,8 @@ export const ThreadActions = ({
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
-            className="text-red-600"
             onClick={handleDelete}
+            className="flex items-center cursor-pointer text-destructive focus:text-destructive"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Delete Thread
@@ -142,21 +151,25 @@ export const ThreadActions = ({
       </DropdownMenu>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl bg-background border-border">
           <DialogHeader>
-            <DialogTitle>Edit Thread</DialogTitle>
+            <DialogTitle className="text-foreground">Edit Thread</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Editor content={editedContent} onChange={setEditedContent} />
+            <Editor 
+              content={editedContent} 
+              onChange={setEditedContent}
+              className="min-h-[200px] bg-background border border-input"
+            />
             <Button onClick={handleEdit}>Save Changes</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-background border-border">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-foreground">
               {hasPassword ? 'Manage Thread Password' : 'Add Thread Password'}
             </DialogTitle>
           </DialogHeader>
@@ -166,6 +179,7 @@ export const ThreadActions = ({
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="bg-background border-input"
             />
             <div className="flex justify-between">
               <Button onClick={handlePasswordUpdate}>

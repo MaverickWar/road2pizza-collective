@@ -158,31 +158,56 @@ export const ThreadItem = ({
   const displayPoster = thread.last_poster || thread.author;
 
   return (
-    <div className="group relative flex flex-col md:flex-row items-start md:items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-accent/5">
-      <div className="flex-1 min-w-0 space-y-1 order-2 md:order-1">
-        <Link
-          to={`/community/forum/thread/${thread.id}`}
-          className="block"
-          aria-label={`View thread: ${thread.title}`}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-base md:text-lg font-semibold text-foreground transition-colors line-clamp-1">
+    <div className="group relative flex flex-col md:flex-row items-start md:items-center gap-4 rounded-lg border border-border hover:bg-accent/5 p-4">
+      <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={thread.author?.avatar_url} />
+            <AvatarFallback>
+              {thread.author?.username?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <Link
+              to={`/community/forum/thread/${thread.id}`}
+              className="font-medium hover:text-accent"
+            >
               {thread.title}
-            </span>
+            </Link>
+            <div className="text-sm text-muted-foreground">
+              by {thread.author?.username || 'Unknown'}
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{thread.excerpt}</p>
-        </Link>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <MessageSquare className="h-4 w-4" />
+            <span>{thread.post_count || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Eye className="h-4 w-4" />
+            <span>{thread.view_count || 0}</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          <span>{format(new Date(thread.last_post_at || thread.created_at), 'MMM d, yyyy')}</span>
+        </div>
       </div>
 
       {showAdminControls && (
-        <div className="flex items-center gap-2 relative z-20 order-1 md:order-2 mb-2 md:mb-0">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={handlePinToggle}
             className={cn(
               "transition-colors hover:bg-orange-100 dark:hover:bg-orange-900",
-              isPinned ? "text-orange-500" : "text-foreground"
+              isPinned ? "text-orange-500" : "text-muted-foreground"
             )}
           >
             <Pin className={cn("h-4 w-4", isPinned && "fill-current")} />
@@ -194,11 +219,11 @@ export const ThreadItem = ({
             onClick={handleLockToggle}
             className={cn(
               "transition-colors hover:bg-red-100 dark:hover:bg-red-900",
-              isLocked ? "text-red-500" : "text-foreground"
+              isLocked ? "text-red-500" : "text-muted-foreground"
             )}
           >
             {isLocked ? (
-              <Lock className="h-4 w-4 stroke-[2.5]" />
+              <Lock className="h-4 w-4 stroke-[3]" />
             ) : (
               <LockOpen className="h-4 w-4" />
             )}
@@ -210,7 +235,7 @@ export const ThreadItem = ({
             onClick={handlePasswordClick}
             className={cn(
               "transition-colors hover:bg-blue-100 dark:hover:bg-blue-900",
-              thread.password_protected ? "text-blue-500" : "text-foreground"
+              thread.password_protected ? "text-blue-500" : "text-muted-foreground"
             )}
           >
             <Key className="h-4 w-4" />

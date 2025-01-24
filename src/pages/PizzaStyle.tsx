@@ -6,9 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/AuthProvider';
 import { toast } from 'sonner';
-import { PizzaStyleHeader } from '@/components/pizza/PizzaStyleHeader';
 import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
 import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -158,12 +159,6 @@ const PizzaStyle = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Pizza Styles
           </Link>
-          
-          <PizzaStyleHeader 
-            title={pizzaStyle.title}
-            description={pizzaStyle.description}
-            onSubmitRecipe={handleSubmitRecipe}
-          />
         </div>
 
         <Hero 
@@ -172,6 +167,16 @@ const PizzaStyle = () => {
           image={latestImage}
           showButtons={false}
         />
+
+        <div className="flex justify-end mb-8">
+          <Button 
+            onClick={handleSubmitRecipe}
+            className="bg-accent hover:bg-accent-hover text-white"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Submit Recipe
+          </Button>
+        </div>
         
         <PizzaStyleRecipes 
           recipes={recipes || []}

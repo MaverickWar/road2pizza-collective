@@ -25,6 +25,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none p-4 focus:outline-none min-h-[200px]',
+      },
+    },
   });
 
   if (!editor) {
@@ -32,13 +37,17 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
   }
 
   return (
-    <div className={cn("border border-input rounded-md overflow-hidden", className)}>
-      <div className="border-b border-input p-2 flex flex-wrap gap-2 bg-muted/50">
+    <div className={cn("border border-input rounded-md overflow-hidden bg-background", className)}>
+      <div className="border-b border-input p-2 flex flex-wrap gap-2 bg-background">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? 'bg-accent' : ''}
+          data-active={editor.isActive('bold')}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('bold') && "bg-muted"
+          )}
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -46,7 +55,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? 'bg-accent' : ''}
+          data-active={editor.isActive('italic')}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('italic') && "bg-muted"
+          )}
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -54,7 +67,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}
+          data-active={editor.isActive('heading', { level: 1 })}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('heading', { level: 1 }) && "bg-muted"
+          )}
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -62,7 +79,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}
+          data-active={editor.isActive('heading', { level: 2 })}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('heading', { level: 2 }) && "bg-muted"
+          )}
         >
           <Heading2 className="h-4 w-4" />
         </Button>
@@ -70,7 +91,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive('bulletList') ? 'bg-accent' : ''}
+          data-active={editor.isActive('bulletList')}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('bulletList') && "bg-muted"
+          )}
         >
           <List className="h-4 w-4" />
         </Button>
@@ -78,7 +103,11 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive('orderedList') ? 'bg-accent' : ''}
+          data-active={editor.isActive('orderedList')}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('orderedList') && "bg-muted"
+          )}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -86,20 +115,16 @@ const Editor = ({ content, onChange, className }: EditorProps) => {
           variant="ghost"
           size="sm"
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={editor.isActive('blockquote') ? 'bg-accent' : ''}
+          data-active={editor.isActive('blockquote')}
+          className={cn(
+            "hover:bg-muted",
+            editor.isActive('blockquote') && "bg-muted"
+          )}
         >
           <Quote className="h-4 w-4" />
         </Button>
       </div>
-      <div 
-        className="relative cursor-text min-h-[200px]" 
-        onClick={() => editor.chain().focus().run()}
-      >
-        <EditorContent 
-          editor={editor} 
-          className="prose prose-sm prose-invert max-w-none p-4 focus:outline-none"
-        />
-      </div>
+      <EditorContent editor={editor} />
     </div>
   );
 };

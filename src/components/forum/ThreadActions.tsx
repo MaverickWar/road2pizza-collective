@@ -11,8 +11,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
@@ -46,6 +47,7 @@ export const ThreadActions = ({
   const { isAdmin } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editedContent, setEditedContent] = useState(currentContent);
   const [password, setPassword] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -60,6 +62,7 @@ export const ThreadActions = ({
       if (error) throw error;
       toast.success("Thread deleted successfully");
       onThreadUpdated();
+      setIsDeleteDialogOpen(false);
     } catch (error) {
       console.error("Error deleting thread:", error);
       toast.error("Failed to delete thread");
@@ -80,27 +83,6 @@ export const ThreadActions = ({
     } catch (error) {
       console.error("Error updating thread:", error);
       toast.error("Failed to update thread");
-    }
-  };
-
-  const handlePasswordUpdate = async () => {
-    try {
-      const { error } = await supabase
-        .from("forum_threads")
-        .update({ 
-          password: password || null,
-          password_protected: Boolean(password)
-        })
-        .eq("id", threadId);
-
-      if (error) throw error;
-      toast.success(password ? "Password updated successfully" : "Password removed successfully");
-      setIsPasswordDialogOpen(false);
-      setPassword("");
-      onThreadUpdated();
-    } catch (error) {
-      console.error("Error updating password:", error);
-      toast.error("Failed to update password");
     }
   };
 
@@ -127,21 +109,13 @@ export const ThreadActions = ({
             Edit Thread
           </DropdownMenuItem>
           
-          <DropdownMenuItem 
-            onClick={() => {
-              setIsPasswordDialogOpen(true);
-              setIsDropdownOpen(false);
-            }}
-            className="flex items-center cursor-pointer"
-          >
-            <Key className="w-4 h-4 mr-2" />
-            {hasPassword ? 'Manage Password' : 'Add Password'}
-          </DropdownMenuItem>
-
           <DropdownMenuSeparator />
           
           <DropdownMenuItem 
-            onClick={handleDelete}
+            onClick={() => {
+              setIsDeleteDialogOpen(true);
+              setIsDropdownOpen(false);
+            }}
             className="flex items-center cursor-pointer text-destructive focus:text-destructive"
           >
             <Trash2 className="w-4 h-4 mr-2" />
@@ -151,7 +125,7 @@ export const ThreadActions = ({
       </DropdownMenu>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl bg-background border-border">
+        <DialogContent className="bg-background border-border max-w-4xl">
           <DialogHeader>
             <DialogTitle className="text-foreground">Edit Thread</DialogTitle>
           </DialogHeader>
@@ -165,38 +139,28 @@ export const ThreadActions = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-background border-border">
           <DialogHeader>
-            <DialogTitle className="text-foreground">
-              {hasPassword ? 'Manage Thread Password' : 'Add Thread Password'}
-            </DialogTitle>
+            <DialogTitle className="text-foreground">Delete Thread</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Are you sure you want to delete this thread? This action cannot be undone.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="bg-background border-input"
-            />
-            <div className="flex justify-between">
-              <Button onClick={handlePasswordUpdate}>
-                {password ? 'Save Password' : 'Remove Password'}
-              </Button>
-              {hasPassword && (
-                <Button 
-                  variant="ghost" 
-                  onClick={() => {
-                    setPassword('');
-                    handlePasswordUpdate();
-                  }}
-                >
-                  Remove Password
-                </Button>
-              )}
-            </div>
-          </div>
+          <DialogFooter className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

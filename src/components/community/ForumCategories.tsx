@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import CategorySection from "./CategorySection";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ForumCategories = () => {
-  const { data: categories = [], isError } = useQuery({
+  const { data: categories = [], isError, isLoading } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
       console.log("Fetching forum categories...");
@@ -77,15 +78,42 @@ const ForumCategories = () => {
       console.log("Forum categories fetched successfully:", data);
       return data || [];
     },
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-    meta: {
-      errorMessage: "Failed to load forum categories"
+    staleTime: 1000 * 60 * 2, // Data stays fresh for 2 minutes
+    gcTime: 1000 * 60 * 5,    // Keep unused data in cache for 5 minutes
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: (failureCount, error: any) => {
+      if (error?.status === 404) return false;
+      return failureCount < 3;
     }
   });
 
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="rounded-lg border p-6">
+            <Skeleton className="h-8 w-1/3 mb-4" />
+            <Skeleton className="h-4 w-2/3 mb-2" />
+            <div className="space-y-4 mt-6">
+              {[1, 2].map((j) => (
+                <Skeleton key={j} className="h-20 w-full" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (isError) {
     toast.error("Failed to load forum categories");
+    return (
+      <div className="text-center p-8 text-muted-foreground">
+        Unable to load categories. Please try refreshing the page.
+      </div>
+    );
   }
 
   return (

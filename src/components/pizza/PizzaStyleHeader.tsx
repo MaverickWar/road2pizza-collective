@@ -9,9 +9,7 @@ interface PizzaStyleHeaderProps {
 
 export const PizzaStyleHeader = ({ title, description, onSubmitRecipe }: PizzaStyleHeaderProps) => {
   return (
-    <div className="text-center py-6">
-      <h1 className="text-4xl font-bold text-textLight mb-3">{title}</h1>
-      <p className="text-xl text-textLight mb-4">{description}</p>
+ 
       <Button 
         onClick={onSubmitRecipe}
         className="bg-accent hover:bg-accent-hover text-white"

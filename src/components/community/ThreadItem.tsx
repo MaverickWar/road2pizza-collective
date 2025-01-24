@@ -44,6 +44,8 @@ export const ThreadItem = ({
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [password, setPassword] = useState("");
+  const [isPinned, setIsPinned] = useState(thread.is_pinned);
+  const [isLocked, setIsLocked] = useState(thread.is_locked);
   const { user } = useAuth();
 
   const handlePinToggle = async (e: React.MouseEvent) => {
@@ -54,7 +56,7 @@ export const ThreadItem = ({
       console.log('Attempting to toggle pin status for thread:', thread.id);
       const { data, error } = await supabase
         .from('forum_threads')
-        .update({ is_pinned: !thread.is_pinned })
+        .update({ is_pinned: !isPinned })
         .eq('id', thread.id)
         .select();
 
@@ -64,8 +66,9 @@ export const ThreadItem = ({
       }
 
       console.log('Pin toggle successful:', data);
-      onThreadUpdate?.(thread.id, { is_pinned: !thread.is_pinned });
-      toast.success(thread.is_pinned ? 'Thread unpinned' : 'Thread pinned');
+      setIsPinned(!isPinned);
+      onThreadUpdate?.(thread.id, { is_pinned: !isPinned });
+      toast.success(isPinned ? 'Thread unpinned' : 'Thread pinned');
     } catch (error) {
       console.error('Error toggling pin:', error);
       toast.error('Failed to update thread pin status');
@@ -80,7 +83,7 @@ export const ThreadItem = ({
       console.log('Attempting to toggle lock status for thread:', thread.id);
       const { data, error } = await supabase
         .from('forum_threads')
-        .update({ is_locked: !thread.is_locked })
+        .update({ is_locked: !isLocked })
         .eq('id', thread.id)
         .select();
 
@@ -90,8 +93,9 @@ export const ThreadItem = ({
       }
 
       console.log('Lock toggle successful:', data);
-      onThreadUpdate?.(thread.id, { is_locked: !thread.is_locked });
-      toast.success(thread.is_locked ? 'Thread unlocked' : 'Thread locked');
+      setIsLocked(!isLocked);
+      onThreadUpdate?.(thread.id, { is_locked: !isLocked });
+      toast.success(isLocked ? 'Thread unlocked' : 'Thread locked');
     } catch (error) {
       console.error('Error toggling lock:', error);
       toast.error('Failed to update thread lock status');
@@ -178,10 +182,10 @@ export const ThreadItem = ({
             onClick={handlePinToggle}
             className={cn(
               "transition-colors hover:bg-orange-100 dark:hover:bg-orange-900",
-              thread.is_pinned ? "text-orange-500" : "text-foreground"
+              isPinned ? "text-orange-500" : "text-foreground"
             )}
           >
-            <Pin className="h-4 w-4" />
+            <Pin className={cn("h-4 w-4", isPinned && "fill-current")} />
           </Button>
           
           <Button
@@ -190,10 +194,13 @@ export const ThreadItem = ({
             onClick={handleLockToggle}
             className={cn(
               "transition-colors hover:bg-red-100 dark:hover:bg-red-900",
-              thread.is_locked ? "text-red-500" : "text-foreground"
+              isLocked ? "text-red-500" : "text-foreground"
             )}
           >
-            {thread.is_locked ? <Lock className="h-4 w-4" /> : <LockOpen className="h-4 w-4" />}
+            {isLocked ? 
+              <Lock className="h-4 w-4 fill-current" /> : 
+              <LockOpen className="h-4 w-4" />
+            }
           </Button>
 
           <Button

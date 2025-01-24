@@ -106,23 +106,29 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-admin-background flex">
-        <MemoizedAdminSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} isMobile={isMobile} />
+      <div className="min-h-screen bg-admin-background">
+        <MemoizedAdminSidebar 
+          isOpen={sidebarOpen} 
+          onToggle={toggleSidebar} 
+          isMobile={isMobile} 
+        />
         
         <div 
-          className={`flex-1 transition-all duration-300 ${
+          className={`min-h-screen transition-all duration-300 ${
             sidebarOpen && !isMobile ? 'md:ml-64' : 'md:ml-20'
           }`}
         >
           <MemoizedAdminHeader onMenuClick={toggleSidebar} />
           
           <main 
-            className="p-4 md:p-6 pt-20 min-h-screen"
+            className="p-4 md:p-6 pt-20 min-h-[calc(100vh-4rem)]"
             onClick={handleContentClick}
           >
-            <Suspense fallback={<LoadingScreen duration={500} />}>
-              {children}
-            </Suspense>
+            <div className="max-w-7xl mx-auto">
+              <Suspense fallback={<LoadingScreen duration={500} />}>
+                {children}
+              </Suspense>
+            </div>
           </main>
           
           <MemoizedAdminFooter />

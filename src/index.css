@@ -36,20 +36,14 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 24 94% 53%;
     --radius: 0.5rem;
-
-    /* Shadows */
-    --shadow-admin: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-admin-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-admin-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 
   body {
-    @apply bg-background text-textLight min-h-screen;
+    @apply bg-background text-textLight min-h-screen antialiased;
   }
 }
 
 @layer components {
-  /* Admin Dashboard Specific Styles */
   .admin-layout {
     @apply min-h-screen bg-admin-background;
   }
@@ -63,7 +57,7 @@
   }
 
   .admin-content {
-    @apply pt-24 pl-64 min-h-screen bg-admin-background px-4 transition-all duration-300;
+    @apply pt-24 pl-64 min-h-screen bg-admin-background px-6 transition-all duration-300;
   }
 
   /* Mobile First Admin Layout */
@@ -77,7 +71,7 @@
     }
 
     .admin-content {
-      @apply pl-0;
+      @apply pl-0 px-4;
     }
 
     .admin-layout.expanded .admin-sidebar {
@@ -146,5 +140,19 @@
 
   .admin-table tr:hover {
     @apply bg-admin-background/50;
+  }
+
+  /* Admin Grid Layout */
+  .admin-grid {
+    @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  /* Admin Form Layout */
+  .admin-form-section {
+    @apply space-y-4 bg-white rounded-lg shadow-sm p-6 mb-6;
+  }
+
+  .admin-form-group {
+    @apply space-y-2;
   }
 }

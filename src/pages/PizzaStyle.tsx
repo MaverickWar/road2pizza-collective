@@ -10,6 +10,8 @@ import { PizzaStyleRecipes } from '@/components/pizza/PizzaStyleRecipes';
 import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { LoginDialog } from '@/components/LoginDialog';
+import { useState } from 'react';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -59,6 +61,7 @@ const PizzaStyle = () => {
   const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const { data: recipes, isLoading } = useQuery({
     queryKey: ['recipes', style],
@@ -106,13 +109,7 @@ const PizzaStyle = () => {
 
   const handleSubmitRecipe = async () => {
     if (!user) {
-      toast.error("Please login to submit a recipe");
-      navigate("/login", { 
-        state: { 
-          returnTo: `/pizza/${style}`,
-          message: "Please login to submit a recipe" 
-        } 
-      });
+      setShowLoginDialog(true);
       return;
     }
 
@@ -187,6 +184,13 @@ const PizzaStyle = () => {
           isLoading={isLoading}
         />
       </div>
+
+      {!user && (
+        <LoginDialog 
+          isOpen={showLoginDialog} 
+          onClose={() => setShowLoginDialog(false)} 
+        />
+      )}
     </div>
   );
 };

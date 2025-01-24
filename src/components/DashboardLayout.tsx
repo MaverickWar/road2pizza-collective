@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState, memo } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { AdminFooter } from "@/components/admin/AdminFooter";
+import Footer from "@/components/Footer";
 import { SidebarProvider } from "@/components/ui/sidebar/SidebarContext";
 import LoadingScreen from "./LoadingScreen";
 import { useAuth } from "./AuthProvider";
@@ -16,7 +16,6 @@ interface DashboardLayoutProps {
 
 const MemoizedAdminHeader = memo(AdminHeader);
 const MemoizedAdminSidebar = memo(AdminSidebar);
-const MemoizedAdminFooter = memo(AdminFooter);
 
 function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, isAdmin, isLoading } = useAuth();
@@ -27,6 +26,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
+  // Debug mount/unmount
   useEffect(() => {
     console.log("DashboardLayout mounted", {
       path: location.pathname,
@@ -44,6 +44,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     };
   }, []);
 
+  // Validate session and access rights
   useEffect(() => {
     let mounted = true;
 
@@ -85,49 +86,53 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     };
   }, [user, isAdmin, isLoading, navigate]);
 
+  // Handle mobile menu toggle
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Close sidebar on mobile when clicking outside
   const handleContentClick = () => {
     if (isMobile && sidebarOpen) {
       setSidebarOpen(false);
     }
   };
 
+  // Show loading states
   if (isLoading || isTransitioning || !user || !isAdmin || !sessionValidated) {
     return <LoadingScreen showWelcome={false} />;
   }
 
   return (
     <SidebarProvider>
-      <div className="dashboard-layout flex min-h-screen flex-col">
-        <MemoizedAdminSidebar 
-          isOpen={sidebarOpen} 
-          onToggle={toggleSidebar} 
-          isMobile={isMobile} 
-        />
-        
-        <div 
-          className={`flex-1 transition-all duration-300 ${
-            sidebarOpen && !isMobile ? 'md:ml-64' : 'md:ml-20'
-          }`}
-        >
-          <MemoizedAdminHeader onMenuClick={toggleSidebar} />
+      <div className="min-h-screen bg-admin-background flex flex-col">
+        <div className="flex flex-1">
+          <MemoizedAdminSidebar 
+            isOpen={sidebarOpen} 
+            onToggle={toggleSidebar} 
+            isMobile={isMobile} 
+          />
           
-          <main 
-            className="p-4 md:p-6 pt-20"
-            onClick={handleContentClick}
+          <div 
+            className={`flex-1 transition-all duration-300 ${
+              sidebarOpen && !isMobile ? 'md:ml-64' : 'md:ml-20'
+            }`}
           >
-            <div className="max-w-7xl mx-auto">
-              <Suspense fallback={<LoadingScreen duration={500} />}>
-                {children}
-              </Suspense>
-            </div>
-          </main>
-          
-          <MemoizedAdminFooter />
+            <MemoizedAdminHeader onMenuClick={toggleSidebar} />
+            
+            <main 
+              className="p-4 md:p-6 pt-20"
+              onClick={handleContentClick}
+            >
+              <div className="max-w-7xl mx-auto">
+                <Suspense fallback={<LoadingScreen duration={500} />}>
+                  {children}
+                </Suspense>
+              </div>
+            </main>
+          </div>
         </div>
+        <Footer />
       </div>
     </SidebarProvider>
   );

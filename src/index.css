@@ -4,114 +4,155 @@
 
 @layer base {
   :root {
-    /* Dashboard Theme Colors (in RGB format for opacity support) */
-    --dashboard-primary: 255 71 0;     /* Orange primary color */
-    --dashboard-secondary: 245 245 245; /* Light gray */
-    --dashboard-accent: 238 238 238;    /* Slightly darker gray */
-    --dashboard-muted: 128 128 128;     /* Mid gray for muted text */
-    --dashboard-background: 250 250 250; /* Off-white background */
-    --dashboard-foreground: 33 33 33;    /* Dark text color */
-    --dashboard-border: 229 229 229;     /* Light border color */
-
     /* Admin Theme Colors (in RGB format for opacity support) */
-    --admin-DEFAULT: 249 115 22;
-    --admin-secondary: 254 198 161;
-    --admin-accent: 255 228 231;
-    --admin-muted: 148 163 184;
-    --admin-background: 248 250 252;
-    --admin-foreground: 30 41 59;
-    --admin-border: 226 232 240;
-    --admin-hover-DEFAULT: 234 88 12;
-    --admin-hover-secondary: 254 176 136;
+    --admin-DEFAULT: 249 115 22; /* Orange 500 */
+    --admin-secondary: 254 198 161; /* Orange 200 */
+    --admin-accent: 255 228 231; /* Pink 100 */
+    --admin-muted: 148 163 184; /* Slate 400 */
+    --admin-background: 248 250 252; /* Slate 50 */
+    --admin-foreground: 30 41 59; /* Slate 800 */
+    --admin-border: 226 232 240; /* Slate 200 */
+    --admin-hover-DEFAULT: 234 88 12; /* Orange 600 */
+    --admin-hover-secondary: 254 176 136; /* Orange 300 */
 
-    /* Container Padding */
-    --container-padding-DEFAULT: 1rem;
-    --container-padding-sm: 2rem;
-    --container-padding-lg: 4rem;
-    --container-padding-xl: 5rem;
-    --container-padding-2xl: 6rem;
-    
-    /* Screen Sizes */
-    --screen-2xl: 1400px;
+    /* Other Theme Variables */
+    --background: 0 0% 95%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 24 94% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 349 100% 94%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 349 100% 94%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 24 94% 53%;
+    --radius: 0.5rem;
+  }
+
+  body {
+    @apply bg-background text-textLight min-h-screen antialiased;
   }
 }
 
 @layer components {
-  .dashboard-layout {
-    @apply min-h-screen bg-dashboard-background text-dashboard-foreground;
+  .admin-layout {
+    @apply min-h-screen bg-admin-background;
   }
 
-  .dashboard-sidebar {
-    @apply fixed top-0 left-0 z-50 h-screen w-64 bg-white shadow-dashboard transition-all duration-300;
+  .admin-sidebar {
+    @apply fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-admin-border shadow-admin transition-all duration-300;
   }
 
-  .dashboard-header {
-    @apply fixed top-0 right-0 left-64 z-40 h-16 bg-white shadow-dashboard transition-all duration-300;
+  .admin-header {
+    @apply fixed top-0 right-0 left-64 z-40 h-16 bg-white border-b border-admin-border transition-all duration-300;
   }
 
-  .dashboard-content {
-    @apply pt-20 pl-64 min-h-screen bg-dashboard-background px-6 transition-all duration-300;
+  .admin-content {
+    @apply pt-24 pl-64 min-h-screen bg-admin-background px-6 transition-all duration-300;
   }
 
-  .dashboard-nav-item {
-    @apply flex items-center gap-3 px-4 py-3 text-dashboard-muted hover:bg-dashboard-secondary/50 hover:text-dashboard-primary rounded-lg transition-all duration-200;
-  }
-
-  .dashboard-nav-item.active {
-    @apply bg-dashboard-secondary/50 text-dashboard-primary font-medium;
-  }
-
-  .dashboard-card {
-    @apply bg-white rounded-lg shadow-dashboard hover:shadow-dashboard-hover transition-all duration-300 p-6;
-  }
-
-  .dashboard-stats-card {
-    @apply bg-white rounded-xl p-6 shadow-dashboard hover:shadow-dashboard-hover transition-all;
-  }
-
-  .dashboard-button {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-dashboard-primary text-white hover:bg-dashboard-primary/90;
-  }
-
-  .dashboard-button-secondary {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-dashboard-secondary text-dashboard-foreground hover:bg-dashboard-secondary/80;
-  }
-
-  .dashboard-input {
-    @apply px-4 py-2 rounded-lg border border-dashboard-border focus:border-dashboard-primary focus:ring-2 focus:ring-dashboard-primary/20 outline-none transition-all duration-200;
-  }
-
-  /* Mobile First Dashboard Layout */
+  /* Mobile First Admin Layout */
   @media (max-width: 768px) {
-    .dashboard-sidebar {
+    .admin-sidebar {
       @apply -translate-x-full;
     }
 
-    .dashboard-header {
+    .admin-header {
       @apply left-0;
     }
 
-    .dashboard-content {
+    .admin-content {
       @apply pl-0 px-4;
     }
 
-    .dashboard-layout.expanded .dashboard-sidebar {
+    .admin-layout.expanded .admin-sidebar {
       @apply translate-x-0;
     }
   }
 
   /* Desktop Layout */
   @media (min-width: 769px) {
-    .dashboard-layout.collapsed .dashboard-sidebar {
+    .admin-layout.collapsed .admin-sidebar {
       @apply w-20;
     }
 
-    .dashboard-layout.collapsed .dashboard-header {
+    .admin-layout.collapsed .admin-header {
       @apply left-20;
     }
 
-    .dashboard-layout.collapsed .dashboard-content {
+    .admin-layout.collapsed .admin-content {
       @apply pl-20;
     }
+  }
+
+  .admin-card {
+    @apply bg-white rounded-lg shadow-admin hover:shadow-admin-hover transition-all duration-300 p-6;
+  }
+
+  .admin-stats-card {
+    @apply bg-gradient-to-br from-admin/10 to-admin/5 rounded-xl p-6;
+  }
+
+  .admin-nav-item {
+    @apply flex items-center gap-3 px-4 py-2 rounded-lg text-admin-foreground hover:bg-admin/10 hover:text-admin transition-all duration-200;
+  }
+
+  .admin-nav-item.active {
+    @apply bg-admin/10 text-admin;
+  }
+
+  .admin-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .admin-button-primary {
+    @apply bg-admin text-white hover:bg-admin-hover-DEFAULT;
+  }
+
+  .admin-button-secondary {
+    @apply bg-admin-secondary text-admin-foreground hover:bg-admin-hover-secondary;
+  }
+
+  .admin-input {
+    @apply px-4 py-2 rounded-lg border border-admin-border focus:border-admin focus:ring-2 focus:ring-admin/20 outline-none transition-all duration-200;
+  }
+
+  .admin-table {
+    @apply w-full border-collapse;
+  }
+
+  .admin-table th {
+    @apply px-4 py-2 text-left bg-admin-background text-admin-muted font-medium;
+  }
+
+  .admin-table td {
+    @apply px-4 py-2 border-t border-admin-border;
+  }
+
+  .admin-table tr:hover {
+    @apply bg-admin-background/50;
+  }
+
+  /* Admin Grid Layout */
+  .admin-grid {
+    @apply grid gap-6 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  /* Admin Form Layout */
+  .admin-form-section {
+    @apply space-y-4 bg-white rounded-lg shadow-sm p-6 mb-6;
+  }
+
+  .admin-form-group {
+    @apply space-y-2;
   }
 }

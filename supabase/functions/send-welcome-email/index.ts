@@ -15,6 +15,7 @@ serve(async (req) => {
 
   try {
     const { email, username } = await req.json();
+    console.log('Sending welcome email to:', email, 'username:', username);
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -41,9 +42,11 @@ serve(async (req) => {
     });
 
     if (!emailResponse.ok) {
+      console.error('Failed to send welcome email:', await emailResponse.text());
       throw new Error('Failed to send welcome email');
     }
 
+    console.log('Welcome email sent successfully');
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,

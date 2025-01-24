@@ -19,6 +19,18 @@ export const useSignup = () => {
       
       console.log('Starting signup attempt...', { email, username });
 
+      // First check if email already exists
+      const { data: existingUsers } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .single();
+
+      if (existingUsers) {
+        toast.error('An account with this email already exists. Please sign in instead.');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -31,7 +43,11 @@ export const useSignup = () => {
 
       if (error) {
         console.error('Signup error:', error);
-        toast.error(error.message);
+        if (error.message.includes('already registered')) {
+          toast.error('This email is already registered. Please sign in instead.');
+        } else {
+          toast.error(error.message);
+        }
         return;
       }
 
@@ -41,8 +57,28 @@ export const useSignup = () => {
           email: data.user.email,
         });
         
-        toast.success('Account created successfully! Please check your email to confirm your account.');
-        setShowEmailConfirmAlert(true);
+        // Check if email confirmation is required
+        const { data: authConfig } = await supabase.rpc('get_auth_config');
+        const requiresEmailConfirmation = authConfig?.confirmations_required || false;
+
+        if (requiresEmailConfirmation) {
+          toast.success('Account created! Please check your email to confirm your account.');
+          setShowEmailConfirmAlert(true);
+        } else {
+          // If no email confirmation required, log the user in
+          toast.success('Account created successfully! Welcome to Road2Pizza!');
+          
+          // Send welcome email via edge function
+          try {
+            await supabase.functions.invoke('send-welcome-email', {
+              body: { email, username }
+            });
+          } catch (emailError) {
+            console.error('Error sending welcome email:', emailError);
+          }
+
+          navigate('/dashboard');
+        }
       } else {
         console.error('No user data received from successful signup');
         toast.error('Signup failed - please try again');

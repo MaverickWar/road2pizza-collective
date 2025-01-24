@@ -10,13 +10,15 @@ import {
   Heading1,
   Heading2 
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface EditorProps {
   content: string;
   onChange: (content: string) => void;
+  className?: string;
 }
 
-const Editor = ({ content, onChange }: EditorProps) => {
+const Editor = ({ content, onChange, className }: EditorProps) => {
   const editor = useEditor({
     extensions: [StarterKit],
     content,
@@ -30,7 +32,7 @@ const Editor = ({ content, onChange }: EditorProps) => {
   }
 
   return (
-    <div className="border border-input rounded-md overflow-hidden">
+    <div className={cn("border border-input rounded-md overflow-hidden", className)}>
       <div className="border-b border-input p-2 flex flex-wrap gap-2 bg-muted/50">
         <Button
           variant="ghost"

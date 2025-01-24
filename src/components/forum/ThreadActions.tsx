@@ -159,7 +159,6 @@ export const ThreadActions = ({
             <Editor 
               content={editedContent} 
               onChange={setEditedContent}
-              className="min-h-[200px] bg-background border border-input"
             />
             <Button onClick={handleEdit}>Save Changes</Button>
           </div>

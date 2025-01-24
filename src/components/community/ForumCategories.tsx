@@ -5,13 +5,6 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const ForumCategories = () => {
   const { data: categories = [], isError, isLoading } = useQuery({
@@ -127,35 +120,11 @@ const ForumCategories = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center border-b pb-4">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Page</span>
-            <Select defaultValue="1">
-              <SelectTrigger className="w-20">
-                <SelectValue placeholder="Page" />
-              </SelectTrigger>
-              <SelectContent>
-                {[...Array(45)].map((_, i) => (
-                  <SelectItem key={i + 1} value={(i + 1).toString()}>
-                    {i + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground">of 45</span>
-          </div>
-        </div>
+      <div className="flex justify-end items-center border-b pb-4">
         <Button variant="outline" size="sm">
           <Filter className="h-4 w-4 mr-2" />
           Filter
         </Button>
-      </div>
-
-      <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground border-b pb-2">
-        <div className="col-span-6 md:col-span-7">Topics</div>
-        <div className="col-span-3 md:col-span-3 text-center">Statistics</div>
-        <div className="col-span-3 md:col-span-2 text-right">Last Post</div>
       </div>
 
       <div className="space-y-4">

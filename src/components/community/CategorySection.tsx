@@ -12,6 +12,13 @@ import { Plus, Settings } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ThreadItem from "./ThreadItem";
 
 interface CategorySectionProps {
@@ -46,12 +53,23 @@ interface CategorySectionProps {
   onThreadCreated: () => void;
 }
 
+const THREADS_PER_PAGE = 5;
+
 const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
   const { user, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalThreads = category.forum_threads?.length || 0;
+  const totalPages = Math.ceil(totalThreads / THREADS_PER_PAGE);
+  
+  const paginatedThreads = category.forum_threads?.slice(
+    (currentPage - 1) * THREADS_PER_PAGE,
+    currentPage * THREADS_PER_PAGE
+  );
 
   const onSubmit = async (data: any) => {
     if (!user) return;
@@ -126,10 +144,16 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
       </CardHeader>
 
       <CardContent>
+        <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground pb-2">
+          <div className="col-span-6 md:col-span-7">Topics</div>
+          <div className="col-span-3 md:col-span-3 text-center">Statistics</div>
+          <div className="col-span-3 md:col-span-2 text-right">Last Post</div>
+        </div>
+        
         <Separator className="my-4" />
         
         <div className="space-y-4">
-          {category.forum_threads?.map((thread) => (
+          {paginatedThreads?.map((thread) => (
             <Link
               key={thread.id}
               to={`/community/forum/thread/${thread.id}`}
@@ -158,6 +182,28 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
             </p>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-end gap-2 mt-4 text-sm text-muted-foreground">
+            <span>Page</span>
+            <Select
+              value={currentPage.toString()}
+              onValueChange={(value) => setCurrentPage(parseInt(value))}
+            >
+              <SelectTrigger className="w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <SelectItem key={i + 1} value={(i + 1).toString()}>
+                    {i + 1}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span>of {totalPages}</span>
+          </div>
+        )}
       </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -22,7 +22,7 @@ export interface AuthConfig {
   confirmations_required: boolean;
 }
 
-// Define the RPC response type
+// Define the RPC response type with proper Database.FunctionResult
 export type GetAuthConfigResponse = {
   confirmations_required: boolean;
 }

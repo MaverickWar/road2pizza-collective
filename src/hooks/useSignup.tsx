@@ -76,7 +76,7 @@ export const useSignup = () => {
         });
         
         // Check if email confirmation is required
-        const { data: authConfigData } = await supabase.rpc<GetAuthConfigResponse>('get_auth_config');
+        const { data: authConfigData } = await supabase.rpc<GetAuthConfigResponse, null>('get_auth_config');
         console.log('Auth config:', authConfigData);
         
         const requiresEmailConfirmation = authConfigData?.confirmations_required ?? false;

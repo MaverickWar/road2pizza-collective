@@ -82,7 +82,7 @@ export const useSignup = () => {
         
         // Check if email confirmation is required
         const { data: authConfigData, error: rpcError } = await supabase
-          .rpc<AuthConfigResponse>('get_auth_config');
+          .rpc<AuthConfigResponse, Record<string, never>>('get_auth_config');
         
         if (rpcError) {
           console.error('Error fetching auth config:', rpcError);

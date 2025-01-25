@@ -18,11 +18,7 @@ export const signupFormSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginFormSchema>;
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 
-export interface AuthConfig {
-  confirmations_required: boolean;
-}
-
 // Define the RPC response type with proper Database.FunctionResult
-export type GetAuthConfigResponse = {
+export interface GetAuthConfigResponse {
   confirmations_required: boolean;
 }

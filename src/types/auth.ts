@@ -21,3 +21,8 @@ export type SignupFormValues = z.infer<typeof signupFormSchema>;
 export interface AuthConfig {
   confirmations_required: boolean;
 }
+
+// Define the RPC response type
+export type GetAuthConfigResponse = {
+  confirmations_required: boolean;
+}

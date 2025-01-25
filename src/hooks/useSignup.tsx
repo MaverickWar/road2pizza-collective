@@ -86,7 +86,9 @@ export const useSignup = () => {
         
         console.log('Auth config:', authConfigData);
         
-        const requiresEmailConfirmation = authConfigData?.confirmations_required ?? false;
+        // Parse the JSON response and extract confirmations_required
+        const parsedConfig = authConfigData as AuthConfigResponse;
+        const requiresEmailConfirmation = parsedConfig?.confirmations_required ?? false;
 
         if (requiresEmailConfirmation) {
           console.log('Email confirmation required');

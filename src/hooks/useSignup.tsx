@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { SignupFormValues, GetAuthConfigResponse } from '@/types/auth';
+import type { SignupFormValues } from '@/types/auth';
+
+// Define the response type for the get_auth_config RPC function
+type AuthConfigResponse = {
+  confirmations_required: boolean;
+};
 
 export const useSignup = () => {
   const navigate = useNavigate();
@@ -76,7 +81,8 @@ export const useSignup = () => {
         });
         
         // Check if email confirmation is required
-        const { data: authConfigData, error: rpcError } = await supabase.rpc<GetAuthConfigResponse, GetAuthConfigResponse>('get_auth_config');
+        const { data: authConfigData, error: rpcError } = await supabase
+          .rpc<AuthConfigResponse>('get_auth_config');
         
         if (rpcError) {
           console.error('Error fetching auth config:', rpcError);

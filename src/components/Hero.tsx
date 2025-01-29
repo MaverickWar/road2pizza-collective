@@ -21,7 +21,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[calc(100vh-4rem)] py-10">
+    <section className="relative w-full min-h-[calc(100vh-4rem)] flex items-center">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -30,21 +30,19 @@ const Hero = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/50" />
       </div>
-
-      <div className="relative container mx-auto px-4">
-        <div className="max-w-2xl mx-auto space-y-8 md:space-y-10 mb-12">
+      
+      <div className="relative container mx-auto px-4 py-20">
+        <div className="max-w-2xl mx-auto space-y-8 mb-16">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
             <span className="text-white">Master the Art of</span>
-            <span className="block mt-4 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">
-              Pizza Making
-            </span>
+            <span className="block mt-4 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">Pizza Making</span>
           </h1>
-
+          
           <p className="text-lg md:text-xl text-gray-200 leading-relaxed">
             Join our passionate community of pizza enthusiasts and discover the secrets 
             to creating the perfect pie, from classic Neapolitan to innovative modern styles.
           </p>
-
+          
           <div className="flex flex-col sm:flex-row gap-4">
             <Button 
               size="lg"
@@ -54,7 +52,7 @@ const Hero = () => {
               <Pizza className="mr-2 h-5 w-5" />
               Explore Recipes
             </Button>
-
+            
             <Button 
               size="lg"
               variant="outline"
@@ -78,8 +76,8 @@ const Hero = () => {
             )}
           </div>
         </div>
-
-        <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {stats.map((stat, index) => (
             <div 
               key={index}

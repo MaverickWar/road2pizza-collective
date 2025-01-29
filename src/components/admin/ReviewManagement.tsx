@@ -12,6 +12,7 @@ const ReviewManagement = () => {
   const { data: reviews, isLoading } = useQuery({
     queryKey: ['equipment-reviews'],
     queryFn: async () => {
+      console.log("Fetching equipment reviews...");
       const { data, error } = await supabase
         .from('equipment_reviews')
         .select('*')
@@ -23,6 +24,7 @@ const ReviewManagement = () => {
         throw error;
       }
 
+      console.log("Fetched reviews:", data);
       return data || [];
     }
   });
@@ -36,10 +38,12 @@ const ReviewManagement = () => {
   const handleEdit = async (review: any) => {
     console.log('Editing review:', review);
     // Implement edit functionality
+    toast.info('Edit functionality coming soon');
   };
 
   const handleDelete = async (id: string) => {
     try {
+      console.log('Deleting review:', id);
       const { error } = await supabase
         .from('equipment_reviews')
         .delete()

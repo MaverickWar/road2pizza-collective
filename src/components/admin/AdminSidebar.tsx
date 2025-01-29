@@ -12,7 +12,8 @@ import {
   Palette,
   Image,
   Menu,
-  X
+  X,
+  Construction
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { SidebarBase } from "@/components/ui/sidebar/SidebarBase";
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: Award, label: "Rewards", path: "/dashboard/admin/rewards" },
   { icon: FileText, label: "Pizza Types", path: "/dashboard/admin/pizza-types" },
   { icon: Bell, label: "Notifications", path: "/dashboard/admin/notifications" },
+  { icon: Construction, label: "Under Construction", path: "/dashboard/admin/construction" },
   { icon: Settings, label: "Settings", path: "/dashboard/admin/settings" },
   { icon: Palette, label: "Theme", path: "/dashboard/admin/theme" },
   { icon: Image, label: "Media", path: "/dashboard/admin/media" }

@@ -28,6 +28,7 @@ import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
 import MenuManagement from "@/pages/admin/MenuManagement";
 import ForumManagement from "@/pages/admin/ForumManagement";
+import ConstructionMode from "@/pages/admin/ConstructionMode";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import ArticleDetail from "@/components/article/ArticleDetail";
@@ -80,6 +81,7 @@ export function AppRoutes() {
               <Route path="/media" element={<MediaGallery />} />
               <Route path="/menu" element={<MenuManagement />} />
               <Route path="/forum" element={<ForumManagement />} />
+              <Route path="/construction" element={<ConstructionMode />} />
             </Routes>
           </DashboardLayout>
         </ProtectedRoute>

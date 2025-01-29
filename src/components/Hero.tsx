@@ -21,7 +21,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative w-full min-h-[calc(100vh-4rem)] py-30">
+    <section className="relative w-full min-h-[calc(100vh-4rem)] py-10">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{

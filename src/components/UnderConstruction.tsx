@@ -19,13 +19,17 @@ export const UnderConstruction = () => {
 
     setIsSubmitting(true);
     try {
+      console.log('Validating access code:', accessCode);
       const { data, error } = await supabase
         .from("access_codes")
         .select()
         .eq("code", accessCode.trim())
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Access code validation error:', error);
+        throw error;
+      }
 
       if (!data) {
         toast.error("Invalid access code");
@@ -41,6 +45,8 @@ export const UnderConstruction = () => {
         toast.error("This access code has expired");
         return;
       }
+
+      console.log('Valid access code found:', data);
 
       // Store the valid access code in localStorage
       localStorage.setItem("temp_access_code", accessCode);

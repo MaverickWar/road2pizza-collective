@@ -23,7 +23,7 @@ export const SiteSettingsForm = () => {
       const { error } = await supabase
         .from("site_settings")
         .update({ under_construction: !settings.under_construction })
-        .eq("id", 1);
+        .eq("id", "1"); // Convert number to string here
 
       if (error) throw error;
 

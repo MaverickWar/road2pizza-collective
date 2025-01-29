@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Pizza } from "lucide-react";
 
 export const UnderConstruction = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -19,6 +20,7 @@ export const UnderConstruction = () => {
 
     setIsSubmitting(true);
     try {
+      console.log("Validating access code:", accessCode);
       const { data, error } = await supabase
         .from("access_codes")
         .select()
@@ -46,7 +48,17 @@ export const UnderConstruction = () => {
       localStorage.setItem("temp_access_code", accessCode);
       localStorage.setItem("temp_access_expires", data.expires_at);
       
-      // Refresh the page to bypass the construction mode
+      // Mark the code as used
+      await supabase
+        .from("access_codes")
+        .update({ 
+          is_used: true,
+          used_by: (await supabase.auth.getSession()).data.session?.user?.id,
+          used_at: new Date().toISOString()
+        })
+        .eq("id", data.id);
+
+      toast.success("Access granted!");
       window.location.reload();
     } catch (error) {
       console.error("Error validating access code:", error);
@@ -62,11 +74,15 @@ export const UnderConstruction = () => {
       
       <div className="relative z-10 container mx-auto px-4 py-20">
         <div className="max-w-2xl mx-auto text-center space-y-8">
+          <div className="w-20 h-20 mx-auto bg-orange-500/10 rounded-full flex items-center justify-center mb-8">
+            <Pizza className="w-10 h-10 text-orange-500" />
+          </div>
+
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold">
               <span className="block">Coming Soon</span>
               <span className="block mt-2 bg-gradient-to-r from-[#FFB168] to-[#FF6B6B] text-transparent bg-clip-text">
-                Something Amazing
+                Road2Pizza
               </span>
             </h1>
             
@@ -104,7 +120,7 @@ export const UnderConstruction = () => {
                 variant="outline"
                 className="w-full border-white/20 text-white hover:bg-white/10"
               >
-                Sign In
+                Admin Sign In
               </Button>
             </div>
 

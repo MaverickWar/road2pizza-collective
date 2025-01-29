@@ -34,6 +34,7 @@ import ArticleDetail from "@/components/article/ArticleDetail";
 import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 import ThreadView from "@/components/forum/ThreadView";
 import MainLayout from "@/components/MainLayout";
+import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 
 export function AppRoutes() {
   return (
@@ -75,7 +76,7 @@ export function AppRoutes() {
               <Route path="/rewards" element={<RewardsManagement />} />
               <Route path="/pizza-types" element={<PizzaTypeManagement />} />
               <Route path="/notifications" element={<NotificationManagement />} />
-              <Route path="/settings" element={<SiteSettings />} />
+              <Route path="/settings" element={<SiteSettingsForm />} />
               <Route path="/theme" element={<ThemeSettings />} />
               <Route path="/media" element={<MediaGallery />} />
               <Route path="/menu" element={<MenuManagement />} />

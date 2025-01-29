@@ -1,92 +1,110 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { AppRoutes } from './routes/AppRoutes';
-import { ThemeProvider } from './components/ThemeProvider';
-import { Toaster } from './components/ui/toaster';
-import { QueryProvider } from './providers/QueryProvider';
-import { AuthProvider } from './components/AuthProvider';
-import { UnderConstruction } from './components/UnderConstruction';
-import { supabase } from './integrations/supabase/client';
-import LoadingScreen from './components/LoadingScreen';
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
+import { QueryProvider } from "@/providers/QueryProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/components/AuthProvider";
+import { AppRoutes } from "@/routes/AppRoutes";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import LoadingScreen from "@/components/LoadingScreen";
+import MainLayout from "@/components/MainLayout";
+import DashboardLayout from "@/components/DashboardLayout";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Suspense, useEffect, memo, useState, useCallback } from "react";
+import { useAuth } from "@/components/AuthProvider";
+import { toast } from "sonner";
 
-function App() {
-  const [isUnderConstruction, setIsUnderConstruction] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [bypassConstruction, setBypassConstruction] = useState(false);
+const MemoizedMainLayout = memo(MainLayout);
+const MemoizedDashboardLayout = memo(DashboardLayout);
 
+function AppContent() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAdmin, isLoading } = useAuth();
+  const [isRouteReady, setIsRouteReady] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const isAdminRoute = location.pathname.startsWith('/dashboard/admin');
+
+  // Handle client-side only rendering
   useEffect(() => {
-    const checkConstructionMode = async () => {
-      try {
-        console.log('Checking construction mode...');
-        const { data, error } = await supabase
-          .from('site_settings')
-          .select('under_construction')
-          .single();
-
-        if (error) {
-          console.error('Error fetching site settings:', error);
-          throw error;
-        }
-
-        console.log('Site settings data:', data);
-
-        // Check for temporary access code
-        const tempCode = localStorage.getItem('temp_access_code');
-        const tempExpires = localStorage.getItem('temp_access_expires');
-        
-        const hasValidTempAccess = tempCode && tempExpires && 
-          new Date(tempExpires) > new Date();
-
-        console.log('Access code check:', {
-          hasCode: !!tempCode,
-          hasExpiry: !!tempExpires,
-          isValid: hasValidTempAccess
-        });
-
-        setIsUnderConstruction(data?.under_construction || false);
-        setBypassConstruction(hasValidTempAccess);
-      } catch (error) {
-        console.error('Error checking construction mode:', error);
-        // Default to non-construction mode on error
-        setIsUnderConstruction(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkConstructionMode();
+    setIsMounted(true);
   }, []);
 
-  if (isLoading) {
-    return (
-      <ThemeProvider>
-        <LoadingScreen />
-      </ThemeProvider>
-    );
+  const checkRouteAccess = useCallback(() => {
+    if (!isLoading && isRouteReady && isAdminRoute) {
+      if (!user) {
+        console.log("No user found on admin route, redirecting to login");
+        toast.error("Please login to access the admin dashboard");
+        navigate('/login', { replace: true });
+        return false;
+      }
+
+      if (!isAdmin) {
+        console.log("Non-admin user on admin route, redirecting to home");
+        toast.error("Admin access required");
+        navigate('/', { replace: true });
+        return false;
+      }
+    }
+    return true;
+  }, [isAdminRoute, user, isAdmin, isLoading, isRouteReady, navigate]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setIsRouteReady(true);
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    if (!isLoading && isRouteReady) {
+      checkRouteAccess();
+    }
+  }, [checkRouteAccess, isLoading, isRouteReady]);
+
+  if (!isMounted) {
+    return null;
   }
 
-  if (isUnderConstruction && !bypassConstruction) {
-    return (
-      <ThemeProvider>
-        <AuthProvider>
-          <UnderConstruction />
-        </AuthProvider>
-        <Toaster />
-      </ThemeProvider>
-    );
+  if (isLoading || !isRouteReady) {
+    return <LoadingScreen showWelcome={false} />;
+  }
+
+  const Layout = isAdminRoute ? MemoizedDashboardLayout : MemoizedMainLayout;
+
+  return (
+    <Suspense fallback={<LoadingScreen showWelcome={!!user} />}>
+      <Layout>
+        <AppRoutes />
+      </Layout>
+    </Suspense>
+  );
+}
+
+const MemoizedAppContent = memo(AppContent);
+
+function App() {
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) {
+    return null;
   }
 
   return (
-    <BrowserRouter>
-      <ThemeProvider>
+    <ErrorBoundary>
+      <BrowserRouter>
         <QueryProvider>
           <AuthProvider>
-            <AppRoutes />
+            <ThemeProvider>
+              <MemoizedAppContent />
+              <Toaster />
+            </ThemeProvider>
           </AuthProvider>
         </QueryProvider>
-      </ThemeProvider>
-      <Toaster />
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

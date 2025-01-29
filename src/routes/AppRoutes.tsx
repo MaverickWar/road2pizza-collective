@@ -28,13 +28,11 @@ import ThemeSettings from "@/pages/admin/ThemeSettings";
 import MediaGallery from "@/pages/admin/MediaGallery";
 import MenuManagement from "@/pages/admin/MenuManagement";
 import ForumManagement from "@/pages/admin/ForumManagement";
-import ConstructionMode from "@/pages/admin/ConstructionMode";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
 import ArticleDetail from "@/components/article/ArticleDetail";
 import EquipmentReviewDetail from "@/components/reviews/EquipmentReviewDetail";
 import ThreadView from "@/components/forum/ThreadView";
-import MainLayout from "@/components/MainLayout";
 
 export function AppRoutes() {
   return (
@@ -44,24 +42,24 @@ export function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/pizza" element={<MainLayout><Pizza /></MainLayout>} />
-      <Route path="/pizza/:style" element={<MainLayout><PizzaStyle /></MainLayout>} />
-      <Route path="/community" element={<MainLayout><Community /></MainLayout>} />
-      <Route path="/community/forum/thread/:id" element={<MainLayout><ThreadView /></MainLayout>} />
-      <Route path="/reviews" element={<MainLayout><Reviews /></MainLayout>} />
-      <Route path="/logs" element={<MainLayout><LogsPage /></MainLayout>} />
+      <Route path="/pizza" element={<Pizza />} />
+      <Route path="/pizza/:style" element={<PizzaStyle />} />
+      <Route path="/community" element={<Community />} />
+      <Route path="/community/forum/thread/:id" element={<ThreadView />} />
+      <Route path="/reviews" element={<Reviews />} />
+      <Route path="/logs" element={<LogsPage />} />
       
       {/* Article and Review routes */}
-      <Route path="/article/:id" element={<MainLayout><ArticleDetail /></MainLayout>} />
-      <Route path="/reviews/:id" element={<MainLayout><EquipmentReviewDetail /></MainLayout>} />
+      <Route path="/article/:id" element={<ArticleDetail />} />
+      <Route path="/reviews/:id" element={<EquipmentReviewDetail />} />
       
       {/* Protected routes */}
-      <Route path="/profile" element={<ProtectedRoute><MainLayout><Profile /></MainLayout></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><MainLayout><Settings /></MainLayout></ProtectedRoute>} />
-      <Route path="/reviews/dashboard" element={<ProtectedRoute><MainLayout><ReviewsDashboard /></MainLayout></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
-      <Route path="/dashboard/member" element={<ProtectedRoute><MainLayout><MemberDashboard /></MainLayout></ProtectedRoute>} />
-      <Route path="/dashboard/staff" element={<ProtectedRoute requireStaff><MainLayout><StaffDashboard /></MainLayout></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/reviews/dashboard" element={<ProtectedRoute><ReviewsDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/member" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/staff" element={<ProtectedRoute requireStaff><StaffDashboard /></ProtectedRoute>} />
       
       {/* Admin routes - Wrapped in DashboardLayout */}
       <Route path="/dashboard/admin/*" element={
@@ -81,14 +79,13 @@ export function AppRoutes() {
               <Route path="/media" element={<MediaGallery />} />
               <Route path="/menu" element={<MenuManagement />} />
               <Route path="/forum" element={<ForumManagement />} />
-              <Route path="/construction" element={<ConstructionMode />} />
             </Routes>
           </DashboardLayout>
         </ProtectedRoute>
       } />
 
       {/* Catch-all route */}
-      <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

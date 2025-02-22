@@ -1,16 +1,23 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import CategorySection from "./CategorySection";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Filter } from "lucide-react";
+import { Filter, MessageSquare, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const ForumCategories = () => {
   const { data: categories = [], isError, isLoading } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
-      console.log("Fetching forum categories...");
       const { data, error } = await supabase
         .from('forum_categories')
         .select(`
@@ -49,45 +56,22 @@ const ForumCategories = () => {
             last_poster:profiles!forum_threads_last_post_by_fkey (
               username,
               avatar_url
-            ),
-            forum_posts (
-              id,
-              content,
-              created_at,
-              created_by,
-              thread_id,
-              is_solution,
-              is_edited,
-              likes_count,
-              is_reported,
-              is_removed,
-              user:profiles!forum_posts_created_by_fkey (
-                username,
-                avatar_url,
-                is_admin,
-                is_staff
-              )
             )
           )
         `)
         .order('display_order', { ascending: true });
       
-      if (error) {
-        console.error('Error fetching forum categories:', error);
-        throw error;
-      }
+      if (error) throw error;
       
-      console.log("Forum categories fetched successfully:", data);
-      return data || [];
-    },
-    staleTime: 1000 * 60 * 2, // Data stays fresh for 2 minutes
-    gcTime: 1000 * 60 * 5,    // Keep unused data in cache for 5 minutes
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: true,
-    retry: (failureCount, error: any) => {
-      if (error?.status === 404) return false;
-      return failureCount < 3;
+      // Group categories by type
+      const grouped = data?.reduce((acc, category) => {
+        const type = getGroupType(category.name);
+        if (!acc[type]) acc[type] = [];
+        acc[type].push(category);
+        return acc;
+      }, {} as Record<string, typeof data>);
+
+      return grouped || {};
     }
   });
 
@@ -120,26 +104,71 @@ const ForumCategories = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end items-center border-b pb-4">
-        <Button variant="outline" size="sm">
-          <Filter className="h-4 w-4 mr-2" />
-          Filter
-        </Button>
+      <div className="flex items-center justify-between border-b pb-4">
+        <div className="flex items-center gap-4">
+          <Select defaultValue="latest">
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="latest">Latest Activity</SelectItem>
+              <SelectItem value="popular">Most Popular</SelectItem>
+              <SelectItem value="views">Most Viewed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </Button>
+        </div>
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <MessageSquare className="h-4 w-4" />
+            <span>Threads</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            <span>Activity</span>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        {categories.map((category) => (
-          <CategorySection 
-            key={category.id} 
-            category={category} 
-            onThreadCreated={() => {
-              // The query client will handle this automatically
-            }}
-          />
-        ))}
-      </div>
+      {Object.entries(categories).map(([group, categoryList]) => (
+        <div key={group} className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">{formatGroupName(group)}</h2>
+          <div className="space-y-4">
+            {categoryList.map((category) => (
+              <CategorySection 
+                key={category.id} 
+                category={category}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
+};
+
+// Helper functions to group categories
+const getGroupType = (name: string): string => {
+  const lowerName = name.toLowerCase();
+  if (lowerName.includes('welcome') || lowerName.includes('introduction')) return 'getting-started';
+  if (lowerName.includes('recipe') || lowerName.includes('cooking')) return 'recipes';
+  if (lowerName.includes('equipment') || lowerName.includes('technique')) return 'equipment';
+  if (lowerName.includes('general') || lowerName.includes('discussion')) return 'general';
+  return 'other';
+};
+
+const formatGroupName = (group: string): string => {
+  const names: Record<string, string> = {
+    'getting-started': 'Getting Started',
+    'recipes': 'Recipes & Cooking',
+    'equipment': 'Equipment & Techniques',
+    'general': 'General Discussion',
+    'other': 'Other Topics'
+  };
+  return names[group] || group;
 };
 
 export default ForumCategories;

@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/components/AuthProvider";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,18 +9,11 @@ import { Input } from "@/components/ui/input";
 import Editor from "@/components/Editor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Settings } from "lucide-react";
+import { Plus, MessageSquare, Eye, Clock, Shield, Pin, Lock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import ThreadItem from "./ThreadItem";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 interface CategorySectionProps {
   category: {
@@ -32,7 +26,6 @@ interface CategorySectionProps {
       content: string;
       created_at: string;
       view_count: number;
-      forum_posts: any[];
       created_by: string;
       is_pinned: boolean;
       is_locked: boolean;
@@ -43,6 +36,8 @@ interface CategorySectionProps {
       author?: {
         username: string;
         avatar_url?: string;
+        is_admin?: boolean;
+        is_staff?: boolean;
       };
       last_poster?: {
         username: string;
@@ -50,26 +45,14 @@ interface CategorySectionProps {
       };
     }>;
   };
-  onThreadCreated: () => void;
 }
 
-const THREADS_PER_PAGE = 5;
-
-const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) => {
+const CategorySection = ({ category }: CategorySectionProps) => {
   const { user, isAdmin } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const totalThreads = category.forum_threads?.length || 0;
-  const totalPages = Math.ceil(totalThreads / THREADS_PER_PAGE);
-  
-  const paginatedThreads = category.forum_threads?.slice(
-    (currentPage - 1) * THREADS_PER_PAGE,
-    currentPage * THREADS_PER_PAGE
-  );
 
   const onSubmit = async (data: any) => {
     if (!user) return;
@@ -99,7 +82,6 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
       setIsDialogOpen(false);
       reset();
       setContent("");
-      onThreadCreated();
     } catch (error) {
       console.error('Error creating thread:', error);
       toast.error('Failed to create thread');
@@ -108,98 +90,107 @@ const CategorySection = ({ category, onThreadCreated }: CategorySectionProps) =>
     }
   };
 
+  const sortedThreads = [...category.forum_threads].sort((a, b) => {
+    if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+    return new Date(b.last_post_at).getTime() - new Date(a.last_post_at).getTime();
+  });
+
   return (
-    <Card className="mb-8">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div>
-          <h3 className="text-2xl font-bold">{category.name}</h3>
-          {category.description && (
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-lg font-semibold">{category.name}</h3>
             <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
+          </div>
           {user && (
             <Button 
               onClick={() => setIsDialogOpen(true)}
               className="bg-accent hover:bg-accent/90"
+              size="sm"
             >
               <Plus className="w-4 h-4 mr-2" />
               New Thread
             </Button>
           )}
-          {isAdmin && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Edit Category</DropdownMenuItem>
-                <DropdownMenuItem className="text-red-600">Delete Category</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
         </div>
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground pb-2">
-          <div className="col-span-6 md:col-span-7">Topics</div>
-          <div className="col-span-3 md:col-span-3 text-center">Statistics</div>
-          <div className="col-span-3 md:col-span-2 text-right">Last Post</div>
-        </div>
-        
-        <Separator className="my-4" />
-        
         <div className="space-y-4">
-          {paginatedThreads?.map((thread) => (
-            <div key={thread.id} className="block">
-              <ThreadItem 
-                thread={{
-                  ...thread,
-                  is_pinned: thread.is_pinned || false,
-                  is_locked: thread.is_locked || false,
-                  category_id: thread.category_id || category.id,
-                  post_count: thread.post_count || 0,
-                  view_count: thread.view_count || 0,
-                  last_post_at: thread.last_post_at || thread.created_at,
-                  last_post_by: thread.last_post_by || thread.created_by
-                }}
-                showAdminControls={isAdmin}
-                onThreadUpdate={onThreadCreated}
-              />
-            </div>
+          {sortedThreads.map((thread) => (
+            <Link
+              key={thread.id}
+              to={`/community/forum/thread/${thread.id}`}
+              className="block group"
+            >
+              <div className="flex items-start gap-4 p-4 rounded-lg border border-border hover:bg-accent/5 transition-colors">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={thread.author?.avatar_url} />
+                  <AvatarFallback>
+                    {thread.author?.username?.[0]?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {thread.is_pinned && (
+                      <Badge variant="secondary" className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+                        <Pin className="w-3 h-3 mr-1" />
+                        Pinned
+                      </Badge>
+                    )}
+                    {thread.is_locked && (
+                      <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                        <Lock className="w-3 h-3 mr-1" />
+                        Locked
+                      </Badge>
+                    )}
+                    <h4 className="font-medium text-foreground group-hover:text-accent-foreground truncate">
+                      {thread.title}
+                    </h4>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4" />
+                      <span>{thread.post_count}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      <span>{thread.view_count}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{formatDistanceToNow(new Date(thread.last_post_at))} ago</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right text-sm">
+                  <div className="font-medium text-foreground">
+                    {thread.author?.username}
+                    {(thread.author?.is_admin || thread.author?.is_staff) && (
+                      <Badge variant="secondary" className="ml-2">
+                        <Shield className="w-3 h-3 mr-1" />
+                        {thread.author?.is_admin ? "Admin" : "Staff"}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-muted-foreground mt-1">
+                    Last reply by {thread.last_poster?.username || thread.author?.username}
+                  </div>
+                </div>
+              </div>
+            </Link>
           ))}
 
-          {category.forum_threads?.length === 0 && (
-            <p className="text-center text-muted-foreground py-8">
+          {category.forum_threads.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
               No threads yet. Be the first to start a discussion!
-            </p>
+            </div>
           )}
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-end gap-2 mt-4 text-sm text-muted-foreground">
-            <span>Page</span>
-            <Select
-              value={currentPage.toString()}
-              onValueChange={(value) => setCurrentPage(parseInt(value))}
-            >
-              <SelectTrigger className="w-20">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <SelectItem key={i + 1} value={(i + 1).toString()}>
-                    {i + 1}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span>of {totalPages}</span>
-          </div>
-        )}
       </CardContent>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

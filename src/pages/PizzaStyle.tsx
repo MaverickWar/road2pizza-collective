@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
@@ -150,22 +151,31 @@ const PizzaStyle = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="container mx-auto px-4 pt-20 space-y-8">
+      <div className="container mx-auto px-4 pt-20 space-y-8 animate-fade-in">
         <div>
-          <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Link 
+            to="/pizza" 
+            className="inline-flex items-center text-accent hover:text-highlight mb-4 group animate-fade-up opacity-0"
+            style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
             Back to Pizza Styles
           </Link>
         </div>
 
-        <Hero 
-          title={pizzaStyle.title}
-          description={pizzaStyle.history}
-          image={latestImage}
-          showButtons={false}
-        />
+        <div className="animate-fade-up opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+          <Hero 
+            title={pizzaStyle.title}
+            description={pizzaStyle.history}
+            image={latestImage}
+            showButtons={false}
+          />
+        </div>
 
-        <div className="flex justify-end mb-8">
+        <div 
+          className="flex justify-end mb-8 animate-fade-up opacity-0" 
+          style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}
+        >
           <Button 
             onClick={handleSubmitRecipe}
             className={cn(
@@ -179,10 +189,15 @@ const PizzaStyle = () => {
           </Button>
         </div>
         
-        <PizzaStyleRecipes 
-          recipes={recipes || []}
-          isLoading={isLoading}
-        />
+        <div 
+          className="animate-fade-up opacity-0" 
+          style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}
+        >
+          <PizzaStyleRecipes 
+            recipes={recipes || []}
+            isLoading={isLoading}
+          />
+        </div>
       </div>
 
       {!user && (

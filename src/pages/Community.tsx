@@ -20,31 +20,51 @@ const Community = () => {
     rank: 0,
   });
 
-  const { data: onlineUsers = 0 } = useQuery({
+  const { data: onlineUsers = 0, isError: isOnlineUsersError } = useQuery({
     queryKey: ["online-users"],
     queryFn: async () => {
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      const { count } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gte('last_seen', oneHourAgo.toISOString());
-      return count || 0;
+      try {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+        const { count, error } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gte('last_seen', oneHourAgo.toISOString());
+        
+        if (error) {
+          console.error('Error fetching online users:', error);
+          throw error;
+        }
+        
+        return count || 0;
+      } catch (error) {
+        console.error('Failed to fetch online users:', error);
+        throw error;
+      }
     },
-    refetchInterval: 60000 // Refresh every minute
+    refetchInterval: 60000, // Refresh every minute
+    retry: 3,
+    retryDelay: 1000
   });
 
   const { data: leaderboard = [], isError: isLeaderboardError } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, username, points, badge_count, recipes_shared, is_admin, is_staff, badge_title, badge_color')
-        .order('points', { ascending: false })
-        .limit(10);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, username, points, badge_count, recipes_shared, is_admin, is_staff, badge_title, badge_color')
+          .order('points', { ascending: false })
+          .limit(10);
 
-      if (error) throw error;
-      return data || [];
-    }
+        if (error) throw error;
+        return data || [];
+      } catch (error) {
+        console.error('Failed to fetch leaderboard:', error);
+        throw error;
+      }
+    },
+    retry: 3,
+    retryDelay: 1000
   });
 
   const fetchUserStats = async () => {
@@ -59,10 +79,12 @@ const Community = () => {
 
       if (error) throw error;
 
-      const { count: rankData } = await supabase
+      const { count: rankData, error: rankError } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true })
         .gt('points', data?.points || 0);
+
+      if (rankError) throw rankError;
 
       setUserStats({
         points: data?.points || 0,
@@ -78,9 +100,17 @@ const Community = () => {
 
   useEffect(() => {
     if (user) {
-      fetchUserStats();
+      // Add a small delay to ensure auth token is ready
+      setTimeout(() => {
+        fetchUserStats();
+      }, 100);
     }
   }, [user]);
+
+  // Show error states instead of blank screen
+  if (isOnlineUsersError || isLeaderboardError) {
+    toast.error("Some community features failed to load. Please refresh the page.");
+  }
 
   return (
     <div className="min-h-screen bg-background">

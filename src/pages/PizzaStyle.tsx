@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import Navigation from '../components/Navigation';
@@ -59,7 +58,7 @@ const pizzaStyles = {
 
 const PizzaStyle = () => {
   const { style } = useParams();
-  const pizzaStyle = style ? pizzaStyles[style as keyof typeof pizzaStyles] : null;
+  const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -67,16 +66,12 @@ const PizzaStyle = () => {
   const { data: recipes, isLoading } = useQuery({
     queryKey: ['recipes', style],
     queryFn: async () => {
-      if (!style || !pizzaStyle) {
-        return [];
-      }
-
       console.log('Fetching recipes for style:', style);
       
       const { data: categories, error: categoryError } = await supabase
         .from('categories')
         .select('id')
-        .ilike('name', `%${pizzaStyle.title}%`)
+        .ilike('name', `%${pizzaStyle?.title}%`)
         .maybeSingle();
 
       if (categoryError) {
@@ -108,7 +103,8 @@ const PizzaStyle = () => {
       }
       
       return [];
-    }
+    },
+    enabled: !!style && !!pizzaStyle,
   });
 
   const handleSubmitRecipe = async () => {
@@ -117,14 +113,10 @@ const PizzaStyle = () => {
       return;
     }
 
-    if (!pizzaStyle) {
-      return;
-    }
-
     const { data: category } = await supabase
       .from('categories')
       .select('id')
-      .ilike('name', `%${pizzaStyle.title}%`)
+      .ilike('name', `%${pizzaStyle?.title}%`)
       .maybeSingle();
 
     if (category) {
@@ -132,7 +124,7 @@ const PizzaStyle = () => {
         state: { 
           showRecipeForm: true,
           categoryId: category.id,
-          categoryName: pizzaStyle.title,
+          categoryName: pizzaStyle?.title,
           returnTo: `/pizza/${style}`
         } 
       });
@@ -158,31 +150,22 @@ const PizzaStyle = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <div className="container mx-auto px-4 pt-20 space-y-8 animate-fade-in">
+      <div className="container mx-auto px-4 pt-20 space-y-8">
         <div>
-          <Link 
-            to="/pizza" 
-            className="inline-flex items-center text-accent hover:text-highlight mb-4 group animate-fade-up opacity-0"
-            style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+          <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Pizza Styles
           </Link>
         </div>
 
-        <div className="animate-fade-up opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-          <Hero 
-            title={pizzaStyle.title}
-            description={pizzaStyle.history}
-            image={latestImage}
-            showButtons={false}
-          />
-        </div>
+        <Hero 
+          title={pizzaStyle.title}
+          description={pizzaStyle.history}
+          image={latestImage}
+          showButtons={false}
+        />
 
-        <div 
-          className="flex justify-end mb-8 animate-fade-up opacity-0" 
-          style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}
-        >
+        <div className="flex justify-end mb-8">
           <Button 
             onClick={handleSubmitRecipe}
             className={cn(
@@ -196,15 +179,10 @@ const PizzaStyle = () => {
           </Button>
         </div>
         
-        <div 
-          className="animate-fade-up opacity-0" 
-          style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}
-        >
-          <PizzaStyleRecipes 
-            recipes={recipes || []}
-            isLoading={isLoading}
-          />
-        </div>
+        <PizzaStyleRecipes 
+          recipes={recipes || []}
+          isLoading={isLoading}
+        />
       </div>
 
       {!user && (

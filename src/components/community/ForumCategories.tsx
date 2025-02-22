@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 
 const ForumCategories = () => {
-  const { data: categories = [], isError, isLoading } = useQuery({
+  const { data: categoriesData = {}, isError, isLoading } = useQuery({
     queryKey: ["forum-categories"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -64,14 +64,12 @@ const ForumCategories = () => {
       if (error) throw error;
       
       // Group categories by type
-      const grouped = data?.reduce((acc, category) => {
+      return data?.reduce((acc, category) => {
         const type = getGroupType(category.name);
         if (!acc[type]) acc[type] = [];
         acc[type].push(category);
         return acc;
-      }, {} as Record<string, typeof data>);
-
-      return grouped || {};
+      }, {} as Record<string, typeof data>) || {};
     }
   });
 
@@ -98,6 +96,16 @@ const ForumCategories = () => {
     return (
       <div className="text-center p-8 text-muted-foreground">
         Unable to load categories. Please try refreshing the page.
+      </div>
+    );
+  }
+
+  // Ensure we have categories to display
+  const categoryGroups = Object.entries(categoriesData);
+  if (categoryGroups.length === 0) {
+    return (
+      <div className="text-center p-8 text-muted-foreground">
+        No categories found. Please check back later.
       </div>
     );
   }
@@ -133,11 +141,11 @@ const ForumCategories = () => {
         </div>
       </div>
 
-      {Object.entries(categories).map(([group, categoryList]) => (
+      {categoryGroups.map(([group, categories]) => (
         <div key={group} className="space-y-4">
           <h2 className="text-lg font-semibold text-foreground">{formatGroupName(group)}</h2>
           <div className="space-y-4">
-            {categoryList.map((category) => (
+            {Array.isArray(categories) && categories.map((category) => (
               <CategorySection 
                 key={category.id} 
                 category={category}

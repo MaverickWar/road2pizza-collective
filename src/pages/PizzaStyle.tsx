@@ -59,7 +59,7 @@ const pizzaStyles = {
 
 const PizzaStyle = () => {
   const { style } = useParams();
-  const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
+  const pizzaStyle = style ? pizzaStyles[style as keyof typeof pizzaStyles] : null;
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
@@ -67,12 +67,16 @@ const PizzaStyle = () => {
   const { data: recipes, isLoading } = useQuery({
     queryKey: ['recipes', style],
     queryFn: async () => {
+      if (!style || !pizzaStyle) {
+        return [];
+      }
+
       console.log('Fetching recipes for style:', style);
       
       const { data: categories, error: categoryError } = await supabase
         .from('categories')
         .select('id')
-        .ilike('name', `%${pizzaStyle?.title}%`)
+        .ilike('name', `%${pizzaStyle.title}%`)
         .maybeSingle();
 
       if (categoryError) {
@@ -104,8 +108,7 @@ const PizzaStyle = () => {
       }
       
       return [];
-    },
-    enabled: !!style && !!pizzaStyle,
+    }
   });
 
   const handleSubmitRecipe = async () => {
@@ -114,10 +117,14 @@ const PizzaStyle = () => {
       return;
     }
 
+    if (!pizzaStyle) {
+      return;
+    }
+
     const { data: category } = await supabase
       .from('categories')
       .select('id')
-      .ilike('name', `%${pizzaStyle?.title}%`)
+      .ilike('name', `%${pizzaStyle.title}%`)
       .maybeSingle();
 
     if (category) {
@@ -125,7 +132,7 @@ const PizzaStyle = () => {
         state: { 
           showRecipeForm: true,
           categoryId: category.id,
-          categoryName: pizzaStyle?.title,
+          categoryName: pizzaStyle.title,
           returnTo: `/pizza/${style}`
         } 
       });

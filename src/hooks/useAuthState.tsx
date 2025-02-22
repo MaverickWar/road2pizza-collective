@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -54,6 +55,11 @@ export const useAuthState = () => {
       }
       
       console.log("Fetched profile:", profile);
+
+      // Store the session in localStorage to persist it
+      if (profile) {
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+      }
 
       if (!profile.email) {
         console.log("Email missing for user, showing prompt");
@@ -124,17 +130,28 @@ export const useAuthState = () => {
 
   useEffect(() => {
     let mounted = true;
+    let authListener: any = null;
 
     const initializeAuth = async () => {
       try {
         console.log("Initializing auth state...");
+        
+        // First check localStorage for cached profile
+        const cachedProfile = localStorage.getItem('userProfile');
+        const parsedProfile = cachedProfile ? JSON.parse(cachedProfile) : null;
+
         const { data: { session } } = await supabase.auth.getSession();
         console.log("Initial session:", session);
 
-        if (session?.user && mounted) {
+        if (session?.user) {
+          // Use cached profile while fetching fresh data
+          if (parsedProfile) {
+            setUser({ ...session.user, ...parsedProfile });
+          }
+          
           const profile = await fetchUserProfile(session.user.id);
-          if (mounted) {
-            setUser(profile ? { ...session.user, ...profile } : session.user);
+          if (mounted && profile) {
+            setUser({ ...session.user, ...profile });
             
             const suspended = await checkSuspensionStatus(session.user.id);
             setIsSuspended(suspended);
@@ -146,13 +163,44 @@ export const useAuthState = () => {
               setIsStaff(false);
             }
           }
+        } else {
+          if (mounted) {
+            setUser(null);
+            localStorage.removeItem('userProfile');
+          }
         }
 
-        if (mounted) {
-          setLoading(false);
-        }
+        // Set up auth state listener
+        authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log("Auth state changed:", { event, session });
+          
+          if (session?.user && mounted) {
+            const profile = await fetchUserProfile(session.user.id);
+            if (mounted) {
+              setUser(profile ? { ...session.user, ...profile } : session.user);
+              
+              const suspended = await checkSuspensionStatus(session.user.id);
+              setIsSuspended(suspended);
+              
+              if (!suspended) {
+                await checkUserRoles(session.user.id);
+              } else {
+                setIsAdmin(false);
+                setIsStaff(false);
+              }
+            }
+          } else if (mounted) {
+            setUser(null);
+            setIsAdmin(false);
+            setIsStaff(false);
+            setIsSuspended(false);
+            localStorage.removeItem('userProfile');
+          }
+        });
+
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("Error in auth initialization:", error);
+      } finally {
         if (mounted) {
           setLoading(false);
         }
@@ -161,37 +209,11 @@ export const useAuthState = () => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        console.log("Auth state changed:", { event: _event, session });
-        
-        if (session?.user && mounted) {
-          const profile = await fetchUserProfile(session.user.id);
-          if (mounted) {
-            setUser(profile ? { ...session.user, ...profile } : session.user);
-            
-            const suspended = await checkSuspensionStatus(session.user.id);
-            setIsSuspended(suspended);
-            
-            if (!suspended) {
-              await checkUserRoles(session.user.id);
-            } else {
-              setIsAdmin(false);
-              setIsStaff(false);
-            }
-          }
-        } else if (mounted) {
-          setUser(null);
-          setIsAdmin(false);
-          setIsStaff(false);
-          setIsSuspended(false);
-        }
-      }
-    );
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      if (authListener) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
 

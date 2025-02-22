@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
@@ -44,13 +45,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const setupSessionRefresh = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Current session:", session); // Debug log
       
       if (session?.user?.id) {
         const expiresAt = session.expires_at ? new Date(session.expires_at * 1000) : null;
         const refreshTime = expiresAt ? expiresAt.getTime() - Date.now() - (5 * 60 * 1000) : null;
         
-        console.log("Session expires at:", expiresAt);
-        console.log("Will refresh in:", refreshTime ? `${refreshTime/1000}s` : 'N/A');
+        console.log("Session details:", {
+          userId: session.user.id,
+          expiresAt: expiresAt?.toISOString(),
+          refreshIn: refreshTime ? `${Math.round(refreshTime/1000)}s` : 'N/A'
+        });
         
         if (refreshTime && refreshTime > 0) {
           return setTimeout(async () => {
@@ -89,10 +94,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const initAuth = async () => {
       try {
+        console.log("Initializing auth state..."); // Debug log
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session:", session); // Debug log
+        
+        if (session?.user?.id) {
+          console.log("Valid session found for user:", session.user.id);
+        } else {
+          console.log("No valid session found");
+        }
+
         refreshTimer = await setupSessionRefresh();
         
         authSubscription = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth state change event:", event, "Session:", session?.user?.id);
+          console.log("Auth state changed:", {
+            event,
+            userId: session?.user?.id,
+            email: session?.user?.email
+          });
+          
+          if (event === 'SIGNED_IN') {
+            console.log('User signed in successfully:', session?.user?.id);
+            if (refreshTimer) clearTimeout(refreshTimer);
+            refreshTimer = await setupSessionRefresh();
+          }
           
           if (event === 'TOKEN_REFRESHED') {
             console.log('Token refreshed successfully');

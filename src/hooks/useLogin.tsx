@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -101,6 +102,9 @@ export const useLogin = () => {
           email: data.user.email,
           lastSignIn: data.user.last_sign_in_at
         });
+        
+        // Add a small delay to allow auth state to update
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         toast.success('Login successful');
         navigate('/');

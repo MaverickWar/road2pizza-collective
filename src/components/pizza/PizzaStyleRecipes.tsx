@@ -4,12 +4,15 @@ import { cn } from "@/lib/utils";
 interface Recipe {
   id: string;
   title: string;
-  content: string;
+  content: string | null;
   image_url: string | null;
-  difficulty?: string;
-  prep_time?: string;
+  difficulty?: string | null;
+  prep_time?: string | null;
   created_at: string;
-  is_featured?: boolean;
+  is_featured?: boolean | null;
+  categories?: {
+    name: string;
+  } | null;
 }
 
 interface PizzaStyleRecipesProps {
@@ -18,7 +21,7 @@ interface PizzaStyleRecipesProps {
 }
 
 export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps) => {
-  const getImageUrl = (url: string) => {
+  const getImageUrl = (url: string | null) => {
     if (!url) return '/placeholder.svg';
     if (url.startsWith('data:') || url.startsWith('http')) {
       return url;
@@ -30,6 +33,21 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
     const oneMonthAgo = new Date();
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     return new Date(createdAt) > oneMonthAgo;
+  };
+
+  const getContentPreview = (content: string | null) => {
+    if (!content) return "No description available";
+    
+    // If content is HTML, strip tags for preview
+    if (content.includes('<')) {
+      const div = document.createElement('div');
+      div.innerHTML = content;
+      const text = div.textContent || div.innerText || '';
+      return text.substring(0, 100) + '...';
+    }
+    
+    // Plain text content
+    return content.substring(0, 100) + '...';
   };
 
   if (isLoading) {
@@ -97,11 +115,11 @@ export const PizzaStyleRecipes = ({ recipes, isLoading }: PizzaStyleRecipesProps
                 <div className="p-4">
                   <h3 className="text-xl font-bold text-textLight mb-2">{recipe.title}</h3>
                   <p className="text-textLight mb-4">
-                    {recipe.content?.substring(0, 100)}...
+                    {getContentPreview(recipe.content)}
                   </p>
                   <div className="flex justify-between text-sm text-textLight">
-                    <span>Difficulty: {recipe.difficulty}</span>
-                    <span>Prep: {recipe.prep_time}</span>
+                    <span>Difficulty: {recipe.difficulty || 'Any'}</span>
+                    <span>Prep: {recipe.prep_time || 'N/A'}</span>
                   </div>
                 </div>
               </div>

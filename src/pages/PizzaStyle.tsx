@@ -68,29 +68,29 @@ const PizzaStyle = () => {
     queryFn: async () => {
       console.log('Fetching recipes for style:', style);
       
-      const { data: categories, error: categoryError } = await supabase
-        .from('categories')
+      const { data: pizzaType, error: pizzaTypeError } = await supabase
+        .from('pizza_types')
         .select('id')
-        .ilike('name', `%${pizzaStyle?.title}%`)
+        .eq('slug', style)
         .maybeSingle();
 
-      if (categoryError) {
-        console.error('Error fetching category:', categoryError);
-        throw categoryError;
+      if (pizzaTypeError) {
+        console.error('Error fetching pizza type:', pizzaTypeError);
+        throw pizzaTypeError;
       }
 
-      console.log('Found category:', categories);
+      console.log('Found pizza type:', pizzaType);
 
-      if (categories?.id) {
+      if (pizzaType?.id) {
         const { data: recipes, error: recipesError } = await supabase
           .from('recipes')
           .select(`
             *,
-            categories (
+            categories:category_id (
               name
             )
           `)
-          .eq('category_id', categories.id)
+          .eq('category_id', pizzaType.id)
           .order('created_at', { ascending: false });
 
         if (recipesError) {
@@ -113,23 +113,23 @@ const PizzaStyle = () => {
       return;
     }
 
-    const { data: category } = await supabase
-      .from('categories')
+    const { data: pizzaType } = await supabase
+      .from('pizza_types')
       .select('id')
-      .ilike('name', `%${pizzaStyle?.title}%`)
+      .eq('slug', style)
       .maybeSingle();
 
-    if (category) {
+    if (pizzaType) {
       navigate('/dashboard', { 
         state: { 
           showRecipeForm: true,
-          categoryId: category.id,
+          categoryId: pizzaType.id,
           categoryName: pizzaStyle?.title,
           returnTo: `/pizza/${style}`
         } 
       });
     } else {
-      toast.error("Unable to find category. Please try again later.");
+      toast.error("Unable to find pizza type. Please try again later.");
     }
   };
 
@@ -145,7 +145,7 @@ const PizzaStyle = () => {
     );
   }
 
-  const latestImage = recipes?.[0]?.image_url || '/placeholder.svg';
+  const latestImage = recipes?.[0]?.image_url || '/placeholder-pizza.jpg';
 
   return (
     <div className="min-h-screen">

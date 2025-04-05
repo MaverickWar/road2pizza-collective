@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
@@ -211,8 +210,14 @@ export const useAuthState = () => {
 
     return () => {
       mounted = false;
-      if (authListener) {
-        authListener.subscription.unsubscribe();
+      if (authListener && 
+          authListener.subscription && 
+          typeof authListener.subscription.unsubscribe === 'function') {
+        try {
+          authListener.subscription.unsubscribe();
+        } catch (error) {
+          console.error("Error unsubscribing from auth state in hook:", error);
+        }
       }
     };
   }, []);

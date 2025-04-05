@@ -11,7 +11,7 @@ import { Hero } from '@/components/ui/hero-with-image-text-and-two-buttons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LoginDialog } from '@/components/LoginDialog';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const pizzaStyles = {
   "neapolitan": {
@@ -62,50 +62,66 @@ const PizzaStyle = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [queryError, setQueryError] = useState<string | null>(null);
 
-  const { data: recipes, isLoading } = useQuery({
+  const { data: recipes, isLoading, error } = useQuery({
     queryKey: ['recipes', style],
     queryFn: async () => {
-      console.log('Fetching recipes for style:', style);
-      
-      const { data: pizzaType, error: pizzaTypeError } = await supabase
-        .from('pizza_types')
-        .select('id')
-        .eq('slug', style)
-        .maybeSingle();
+      try {
+        console.log('Fetching recipes for style:', style);
+        
+        const { data: pizzaType, error: pizzaTypeError } = await supabase
+          .from('pizza_types')
+          .select('id')
+          .eq('slug', style)
+          .maybeSingle();
 
-      if (pizzaTypeError) {
-        console.error('Error fetching pizza type:', pizzaTypeError);
-        throw pizzaTypeError;
-      }
-
-      console.log('Found pizza type:', pizzaType);
-
-      if (pizzaType?.id) {
-        const { data: recipes, error: recipesError } = await supabase
-          .from('recipes')
-          .select(`
-            *,
-            categories:category_id (
-              name
-            )
-          `)
-          .eq('category_id', pizzaType.id)
-          .order('created_at', { ascending: false });
-
-        if (recipesError) {
-          console.error('Error fetching recipes:', recipesError);
-          throw recipesError;
+        if (pizzaTypeError) {
+          console.error('Error fetching pizza type:', pizzaTypeError);
+          throw pizzaTypeError;
         }
 
-        console.log('Fetched recipes:', recipes);
-        return recipes || [];
+        console.log('Found pizza type:', pizzaType);
+
+        if (pizzaType?.id) {
+          const { data: recipes, error: recipesError } = await supabase
+            .from('recipes')
+            .select(`
+              *,
+              categories:category_id (
+                name
+              )
+            `)
+            .eq('category_id', pizzaType.id)
+            .order('created_at', { ascending: false });
+
+          if (recipesError) {
+            console.error('Error fetching recipes:', recipesError);
+            throw recipesError;
+          }
+
+          console.log('Fetched recipes:', recipes);
+          return recipes || [];
+        }
+        
+        return [];
+      } catch (error) {
+        console.error('Error in query function:', error);
+        setQueryError(error instanceof Error ? error.message : 'An unknown error occurred');
+        throw error;
       }
-      
-      return [];
     },
     enabled: !!style && !!pizzaStyle,
+    retry: 1,
+    retryDelay: 1000,
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Failed to load recipes. Please try again later.');
+      console.error('Query error:', error);
+    }
+  }, [error]);
 
   const handleSubmitRecipe = async () => {
     if (!user) {
@@ -113,23 +129,32 @@ const PizzaStyle = () => {
       return;
     }
 
-    const { data: pizzaType } = await supabase
-      .from('pizza_types')
-      .select('id')
-      .eq('slug', style)
-      .maybeSingle();
+    try {
+      const { data: pizzaType, error } = await supabase
+        .from('pizza_types')
+        .select('id')
+        .eq('slug', style)
+        .maybeSingle();
 
-    if (pizzaType) {
-      navigate('/dashboard', { 
-        state: { 
-          showRecipeForm: true,
-          categoryId: pizzaType.id,
-          categoryName: pizzaStyle?.title,
-          returnTo: `/pizza/${style}`
-        } 
-      });
-    } else {
-      toast.error("Unable to find pizza type. Please try again later.");
+      if (error) {
+        throw error;
+      }
+
+      if (pizzaType) {
+        navigate('/dashboard', { 
+          state: { 
+            showRecipeForm: true,
+            categoryId: pizzaType.id,
+            categoryName: pizzaStyle?.title,
+            returnTo: `/pizza/${style}`
+          } 
+        });
+      } else {
+        toast.error("Unable to find pizza type. Please try again later.");
+      }
+    } catch (error) {
+      console.error('Error in handleSubmitRecipe:', error);
+      toast.error('Failed to prepare recipe form. Please try again later.');
     }
   };
 
@@ -146,6 +171,33 @@ const PizzaStyle = () => {
   }
 
   const latestImage = recipes?.[0]?.image_url || '/placeholder-pizza.jpg';
+
+  if (queryError) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="container mx-auto px-4 pt-20 space-y-8">
+          <div>
+            <Link to="/pizza" className="inline-flex items-center text-accent hover:text-highlight mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Pizza Styles
+            </Link>
+          </div>
+          
+          <div className="p-8 border-2 border-red-300 rounded-lg bg-red-50 text-center">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Data</h2>
+            <p className="text-red-700 mb-4">We're having trouble connecting to our database. Please try again later.</p>
+            <Button 
+              onClick={() => window.location.reload()}
+              variant="destructive"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">

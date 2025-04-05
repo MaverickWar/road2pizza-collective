@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
@@ -106,41 +105,50 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         refreshTimer = await setupSessionRefresh();
         
-        authSubscription = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth state changed:", {
-            event,
-            userId: session?.user?.id,
-            email: session?.user?.email
+        // Properly handle the auth subscription
+        try {
+          const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Auth state changed:", {
+              event,
+              userId: session?.user?.id,
+              email: session?.user?.email
+            });
+            
+            if (event === 'SIGNED_IN') {
+              console.log('User signed in successfully:', session?.user?.id);
+              if (refreshTimer) clearTimeout(refreshTimer);
+              refreshTimer = await setupSessionRefresh();
+            }
+            
+            if (event === 'TOKEN_REFRESHED') {
+              console.log('Token refreshed successfully');
+              if (refreshTimer) clearTimeout(refreshTimer);
+              refreshTimer = await setupSessionRefresh();
+            }
+            
+            if (event === 'SIGNED_OUT') {
+              console.log('User signed out, redirecting to login');
+              if (refreshTimer) clearTimeout(refreshTimer);
+              localStorage.removeItem('supabase.auth.token');
+              navigate('/login');
+              return;
+            }
+
+            if (!session && event !== 'INITIAL_SESSION') {
+              console.log('Session invalid or expired, signing out user');
+              toast.error("Your session has expired. Please sign in again.");
+              await supabase.auth.signOut();
+              navigate('/login');
+              return;
+            }
           });
           
-          if (event === 'SIGNED_IN') {
-            console.log('User signed in successfully:', session?.user?.id);
-            if (refreshTimer) clearTimeout(refreshTimer);
-            refreshTimer = await setupSessionRefresh();
+          if (data && data.subscription) {
+            authSubscription = data.subscription;
           }
-          
-          if (event === 'TOKEN_REFRESHED') {
-            console.log('Token refreshed successfully');
-            if (refreshTimer) clearTimeout(refreshTimer);
-            refreshTimer = await setupSessionRefresh();
-          }
-          
-          if (event === 'SIGNED_OUT') {
-            console.log('User signed out, redirecting to login');
-            if (refreshTimer) clearTimeout(refreshTimer);
-            localStorage.removeItem('supabase.auth.token');
-            navigate('/login');
-            return;
-          }
-
-          if (!session && event !== 'INITIAL_SESSION') {
-            console.log('Session invalid or expired, signing out user');
-            toast.error("Your session has expired. Please sign in again.");
-            await supabase.auth.signOut();
-            navigate('/login');
-            return;
-          }
-        }).data.subscription;
+        } catch (error) {
+          console.error("Error setting up auth subscription:", error);
+        }
 
       } catch (error) {
         console.error("Error initializing auth:", error);
@@ -153,7 +161,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => {
       if (refreshTimer) clearTimeout(refreshTimer);
-      if (authSubscription) authSubscription.unsubscribe();
+      if (authSubscription && typeof authSubscription.unsubscribe === 'function') {
+        try {
+          authSubscription.unsubscribe();
+        } catch (error) {
+          console.error("Error unsubscribing from auth state:", error);
+        }
+      }
     };
   }, [navigate, setupSessionRefresh]);
 

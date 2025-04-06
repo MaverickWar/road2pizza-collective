@@ -70,32 +70,39 @@ const PizzaStyle = () => {
   useEffect(() => {
     const fetchPizzaStyle = async () => {
       try {
+        console.log('Fetching pizza style with slug:', style);
+        
         const { data: pizzaType, error } = await supabase
           .from('pizza_types')
-          .select('id, name, description, history, slug')
+          .select('*')
           .eq('slug', style)
+          .eq('is_hidden', false)
           .maybeSingle();
 
+        console.log('Query result:', { pizzaType, error });
+
         if (error) {
+          console.error('Database error:', error);
           throw error;
         }
 
-        if (pizzaType && 
-            'id' in pizzaType && 
-            'name' in pizzaType && 
-            'description' in pizzaType && 
-            'slug' in pizzaType) {
-          setPizzaStyle(pizzaType as PizzaStyle);
-        } else {
+        if (!pizzaType) {
+          console.log('Pizza style not found');
           setQueryError('Pizza style not found');
+          return;
         }
+
+        console.log('Setting pizza style:', pizzaType);
+        setPizzaStyle(pizzaType);
       } catch (error) {
         console.error('Error fetching pizza style:', error);
         setQueryError('Failed to load pizza style');
       }
     };
 
-    fetchPizzaStyle();
+    if (style) {
+      fetchPizzaStyle();
+    }
   }, [style]);
 
   useEffect(() => {

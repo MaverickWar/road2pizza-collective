@@ -84,7 +84,10 @@ const PizzaTypeManagement = () => {
           {
             name: newType.name,
             description: newType.description,
-            slug: newType.name.toLowerCase().replace(/\s+/g, "-"),
+            slug: newType.name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, ''),
           },
         ])
         .select()
@@ -112,7 +115,10 @@ const PizzaTypeManagement = () => {
           name: type.name,
           description: type.description,
           image_url: type.image_url,
-          slug: type.name.toLowerCase().replace(/\s+/g, "-"),
+          slug: type.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, ''),
         })
         .eq("id", type.id);
 

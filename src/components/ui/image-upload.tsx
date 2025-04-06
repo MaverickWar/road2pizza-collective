@@ -41,25 +41,29 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `recipe-images/${fileName}`;
+      const filePath = `${fileName}`;
+
+      console.log('Uploading image:', { fileName, filePath });
 
       // Upload file to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('recipe-images')
+        .from('public')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true
         });
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError;
       }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('recipe-images')
+        .from('public')
         .getPublicUrl(filePath);
 
+      console.log('Image uploaded successfully:', publicUrl);
       onChange(publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {

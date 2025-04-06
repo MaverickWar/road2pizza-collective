@@ -211,12 +211,14 @@ const PizzaStyle = () => {
         />
       )}
 
-      <RecipeSubmissionDialog
-        isOpen={showRecipeDialog}
-        onClose={() => setShowRecipeDialog(false)}
-        pizzaTypeId={pizzaStyle.id}
-        pizzaTypeName={pizzaStyle.name}
-      />
+      {pizzaStyle && (
+        <RecipeSubmissionDialog
+          isOpen={showRecipeDialog}
+          onClose={() => setShowRecipeDialog(false)}
+          pizzaTypeId={pizzaStyle.id}
+          pizzaTypeName={pizzaStyle.name}
+        />
+      )}
     </div>
   );
 };

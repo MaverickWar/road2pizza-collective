@@ -26,15 +26,18 @@ const ListEditor = ({
 
   const handleAddItem = () => {
     if (newItem.trim()) {
-      onChange([...items, newItem.trim()]);
+      const updatedItems = [...items, newItem.trim()];
+      console.log('Adding item:', { newItem, updatedItems });
+      onChange(updatedItems);
       setNewItem("");
     }
   };
 
   const handleRemoveItem = (index: number) => {
-    const newItems = [...items];
-    newItems.splice(index, 1);
-    onChange(newItems);
+    const updatedItems = [...items];
+    updatedItems.splice(index, 1);
+    console.log('Removing item:', { index, updatedItems });
+    onChange(updatedItems);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -54,7 +57,13 @@ const ListEditor = ({
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             disabled={disabled}
-            className={cn(error && "border-destructive")}
+            className={cn(
+              error && "border-destructive",
+              "focus:ring-2 focus:ring-offset-2",
+              disabled && "opacity-50 cursor-not-allowed"
+            )}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${title}-error` : undefined}
           />
         </div>
         <Button
@@ -62,6 +71,10 @@ const ListEditor = ({
           variant="outline"
           onClick={handleAddItem}
           disabled={disabled || !newItem.trim()}
+          className={cn(
+            "min-w-[80px]",
+            disabled && "opacity-50 cursor-not-allowed"
+          )}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add
@@ -69,26 +82,33 @@ const ListEditor = ({
       </div>
 
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p 
+          id={`${title}-error`}
+          className="text-sm text-destructive font-medium"
+        >
+          {error}
+        </p>
       )}
 
       {items.length > 0 && (
         <div className="space-y-2">
-          <Label className="text-sm font-medium">{title} ({items.length})</Label>
-          <div className="space-y-2">
+          <Label className="text-sm font-medium">
+            {title} ({items.length})
+          </Label>
+          <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {items.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 p-2 rounded-md bg-muted"
+                className="flex items-center gap-2 p-2 rounded-md bg-muted group hover:bg-muted/80 transition-colors"
               >
-                <span className="flex-1 text-sm">{item}</span>
+                <span className="flex-1 text-sm break-words">{item}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   onClick={() => handleRemoveItem(index)}
                   disabled={disabled}
-                  className="h-8 w-8"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-4 h-4" />
                 </Button>

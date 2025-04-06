@@ -12,158 +12,110 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LoginDialog } from '@/components/LoginDialog';
 import { useState, useEffect } from 'react';
+import RecipeSubmissionDialog from "@/components/recipe/RecipeSubmissionDialog";
 
-const pizzaStyles = {
-  "neapolitan": {
-    title: "Neapolitan Pizza",
-    description: "The original pizza from Naples, characterized by its thin base, high crust, and minimal toppings. Cooked at very high temperatures in a wood-fired oven.",
-    history: "Dating back to the 18th century in Naples, Italy, this style is considered the original pizza. Traditional Neapolitan pizza has a thin crust with a fluffy, charred cornicione (rim).",
-  },
-  "new-york": {
-    title: "New York Style Pizza",
-    description: "Large, foldable slices with a crispy outer crust and chewy interior. Known for its perfect balance of sauce and cheese.",
-    history: "Developed by Italian immigrants in New York City in the early 1900s, this style became an iconic symbol of the city's food culture.",
-  },
-  "detroit": {
-    title: "Detroit Style Pizza",
-    description: "Square pizza with a thick, crispy crust, typically topped with Wisconsin brick cheese and sauce on top.",
-    history: "Originally baked in automotive parts trays in the 1940s, Detroit-style pizza is known for its unique rectangular shape and crispy bottom.",
-  },
-  "chicago": {
-    title: "Chicago Deep Dish",
-    description: "Deep, thick pizza with high edges, layered with cheese, meat, vegetables, and sauce on top.",
-    history: "Invented at Pizzeria Uno in 1943, Chicago deep dish was designed to be a more filling and substantial meal.",
-  },
-  "sicilian": {
-    title: "Sicilian Pizza",
-    description: "Thick-crust, rectangular pizza with robust toppings and a focaccia-like base.",
-    history: "Derived from sfincione, a type of focaccia from Sicily, this style was brought to America by Sicilian immigrants.",
-  },
-  "thin-crispy": {
-    title: "Thin & Crispy Pizza",
-    description: "Ultra-thin, crispy crust with light toppings, often with a cracker-like consistency.",
-    history: "Popular in bars and restaurants across America, this style emphasizes crispiness and simplicity.",
-  },
-  "american": {
-    title: "American Pizza",
-    description: "Classic American-style with various toppings, typically featuring a medium-thick crust.",
-    history: "A fusion of various styles that developed across America, incorporating diverse regional influences.",
-  },
-  "other": {
-    title: "Other Pizza Styles",
-    description: "Discover unique and fusion pizza styles from around the world.",
-    history: "Pizza continues to evolve globally, with each region adding its own twist to this beloved dish.",
-  }
-};
+interface PizzaStyle {
+  id: string;
+  title: string;
+  description: string;
+  history: string;
+  slug: string;
+}
 
 const PizzaStyle = () => {
-  const { style } = useParams();
-  const pizzaStyle = pizzaStyles[style as keyof typeof pizzaStyles];
   const { user } = useAuth();
+  const { style } = useParams();
   const navigate = useNavigate();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showRecipeDialog, setShowRecipeDialog] = useState(false);
   const [queryError, setQueryError] = useState<string | null>(null);
+  const [pizzaStyle, setPizzaStyle] = useState<PizzaStyle | null>(null);
 
   const { data: recipes, isLoading, error } = useQuery({
     queryKey: ['recipes', style],
     queryFn: async () => {
-      try {
-        console.log('Fetching recipes for style:', style);
-        
-        const { data: pizzaType, error: pizzaTypeError } = await supabase
-          .from('pizza_types')
-          .select('id')
-          .eq('slug', style)
-          .maybeSingle();
+      const { data, error } = await supabase
+        .from('recipes')
+        .select(`
+          *,
+          reviews (
+            rating,
+            content,
+            user_id,
+            created_at,
+            profiles (username)
+          ),
+          profiles (
+            username,
+            points,
+            badge_title,
+            badge_color,
+            recipes_shared,
+            created_at
+          )
+        `)
+        .eq('category_id', pizzaStyle?.id)
+        .eq('status', 'published')
+        .eq('approval_status', 'approved')
+        .order('created_at', { ascending: false });
 
-        if (pizzaTypeError) {
-          console.error('Error fetching pizza type:', pizzaTypeError);
-          throw pizzaTypeError;
-        }
-
-        console.log('Found pizza type:', pizzaType);
-
-        if (pizzaType?.id) {
-          const { data: recipes, error: recipesError } = await supabase
-            .from('recipes')
-            .select(`
-              *,
-              categories:category_id (
-                name
-              )
-            `)
-            .eq('category_id', pizzaType.id)
-            .order('created_at', { ascending: false });
-
-          if (recipesError) {
-            console.error('Error fetching recipes:', recipesError);
-            throw recipesError;
-          }
-
-          console.log('Fetched recipes:', recipes);
-          return recipes || [];
-        }
-        
-        return [];
-      } catch (error) {
-        console.error('Error in query function:', error);
-        setQueryError(error instanceof Error ? error.message : 'An unknown error occurred');
-        throw error;
-      }
+      if (error) throw error;
+      return data;
     },
-    enabled: !!style && !!pizzaStyle,
-    retry: 1,
+    enabled: !!pizzaStyle?.id,
+    retry: 3,
     retryDelay: 1000,
   });
 
   useEffect(() => {
+    const fetchPizzaStyle = async () => {
+      try {
+        const { data: pizzaType, error } = await supabase
+          .from('pizza_types')
+          .select('id, title, description, history, slug')
+          .eq('slug', style)
+          .maybeSingle();
+
+        if (error) {
+          throw error;
+        }
+
+        if (pizzaType && 
+            'id' in pizzaType && 
+            'title' in pizzaType && 
+            'description' in pizzaType && 
+            'history' in pizzaType && 
+            'slug' in pizzaType) {
+          setPizzaStyle(pizzaType as PizzaStyle);
+        } else {
+          setQueryError('Pizza style not found');
+        }
+      } catch (error) {
+        console.error('Error fetching pizza style:', error);
+        setQueryError('Failed to load pizza style');
+      }
+    };
+
+    fetchPizzaStyle();
+  }, [style]);
+
+  useEffect(() => {
     if (error) {
-      toast.error('Failed to load recipes. Please try again later.');
-      console.error('Query error:', error);
+      console.error('Error fetching recipes:', error);
+      setQueryError('Failed to load recipes');
     }
   }, [error]);
 
   const handleSubmitRecipe = async () => {
     if (!user) {
-      // Store the submission intent before showing login dialog
-      const submissionState = {
-        showRecipeForm: true,
-        categoryId: null,
-        categoryName: pizzaStyle?.title,
-        returnTo: `/pizza/${style}`
-      };
-      
-      sessionStorage.setItem('pendingRecipeSubmission', JSON.stringify(submissionState));
       setShowLoginDialog(true);
       return;
     }
 
-    try {
-      const { data: pizzaType, error } = await supabase
-        .from('pizza_types')
-        .select('id')
-        .eq('slug', style)
-        .maybeSingle();
-
-      if (error) {
-        throw error;
-      }
-
-      if (pizzaType) {
-        navigate('/dashboard', { 
-          state: { 
-            showRecipeForm: true,
-            categoryId: pizzaType.id,
-            categoryName: pizzaStyle?.title,
-            returnTo: `/pizza/${style}`
-          } 
-        });
-      } else {
-        toast.error("Unable to find pizza type. Please try again later.");
-      }
-    } catch (error) {
-      console.error('Error in handleSubmitRecipe:', error);
-      toast.error('Failed to prepare recipe form. Please try again later.');
+    if (pizzaStyle) {
+      setShowRecipeDialog(true);
+    } else {
+      toast.error("Unable to find pizza type. Please try again later.");
     }
   };
 
@@ -252,6 +204,13 @@ const PizzaStyle = () => {
           onClose={() => setShowLoginDialog(false)} 
         />
       )}
+
+      <RecipeSubmissionDialog
+        isOpen={showRecipeDialog}
+        onClose={() => setShowRecipeDialog(false)}
+        pizzaTypeId={pizzaStyle.id}
+        pizzaTypeName={pizzaStyle.title}
+      />
     </div>
   );
 };

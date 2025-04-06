@@ -7,9 +7,10 @@ import { toast } from "sonner";
 import FormFields from "./form/FormFields";
 import ListEditor from "@/components/article/edit/ListEditor";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
 
 interface RecipeSubmissionDialogProps {
   isOpen: boolean;
@@ -25,8 +26,11 @@ const RecipeSubmissionDialog = ({
   pizzaTypeName 
 }: RecipeSubmissionDialogProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [submittedRecipeId, setSubmittedRecipeId] = useState<string | null>(null);
   const totalSteps = 4;
   const [formData, setFormData] = useState({
     title: "",
@@ -43,6 +47,31 @@ const RecipeSubmissionDialog = ({
     difficulty: "",
   });
 
+  const validateStep = (step: number) => {
+    switch (step) {
+      case 1:
+        if (!formData.title || !formData.content || !formData.image_url) {
+          toast.error("Please fill in all required fields in Basic Information");
+          return false;
+        }
+        return true;
+      case 2:
+        if (!formData.ingredients.length) {
+          toast.error("Please add at least one ingredient");
+          return false;
+        }
+        return true;
+      case 3:
+        if (!formData.instructions.length) {
+          toast.error("Please add at least one instruction step");
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -50,17 +79,19 @@ const RecipeSubmissionDialog = ({
       return;
     }
 
+    // Validate all steps before submission
+    for (let step = 1; step <= totalSteps; step++) {
+      if (!validateStep(step)) {
+        setCurrentStep(step);
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       console.log("Starting recipe submission...");
 
-      // Validate required fields
-      if (!formData.title || !formData.content || !formData.image_url) {
-        toast.error("Please fill in all required fields");
-        return;
-      }
-
-      // Submit recipe with optimistic update
+      // Submit recipe
       const { data, error } = await supabase
         .from("recipes")
         .insert([{
@@ -69,6 +100,7 @@ const RecipeSubmissionDialog = ({
           created_by: user.id,
           author: user.email,
           status: 'pending',
+          approval_status: 'pending',
         }])
         .select()
         .single();
@@ -76,8 +108,8 @@ const RecipeSubmissionDialog = ({
       if (error) throw error;
 
       console.log("Recipe submitted successfully:", data);
-      toast.success("Recipe submitted successfully! It will be reviewed by our team.");
-      onClose();
+      setSubmittedRecipeId(data.id);
+      setSubmissionSuccess(true);
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("Failed to submit recipe. Please try again.");
@@ -105,7 +137,7 @@ const RecipeSubmissionDialog = ({
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (validateStep(currentStep) && currentStep < totalSteps) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -116,7 +148,68 @@ const RecipeSubmissionDialog = ({
     }
   };
 
+  const handleClose = () => {
+    // Reset form state
+    setFormData({
+      title: "",
+      content: "",
+      image_url: "",
+      video_url: "",
+      video_provider: "",
+      ingredients: [],
+      instructions: [],
+      tips: [],
+      prep_time: "",
+      cook_time: "",
+      servings: "",
+      difficulty: "",
+    });
+    setCurrentStep(1);
+    setSubmissionSuccess(false);
+    setSubmittedRecipeId(null);
+    onClose();
+  };
+
   const renderStepContent = () => {
+    if (submissionSuccess) {
+      return (
+        <Card className="p-6">
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <CheckCircle2 className="w-16 h-16 text-green-500" />
+            </div>
+            <h3 className="text-2xl font-semibold text-green-600">Recipe Submitted Successfully!</h3>
+            <p className="text-muted-foreground">
+              Your recipe has been submitted and is pending review by our team.
+              You can track its status in your dashboard.
+            </p>
+            <div className="flex justify-center gap-4 pt-4">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+              >
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  handleClose();
+                  navigate('/dashboard', { 
+                    state: { 
+                      showRecipeStatus: true,
+                      recipeId: submittedRecipeId 
+                    }
+                  });
+                }}
+                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
+              >
+                View in Dashboard
+              </Button>
+            </div>
+          </div>
+        </Card>
+      );
+    }
+
     switch (currentStep) {
       case 1:
         return (
@@ -188,16 +281,22 @@ const RecipeSubmissionDialog = ({
   const progress = (currentStep / totalSteps) * 100;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl h-[90vh] p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
-            Submit Recipe for {pizzaTypeName}
-            <span className="text-sm font-normal text-muted-foreground">
-              Step {currentStep} of {totalSteps}
-            </span>
+            {submissionSuccess ? (
+              "Submission Complete"
+            ) : (
+              <>
+                Submit Recipe for {pizzaTypeName}
+                <span className="text-sm font-normal text-muted-foreground">
+                  Step {currentStep} of {totalSteps}
+                </span>
+              </>
+            )}
           </DialogTitle>
-          <Progress value={progress} className="h-2 mt-4" />
+          {!submissionSuccess && <Progress value={progress} className="h-2 mt-4" />}
         </DialogHeader>
         
         <ScrollArea className="h-[calc(90vh-12rem)] px-6">
@@ -206,50 +305,52 @@ const RecipeSubmissionDialog = ({
           </form>
         </ScrollArea>
 
-        <div className="p-6 pt-0 border-t bg-muted/50 flex justify-between">
-          <Button 
-            type="button"
-            variant="outline" 
-            onClick={prevStep}
-            disabled={currentStep === 1 || loading}
-          >
-            Previous
-          </Button>
-          <div className="flex gap-2">
+        {!submissionSuccess && (
+          <div className="p-6 pt-0 border-t bg-muted/50 flex justify-between">
             <Button 
+              type="button"
               variant="outline" 
-              onClick={onClose}
-              disabled={loading}
+              onClick={prevStep}
+              disabled={currentStep === 1 || loading}
             >
-              Cancel
+              Previous
             </Button>
-            {isLastStep ? (
+            <div className="flex gap-2">
               <Button 
-                onClick={handleSubmit}
+                variant="outline" 
+                onClick={handleClose}
                 disabled={loading}
-                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px]"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  "Submit Recipe"
-                )}
+                Cancel
               </Button>
-            ) : (
-              <Button 
-                onClick={nextStep}
-                disabled={loading}
-                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            )}
+              {isLastStep ? (
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px]"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Recipe"
+                  )}
+                </Button>
+              ) : (
+                <Button 
+                  onClick={nextStep}
+                  disabled={loading}
+                  className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );

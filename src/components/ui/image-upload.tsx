@@ -52,7 +52,7 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       setUploading(true);
       setError(null);
 
-      console.log('Starting image upload process');
+      console.log('Starting image upload process to bucket:', BUCKET_NAME);
 
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
@@ -170,4 +170,4 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       )}
     </div>
   );
-}; 
+};

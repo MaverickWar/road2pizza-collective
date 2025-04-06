@@ -21,6 +21,7 @@ const PUBLIC_FOLDER = 'recipe-images';
 const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(currentImageUrl || '');
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +35,8 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
       if (!file) return;
 
       setUploading(true);
-      console.log('Starting upload with auth:', !!user);
+      setError(null);
+      console.log('Starting upload to bucket:', BUCKET_NAME);
 
       const optimizedFile = file.type.startsWith('image/') 
         ? await optimizeImage(file)
@@ -43,6 +45,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
       await uploadFile(optimizedFile || file);
     } catch (error) {
       console.error('Error uploading image:', error);
+      setError(error instanceof Error ? error.message : 'Error uploading image');
       toast.error('Error uploading image. Please try again.');
     } finally {
       setUploading(false);
@@ -61,7 +64,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
     console.log('Uploading to path:', filePath);
 
     // Upload the file to Supabase storage
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -71,8 +74,10 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
 
     if (uploadError) {
       console.error('Supabase storage upload error:', uploadError);
-      throw uploadError;
+      throw new Error(`Upload failed: ${uploadError.message}`);
     }
+
+    console.log('Upload successful, data:', data);
 
     // Get the public URL of the uploaded file
     const { data: { publicUrl } } = supabase.storage
@@ -133,6 +138,9 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
           />
         </TabsContent>
       </Tabs>
+      {error && (
+        <p className="text-sm text-red-500">{error}</p>
+      )}
       {!user && (
         <p className="text-sm text-red-500">Please login to upload or add images</p>
       )}

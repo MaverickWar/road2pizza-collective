@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, Plus, X } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { ReviewFormData } from "@/types/review";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -20,11 +20,15 @@ interface MediaSectionProps {
 const MediaSection = ({ form }: MediaSectionProps) => {
   const mainImageInputRef = useRef<HTMLInputElement>(null);
   const additionalImageInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleMainImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = event.target.files?.[0];
       if (!file) return;
+
+      setError(null);
+      console.log('Starting upload to bucket:', BUCKET_NAME);
 
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
@@ -32,7 +36,7 @@ const MediaSection = ({ form }: MediaSectionProps) => {
 
       console.log('Uploading to', BUCKET_NAME, 'path:', filePath);
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -40,7 +44,12 @@ const MediaSection = ({ form }: MediaSectionProps) => {
           contentType: file.type
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      console.log('Upload successful, data:', data);
 
       const { data: { publicUrl } } = supabase.storage
         .from(BUCKET_NAME)
@@ -50,6 +59,7 @@ const MediaSection = ({ form }: MediaSectionProps) => {
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
+      setError(error instanceof Error ? error.message : 'Error uploading image');
       toast.error('Error uploading image');
     } finally {
       if (event.target) event.target.value = '';
@@ -61,11 +71,14 @@ const MediaSection = ({ form }: MediaSectionProps) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      setError(null);
+      console.log('Starting upload to bucket:', BUCKET_NAME);
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${PUBLIC_FOLDER}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -73,7 +86,12 @@ const MediaSection = ({ form }: MediaSectionProps) => {
           contentType: file.type
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      console.log('Upload successful, data:', data);
 
       const { data: { publicUrl } } = supabase.storage
         .from(BUCKET_NAME)
@@ -84,6 +102,7 @@ const MediaSection = ({ form }: MediaSectionProps) => {
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
+      setError(error instanceof Error ? error.message : 'Error uploading image');
       toast.error('Error uploading image');
     } finally {
       if (event.target) event.target.value = '';
@@ -171,6 +190,10 @@ const MediaSection = ({ form }: MediaSectionProps) => {
           </div>
         </div>
       </div>
+
+      {error && (
+        <p className="text-sm text-red-500">{error}</p>
+      )}
 
       <FormField
         control={form.control}

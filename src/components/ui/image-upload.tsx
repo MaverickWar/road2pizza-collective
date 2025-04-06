@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImagePlus, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   value?: string;
@@ -22,12 +23,14 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
     // Validate file type
     if (!file.type.startsWith('image/')) {
       setError('Please upload an image file');
+      toast.error('Please upload an image file');
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError('Image size should be less than 5MB');
+      toast.error('Image size should be less than 5MB');
       return;
     }
 
@@ -37,13 +40,16 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
 
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `recipe-images/${fileName}`;
 
       // Upload file to Supabase Storage
-      const { error: uploadError, data } = await supabase.storage
-        .from('public')
-        .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from('recipe-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         throw uploadError;
@@ -51,15 +57,18 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('public')
+        .from('recipe-images')
         .getPublicUrl(filePath);
 
       onChange(publicUrl);
+      toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
       setError('Failed to upload image. Please try again.');
+      toast.error('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -73,6 +82,7 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
             value={value || ''}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled || uploading}
+            className={error ? "border-destructive" : ""}
           />
         </div>
         <div>

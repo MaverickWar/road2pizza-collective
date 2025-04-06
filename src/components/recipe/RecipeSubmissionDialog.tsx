@@ -138,9 +138,22 @@ const RecipeSubmissionDialog = ({
       return;
     }
 
+    if (!pizzaTypeId) {
+      toast.error("Invalid pizza type selected");
+      return;
+    }
+
     try {
       setLoading(true);
       console.log("Starting recipe submission...");
+
+      // Validate all required fields
+      const validationResult = recipeSchema.safeParse(data);
+      if (!validationResult.success) {
+        console.error("Validation errors:", validationResult.error);
+        toast.error("Please fill in all required fields correctly");
+        return;
+      }
 
       // Submit recipe
       const { data: recipe, error } = await supabase
@@ -168,11 +181,20 @@ const RecipeSubmissionDialog = ({
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Database error:", error);
+        if (error.code === '23505') { // Unique constraint violation
+          toast.error("A recipe with this title already exists");
+        } else {
+          toast.error("Failed to submit recipe. Please try again.");
+        }
+        return;
+      }
 
       console.log("Recipe submitted successfully:", recipe);
       setSubmittedRecipeId(recipe.id);
       setSubmissionSuccess(true);
+      toast.success("Recipe submitted successfully!");
     } catch (error) {
       console.error("Error submitting recipe:", error);
       toast.error("Failed to submit recipe. Please try again.");
@@ -182,8 +204,29 @@ const RecipeSubmissionDialog = ({
   };
 
   const nextStep = () => {
-    if (validateStep(currentStep) && currentStep < totalSteps) {
-      setCurrentStep(prev => prev + 1);
+    const isValid = validateStep(currentStep);
+    if (isValid) {
+      if (currentStep < totalSteps) {
+        setCurrentStep(prev => prev + 1);
+      }
+    } else {
+      // Show validation errors for the current step
+      const fields = {
+        1: ["title", "content", "image_url"],
+        2: ["ingredients"],
+        3: ["instructions"],
+        4: ["tips"],
+      }[currentStep];
+
+      if (fields) {
+        const errors = fields
+          .map(field => form.formState.errors[field as keyof RecipeFormData]?.message)
+          .filter(Boolean);
+        
+        if (errors.length > 0) {
+          toast.error(errors.join('\n'));
+        }
+      }
     }
   };
 

@@ -17,17 +17,31 @@ const Dashboard = () => {
     categoryId?: string;
     categoryName?: string;
     returnTo?: string;
+    recipeSubmitted?: boolean;
   };
 
   useEffect(() => {
     if (!user) {
+      // Store the current location state in sessionStorage before redirecting to login
+      if (state?.showRecipeForm) {
+        sessionStorage.setItem('pendingRecipeSubmission', JSON.stringify(state));
+      }
       toast.error("Please login to access the dashboard");
-      navigate("/login");
+      navigate("/login", { state: { returnTo: "/dashboard" } });
       return;
     }
 
-    // Only redirect admins/staff if they're not trying to submit a recipe
-    if (!state?.showRecipeForm) {
+    // Check for pending recipe submission after login
+    const pendingSubmission = sessionStorage.getItem('pendingRecipeSubmission');
+    if (pendingSubmission) {
+      const submissionState = JSON.parse(pendingSubmission);
+      sessionStorage.removeItem('pendingRecipeSubmission');
+      navigate('/dashboard', { state: submissionState, replace: true });
+      return;
+    }
+
+    // Only redirect admins/staff if they're not trying to submit a recipe and haven't just submitted one
+    if (!state?.showRecipeForm && !state?.recipeSubmitted) {
       if (isAdmin) {
         navigate("/dashboard/admin");
         return;
@@ -37,7 +51,7 @@ const Dashboard = () => {
         return;
       }
     }
-  }, [user, isAdmin, isStaff, navigate, state?.showRecipeForm]);
+  }, [user, isAdmin, isStaff, navigate, state]);
 
   if (!user) return null;
 

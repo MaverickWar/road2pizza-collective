@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -107,7 +106,16 @@ export const useLogin = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         toast.success('Login successful');
-        navigate('/');
+
+        // Check for pending recipe submission
+        const pendingSubmission = sessionStorage.getItem('pendingRecipeSubmission');
+        if (pendingSubmission) {
+          const submissionState = JSON.parse(pendingSubmission);
+          sessionStorage.removeItem('pendingRecipeSubmission');
+          navigate('/dashboard', { state: submissionState });
+        } else {
+          navigate('/');
+        }
       } else {
         console.error('No user data received from successful login');
         toast.error('Login failed - please try again');

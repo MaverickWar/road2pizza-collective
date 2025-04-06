@@ -125,6 +125,15 @@ const PizzaStyle = () => {
 
   const handleSubmitRecipe = async () => {
     if (!user) {
+      // Store the submission intent before showing login dialog
+      const submissionState = {
+        showRecipeForm: true,
+        categoryId: null,
+        categoryName: pizzaStyle?.title,
+        returnTo: `/pizza/${style}`
+      };
+      
+      sessionStorage.setItem('pendingRecipeSubmission', JSON.stringify(submissionState));
       setShowLoginDialog(true);
       return;
     }

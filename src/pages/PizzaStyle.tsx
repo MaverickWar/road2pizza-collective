@@ -16,7 +16,7 @@ import RecipeSubmissionDialog from "@/components/recipe/RecipeSubmissionDialog";
 
 interface PizzaStyle {
   id: string;
-  name: string;
+  title: string;
   description: string | null;
   history?: string | null;
   slug: string;
@@ -72,7 +72,7 @@ const PizzaStyle = () => {
       try {
         const { data: pizzaType, error } = await supabase
           .from('pizza_types')
-          .select('id, name, description, slug')
+          .select('id, name as title, description, slug')
           .eq('slug', style)
           .maybeSingle();
 
@@ -82,7 +82,7 @@ const PizzaStyle = () => {
 
         if (pizzaType && 
             'id' in pizzaType && 
-            'name' in pizzaType && 
+            'title' in pizzaType && 
             'description' in pizzaType && 
             'slug' in pizzaType) {
           setPizzaStyle(pizzaType as PizzaStyle);
@@ -171,7 +171,7 @@ const PizzaStyle = () => {
         </div>
 
         <Hero 
-          title={pizzaStyle.name}
+          title={pizzaStyle.title}
           description={pizzaStyle.description || ''}
           image={latestImage}
           showButtons={false}
@@ -208,7 +208,7 @@ const PizzaStyle = () => {
         isOpen={showRecipeDialog}
         onClose={() => setShowRecipeDialog(false)}
         pizzaTypeId={pizzaStyle.id}
-        pizzaTypeName={pizzaStyle.name}
+        pizzaTypeName={pizzaStyle.title}
       />
     </div>
   );

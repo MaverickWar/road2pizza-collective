@@ -377,29 +377,23 @@ const RecipeSubmissionDialog = ({
   const progress = (currentStep / totalSteps) * 100;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 gap-0">
-        <DialogHeader className="p-6 pb-4 border-b sticky top-0 bg-background z-10">
-          <DialogTitle className="text-2xl font-semibold">
-            {submissionSuccess ? (
-              "Recipe Submitted Successfully!"
-            ) : (
-              <div className="space-y-1">
-                <h2>Submit Recipe for {pizzaTypeName}</h2>
-                <p className="text-base font-normal text-muted-foreground">
-                  Step {currentStep} of {totalSteps}
-                </p>
-              </div>
-            )}
-          </DialogTitle>
-          {!submissionSuccess && (
-            <div className="pt-2">
-              <Progress value={progress} className="h-2" />
-              <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                {currentStep === 1 && "Basic Information"}
-                {currentStep === 2 && "Recipe Ingredients"}
-                {currentStep === 3 && "Cooking Instructions"}
-                {currentStep === 4 && "Pro Tips & Final Details"}
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b">
+          {submissionSuccess ? (
+            <DialogTitle>Recipe Submitted Successfully</DialogTitle>
+          ) : (
+            <div className="space-y-4">
+              <DialogTitle>Submit a Recipe for {pizzaTypeName}</DialogTitle>
+              <div className="flex items-center gap-4">
+                <Progress value={(currentStep / totalSteps) * 100} className="flex-1" />
+                <div className="text-sm text-muted-foreground whitespace-nowrap">
+                  Step {currentStep} of {totalSteps}:
+                  {currentStep === 1 && "Basic Information"}
+                  {currentStep === 2 && "Recipe Ingredients"}
+                  {currentStep === 3 && "Cooking Instructions"}
+                  {currentStep === 4 && "Pro Tips & Final Details"}
+                </div>
               </div>
             </div>
           )}

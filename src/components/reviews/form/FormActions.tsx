@@ -10,7 +10,7 @@ interface FormActionsProps {
 
 const FormActions = ({ onClose, onSubmit, isSubmitting }: FormActionsProps) => {
   return (
-    <div className="sticky bottom-0 z-10 p-4 border-t bg-background/95 backdrop-blur-sm shadow-md">
+    <div className="sticky bottom-0 z-20 p-4 border-t bg-background/95 backdrop-blur-sm shadow-md">
       <div className="flex justify-end gap-4 max-w-4xl mx-auto">
         <Button 
           type="button"

@@ -288,7 +288,7 @@ const RecipeSubmissionDialog = ({
     return (
       <FormProvider {...methods}>
         {currentStep === 1 && (
-          <div className="space-y-8 pb-24">
+          <div className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Basic Information</h3>
               <p className="text-sm text-muted-foreground">
@@ -306,7 +306,7 @@ const RecipeSubmissionDialog = ({
         )}
 
         {currentStep === 2 && (
-          <div className="space-y-8 pb-24">
+          <div className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Recipe Ingredients</h3>
               <p className="text-sm text-muted-foreground">
@@ -328,7 +328,7 @@ const RecipeSubmissionDialog = ({
         )}
 
         {currentStep === 3 && (
-          <div className="space-y-8 pb-24">
+          <div className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Cooking Instructions</h3>
               <p className="text-sm text-muted-foreground">
@@ -350,7 +350,7 @@ const RecipeSubmissionDialog = ({
         )}
 
         {currentStep === 4 && (
-          <div className="space-y-8 pb-24">
+          <div className="space-y-8">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Pro Tips & Final Details</h3>
               <p className="text-sm text-muted-foreground">
@@ -400,7 +400,7 @@ const RecipeSubmissionDialog = ({
         </DialogHeader>
         
         <div className="relative flex-1 overflow-hidden">
-          <ScrollArea className="h-full px-6 py-6">
+          <ScrollArea className="h-full px-6 py-6 pb-24">
             <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
               {renderStepContent()}
             </form>
@@ -408,7 +408,7 @@ const RecipeSubmissionDialog = ({
         </div>
 
         {!submissionSuccess && (
-          <div className="p-6 border-t bg-background shadow-md z-10 sticky bottom-0">
+          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-background shadow-md z-20">
             <div className="flex justify-between items-center max-w-4xl mx-auto">
               <Button 
                 type="button"

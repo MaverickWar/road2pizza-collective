@@ -7,7 +7,9 @@ import { toast } from "sonner";
 import FormFields from "./form/FormFields";
 import ListEditor from "@/components/article/edit/ListEditor";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface RecipeSubmissionDialogProps {
   isOpen: boolean;
@@ -24,6 +26,8 @@ const RecipeSubmissionDialog = ({
 }: RecipeSubmissionDialogProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 4;
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -100,17 +104,24 @@ const RecipeSubmissionDialog = ({
     }));
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">
-            Submit Recipe for {pizzaTypeName}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <ScrollArea className="h-[calc(90vh-8rem)] pr-4">
-          <form onSubmit={handleSubmit} className="space-y-6">
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
             <FormFields
               formData={formData}
               onChange={handleFieldChange}
@@ -118,56 +129,127 @@ const RecipeSubmissionDialog = ({
               onVideoUrlChange={handleVideoUrlChange}
               disabled={loading}
             />
-
+          </Card>
+        );
+      case 2:
+        return (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Ingredients</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              List all ingredients needed for your recipe. Be specific with quantities and measurements.
+            </p>
             <ListEditor
-              title="Ingredients"
+              title="Recipe Ingredients"
               items={formData.ingredients}
               onChange={(items) => setFormData(prev => ({ ...prev, ingredients: items }))}
-              placeholder="Add ingredient"
+              placeholder="Add ingredient (e.g., 2 cups flour)"
               disabled={loading}
             />
-
+          </Card>
+        );
+      case 3:
+        return (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Instructions</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Break down your recipe into clear, step-by-step instructions.
+            </p>
             <ListEditor
-              title="Instructions"
+              title="Step-by-Step Instructions"
               items={formData.instructions}
               onChange={(items) => setFormData(prev => ({ ...prev, instructions: items }))}
-              placeholder="Add instruction"
+              placeholder="Add instruction step"
               disabled={loading}
             />
-
+          </Card>
+        );
+      case 4:
+        return (
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Pro Tips</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Share your expert tips to help others make this recipe successfully.
+            </p>
             <ListEditor
-              title="Pro Tips"
+              title="Helpful Tips"
               items={formData.tips}
               onChange={(items) => setFormData(prev => ({ ...prev, tips: items }))}
-              placeholder="Add tip"
+              placeholder="Add a pro tip"
               disabled={loading}
             />
+          </Card>
+        );
+      default:
+        return null;
+    }
+  };
 
-            <div className="flex justify-end space-x-2">
+  const isLastStep = currentStep === totalSteps;
+  const progress = (currentStep / totalSteps) * 100;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
+            Submit Recipe for {pizzaTypeName}
+            <span className="text-sm font-normal text-muted-foreground">
+              Step {currentStep} of {totalSteps}
+            </span>
+          </DialogTitle>
+          <Progress value={progress} className="h-2 mt-4" />
+        </DialogHeader>
+        
+        <ScrollArea className="h-[calc(90vh-12rem)] px-6">
+          <form onSubmit={handleSubmit} className="space-y-6 py-6">
+            {renderStepContent()}
+          </form>
+        </ScrollArea>
+
+        <div className="p-6 pt-0 border-t bg-muted/50 flex justify-between">
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={prevStep}
+            disabled={currentStep === 1 || loading}
+          >
+            Previous
+          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            {isLastStep ? (
               <Button 
-                variant="outline" 
-                onClick={onClose}
+                onClick={handleSubmit}
                 disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
+                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px]"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Submitting Recipe...
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting...
                   </>
                 ) : (
                   "Submit Recipe"
                 )}
               </Button>
-            </div>
-          </form>
-        </ScrollArea>
+            ) : (
+              <Button 
+                onClick={nextStep}
+                disabled={loading}
+                className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

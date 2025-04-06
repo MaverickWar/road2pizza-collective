@@ -12,9 +12,42 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
+const BUCKET_NAME = 'images';
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const ensureStorageBucket = async () => {
+    try {
+      // Try to get the bucket first
+      const { data: bucket, error: getBucketError } = await supabase.storage
+        .getBucket(BUCKET_NAME);
+
+      // If bucket doesn't exist, create it
+      if (!bucket && getBucketError?.message?.includes('not found')) {
+        console.log('Creating storage bucket:', BUCKET_NAME);
+        const { error: createError } = await supabase.storage
+          .createBucket(BUCKET_NAME, {
+            public: true,
+            allowedMimeTypes: ['image/*'],
+            fileSizeLimit: MAX_FILE_SIZE
+          });
+
+        if (createError) {
+          throw createError;
+        }
+      } else if (getBucketError) {
+        throw getBucketError;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error ensuring storage bucket:', error);
+      return false;
+    }
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -27,8 +60,8 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
       setError('Image size should be less than 5MB');
       toast.error('Image size should be less than 5MB');
       return;
@@ -38,19 +71,32 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       setUploading(true);
       setError(null);
 
+      // Ensure storage bucket exists
+      const bucketReady = await ensureStorageBucket();
+      if (!bucketReady) {
+        throw new Error('Storage not available');
+      }
+
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Uploading image:', { fileName, filePath });
+      console.log('Starting image upload:', {
+        fileName,
+        filePath,
+        fileSize: file.size,
+        fileType: file.type,
+        bucket: BUCKET_NAME
+      });
 
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('public')
+      // Upload file
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(BUCKET_NAME)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: true,
+          contentType: file.type
         });
 
       if (uploadError) {
@@ -58,17 +104,23 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
         throw uploadError;
       }
 
+      console.log('Upload successful:', uploadData);
+
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('public')
+      const { data } = supabase.storage
+        .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
-      console.log('Image uploaded successfully:', publicUrl);
-      onChange(publicUrl);
+      if (!data.publicUrl) {
+        throw new Error('Failed to generate public URL');
+      }
+
+      console.log('Public URL generated:', data.publicUrl);
+      onChange(data.publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
-      setError('Failed to upload image. Please try again.');
+      setError(error instanceof Error ? error.message : 'Failed to upload image. Please try again.');
       toast.error('Failed to upload image. Please try again.');
     } finally {
       setUploading(false);

@@ -26,8 +26,8 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
         .getBucket(BUCKET_NAME);
 
       // If bucket doesn't exist, create it
-      if (!bucket && getBucketError?.message?.includes('not found')) {
-        console.log('Creating storage bucket:', BUCKET_NAME);
+      if (!bucket || getBucketError) {
+        console.log('Attempting to create storage bucket:', BUCKET_NAME);
         const { error: createError } = await supabase.storage
           .createBucket(BUCKET_NAME, {
             public: true,
@@ -36,10 +36,18 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
           });
 
         if (createError) {
-          throw createError;
+          console.error('Error creating bucket:', createError);
+          return false;
         }
-      } else if (getBucketError) {
-        throw getBucketError;
+      }
+
+      // Verify bucket exists and is accessible
+      const { data: verifyBucket, error: verifyError } = await supabase.storage
+        .getBucket(BUCKET_NAME);
+
+      if (verifyError || !verifyBucket) {
+        console.error('Error verifying bucket:', verifyError);
+        return false;
       }
 
       return true;
@@ -71,16 +79,10 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       setUploading(true);
       setError(null);
 
-      // Ensure storage bucket exists
-      const bucketReady = await ensureStorageBucket();
-      if (!bucketReady) {
-        throw new Error('Storage not available');
-      }
-
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = `recipes/${fileName}`;
 
       console.log('Starting image upload:', {
         fileName,
@@ -90,16 +92,11 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
         bucket: BUCKET_NAME
       });
 
-      // Check if we can access the bucket
-      const { data: bucketData, error: bucketError } = await supabase.storage
-        .getBucket(BUCKET_NAME);
-
-      if (bucketError) {
-        console.error('Bucket access error:', bucketError);
-        throw new Error(`Storage bucket access error: ${bucketError.message}`);
+      // Ensure storage bucket exists
+      const bucketReady = await ensureStorageBucket();
+      if (!bucketReady) {
+        throw new Error('Unable to access storage. Please try again later.');
       }
-
-      console.log('Bucket access confirmed:', bucketData);
 
       // Upload file
       const { data: uploadData, error: uploadError } = await supabase.storage

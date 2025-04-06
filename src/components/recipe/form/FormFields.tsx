@@ -1,11 +1,10 @@
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { ImageUpload } from "@/components/ui/image-upload";
 import DifficultySelect from "./DifficultySelect";
-import { InfoIcon } from "lucide-react";
 
 interface FormFieldsProps {
   form: UseFormReturn<any>;

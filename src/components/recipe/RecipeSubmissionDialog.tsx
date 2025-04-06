@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,7 +12,7 @@ import { Loader2, ChevronRight, CheckCircle2, AlertCircle, ChevronLeft, Send } f
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -54,7 +55,7 @@ const RecipeSubmissionDialog = ({
   const [submittedRecipeId, setSubmittedRecipeId] = useState<string | null>(null);
   const totalSteps = 4;
 
-  const form = useForm<RecipeFormData>({
+  const methods = useForm<RecipeFormData>({
     resolver: zodResolver(recipeSchema),
     defaultValues: {
       title: "",
@@ -72,7 +73,7 @@ const RecipeSubmissionDialog = ({
     },
   });
 
-  const formErrors = form.formState.errors;
+  const formErrors = methods.formState.errors;
 
   const renderErrors = () => {
     const currentFields = {
@@ -115,12 +116,12 @@ const RecipeSubmissionDialog = ({
 
     currentFields.forEach((field) => {
       try {
-        recipeSchema.shape[field].parse(form.getValues(field as keyof RecipeFormData));
+        recipeSchema.shape[field].parse(methods.getValues(field as keyof RecipeFormData));
       } catch (error) {
         isValid = false;
         if (error instanceof z.ZodError) {
           error.errors.forEach((err) => {
-            form.setError(field as keyof RecipeFormData, {
+            methods.setError(field as keyof RecipeFormData, {
               type: "manual",
               message: err.message,
             });
@@ -220,7 +221,7 @@ const RecipeSubmissionDialog = ({
 
       if (fields) {
         const errors = fields
-          .map(field => form.formState.errors[field as keyof RecipeFormData]?.message)
+          .map(field => formErrors[field as keyof RecipeFormData]?.message)
           .filter(Boolean);
         
         if (errors.length > 0) {
@@ -237,7 +238,7 @@ const RecipeSubmissionDialog = ({
   };
 
   const handleClose = () => {
-    form.reset();
+    methods.reset();
     setCurrentStep(1);
     setSubmissionSuccess(false);
     setSubmittedRecipeId(null);
@@ -285,7 +286,7 @@ const RecipeSubmissionDialog = ({
     }
 
     return (
-      <>
+      <FormProvider {...methods}>
         {currentStep === 1 && (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -297,7 +298,7 @@ const RecipeSubmissionDialog = ({
             {renderErrors()}
             <Card className="p-6">
               <FormFields
-                form={form}
+                form={methods}
                 disabled={loading}
               />
             </Card>
@@ -316,8 +317,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Ingredients List"
-                items={form.getValues("ingredients")}
-                onChange={(items) => form.setValue("ingredients", items)}
+                items={methods.getValues("ingredients")}
+                onChange={(items) => methods.setValue("ingredients", items)}
                 placeholder="Add ingredient (e.g., 2 cups flour)"
                 disabled={loading}
                 error={formErrors.ingredients?.message}
@@ -338,8 +339,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Step-by-Step Instructions"
-                items={form.getValues("instructions")}
-                onChange={(items) => form.setValue("instructions", items)}
+                items={methods.getValues("instructions")}
+                onChange={(items) => methods.setValue("instructions", items)}
                 placeholder="Add instruction step"
                 disabled={loading}
                 error={formErrors.instructions?.message}
@@ -360,8 +361,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Helpful Tips"
-                items={form.getValues("tips")}
-                onChange={(items) => form.setValue("tips", items)}
+                items={methods.getValues("tips")}
+                onChange={(items) => methods.setValue("tips", items)}
                 placeholder="Add a pro tip"
                 disabled={loading}
                 error={formErrors.tips?.message}
@@ -369,7 +370,7 @@ const RecipeSubmissionDialog = ({
             </Card>
           </div>
         )}
-      </>
+      </FormProvider>
     );
   };
 
@@ -399,7 +400,7 @@ const RecipeSubmissionDialog = ({
         </DialogHeader>
         
         <ScrollArea className="h-[calc(90vh-12rem)] px-6 py-6">
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+          <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
             {renderStepContent()}
           </form>
         </ScrollArea>
@@ -427,7 +428,7 @@ const RecipeSubmissionDialog = ({
                 </Button>
                 {isLastStep ? (
                   <Button 
-                    onClick={form.handleSubmit(handleSubmit)}
+                    onClick={methods.handleSubmit(handleSubmit)}
                     disabled={loading}
                     className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px] gap-2"
                   >
@@ -462,4 +463,4 @@ const RecipeSubmissionDialog = ({
   );
 };
 
-export default RecipeSubmissionDialog; 
+export default RecipeSubmissionDialog;

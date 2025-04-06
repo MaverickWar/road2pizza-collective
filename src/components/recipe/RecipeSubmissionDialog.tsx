@@ -374,7 +374,6 @@ const RecipeSubmissionDialog = ({
   };
 
   const isLastStep = currentStep === totalSteps;
-  const progress = (currentStep / totalSteps) * 100;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -401,46 +400,7 @@ const RecipeSubmissionDialog = ({
         
         <ScrollArea className="h-[calc(90vh-12rem)] px-6 py-6">
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-            {submissionSuccess ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center space-y-6">
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle2 className="w-8 h-8 text-green-600" />
-                </div>
-                <div className="space-y-2 max-w-md">
-                  <h3 className="text-xl font-semibold text-green-600">Recipe Submitted Successfully!</h3>
-                  <p className="text-muted-foreground">
-                    Your recipe has been submitted and is pending review by our team.
-                    You can track its status in your dashboard.
-                  </p>
-                </div>
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={handleClose}
-                  >
-                    Close
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleClose();
-                      navigate('/dashboard', { 
-                        state: { 
-                          showRecipeStatus: true,
-                          recipeId: submittedRecipeId 
-                        }
-                      });
-                    }}
-                    className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold"
-                  >
-                    View in Dashboard
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                {renderStepContent()}
-              </>
-            )}
+            {renderStepContent()}
           </form>
         </ScrollArea>
 

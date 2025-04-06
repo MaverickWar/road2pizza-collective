@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,9 +80,8 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `recipe-images/${fileName}`;
+      const filePath = `${fileName}`;
 
-<<<<<<< HEAD
       console.log('Starting image upload:', {
         fileName,
         filePath,
@@ -91,9 +89,17 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
         fileType: file.type,
         bucket: BUCKET_NAME
       });
-=======
-      console.log('Uploading image to Supabase storage:', filePath);
->>>>>>> 8913ff31e399a07535027de0e865e1a5991a269d
+
+      // Check if we can access the bucket
+      const { data: bucketData, error: bucketError } = await supabase.storage
+        .getBucket(BUCKET_NAME);
+
+      if (bucketError) {
+        console.error('Bucket access error:', bucketError);
+        throw new Error(`Storage bucket access error: ${bucketError.message}`);
+      }
+
+      console.log('Bucket access confirmed:', bucketData);
 
       // Upload file
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -106,22 +112,23 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw uploadError;
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       console.log('Upload successful:', uploadData);
 
       // Get public URL
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
-      if (!data.publicUrl) {
+      if (!urlData.publicUrl) {
+        console.error('Failed to generate public URL');
         throw new Error('Failed to generate public URL');
       }
 
-      console.log('Public URL generated:', data.publicUrl);
-      onChange(data.publicUrl);
+      console.log('Public URL generated:', urlData.publicUrl);
+      onChange(urlData.publicUrl);
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);

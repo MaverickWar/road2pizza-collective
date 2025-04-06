@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,51 +14,15 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
-const BUCKET_NAME = 'recipes';
+// This is the primary storage bucket name used across the application
+const BUCKET_NAME = 'public';
+const PUBLIC_FOLDER = 'recipe-images';
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
-
-  const ensureStorageBucket = async () => {
-    try {
-      if (!user) {
-        console.error('User not authenticated');
-        return false;
-      }
-
-      // Try to get the bucket first
-      const { data: bucket, error: getBucketError } = await supabase.storage
-        .getBucket(BUCKET_NAME);
-
-      if (getBucketError) {
-        console.error('Error getting bucket:', getBucketError);
-        return false;
-      }
-
-      if (!bucket) {
-        console.log('Bucket not found, attempting to create:', BUCKET_NAME);
-        const { error: createError } = await supabase.storage
-          .createBucket(BUCKET_NAME, {
-            public: true,
-            allowedMimeTypes: ['image/*'],
-            fileSizeLimit: MAX_FILE_SIZE
-          });
-
-        if (createError) {
-          console.error('Error creating bucket:', createError);
-          return false;
-        }
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error ensuring storage bucket:', error);
-      return false;
-    }
-  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,18 +52,14 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       setUploading(true);
       setError(null);
 
-      // Ensure storage bucket exists
-      const bucketReady = await ensureStorageBucket();
-      if (!bucketReady) {
-        throw new Error('Storage is not available. Please try again later.');
-      }
+      console.log('Starting image upload process');
 
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`; // Store in user-specific folder
+      const filePath = `${PUBLIC_FOLDER}/${fileName}`; // Store in recipe-images folder
 
-      console.log('Starting image upload:', {
+      console.log('Upload parameters:', {
         fileName,
         filePath,
         fileSize: file.size,
@@ -107,7 +68,7 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
         userId: user.id
       });
 
-      // Upload file
+      // Upload file to the public bucket
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(filePath, file, {
@@ -139,7 +100,7 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
     } catch (error) {
       console.error('Error uploading image:', error);
       setError(error instanceof Error ? error.message : 'Failed to upload image. Please try again.');
-      toast.error('Failed to upload image. Please try again.');
+      toast.error('Failed to upload image. Please check the console for details.');
     } finally {
       setUploading(false);
       if (e.target) e.target.value = '';

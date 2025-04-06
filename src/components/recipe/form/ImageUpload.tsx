@@ -14,6 +14,10 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
+// Use the same bucket and folder as the main ImageUpload component
+const BUCKET_NAME = 'public';
+const PUBLIC_FOLDER = 'recipe-images';
+
 const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(currentImageUrl || '');
@@ -47,19 +51,22 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
   };
 
   const uploadFile = async (file: File) => {
-    console.log('Uploading file to Supabase storage');
+    console.log('Uploading file to Supabase storage bucket:', BUCKET_NAME);
     
     // Create a unique filename to prevent collisions
     const fileExt = file.name.split('.').pop();
     const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `recipe-images/${fileName}`;
+    const filePath = `${PUBLIC_FOLDER}/${fileName}`;
+
+    console.log('Uploading to path:', filePath);
 
     // Upload the file to Supabase storage
     const { error: uploadError } = await supabase.storage
-      .from('public')
+      .from(BUCKET_NAME)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: true,
+        contentType: file.type
       });
 
     if (uploadError) {
@@ -69,7 +76,7 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
 
     // Get the public URL of the uploaded file
     const { data: { publicUrl } } = supabase.storage
-      .from('public')
+      .from(BUCKET_NAME)
       .getPublicUrl(filePath);
 
     console.log('Image uploaded successfully, public URL:', publicUrl);

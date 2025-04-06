@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,10 @@ import { ReviewFormData } from "@/types/review";
 import { useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Use the same bucket and folder as the main ImageUpload component
+const BUCKET_NAME = 'public';
+const PUBLIC_FOLDER = 'recipe-images';
 
 interface MediaSectionProps {
   form: UseFormReturn<ReviewFormData>;
@@ -22,16 +27,23 @@ const MediaSection = ({ form }: MediaSectionProps) => {
       if (!file) return;
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${PUBLIC_FOLDER}/${fileName}`;
+
+      console.log('Uploading to', BUCKET_NAME, 'path:', filePath);
 
       const { error: uploadError } = await supabase.storage
-        .from('recipe-images')
-        .upload(filePath, file);
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('recipe-images')
+        .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
       form.setValue("imageUrl", publicUrl);
@@ -50,16 +62,21 @@ const MediaSection = ({ form }: MediaSectionProps) => {
       if (!file) return;
 
       const fileExt = file.name.split('.').pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${PUBLIC_FOLDER}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('recipe-images')
-        .upload(filePath, file);
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: file.type
+        });
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('recipe-images')
+        .from(BUCKET_NAME)
         .getPublicUrl(filePath);
 
       const currentImages = form.getValues("additionalImages") || [];

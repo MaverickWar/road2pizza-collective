@@ -74,19 +74,29 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       setLoading(true);
       console.log("Starting recipe submission...");
 
-      // Submit recipe with optimistic update
+      // Submit recipe with all required fields explicitly specified
       const { data: recipe, error } = await supabase
         .from("recipes")
-        .insert([{
-          ...data,
+        .insert({
+          title: data.title,
+          content: data.content,
+          image_url: data.image_url,
+          video_url: data.video_url || null,
+          video_provider: data.video_provider || null,
+          prep_time: data.prep_time || null,
+          cook_time: data.cook_time || null,
+          servings: data.servings || null,
+          difficulty: data.difficulty || null,
           ingredients,
           instructions,
           tips,
-          category_id: pizzaTypeId,
+          category_id: pizzaTypeId || null,
           created_by: user.id,
-          author: user.email,
+          author: user.email || "Anonymous",
           status: 'pending',
-        }])
+          approval_status: 'pending',
+          edit_requires_approval: true
+        })
         .select()
         .single();
 

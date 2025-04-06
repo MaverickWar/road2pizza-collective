@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,9 +42,9 @@ export const ImageUpload = ({ value, onChange, disabled = false }: ImageUploadPr
       // Generate a unique file name
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = `recipe-images/${fileName}`;
 
-      console.log('Uploading image:', { fileName, filePath });
+      console.log('Uploading image to Supabase storage:', filePath);
 
       // Upload file to Supabase Storage
       const { error: uploadError } = await supabase.storage

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -148,7 +147,6 @@ const RecipeSubmissionDialog = ({
       setLoading(true);
       console.log("Starting recipe submission...");
 
-      // Validate all required fields
       const validationResult = recipeSchema.safeParse(data);
       if (!validationResult.success) {
         console.error("Validation errors:", validationResult.error);
@@ -156,7 +154,6 @@ const RecipeSubmissionDialog = ({
         return;
       }
 
-      // Submit recipe
       const { data: recipe, error } = await supabase
         .from('recipes')
         .insert([{
@@ -184,7 +181,7 @@ const RecipeSubmissionDialog = ({
 
       if (error) {
         console.error("Database error:", error);
-        if (error.code === '23505') { // Unique constraint violation
+        if (error.code === '23505') {
           toast.error("A recipe with this title already exists");
         } else {
           toast.error("Failed to submit recipe. Please try again.");
@@ -211,7 +208,6 @@ const RecipeSubmissionDialog = ({
         setCurrentStep(prev => prev + 1);
       }
     } else {
-      // Show validation errors for the current step
       const fields = {
         1: ["title", "content", "image_url"],
         2: ["ingredients"],
@@ -400,7 +396,7 @@ const RecipeSubmissionDialog = ({
         </DialogHeader>
         
         <div className="relative flex-1 overflow-hidden">
-          <ScrollArea className="h-full px-6 py-6 pb-24">
+          <ScrollArea className="h-full px-6 py-6 pb-32">
             <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
               {renderStepContent()}
             </form>
@@ -408,7 +404,7 @@ const RecipeSubmissionDialog = ({
         </div>
 
         {!submissionSuccess && (
-          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-background shadow-md z-20">
+          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-background/95 backdrop-blur-sm shadow-md z-20">
             <div className="flex justify-between items-center max-w-4xl mx-auto">
               <Button 
                 type="button"

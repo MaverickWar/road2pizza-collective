@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -46,24 +47,34 @@ const ImageUpload = ({ onImageUploaded, currentImageUrl, disabled }: ImageUpload
   };
 
   const uploadFile = async (file: File) => {
+    console.log('Uploading file to Supabase storage');
+    
+    // Create a unique filename to prevent collisions
     const fileExt = file.name.split('.').pop();
-    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const filePath = `recipe-images/${fileName}`;
 
-    const { error: uploadError, data } = await supabase.storage
-      .from('recipe-images')
+    // Upload the file to Supabase storage
+    const { error: uploadError } = await supabase.storage
+      .from('public')
       .upload(filePath, file, {
         cacheControl: '3600',
         upsert: false
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Supabase storage upload error:', uploadError);
+      throw uploadError;
+    }
 
+    // Get the public URL of the uploaded file
     const { data: { publicUrl } } = supabase.storage
-      .from('recipe-images')
+      .from('public')
       .getPublicUrl(filePath);
 
-    console.log('Image uploaded successfully:', publicUrl);
+    console.log('Image uploaded successfully, public URL:', publicUrl);
     onImageUploaded(publicUrl);
+    setImageUrl(publicUrl);
     toast.success('Image uploaded successfully');
   };
 

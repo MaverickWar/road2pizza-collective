@@ -11,7 +11,7 @@ import { Loader2, ChevronRight, CheckCircle2, AlertCircle, ChevronLeft, Send } f
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -54,7 +54,7 @@ const RecipeSubmissionDialog = ({
   const [submittedRecipeId, setSubmittedRecipeId] = useState<string | null>(null);
   const totalSteps = 4;
 
-  const form = useForm<RecipeFormData>({
+  const methods = useForm<RecipeFormData>({
     resolver: zodResolver(recipeSchema),
     defaultValues: {
       title: "",
@@ -72,7 +72,7 @@ const RecipeSubmissionDialog = ({
     },
   });
 
-  const formErrors = form.formState.errors;
+  const formErrors = methods.formState.errors;
 
   const renderErrors = () => {
     const currentFields = {
@@ -115,12 +115,12 @@ const RecipeSubmissionDialog = ({
 
     currentFields.forEach((field) => {
       try {
-        recipeSchema.shape[field].parse(form.getValues(field as keyof RecipeFormData));
+        recipeSchema.shape[field].parse(methods.getValues(field as keyof RecipeFormData));
       } catch (error) {
         isValid = false;
         if (error instanceof z.ZodError) {
           error.errors.forEach((err) => {
-            form.setError(field as keyof RecipeFormData, {
+            methods.setError(field as keyof RecipeFormData, {
               type: "manual",
               message: err.message,
             });
@@ -147,7 +147,6 @@ const RecipeSubmissionDialog = ({
       setLoading(true);
       console.log("Starting recipe submission...");
 
-      // Validate all required fields
       const validationResult = recipeSchema.safeParse(data);
       if (!validationResult.success) {
         console.error("Validation errors:", validationResult.error);
@@ -155,7 +154,6 @@ const RecipeSubmissionDialog = ({
         return;
       }
 
-      // Submit recipe
       const { data: recipe, error } = await supabase
         .from('recipes')
         .insert([{
@@ -183,7 +181,7 @@ const RecipeSubmissionDialog = ({
 
       if (error) {
         console.error("Database error:", error);
-        if (error.code === '23505') { // Unique constraint violation
+        if (error.code === '23505') {
           toast.error("A recipe with this title already exists");
         } else {
           toast.error("Failed to submit recipe. Please try again.");
@@ -210,7 +208,6 @@ const RecipeSubmissionDialog = ({
         setCurrentStep(prev => prev + 1);
       }
     } else {
-      // Show validation errors for the current step
       const fields = {
         1: ["title", "content", "image_url"],
         2: ["ingredients"],
@@ -220,7 +217,7 @@ const RecipeSubmissionDialog = ({
 
       if (fields) {
         const errors = fields
-          .map(field => form.formState.errors[field as keyof RecipeFormData]?.message)
+          .map(field => formErrors[field as keyof RecipeFormData]?.message)
           .filter(Boolean);
         
         if (errors.length > 0) {
@@ -237,7 +234,7 @@ const RecipeSubmissionDialog = ({
   };
 
   const handleClose = () => {
-    form.reset();
+    methods.reset();
     setCurrentStep(1);
     setSubmissionSuccess(false);
     setSubmittedRecipeId(null);
@@ -285,7 +282,7 @@ const RecipeSubmissionDialog = ({
     }
 
     return (
-      <>
+      <FormProvider {...methods}>
         {currentStep === 1 && (
           <div className="space-y-8">
             <div className="space-y-2">
@@ -297,7 +294,7 @@ const RecipeSubmissionDialog = ({
             {renderErrors()}
             <Card className="p-6">
               <FormFields
-                form={form}
+                form={methods}
                 disabled={loading}
               />
             </Card>
@@ -316,8 +313,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Ingredients List"
-                items={form.getValues("ingredients")}
-                onChange={(items) => form.setValue("ingredients", items)}
+                items={methods.getValues("ingredients")}
+                onChange={(items) => methods.setValue("ingredients", items)}
                 placeholder="Add ingredient (e.g., 2 cups flour)"
                 disabled={loading}
                 error={formErrors.ingredients?.message}
@@ -338,8 +335,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Step-by-Step Instructions"
-                items={form.getValues("instructions")}
-                onChange={(items) => form.setValue("instructions", items)}
+                items={methods.getValues("instructions")}
+                onChange={(items) => methods.setValue("instructions", items)}
                 placeholder="Add instruction step"
                 disabled={loading}
                 error={formErrors.instructions?.message}
@@ -360,8 +357,8 @@ const RecipeSubmissionDialog = ({
             <Card className="p-6">
               <ListEditor
                 title="Helpful Tips"
-                items={form.getValues("tips")}
-                onChange={(items) => form.setValue("tips", items)}
+                items={methods.getValues("tips")}
+                onChange={(items) => methods.setValue("tips", items)}
                 placeholder="Add a pro tip"
                 disabled={loading}
                 error={formErrors.tips?.message}
@@ -369,7 +366,7 @@ const RecipeSubmissionDialog = ({
             </Card>
           </div>
         )}
-      </>
+      </FormProvider>
     );
   };
 
@@ -388,24 +385,26 @@ const RecipeSubmissionDialog = ({
                 <Progress value={(currentStep / totalSteps) * 100} className="flex-1" />
                 <div className="text-sm text-muted-foreground whitespace-nowrap">
                   Step {currentStep} of {totalSteps}:
-                  {currentStep === 1 && "Basic Information"}
-                  {currentStep === 2 && "Recipe Ingredients"}
-                  {currentStep === 3 && "Cooking Instructions"}
-                  {currentStep === 4 && "Pro Tips & Final Details"}
+                  {currentStep === 1 && " Basic Information"}
+                  {currentStep === 2 && " Recipe Ingredients"}
+                  {currentStep === 3 && " Cooking Instructions"}
+                  {currentStep === 4 && " Pro Tips & Final Details"}
                 </div>
               </div>
             </div>
           )}
         </DialogHeader>
         
-        <ScrollArea className="h-[calc(90vh-12rem)] px-6 py-6">
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
-            {renderStepContent()}
-          </form>
-        </ScrollArea>
+        <div className="relative flex-1 overflow-hidden">
+          <ScrollArea className="h-full px-6 py-6 pb-32">
+            <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
+              {renderStepContent()}
+            </form>
+          </ScrollArea>
+        </div>
 
         {!submissionSuccess && (
-          <div className="p-6 border-t sticky bottom-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-background/95 backdrop-blur-sm shadow-md z-20">
             <div className="flex justify-between items-center max-w-4xl mx-auto">
               <Button 
                 type="button"
@@ -427,7 +426,7 @@ const RecipeSubmissionDialog = ({
                 </Button>
                 {isLastStep ? (
                   <Button 
-                    onClick={form.handleSubmit(handleSubmit)}
+                    onClick={methods.handleSubmit(handleSubmit)}
                     disabled={loading}
                     className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px] gap-2"
                   >
@@ -462,4 +461,4 @@ const RecipeSubmissionDialog = ({
   );
 };
 
-export default RecipeSubmissionDialog; 
+export default RecipeSubmissionDialog;

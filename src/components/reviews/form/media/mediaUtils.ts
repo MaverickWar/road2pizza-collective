@@ -1,3 +1,4 @@
+
 import { UseFormReturn } from "react-hook-form";
 import { ReviewFormData } from "@/types/review";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,18 +13,29 @@ export const handleImageUpload = async (
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('Starting image upload for review');
+    
     const fileExt = file.name.split('.').pop();
-    const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    const filePath = `review-images/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('recipe-images')
-      .upload(filePath, file);
+      .from('public')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Error uploading to storage:', uploadError);
+      throw uploadError;
+    }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('recipe-images')
+      .from('public')
       .getPublicUrl(filePath);
+
+    console.log('Image uploaded successfully:', publicUrl);
 
     if (field === "imageUrl") {
       form.setValue("imageUrl", publicUrl);

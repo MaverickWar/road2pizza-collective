@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,35 +8,65 @@ import { useNavigate } from "react-router-dom";
 import ListEditor from "@/components/article/edit/ListEditor";
 import FormFields from "./form/FormFields";
 import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface RecipeSubmissionFormProps {
   pizzaTypeId?: string;
   onSuccess?: () => void;
 }
 
+const recipeSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  content: z.string().min(1, "Description is required"),
+  image_url: z.string().min(1, "Image is required"),
+  video_url: z.string().optional(),
+  video_provider: z.string().optional(),
+  prep_time: z.string().optional(),
+  cook_time: z.string().optional(),
+  servings: z.string().optional(),
+  difficulty: z.string().optional(),
+});
+
+type RecipeFormValues = z.infer<typeof recipeSchema>;
+
 const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    image_url: "",
-    video_url: "",
-    video_provider: "",
-    ingredients: [] as string[],
-    instructions: [] as string[],
-    tips: [] as string[],
-    prep_time: "",
-    cook_time: "",
-    servings: "",
-    difficulty: "",
+  const [ingredients, setIngredients] = useState<string[]>([]);
+  const [instructions, setInstructions] = useState<string[]>([]);
+  const [tips, setTips] = useState<string[]>([]);
+
+  const form = useForm<RecipeFormValues>({
+    resolver: zodResolver(recipeSchema),
+    defaultValues: {
+      title: "",
+      content: "",
+      image_url: "",
+      video_url: "",
+      video_provider: "",
+      prep_time: "",
+      cook_time: "",
+      servings: "",
+      difficulty: "",
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: RecipeFormValues) => {
     if (!user) {
       toast.error("Please login to submit a recipe");
+      return;
+    }
+
+    if (ingredients.length === 0) {
+      toast.error("Please add at least one ingredient");
+      return;
+    }
+
+    if (instructions.length === 0) {
+      toast.error("Please add at least one instruction");
       return;
     }
 
@@ -43,28 +74,35 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       setLoading(true);
       console.log("Starting recipe submission...");
 
-      // Validate required fields
-      if (!formData.title || !formData.content || !formData.image_url) {
-        toast.error("Please fill in all required fields");
-        return;
-      }
-
-      // Submit recipe with optimistic update
-      const { data, error } = await supabase
+      // Submit recipe with all required fields explicitly specified
+      const { data: recipe, error } = await supabase
         .from("recipes")
-        .insert([{
-          ...formData,
-          category_id: pizzaTypeId,
+        .insert({
+          title: data.title,
+          content: data.content,
+          image_url: data.image_url,
+          video_url: data.video_url || null,
+          video_provider: data.video_provider || null,
+          prep_time: data.prep_time || null,
+          cook_time: data.cook_time || null,
+          servings: data.servings || null,
+          difficulty: data.difficulty || null,
+          ingredients,
+          instructions,
+          tips,
+          category_id: pizzaTypeId || null,
           created_by: user.id,
-          author: user.email,
+          author: user.email || "Anonymous",
           status: 'pending',
-        }])
+          approval_status: 'pending',
+          edit_requires_approval: true
+        })
         .select()
         .single();
 
       if (error) throw error;
 
-      console.log("Recipe submitted successfully:", data);
+      console.log("Recipe submitted successfully:", recipe);
       toast.success("Recipe submitted successfully! It will be reviewed by our team.");
       onSuccess?.();
       
@@ -82,54 +120,33 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
     }
   };
 
-  const handleFieldChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleVideoUrlChange = (url: string) => {
-    let provider = '';
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      provider = 'youtube';
-    } else if (url.includes('vimeo.com')) {
-      provider = 'vimeo';
-    }
-    setFormData(prev => ({ 
-      ...prev, 
-      video_url: url,
-      video_provider: provider 
-    }));
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
       <FormFields
-        formData={formData}
-        onChange={handleFieldChange}
-        onImageUploaded={(url) => handleFieldChange('image_url', url)}
-        onVideoUrlChange={handleVideoUrlChange}
+        form={form}
         disabled={loading}
       />
 
       <ListEditor
         title="Ingredients"
-        items={formData.ingredients}
-        onChange={(items) => setFormData(prev => ({ ...prev, ingredients: items }))}
+        items={ingredients}
+        onChange={setIngredients}
         placeholder="Add ingredient"
         disabled={loading}
       />
 
       <ListEditor
         title="Instructions"
-        items={formData.instructions}
-        onChange={(items) => setFormData(prev => ({ ...prev, instructions: items }))}
+        items={instructions}
+        onChange={setInstructions}
         placeholder="Add instruction"
         disabled={loading}
       />
 
       <ListEditor
         title="Pro Tips"
-        items={formData.tips}
-        onChange={(items) => setFormData(prev => ({ ...prev, tips: items }))}
+        items={tips}
+        onChange={setTips}
         placeholder="Add tip"
         disabled={loading}
       />

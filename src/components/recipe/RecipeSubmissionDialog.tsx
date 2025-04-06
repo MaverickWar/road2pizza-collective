@@ -7,10 +7,31 @@ import { toast } from "sonner";
 import FormFields from "./form/FormFields";
 import ListEditor from "@/components/article/edit/ListEditor";
 import { Button } from "@/components/ui/button";
-import { Loader2, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Loader2, ChevronRight, CheckCircle2, AlertCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+const recipeSchema = z.object({
+  title: z.string().min(1, "Title is required").max(100, "Title is too long"),
+  content: z.string().min(1, "Description is required").max(2000, "Description is too long"),
+  image_url: z.string().min(1, "Image is required"),
+  video_url: z.string().optional(),
+  video_provider: z.string().optional(),
+  ingredients: z.array(z.string()).min(1, "At least one ingredient is required"),
+  instructions: z.array(z.string()).min(1, "At least one instruction step is required"),
+  tips: z.array(z.string()).optional(),
+  prep_time: z.string().optional(),
+  cook_time: z.string().optional(),
+  servings: z.string().optional(),
+  difficulty: z.string().optional(),
+});
+
+type RecipeFormData = z.infer<typeof recipeSchema>;
 
 interface RecipeSubmissionDialogProps {
   isOpen: boolean;
@@ -32,59 +53,59 @@ const RecipeSubmissionDialog = ({
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [submittedRecipeId, setSubmittedRecipeId] = useState<string | null>(null);
   const totalSteps = 4;
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    image_url: "",
-    video_url: "",
-    video_provider: "",
-    ingredients: [] as string[],
-    instructions: [] as string[],
-    tips: [] as string[],
-    prep_time: "",
-    cook_time: "",
-    servings: "",
-    difficulty: "",
+
+  const form = useForm<RecipeFormData>({
+    resolver: zodResolver(recipeSchema),
+    defaultValues: {
+      title: "",
+      content: "",
+      image_url: "",
+      video_url: "",
+      video_provider: "",
+      ingredients: [],
+      instructions: [],
+      tips: [],
+      prep_time: "",
+      cook_time: "",
+      servings: "",
+      difficulty: "",
+    },
   });
 
   const validateStep = (step: number) => {
-    switch (step) {
-      case 1:
-        if (!formData.title || !formData.content || !formData.image_url) {
-          toast.error("Please fill in all required fields in Basic Information");
-          return false;
+    const fields = {
+      1: ["title", "content", "image_url"],
+      2: ["ingredients"],
+      3: ["instructions"],
+      4: ["tips"],
+    } as const;
+
+    const currentFields = fields[step as keyof typeof fields];
+    let isValid = true;
+
+    currentFields.forEach((field) => {
+      try {
+        recipeSchema.shape[field].parse(form.getValues(field as keyof RecipeFormData));
+      } catch (error) {
+        isValid = false;
+        if (error instanceof z.ZodError) {
+          error.errors.forEach((err) => {
+            form.setError(field as keyof RecipeFormData, {
+              type: "manual",
+              message: err.message,
+            });
+          });
         }
-        return true;
-      case 2:
-        if (!formData.ingredients.length) {
-          toast.error("Please add at least one ingredient");
-          return false;
-        }
-        return true;
-      case 3:
-        if (!formData.instructions.length) {
-          toast.error("Please add at least one instruction step");
-          return false;
-        }
-        return true;
-      default:
-        return true;
-    }
+      }
+    });
+
+    return isValid;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: RecipeFormData) => {
     if (!user) {
       toast.error("Please login to submit a recipe");
       return;
-    }
-
-    // Validate all steps before submission
-    for (let step = 1; step <= totalSteps; step++) {
-      if (!validateStep(step)) {
-        setCurrentStep(step);
-        return;
-      }
     }
 
     try {
@@ -92,23 +113,35 @@ const RecipeSubmissionDialog = ({
       console.log("Starting recipe submission...");
 
       // Submit recipe
-      const { data, error } = await supabase
-        .from("recipes")
+      const { data: recipe, error } = await supabase
+        .from('recipes')
         .insert([{
-          ...formData,
+          title: data.title,
+          content: data.content,
+          image_url: data.image_url,
+          video_url: data.video_url || null,
+          video_provider: data.video_provider || null,
+          ingredients: data.ingredients,
+          instructions: data.instructions,
+          tips: data.tips || [],
+          prep_time: data.prep_time || null,
+          cook_time: data.cook_time || null,
+          servings: data.servings || null,
+          difficulty: data.difficulty || null,
           category_id: pizzaTypeId,
           created_by: user.id,
           author: user.email,
           status: 'pending',
           approval_status: 'pending',
+          edit_requires_approval: true,
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      console.log("Recipe submitted successfully:", data);
-      setSubmittedRecipeId(data.id);
+      console.log("Recipe submitted successfully:", recipe);
+      setSubmittedRecipeId(recipe.id);
       setSubmissionSuccess(true);
     } catch (error) {
       console.error("Error submitting recipe:", error);
@@ -116,24 +149,6 @@ const RecipeSubmissionDialog = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFieldChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleVideoUrlChange = (url: string) => {
-    let provider = '';
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      provider = 'youtube';
-    } else if (url.includes('vimeo.com')) {
-      provider = 'vimeo';
-    }
-    setFormData(prev => ({ 
-      ...prev, 
-      video_url: url,
-      video_provider: provider 
-    }));
   };
 
   const nextStep = () => {
@@ -149,21 +164,7 @@ const RecipeSubmissionDialog = ({
   };
 
   const handleClose = () => {
-    // Reset form state
-    setFormData({
-      title: "",
-      content: "",
-      image_url: "",
-      video_url: "",
-      video_provider: "",
-      ingredients: [],
-      instructions: [],
-      tips: [],
-      prep_time: "",
-      cook_time: "",
-      servings: "",
-      difficulty: "",
-    });
+    form.reset();
     setCurrentStep(1);
     setSubmissionSuccess(false);
     setSubmittedRecipeId(null);
@@ -210,16 +211,45 @@ const RecipeSubmissionDialog = ({
       );
     }
 
+    const errors = form.formState.errors;
+    const hasErrors = Object.keys(errors).length > 0;
+
+    const renderErrors = () => {
+      if (!hasErrors) return null;
+
+      const currentFields = {
+        1: ["title", "content", "image_url"],
+        2: ["ingredients"],
+        3: ["instructions"],
+        4: ["tips"],
+      }[currentStep];
+
+      const currentErrors = Object.entries(errors)
+        .filter(([key]) => currentFields?.includes(key))
+        .map(([_, error]) => error.message);
+
+      if (currentErrors.length === 0) return null;
+
+      return (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {currentErrors.map((error, index) => (
+              <div key={index}>{error}</div>
+            ))}
+          </AlertDescription>
+        </Alert>
+      );
+    };
+
     switch (currentStep) {
       case 1:
         return (
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+            {renderErrors()}
             <FormFields
-              formData={formData}
-              onChange={handleFieldChange}
-              onImageUploaded={(url) => handleFieldChange('image_url', url)}
-              onVideoUrlChange={handleVideoUrlChange}
+              form={form}
               disabled={loading}
             />
           </Card>
@@ -228,15 +258,17 @@ const RecipeSubmissionDialog = ({
         return (
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Ingredients</h3>
+            {renderErrors()}
             <p className="text-sm text-muted-foreground mb-4">
               List all ingredients needed for your recipe. Be specific with quantities and measurements.
             </p>
             <ListEditor
               title="Recipe Ingredients"
-              items={formData.ingredients}
-              onChange={(items) => setFormData(prev => ({ ...prev, ingredients: items }))}
+              items={form.getValues("ingredients")}
+              onChange={(items) => form.setValue("ingredients", items)}
               placeholder="Add ingredient (e.g., 2 cups flour)"
               disabled={loading}
+              error={errors.ingredients?.message}
             />
           </Card>
         );
@@ -244,15 +276,17 @@ const RecipeSubmissionDialog = ({
         return (
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Instructions</h3>
+            {renderErrors()}
             <p className="text-sm text-muted-foreground mb-4">
               Break down your recipe into clear, step-by-step instructions.
             </p>
             <ListEditor
               title="Step-by-Step Instructions"
-              items={formData.instructions}
-              onChange={(items) => setFormData(prev => ({ ...prev, instructions: items }))}
+              items={form.getValues("instructions")}
+              onChange={(items) => form.setValue("instructions", items)}
               placeholder="Add instruction step"
               disabled={loading}
+              error={errors.instructions?.message}
             />
           </Card>
         );
@@ -260,15 +294,17 @@ const RecipeSubmissionDialog = ({
         return (
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Pro Tips</h3>
+            {renderErrors()}
             <p className="text-sm text-muted-foreground mb-4">
               Share your expert tips to help others make this recipe successfully.
             </p>
             <ListEditor
               title="Helpful Tips"
-              items={formData.tips}
-              onChange={(items) => setFormData(prev => ({ ...prev, tips: items }))}
+              items={form.getValues("tips")}
+              onChange={(items) => form.setValue("tips", items)}
               placeholder="Add a pro tip"
               disabled={loading}
+              error={errors.tips?.message}
             />
           </Card>
         );
@@ -300,7 +336,7 @@ const RecipeSubmissionDialog = ({
         </DialogHeader>
         
         <ScrollArea className="h-[calc(90vh-12rem)] px-6">
-          <form onSubmit={handleSubmit} className="space-y-6 py-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-6">
             {renderStepContent()}
           </form>
         </ScrollArea>
@@ -325,7 +361,7 @@ const RecipeSubmissionDialog = ({
               </Button>
               {isLastStep ? (
                 <Button 
-                  onClick={handleSubmit}
+                  onClick={form.handleSubmit(handleSubmit)}
                   disabled={loading}
                   className="bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold min-w-[120px]"
                 >

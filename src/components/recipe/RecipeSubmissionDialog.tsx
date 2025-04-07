@@ -18,7 +18,7 @@ const RecipeSubmissionDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white p-6 shadow-lg border border-border rounded-lg">
-        <DialogHeader>
+        <DialogHeader className="pb-4 border-b border-gray-100">
           <DialogTitle className="text-2xl font-bold text-foreground">
             Submit Your {pizzaTypeName ? `${pizzaTypeName} ` : ''}Recipe
           </DialogTitle>

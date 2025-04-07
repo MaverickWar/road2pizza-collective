@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import ListEditor from "@/components/article/edit/ListEditor";
 import FormFields from "./form/FormFields";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -41,7 +41,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
   const [ingredientsError, setIngredientsError] = useState<string | null>(null);
   const [instructionsError, setInstructionsError] = useState<string | null>(null);
 
-  const form = useForm<RecipeFormValues>({
+  const methods = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
     defaultValues: {
       title: "",
@@ -136,53 +136,57 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
   };
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-      <FormFields
-        form={form}
-        disabled={loading}
-      />
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-6">
+        <FormFields
+          form={methods}
+          disabled={loading}
+        />
 
-      <ListEditor
-        title="Ingredients"
-        items={ingredients}
-        onChange={setIngredients}
-        placeholder="Add ingredient"
-        disabled={loading}
-        error={ingredientsError || undefined}
-      />
+        <div className="space-y-4">
+          <ListEditor
+            title="Ingredients"
+            items={ingredients}
+            onChange={setIngredients}
+            placeholder="Add ingredient"
+            disabled={loading}
+            error={ingredientsError || undefined}
+          />
 
-      <ListEditor
-        title="Instructions"
-        items={instructions}
-        onChange={setInstructions}
-        placeholder="Add instruction"
-        disabled={loading}
-        error={instructionsError || undefined}
-      />
+          <ListEditor
+            title="Instructions"
+            items={instructions}
+            onChange={setInstructions}
+            placeholder="Add instruction"
+            disabled={loading}
+            error={instructionsError || undefined}
+          />
 
-      <ListEditor
-        title="Pro Tips"
-        items={tips}
-        onChange={setTips}
-        placeholder="Add tip"
-        disabled={loading}
-      />
+          <ListEditor
+            title="Pro Tips"
+            items={tips}
+            onChange={setTips}
+            placeholder="Add tip"
+            disabled={loading}
+          />
+        </div>
 
-      <Button 
-        type="submit" 
-        disabled={loading} 
-        className="w-full bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold text-lg py-6"
-      >
-        {loading ? (
-          <>
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Submitting Recipe...
-          </>
-        ) : (
-          "Submit Recipe"
-        )}
-      </Button>
-    </form>
+        <Button 
+          type="submit" 
+          disabled={loading} 
+          className="w-full bg-highlight hover:bg-highlight-hover text-highlight-foreground font-semibold text-lg py-6"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Submitting Recipe...
+            </>
+          ) : (
+            "Submit Recipe"
+          )}
+        </Button>
+      </form>
+    </FormProvider>
   );
 };
 

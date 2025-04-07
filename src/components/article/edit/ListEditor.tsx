@@ -28,7 +28,7 @@ const ListEditor = ({
   const handleAddItem = () => {
     if (newItem.trim()) {
       const updatedItems = [...items, newItem.trim()];
-      console.log('Adding item:', { newItem, updatedItems });
+      console.log('Adding item:', { newItem, items, updatedItems });
       onChange(updatedItems);
       setNewItem("");
     }
@@ -49,7 +49,11 @@ const ListEditor = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white p-4 rounded-md border border-gray-100">
+      <Label className="text-sm font-medium text-gray-900">
+        {title}
+      </Label>
+      
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <Input
@@ -92,7 +96,7 @@ const ListEditor = ({
       )}
 
       {items.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-2 mt-4">
           <Label className="text-sm font-medium">
             {title} ({items.length})
           </Label>

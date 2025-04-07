@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Mail, Lock, User, ExternalLink, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -20,7 +21,7 @@ interface LoginDialogProps {
 }
 
 export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
-  const { handleLogin, handleForgotPassword, isLoading, formError } = useLogin();
+  const { handleLogin: originalHandleLogin, handleForgotPassword, isLoading, formError, setFormError } = useLogin();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [currentRecipeIndex, setCurrentRecipeIndex] = useState(0);
@@ -83,14 +84,27 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
 
   const currentRecipe = featuredRecipes[currentRecipeIndex];
 
-  const onSubmit = async (values: LoginFormValues) => {
+  // Wrap the original login handler to prevent closing on error
+  const handleLogin = async (values: LoginFormValues) => {
     if (showForgotPassword) {
       await handleForgotPassword(values.email);
       setShowForgotPassword(false);
       return;
     }
-    await handleLogin(values);
-    onClose();
+    
+    try {
+      // Call the original login handler
+      await originalHandleLogin(values);
+      
+      // Only close the dialog if there was no error
+      if (!formError) {
+        onClose();
+      }
+    } catch (error) {
+      // Error handling is already done in the original handler
+      console.error("Login failed:", error);
+      // Dialog remains open
+    }
   };
 
   const handleForgotPasswordClick = () => {
@@ -99,8 +113,8 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] p-0 gap-0 overflow-hidden rounded-2xl shadow-2xl backdrop-blur-sm animate-fade-up border-0">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !formError && onClose()}>
+      <DialogContent className="sm:max-w-[800px] p-0 gap-0 overflow-hidden rounded-2xl shadow-2xl border-0 bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Left side with dynamic recipe showcase - Hidden on mobile */}
           <div className="hidden md:block relative overflow-hidden">
@@ -169,9 +183,8 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
           </div>
 
           {/* Right side form */}
-          <div className="bg-white p-6 md:p-12 rounded-l-none rounded-r-lg relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-gray-50/30" />
-            <div className="relative z-10 space-y-6 md:space-y-8">
+          <div className="bg-white p-6 md:p-12 rounded-l-none rounded-r-lg relative">
+            <div className="space-y-6 md:space-y-8">
               <div className="space-y-2 text-center md:text-left">
                 <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
                   {showForgotPassword ? "Reset Password" : (isSignUp ? "Create Account" : "Welcome Back")}
@@ -192,7 +205,7 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                 </Alert>
               )}
 
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-6">
                 <div className="space-y-4">
                   {isSignUp && (
                     <div className="relative group">

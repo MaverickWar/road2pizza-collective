@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +55,7 @@ const ListEditor = ({
           <Input
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder={placeholder}
             disabled={disabled}
             className={cn(
@@ -95,7 +96,7 @@ const ListEditor = ({
           <Label className="text-sm font-medium">
             {title} ({items.length})
           </Label>
-          <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          <div className="space-y-2 max-h-[300px] overflow-y-auto p-2 border rounded-md bg-white">
             {items.map((item, index) => (
               <div
                 key={index}
@@ -108,7 +109,7 @@ const ListEditor = ({
                   size="icon"
                   onClick={() => handleRemoveItem(index)}
                   disabled={disabled}
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-8 w-8 opacity-70 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-4 h-4" />
                 </Button>

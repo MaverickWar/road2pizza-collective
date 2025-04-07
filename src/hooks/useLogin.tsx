@@ -142,6 +142,7 @@ export const useLogin = () => {
     showEmailConfirmAlert,
     isSendingReset,
     formError,
+    setFormError,
     handleLogin,
     handleForgotPassword
   };

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,20 +24,28 @@ const ListEditor = ({
   error
 }: ListEditorProps) => {
   const [newItem, setNewItem] = useState("");
+  const [localItems, setLocalItems] = useState<string[]>(items);
+
+  // Update local items when prop items change
+  useEffect(() => {
+    setLocalItems(items);
+  }, [items]);
 
   const handleAddItem = () => {
     if (newItem.trim()) {
-      const updatedItems = [...items, newItem.trim()];
-      console.log('Adding item:', { newItem, items, updatedItems });
+      const updatedItems = [...localItems, newItem.trim()];
+      console.log('Adding item:', { newItem, items: localItems, updatedItems });
+      setLocalItems(updatedItems);
       onChange(updatedItems);
       setNewItem("");
     }
   };
 
   const handleRemoveItem = (index: number) => {
-    const updatedItems = [...items];
+    const updatedItems = [...localItems];
     updatedItems.splice(index, 1);
     console.log('Removing item:', { index, updatedItems });
+    setLocalItems(updatedItems);
     onChange(updatedItems);
   };
 
@@ -95,13 +103,13 @@ const ListEditor = ({
         </p>
       )}
 
-      {items.length > 0 ? (
+      {localItems.length > 0 ? (
         <div className="space-y-2 mt-4">
           <Label className="text-sm font-medium">
-            {title} ({items.length})
+            {title} ({localItems.length})
           </Label>
           <div className="space-y-2 max-h-[300px] overflow-y-auto p-2 border rounded-md bg-white">
-            {items.map((item, index) => (
+            {localItems.map((item, index) => (
               <div
                 key={index}
                 className="flex items-center gap-2 p-2 rounded-md bg-muted group hover:bg-muted/80 transition-colors"

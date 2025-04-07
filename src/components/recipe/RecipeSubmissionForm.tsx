@@ -40,6 +40,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
   const [tips, setTips] = useState<string[]>([]);
   const [ingredientsError, setIngredientsError] = useState<string | null>(null);
   const [instructionsError, setInstructionsError] = useState<string | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const methods = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
@@ -82,6 +83,8 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       return;
     }
 
+    setSubmissionError(null);
+    
     try {
       setLoading(true);
       console.log("Starting recipe submission...");
@@ -119,7 +122,16 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
 
       console.log("Recipe submitted successfully:", recipe);
       toast.success("Recipe submitted successfully! It will be reviewed by our team.");
-      onSuccess?.();
+      
+      // Clear form and call success callback
+      methods.reset();
+      setIngredients([]);
+      setInstructions([]);
+      setTips([]);
+      
+      if (onSuccess) {
+        onSuccess();
+      }
       
       navigate("/dashboard", { 
         state: { 
@@ -127,8 +139,9 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
           recipeSubmitted: true 
         } 
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting recipe:", error);
+      setSubmissionError(error.message || "Failed to submit recipe. Please try again.");
       toast.error("Failed to submit recipe. Please try again.");
     } finally {
       setLoading(false);
@@ -142,6 +155,12 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
           form={methods}
           disabled={loading}
         />
+
+        {submissionError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
+            {submissionError}
+          </div>
+        )}
 
         <div className="space-y-4">
           <ListEditor

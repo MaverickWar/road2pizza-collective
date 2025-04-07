@@ -91,7 +91,7 @@ const ListEditor = ({
         </p>
       )}
 
-      {items.length > 0 && (
+      {items.length > 0 ? (
         <div className="space-y-2">
           <Label className="text-sm font-medium">
             {title} ({items.length})
@@ -117,7 +117,7 @@ const ListEditor = ({
             ))}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

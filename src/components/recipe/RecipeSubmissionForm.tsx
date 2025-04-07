@@ -38,6 +38,8 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [instructions, setInstructions] = useState<string[]>([]);
   const [tips, setTips] = useState<string[]>([]);
+  const [ingredientsError, setIngredientsError] = useState<string | null>(null);
+  const [instructionsError, setInstructionsError] = useState<string | null>(null);
 
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeSchema),
@@ -60,19 +62,32 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
       return;
     }
 
+    // Validate ingredients and instructions
+    let hasError = false;
     if (ingredients.length === 0) {
-      toast.error("Please add at least one ingredient");
-      return;
+      setIngredientsError("Please add at least one ingredient");
+      hasError = true;
+    } else {
+      setIngredientsError(null);
     }
 
     if (instructions.length === 0) {
-      toast.error("Please add at least one instruction");
+      setInstructionsError("Please add at least one instruction");
+      hasError = true;
+    } else {
+      setInstructionsError(null);
+    }
+
+    if (hasError) {
       return;
     }
 
     try {
       setLoading(true);
       console.log("Starting recipe submission...");
+      console.log("Ingredients:", ingredients);
+      console.log("Instructions:", instructions);
+      console.log("Tips:", tips);
 
       // Submit recipe with all required fields explicitly specified
       const { data: recipe, error } = await supabase
@@ -133,6 +148,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         onChange={setIngredients}
         placeholder="Add ingredient"
         disabled={loading}
+        error={ingredientsError || undefined}
       />
 
       <ListEditor
@@ -141,6 +157,7 @@ const RecipeSubmissionForm = ({ pizzaTypeId, onSuccess }: RecipeSubmissionFormPr
         onChange={setInstructions}
         placeholder="Add instruction"
         disabled={loading}
+        error={instructionsError || undefined}
       />
 
       <ListEditor

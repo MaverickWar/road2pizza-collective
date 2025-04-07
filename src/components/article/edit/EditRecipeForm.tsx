@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,8 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
   const [imageUrl, setImageUrl] = useState(recipe.image_url || "");
   const [videoUrl, setVideoUrl] = useState(recipe.video_url || "");
   const [videoProvider, setVideoProvider] = useState(recipe.video_provider || "");
+  const [ingredientsError, setIngredientsError] = useState<string | null>(null);
+  const [instructionsError, setInstructionsError] = useState<string | null>(null);
 
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -55,6 +58,26 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
   };
 
   const handleSubmit = async () => {
+    // Validate ingredients and instructions
+    let hasError = false;
+    if (ingredients.length === 0) {
+      setIngredientsError("Please add at least one ingredient");
+      hasError = true;
+    } else {
+      setIngredientsError(null);
+    }
+
+    if (instructions.length === 0) {
+      setInstructionsError("Please add at least one instruction");
+      hasError = true;
+    } else {
+      setInstructionsError(null);
+    }
+
+    if (hasError) {
+      return;
+    }
+
     await onSave({
       title,
       content,
@@ -168,6 +191,7 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
         onChange={setIngredients}
         placeholder="Add ingredient"
         disabled={isLoading}
+        error={ingredientsError || undefined}
       />
 
       <ListEditor
@@ -176,6 +200,7 @@ const EditRecipeForm = ({ recipe, onSave, onCancel, isLoading }: EditRecipeFormP
         onChange={setInstructions}
         placeholder="Add instruction"
         disabled={isLoading}
+        error={instructionsError || undefined}
       />
 
       <ListEditor

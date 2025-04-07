@@ -374,8 +374,8 @@ const RecipeSubmissionDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 bg-white border shadow-lg">
+        <DialogHeader className="px-6 py-4 border-b bg-white">
           {submissionSuccess ? (
             <DialogTitle>Recipe Submitted Successfully</DialogTitle>
           ) : (
@@ -395,8 +395,8 @@ const RecipeSubmissionDialog = ({
           )}
         </DialogHeader>
         
-        <div className="relative flex-1 overflow-hidden">
-          <ScrollArea className="h-full px-6 py-6 pb-32">
+        <div className="relative flex-1 overflow-hidden bg-white">
+          <ScrollArea className="h-full px-6 py-6 pb-32 bg-white">
             <form onSubmit={methods.handleSubmit(handleSubmit)} className="space-y-8">
               {renderStepContent()}
             </form>
@@ -404,7 +404,7 @@ const RecipeSubmissionDialog = ({
         </div>
 
         {!submissionSuccess && (
-          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-background/95 backdrop-blur-sm shadow-md z-20">
+          <div className="fixed bottom-0 left-0 right-0 p-6 border-t bg-white shadow-md z-20">
             <div className="flex justify-between items-center max-w-4xl mx-auto">
               <Button 
                 type="button"

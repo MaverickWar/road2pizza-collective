@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, Lock, User, ExternalLink } from "lucide-react";
+import { Mail, Lock, User, ExternalLink, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface LoginDialogProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ interface LoginDialogProps {
 }
 
 export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
-  const { handleLogin, handleForgotPassword, isLoading } = useLogin();
+  const { handleLogin, handleForgotPassword, isLoading, formError } = useLogin();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [currentRecipeIndex, setCurrentRecipeIndex] = useState(0);
@@ -181,6 +182,15 @@ export const LoginDialog = ({ isOpen, onClose }: LoginDialogProps) => {
                     : (isSignUp ? "Fill in your details below" : "Please enter your credentials")}
                 </p>
               </div>
+
+              {formError && (
+                <Alert variant="destructive" className="bg-red-50 border-red-200">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-700">
+                    {formError}
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-4">

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +11,7 @@ export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showEmailConfirmAlert, setShowEmailConfirmAlert] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const getErrorMessage = (error: AuthError) => {
     console.log('Auth error details:', {
@@ -50,12 +52,14 @@ export const useLogin = () => {
   const handleForgotPassword = async (email: string) => {
     try {
       setIsSendingReset(true);
+      setFormError(null);
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (error) {
         console.error('Password reset error:', error);
+        setFormError('Failed to send reset email. Please try again.');
         toast.error('Failed to send reset email. Please try again.');
         return;
       }
@@ -63,6 +67,7 @@ export const useLogin = () => {
       toast.success('Password reset email sent! Please check your inbox.');
     } catch (error) {
       console.error('Unexpected error during password reset:', error);
+      setFormError('An unexpected error occurred. Please try again.');
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsSendingReset(false);
@@ -73,6 +78,7 @@ export const useLogin = () => {
     try {
       setIsLoading(true);
       setShowEmailConfirmAlert(false);
+      setFormError(null);
       
       const email = values.email.toLowerCase().trim();
       const { password } = values;
@@ -87,6 +93,7 @@ export const useLogin = () => {
       if (error) {
         console.error('Login error:', error);
         const errorMessage = getErrorMessage(error);
+        setFormError(errorMessage);
         toast.error(errorMessage);
 
         if (error.message.includes('Email not confirmed')) {
@@ -118,10 +125,12 @@ export const useLogin = () => {
         }
       } else {
         console.error('No user data received from successful login');
+        setFormError('Login failed - please try again');
         toast.error('Login failed - please try again');
       }
     } catch (error) {
       console.error('Unexpected error during login:', error);
+      setFormError('An unexpected error occurred. Please try again.');
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -132,6 +141,7 @@ export const useLogin = () => {
     isLoading,
     showEmailConfirmAlert,
     isSendingReset,
+    formError,
     handleLogin,
     handleForgotPassword
   };

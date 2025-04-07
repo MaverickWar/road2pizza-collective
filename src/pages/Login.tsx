@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +10,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { loginFormSchema } from '@/types/auth';
 import { useLogin } from '@/hooks/useLogin';
 import MainLayout from '@/components/MainLayout';
+import { AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { isLoading, showEmailConfirmAlert, isSendingReset, handleLogin, handleForgotPassword } = useLogin();
+  const { isLoading, showEmailConfirmAlert, isSendingReset, formError, handleLogin, handleForgotPassword } = useLogin();
 
   const form = useForm({
     resolver: zodResolver(loginFormSchema),
@@ -35,6 +37,15 @@ export default function Login() {
             <Alert>
               <AlertDescription>
                 Please check your email to confirm your account before logging in.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {formError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4 mr-2" />
+              <AlertDescription>
+                {formError}
               </AlertDescription>
             </Alert>
           )}
